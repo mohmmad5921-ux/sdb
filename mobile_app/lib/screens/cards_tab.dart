@@ -28,6 +28,126 @@ class _CardsTabState extends State<CardsTab> {
     setState(() => loading = false);
   }
 
+  void _showIssueDialog() async {
+    // Fetch accounts first
+    List accounts = [];
+    bool loadingAccounts = true;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setSheetState) {
+        if (loadingAccounts) {
+          ApiService.getAccounts().then((r) {
+            if (r['success'] == true) {
+              final d = r['data'];
+              final list = d is List ? d : d?['accounts'] ?? d?['data'] ?? [];
+              setSheetState(() { accounts = List.from(list); loadingAccounts = false; });
+            } else {
+              setSheetState(() => loadingAccounts = false);
+            }
+          });
+        }
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            // Handle bar
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
+            const SizedBox(height: 20),
+            Row(children: [
+              Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
+                child: Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
+              const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('إصدار بطاقة جديدة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                Text('اختر الحساب المرتبط', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+              ]),
+            ]),
+            const SizedBox(height: 20),
+
+            if (loadingAccounts)
+              const Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator(color: AppTheme.primary))
+            else if (accounts.isEmpty)
+              Padding(padding: const EdgeInsets.all(30), child: Column(children: [
+                Icon(Icons.account_balance_wallet_outlined, size: 40, color: AppTheme.textMuted),
+                const SizedBox(height: 10),
+                const Text('لا توجد حسابات', style: TextStyle(color: AppTheme.textSecondary)),
+              ]))
+            else
+              ...accounts.map((acc) {
+                final code = acc['currency']?['code'] ?? '';
+                final symbol = acc['currency']?['symbol'] ?? '€';
+                final balance = acc['balance'] ?? 0;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: GestureDetector(
+                    onTap: () => _issueCard(acc['id'], ctx),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppTheme.border),
+                      ),
+                      child: Row(children: [
+                        Container(
+                          width: 40, height: 40,
+                          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12)),
+                          child: Center(child: Text(symbol, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.primary))),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('حساب $code', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                          Text('الرصيد: $balance $symbol', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                        ])),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textMuted),
+                      ]),
+                    ),
+                  ),
+                );
+              }),
+          ]),
+        );
+      }),
+    );
+  }
+
+  Future<void> _issueCard(int accountId, BuildContext sheetCtx) async {
+    Navigator.pop(sheetCtx);
+    // Show loading
+    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
+
+    final r = await ApiService.issueCard(accountId);
+
+    if (mounted) Navigator.pop(context); // close loading
+
+    if (r['success'] == true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('✅ تم إصدار البطاقة بنجاح!'), backgroundColor: AppTheme.success, behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        );
+      }
+      _load(); // Refresh cards
+    } else {
+      final msg = r['data']?['message'] ?? 'فشل إصدار البطاقة';
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ $msg'), backgroundColor: AppTheme.danger, behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,14 +162,17 @@ class _CardsTabState extends State<CardsTab> {
                 child: Row(children: [
                   const Text('بطاقاتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(100)),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.add_rounded, size: 16, color: AppTheme.primary),
-                      const SizedBox(width: 4),
-                      const Text('إصدار بطاقة', style: TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w600)),
-                    ]),
+                  GestureDetector(
+                    onTap: () => _showIssueDialog(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(100)),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.add_rounded, size: 16, color: AppTheme.primary),
+                        const SizedBox(width: 4),
+                        const Text('إصدار بطاقة', style: TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w600)),
+                      ]),
+                    ),
                   ),
                 ]),
               )),
