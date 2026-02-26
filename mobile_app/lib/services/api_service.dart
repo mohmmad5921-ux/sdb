@@ -101,7 +101,8 @@ class ApiService {
 
   // Issue Card
   static Future<Map<String, dynamic>> issueCard(int accountId) async {
-    final r = await http.post(Uri.parse('$baseUrl/cards/issue'), headers: await _headers(), body: jsonEncode({'account_id': accountId}));
+    final body = accountId > 0 ? {'account_id': accountId} : <String, dynamic>{};
+    final r = await http.post(Uri.parse('$baseUrl/cards/issue'), headers: await _headers(), body: jsonEncode(body));
     return {'success': r.statusCode == 200 || r.statusCode == 201, 'data': jsonDecode(r.body), 'status': r.statusCode};
   }
 

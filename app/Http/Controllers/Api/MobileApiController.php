@@ -300,14 +300,31 @@ class MobileApiController extends Controller
 
     public function issueCard(Request $request)
     {
-        $request->validate(['account_id' => 'required|exists:accounts,id']);
+        $request->validate(['account_id' => 'nullable|exists:accounts,id']);
 
-        $account = Account::where('id', $request->account_id)
-            ->where('user_id', $request->user()->id)->firstOrFail();
+        $user = $request->user();
+
+        if ($request->account_id) {
+            $account = Account::where('id', $request->account_id)
+                ->where('user_id', $user->id)->firstOrFail();
+        } else {
+            // Auto-create default EUR account if user has none
+            $account = $user->accounts()->first();
+            if (!$account) {
+                $eur = Currency::where('code', 'EUR')->first();
+                $account = Account::create([
+                    'user_id' => $user->id,
+                    'currency_id' => $eur ? $eur->id : 1,
+                    'account_number' => 'SDB' . strtoupper(bin2hex(random_bytes(6))),
+                    'balance' => 0,
+                    'status' => 'active',
+                ]);
+            }
+        }
 
         try {
-            $card = $this->cardService->issueCard($request->user(), $account);
-            return response()->json(['card' => $card, 'message' => 'Card issued']);
+            $card = $this->cardService->issueCard($user, $account);
+            return response()->json(['card' => $card->load('account.currency'), 'message' => 'Card issued']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }

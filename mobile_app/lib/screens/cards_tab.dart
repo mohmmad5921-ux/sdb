@@ -77,11 +77,33 @@ class _CardsTabState extends State<CardsTab> {
             if (loadingAccounts)
               const Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator(color: AppTheme.primary))
             else if (accounts.isEmpty)
-              Padding(padding: const EdgeInsets.all(30), child: Column(children: [
-                Icon(Icons.account_balance_wallet_outlined, size: 40, color: AppTheme.textMuted),
-                const SizedBox(height: 10),
-                const Text('لا توجد حسابات', style: TextStyle(color: AppTheme.textSecondary)),
-              ]))
+              Padding(padding: const EdgeInsets.all(20), child: GestureDetector(
+                onTap: () => _issueCard(0, ctx),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15)),
+                  ),
+                  child: Column(children: [
+                    Container(
+                      width: 56, height: 56,
+                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(18)),
+                      child: Icon(Icons.credit_card_rounded, size: 28, color: AppTheme.primary),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text('إصدار بطاقة رقمية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                    const SizedBox(height: 4),
+                    Text('سيتم إنشاء حساب EUR تلقائياً', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(12)),
+                      child: const Text('إصدار الآن', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                    ),
+                  ]),
+                ),
+              ))
             else
               ...accounts.map((acc) {
                 final code = acc['currency']?['code'] ?? '';
