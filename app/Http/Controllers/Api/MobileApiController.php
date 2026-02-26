@@ -149,6 +149,7 @@ class MobileApiController extends Controller
         $unreadNotifications = $user->notifications()->where('is_read', false)->count();
 
         return response()->json([
+            'user' => $this->formatUser($user),
             'accounts' => $accounts,
             'cards' => $cards->map(fn($c) => [
                 'id' => $c->id,
