@@ -45,7 +45,7 @@ const navItems = [
   { label: 'الرئيسية', icon: '🏦', route: 'dashboard', active: true },
   { label: 'المعاملات', icon: '💸', route: 'banking.transactions' },
   { label: 'التحليلات', icon: '📊', route: 'banking.analytics' },
-  { label: 'البطاقات', icon: '💳', route: 'banking.cards.details', needsCard: true },
+  { label: 'البطاقات', icon: '💳', route: 'banking.cards.show', needsCard: true },
   { label: 'المستفيدون', icon: '👥', route: 'banking.beneficiaries' },
   { label: 'KYC', icon: '🪪', route: 'banking.kyc' },
   { label: 'الإشعارات', icon: '🔔', route: 'banking.notifications', badge: props.notifCount },
@@ -187,7 +187,7 @@ const navItems = [
                                     </div>
                                     <div class="mt-3 flex gap-2">
                                         <Link :href="route('banking.cards.toggle-freeze', card.id)" method="post" as="button" class="text-[10px] px-3 py-1 bg-white/10 rounded-lg hover:bg-white/20 transition text-white/70">{{ card.status === 'active' ? '❄️ تجميد' : '🔓 تفعيل' }}</Link>
-                                        <Link :href="route('banking.cards.details', card.id)" class="text-[10px] px-3 py-1 bg-white/10 rounded-lg hover:bg-white/20 transition text-white/70">⚙️ إدارة</Link>
+                                        <Link :href="route('banking.cards.show', card.id)" class="text-[10px] px-3 py-1 bg-white/10 rounded-lg hover:bg-white/20 transition text-white/70">⚙️ إدارة</Link>
                                     </div>
                                 </div>
                             </div>
