@@ -34,19 +34,37 @@ class _TransactionsTabState extends State<TransactionsTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('💸 المعاملات')),
-      body: Column(children: [
-        // Filters
+      body: SafeArea(child: Column(children: [
+        // Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Row(children: [
+            const Text('المعاملات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+            const Spacer(),
+            Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
+              child: Icon(Icons.search_rounded, color: Colors.white.withValues(alpha: 0.4), size: 20),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 16),
+        // Filter Chips
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(children: [
-              _chip('الكل', 'all'), _chip('تحويل', 'transfer'), _chip('إيداع', 'deposit'),
-              _chip('صرف', 'exchange'), _chip('دفع', 'card_payment'),
+              _chip('الكل', 'all', Icons.list_rounded),
+              _chip('تحويل', 'transfer', Icons.arrow_upward_rounded),
+              _chip('إيداع', 'deposit', Icons.add_rounded),
+              _chip('صرف', 'exchange', Icons.currency_exchange_rounded),
+              _chip('دفع', 'card_payment', Icons.shopping_bag_outlined),
             ]),
           ),
         ),
+        const SizedBox(height: 16),
+        // Transaction List
         Expanded(
           child: loading
             ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
@@ -54,57 +72,89 @@ class _TransactionsTabState extends State<TransactionsTab> {
                 color: AppTheme.primary,
                 onRefresh: _load,
                 child: txs.isEmpty
-                  ? ListView(children: [const SizedBox(height: 100), Center(child: Text('لا توجد معاملات', style: TextStyle(color: Colors.white.withValues(alpha: 0.4))))])
+                  ? ListView(children: [
+                      const SizedBox(height: 80),
+                      Center(child: Column(children: [
+                        Container(
+                          width: 80, height: 80,
+                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(24)),
+                          child: Icon(Icons.receipt_long_outlined, size: 36, color: Colors.white.withValues(alpha: 0.15)),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('لا توجد معاملات', style: TextStyle(fontSize: 16, color: Colors.white.withValues(alpha: 0.3))),
+                      ])),
+                    ])
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: txs.length,
-                      itemBuilder: (_, i) {
-                        final t = txs[i];
-                        final icons = {'transfer': '↗', 'deposit': '💳', 'exchange': '💱', 'card_payment': '💸', 'fee': '📎', 'refund': '↩'};
-                        final labels = {'transfer': 'تحويل', 'deposit': 'إيداع', 'exchange': 'صرف', 'card_payment': 'دفع', 'fee': 'رسوم', 'refund': 'استرداد'};
-                        final statusC = {'completed': AppTheme.success, 'pending': AppTheme.warning, 'failed': AppTheme.danger};
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
-                          child: Row(children: [
-                            Container(width: 40, height: 40, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
-                              child: Center(child: Text(icons[t['type']] ?? '💸', style: const TextStyle(fontSize: 20)))),
-                            const SizedBox(width: 12),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(labels[t['type']] ?? '${t['type']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
-                              const SizedBox(height: 2),
-                              Text(t['description'] ?? t['reference_number'] ?? '', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.3))),
-                              if (t['created_at'] != null) Text(DateFormat('yyyy-MM-dd HH:mm').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()), style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.2))),
-                            ])),
-                            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                              Text('${fmt(t['amount'])} ${t['currency']?['symbol'] ?? '€'}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: statusC[t['status']] ?? Colors.white)),
-                              Text(t['status'] == 'completed' ? 'مكتمل' : t['status'] == 'pending' ? 'معلق' : t['status'] == 'failed' ? 'فشل' : '${t['status']}',
-                                style: TextStyle(fontSize: 10, color: statusC[t['status']] ?? AppTheme.textMuted)),
-                            ]),
-                          ]),
-                        );
-                      },
+                      itemBuilder: (_, i) => _txItem(txs[i]),
                     ),
               ),
         ),
+      ])),
+    );
+  }
+
+  Widget _txItem(Map<String, dynamic> t) {
+    final type = '${t['type'] ?? ''}';
+    final icons = {'transfer': Icons.arrow_upward_rounded, 'deposit': Icons.add_rounded, 'exchange': Icons.currency_exchange_rounded, 'card_payment': Icons.shopping_bag_outlined, 'fee': Icons.receipt_outlined};
+    final colors = {'transfer': const Color(0xFF6366F1), 'deposit': AppTheme.success, 'exchange': const Color(0xFFF59E0B), 'card_payment': const Color(0xFFEC4899), 'fee': AppTheme.textMuted};
+    final labels = {'transfer': 'تحويل', 'deposit': 'إيداع', 'exchange': 'صرف عملات', 'card_payment': 'دفع بالبطاقة', 'fee': 'رسوم'};
+    final statusLabels = {'completed': 'مكتمل', 'pending': 'معلق', 'failed': 'فاشل'};
+    final statusColors = {'completed': AppTheme.success, 'pending': AppTheme.warning, 'failed': AppTheme.danger};
+    final c = colors[type] ?? AppTheme.primary;
+    final status = '${t['status'] ?? ''}';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
+      ),
+      child: Row(children: [
+        Container(
+          width: 46, height: 46,
+          decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+          child: Icon(icons[type] ?? Icons.swap_horiz_rounded, color: c, size: 22),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(labels[type] ?? type, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
+          const SizedBox(height: 3),
+          Row(children: [
+            Text(t['created_at'] != null ? DateFormat('MMM dd').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()) : '', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.2))),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(color: (statusColors[status] ?? AppTheme.textMuted).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+              child: Text(statusLabels[status] ?? status, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: statusColors[status] ?? AppTheme.textMuted)),
+            ),
+          ]),
+        ])),
+        Text('${type == 'deposit' ? '+' : '-'}${fmt(t['amount'])}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: type == 'deposit' ? AppTheme.success : Colors.white)),
       ]),
     );
   }
 
-  Widget _chip(String label, String value) {
+  Widget _chip(String label, String value, IconData icon) {
     final active = filter == value;
     return GestureDetector(
       onTap: () { setState(() => filter = value); _load(); },
       child: Container(
         margin: const EdgeInsets.only(left: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: active ? AppTheme.primary.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.04),
+          color: active ? AppTheme.primary.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: active ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.border),
+          border: Border.all(color: active ? AppTheme.primary.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05)),
         ),
-        child: Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? AppTheme.primary : AppTheme.textMuted)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 14, color: active ? AppTheme.primary : AppTheme.textMuted),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? AppTheme.primary : AppTheme.textMuted)),
+        ]),
       ),
     );
   }

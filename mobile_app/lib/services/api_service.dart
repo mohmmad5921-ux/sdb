@@ -22,7 +22,7 @@ class ApiService {
 
   // Auth
   static Future<Map<String, dynamic>> login(String email, String password) async {
-    final r = await http.post(Uri.parse('$baseUrl/auth/login'), headers: await _headers(), body: jsonEncode({'email': email, 'password': password}));
+    final r = await http.post(Uri.parse('$baseUrl/auth/login'), headers: await _headers(), body: jsonEncode({'email': email, 'password': password, 'device_name': 'SDB Mobile App'}));
     final data = jsonDecode(r.body);
     if (r.statusCode == 200 && data['token'] != null) {
       await setToken(data['token']);
