@@ -1,35 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
-import 'services/api_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/transfer_screen.dart';
+import 'screens/deposit_screen.dart';
+import 'screens/exchange_screen.dart';
+import 'screens/notifications_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
+    statusBarBrightness: Brightness.dark,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppTheme.bgDark,
   ));
   runApp(const SDBApp());
 }
 
 class SDBApp extends StatelessWidget {
   const SDBApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SDB Banking',
       debugShowCheckedModeBanner: false,
+      title: 'SDB Banking',
       theme: AppTheme.darkTheme,
-      home: const SplashScreen(),
+      initialRoute: '/',
       routes: {
+        '/': (_) => const SplashScreen(),
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const HomeScreen(),
+        '/transfer': (_) => const TransferScreen(),
+        '/deposit': (_) => const DepositScreen(),
+        '/exchange': (_) => const ExchangeScreen(),
+        '/notifications': (_) => const NotificationsScreen(),
       },
     );
   }

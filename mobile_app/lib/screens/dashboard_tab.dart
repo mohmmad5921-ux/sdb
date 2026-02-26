@@ -72,7 +72,7 @@ class _DashboardTabState extends State<DashboardTab> {
               const SizedBox(width: 8),
               // Notifications
               Stack(children: [
-                _iconBtn(Icons.notifications_none_rounded, () {}),
+                _iconBtn(Icons.notifications_none_rounded, () => Navigator.pushNamed(context, '/notifications')),
                 if (unread > 0) Positioned(right: 4, top: 4, child: Container(
                   width: 16, height: 16, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.danger),
                   child: Center(child: Text('$unread', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white))),
@@ -164,15 +164,15 @@ class _DashboardTabState extends State<DashboardTab> {
           SliverToBoxAdapter(child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
             child: Row(children: [
-              _actionBtn(Icons.arrow_upward_rounded, 'تحويل', const Color(0xFF6366F1)),
+              _actionBtn(Icons.arrow_upward_rounded, 'تحويل', const Color(0xFF6366F1), () => Navigator.pushNamed(context, '/transfer')),
               const SizedBox(width: 10),
-              _actionBtn(Icons.add_rounded, 'إيداع', const Color(0xFF10B981)),
+              _actionBtn(Icons.add_rounded, 'إيداع', const Color(0xFF10B981), () => Navigator.pushNamed(context, '/deposit')),
               const SizedBox(width: 10),
-              _actionBtn(Icons.currency_exchange_rounded, 'صرف', const Color(0xFFF59E0B)),
+              _actionBtn(Icons.currency_exchange_rounded, 'صرف', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
               const SizedBox(width: 10),
-              _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899)),
+              _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899), () {}),
               const SizedBox(width: 10),
-              _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4)),
+              _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4), () {}),
             ]),
           )),
 
@@ -316,15 +316,18 @@ class _DashboardTabState extends State<DashboardTab> {
 
   Widget _vDiv() => Container(width: 1, height: 30, margin: const EdgeInsets.symmetric(horizontal: 4), color: Colors.white.withValues(alpha: 0.05));
 
-  Widget _actionBtn(IconData icon, String label, Color c) => Expanded(child: Column(children: [
-    Container(
-      width: 52, height: 52,
-      decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(16), border: Border.all(color: c.withValues(alpha: 0.1))),
-      child: Icon(icon, color: c, size: 22),
-    ),
-    const SizedBox(height: 8),
-    Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
-  ]));
+  Widget _actionBtn(IconData icon, String label, Color c, VoidCallback onTap) => Expanded(child: GestureDetector(
+    onTap: onTap,
+    child: Column(children: [
+      Container(
+        width: 52, height: 52,
+        decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(16), border: Border.all(color: c.withValues(alpha: 0.1))),
+        child: Icon(icon, color: c, size: 22),
+      ),
+      const SizedBox(height: 8),
+      Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
+    ]),
+  ));
 
   Widget _sectionHeader(String title, String action) => Row(children: [
     Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
