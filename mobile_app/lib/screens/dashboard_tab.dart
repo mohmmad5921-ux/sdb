@@ -60,6 +60,14 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
 
   String fmt(dynamic a) => NumberFormat('#,##0.00').format(double.tryParse('$a') ?? 0);
 
+  String _fmtExpiry(dynamic raw) {
+    if (raw == null) return '';
+    final s = '$raw';
+    if (s.length <= 5) return s;
+    try { return DateFormat('MM/yy').format(DateTime.parse(s)); }
+    catch (_) { return s.length >= 7 ? '${s.substring(5, 7)}/${s.substring(2, 4)}' : s; }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
@@ -500,7 +508,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
         Row(children: [
           Text('${c['card_holder_name'] ?? ''}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
           const Spacer(),
-          Text('${c['expiry_date'] ?? ''}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
+          Text(_fmtExpiry(c['expiry_date']), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
         ]),
       ])),
     ]),

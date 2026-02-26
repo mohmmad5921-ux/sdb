@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -124,7 +125,7 @@ class _CardsTabState extends State<CardsTab> {
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                   Text('EXPIRES', style: TextStyle(fontSize: 8, color: Colors.white.withValues(alpha: 0.25), letterSpacing: 1.5)),
                   const SizedBox(height: 3),
-                  Text('${card['expiry_date'] ?? ''}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7))),
+                  Text(_fmtExpiry(card['expiry_date']), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7))),
                 ]),
               ]),
             ])),
@@ -143,6 +144,21 @@ class _CardsTabState extends State<CardsTab> {
         ]),
       ]),
     );
+  }
+
+  String _fmtExpiry(dynamic raw) {
+    if (raw == null) return '';
+    final s = '$raw';
+    // Already short format like "12/28"
+    if (s.length <= 5) return s;
+    try {
+      final d = DateTime.parse(s);
+      return DateFormat('MM/yy').format(d);
+    } catch (_) {
+      // Fallback: extract from ISO string "2028-12-31..."
+      if (s.length >= 7) return '${s.substring(5, 7)}/${s.substring(2, 4)}';
+      return s;
+    }
   }
 
   Widget _cardAction(IconData icon, String label, VoidCallback onTap) {
