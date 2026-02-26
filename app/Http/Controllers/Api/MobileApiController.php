@@ -226,6 +226,7 @@ class MobileApiController extends Controller
             'from_account_id' => 'required|exists:accounts,id',
             'to_account_id' => 'required|exists:accounts,id',
             'amount' => 'required|numeric|min:0.01',
+            'rate' => 'nullable|numeric|min:0.0001',
         ]);
 
         $from = Account::where('id', $request->from_account_id)
@@ -234,9 +235,18 @@ class MobileApiController extends Controller
             ->where('user_id', $request->user()->id)->firstOrFail();
 
         try {
-            $rate = $this->currencyService->getRate($from->currency_id, $to->currency_id);
+            // Use client-provided live rate if available, otherwise fallback to server rate
+            $rate = $request->rate
+                ? (float) $request->rate
+                : $this->currencyService->getRate($from->currency_id, $to->currency_id);
+
             $transaction = $this->transactionService->exchange($from, $to, $request->amount, $rate);
-            return response()->json(['transaction' => $transaction, 'message' => 'Exchange completed']);
+            return response()->json([
+                'transaction' => $transaction,
+                'rate' => $rate,
+                'converted_amount' => round($request->amount * $rate, 2),
+                'message' => 'Exchange completed',
+            ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -342,6 +352,28 @@ class MobileApiController extends Controller
             'exchangeRates' => \App\Models\ExchangeRate::with(['fromCurrency', 'toCurrency'])->where('is_active', true)->get(),
         ]);
     }
+
+    /* ==================== HELPERS ==================== */
+
+    private function formatUser($user): array
+    {
+        return [
+            'id' => $user->id,
+            'full_name' => $user->full_name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'status' => $user->status,
+            'kyc_status' => $user->kyc_status,
+            'nationality' => $user->nationality,
+            'date_of_birth' => $user->date_of_birth?->toDateString(),
+            'address' => $user->address,
+            'city' => $user->city,
+            'country' => $user->country,
+            'preferred_language' => $user->preferred_language,
+            'role' => $user->role,
+        ];
+    }
+}   }
 
     /* ==================== HELPERS ==================== */
 

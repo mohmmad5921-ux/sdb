@@ -74,7 +74,20 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
   }
 
-  // Exchange
+  // Live Exchange Rate (Frankfurter API — ECB data, free, no key)
+  static Future<Map<String, dynamic>> getLiveRate(String from, String to) async {
+    try {
+      final r = await http.get(Uri.parse('https://api.frankfurter.app/latest?from=$from&to=$to'));
+      if (r.statusCode == 200) {
+        final data = jsonDecode(r.body);
+        final rate = (data['rates'] as Map<String, dynamic>?)?[to];
+        return {'success': true, 'rate': rate ?? 0.0, 'from': from, 'to': to, 'date': data['date'] ?? ''};
+      }
+    } catch (_) {}
+    return {'success': false, 'rate': 0.0};
+  }
+
+  // Exchange (with locked rate)
   static Future<Map<String, dynamic>> exchange(Map<String, dynamic> data) async {
     final r = await http.post(Uri.parse('$baseUrl/exchange'), headers: await _headers(), body: jsonEncode(data));
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
