@@ -22,9 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(index: _tab, children: _tabs),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppTheme.bgSurface,
-          border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, -5))],
+          color: AppTheme.bgCard,
+          border: Border(top: BorderSide(color: AppTheme.border.withValues(alpha: 0.5))),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, -5))],
         ),
         child: SafeArea(
           child: Padding(

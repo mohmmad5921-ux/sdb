@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -35,21 +35,19 @@ class _TransactionsTabState extends State<TransactionsTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(child: Column(children: [
-        // Header
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
           child: Row(children: [
-            const Text('المعاملات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+            const Text('المعاملات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const Spacer(),
             Container(
               width: 40, height: 40,
-              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
-              child: Icon(Icons.search_rounded, color: Colors.white.withValues(alpha: 0.4), size: 20),
+              decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.border)),
+              child: Icon(Icons.search_rounded, color: AppTheme.textMuted, size: 20),
             ),
           ]),
         ),
         const SizedBox(height: 16),
-        // Filter Chips
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SingleChildScrollView(
@@ -64,7 +62,6 @@ class _TransactionsTabState extends State<TransactionsTab> {
           ),
         ),
         const SizedBox(height: 16),
-        // Transaction List
         Expanded(
           child: loading
             ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
@@ -77,11 +74,11 @@ class _TransactionsTabState extends State<TransactionsTab> {
                       Center(child: Column(children: [
                         Container(
                           width: 80, height: 80,
-                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(24)),
-                          child: Icon(Icons.receipt_long_outlined, size: 36, color: Colors.white.withValues(alpha: 0.15)),
+                          decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(24)),
+                          child: Icon(Icons.receipt_long_outlined, size: 36, color: AppTheme.textMuted),
                         ),
                         const SizedBox(height: 16),
-                        Text('لا توجد معاملات', style: TextStyle(fontSize: 16, color: Colors.white.withValues(alpha: 0.3))),
+                        Text('لا توجد معاملات', style: TextStyle(fontSize: 16, color: AppTheme.textMuted)),
                       ])),
                     ])
                   : ListView.builder(
@@ -109,31 +106,31 @@ class _TransactionsTabState extends State<TransactionsTab> {
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.02),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
+        color: AppTheme.bgCard, borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       child: Row(children: [
         Container(
           width: 46, height: 46,
-          decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+          decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
           child: Icon(icons[type] ?? Icons.swap_horiz_rounded, color: c, size: 22),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(labels[type] ?? type, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
+          Text(labels[type] ?? type, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
           const SizedBox(height: 3),
           Row(children: [
-            Text(t['created_at'] != null ? DateFormat('MMM dd').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()) : '', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.2))),
+            Text(t['created_at'] != null ? DateFormat('MMM dd').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()) : '', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: (statusColors[status] ?? AppTheme.textMuted).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(color: (statusColors[status] ?? AppTheme.textMuted).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(4)),
               child: Text(statusLabels[status] ?? status, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: statusColors[status] ?? AppTheme.textMuted)),
             ),
           ]),
         ])),
-        Text('${type == 'deposit' ? '+' : '-'}${fmt(t['amount'])}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: type == 'deposit' ? AppTheme.success : Colors.white)),
+        Text('${type == 'deposit' ? '+' : '-'}${fmt(t['amount'])}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: type == 'deposit' ? AppTheme.success : AppTheme.textPrimary)),
       ]),
     );
   }
@@ -146,14 +143,14 @@ class _TransactionsTabState extends State<TransactionsTab> {
         margin: const EdgeInsets.only(left: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: active ? AppTheme.primary.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.03),
+          color: active ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: active ? AppTheme.primary.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: active ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.border),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 14, color: active ? AppTheme.primary : AppTheme.textMuted),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? AppTheme.primary : AppTheme.textMuted)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? AppTheme.primary : AppTheme.textSecondary)),
         ]),
       ),
     );

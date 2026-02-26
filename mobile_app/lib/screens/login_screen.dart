@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -51,33 +52,32 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF0A1628), Color(0xFF060B18)])),
-        child: SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnim,
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const SizedBox(height: 50),
-                // Logo Section
+                // Logo
                 Center(child: Container(
                   width: 80, height: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E5EFF), Color(0xFF00C2FF)]),
-                    boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.35), blurRadius: 30, offset: const Offset(0, 12))],
+                    boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.25), blurRadius: 30, offset: const Offset(0, 12))],
                   ),
                   child: const Center(child: Text('SDB', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2))),
                 )),
                 const SizedBox(height: 28),
-                Center(child: Text(_isRegister ? 'إنشاء حساب جديد' : 'مرحباً بعودتك', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white))),
+                Center(child: Text(_isRegister ? 'إنشاء حساب جديد' : 'مرحباً بعودتك', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
                 const SizedBox(height: 6),
-                Center(child: Text(_isRegister ? 'افتح حسابك الرقمي خلال دقائق' : 'سجّل دخولك للوصول لحسابك', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.35)))),
+                Center(child: Text(_isRegister ? 'افتح حسابك الرقمي خلال دقائق' : 'سجّل دخولك للوصول لحسابك', style: TextStyle(fontSize: 13, color: AppTheme.textMuted))),
                 const SizedBox(height: 40),
 
-                // Form Fields
                 if (_isRegister) ...[
                   _buildField('الاسم الكامل', _name, Icons.person_outline_rounded, TextInputType.name),
                   const SizedBox(height: 14),
@@ -100,28 +100,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   )),
                 ],
 
-                // Error
                 if (_error != null) ...[
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(color: AppTheme.danger.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.danger.withValues(alpha: 0.15))),
+                    decoration: BoxDecoration(color: AppTheme.danger.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.danger.withValues(alpha: 0.15))),
                     child: Row(children: [
-                      Icon(Icons.error_outline_rounded, color: AppTheme.danger.withValues(alpha: 0.7), size: 18),
+                      Icon(Icons.error_outline_rounded, color: AppTheme.danger, size: 18),
                       const SizedBox(width: 10),
-                      Expanded(child: Text(_error!, style: TextStyle(color: AppTheme.danger.withValues(alpha: 0.8), fontSize: 12))),
+                      Expanded(child: Text(_error!, style: TextStyle(color: AppTheme.danger, fontSize: 12))),
                     ]),
                   ),
                 ],
 
                 const SizedBox(height: 24),
-                // Submit
                 Container(
                   height: 56,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: const LinearGradient(colors: [Color(0xFF1E5EFF), Color(0xFF3B82F6)]),
-                    boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8))],
+                    boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 8))],
                   ),
                   child: ElevatedButton(
                     onPressed: _loading ? null : _submit,
@@ -133,29 +131,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 const SizedBox(height: 24),
 
-                // Divider
                 Row(children: [
-                  Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.06))),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text('أو', style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.2)))),
-                  Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.06))),
+                  Expanded(child: Container(height: 1, color: AppTheme.border)),
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text('أو', style: TextStyle(fontSize: 12, color: AppTheme.textMuted))),
+                  Expanded(child: Container(height: 1, color: AppTheme.border)),
                 ]),
 
                 const SizedBox(height: 20),
-                // Biometric Login
                 if (!_isRegister) Container(
                   height: 52,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.06)), color: Colors.white.withValues(alpha: 0.02)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border), color: AppTheme.bgCard),
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.fingerprint_rounded, color: Colors.white.withValues(alpha: 0.4), size: 22),
+                    Icon(Icons.fingerprint_rounded, color: AppTheme.textMuted, size: 22),
                     const SizedBox(width: 10),
-                    Text('الدخول بالبصمة', style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.4), fontWeight: FontWeight.w500)),
+                    Text('الدخول بالبصمة', style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   ]),
                 ),
 
                 const SizedBox(height: 24),
-                // Toggle
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(_isRegister ? 'عندك حساب؟ ' : 'ما عندك حساب؟ ', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13)),
+                  Text(_isRegister ? 'عندك حساب؟ ' : 'ما عندك حساب؟ ', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                   GestureDetector(
                     onTap: () => setState(() { _isRegister = !_isRegister; _error = null; }),
                     child: Text(_isRegister ? 'سجّل دخول' : 'افتح حساب', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 13)),
@@ -163,8 +158,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ]),
                 const SizedBox(height: 30),
 
-                // Footer
-                Center(child: Text('بتسجيلك توافق على الشروط وسياسة الخصوصية', style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.15)))),
+                Center(child: Text('بتسجيلك توافق على الشروط وسياسة الخصوصية', style: TextStyle(fontSize: 10, color: AppTheme.textMuted.withValues(alpha: 0.5)))),
                 const SizedBox(height: 16),
               ]),
             ),
@@ -179,20 +173,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withValues(alpha: 0.03),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        color: AppTheme.bgSurface,
+        border: Border.all(color: AppTheme.border),
       ),
       child: TextField(
         controller: ctrl, obscureText: isPass && _obscure, keyboardType: type,
-        style: const TextStyle(color: Colors.white, fontSize: 15),
+        style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
         textDirection: type == TextInputType.emailAddress || type == TextInputType.visiblePassword ? TextDirection.ltr : TextDirection.rtl,
         decoration: InputDecoration(
-          hintText: hint, hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 14),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.2), size: 20),
+          hintText: hint, hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+          prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20),
           border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
           suffixIcon: isPass ? IconButton(
-            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white.withValues(alpha: 0.2), size: 20),
+            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppTheme.textMuted, size: 20),
             onPressed: () => setState(() => _obscure = !_obscure),
           ) : null,
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -40,246 +41,244 @@ class _DashboardTabState extends State<DashboardTab> {
     final unread = data?['unreadNotifications'] ?? 0;
     final kycStatus = data?['kycStatus'] ?? '';
 
-    return Scaffold(
-      body: RefreshIndicator(
-        color: AppTheme.primary,
-        onRefresh: _load,
-        child: CustomScrollView(slivers: [
-          // ═══════════════ APP BAR ═══════════════
-          SliverToBoxAdapter(child: SafeArea(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Row(children: [
-              Container(
-                width: 48, height: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)]),
-                  boxShadow: [BoxShadow(color: const Color(0xFF6366F1).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
-                ),
-                child: Center(child: Text(
-                  (user?['full_name'] ?? 'U').substring(0, 1).toUpperCase(),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
-                )),
-              ),
-              const SizedBox(width: 14),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(_greeting(), style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.35))),
-                const SizedBox(height: 1),
-                Text('${user?['full_name'] ?? 'عميل SDB'}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
-              ])),
-              // Search
-              _iconBtn(Icons.search_rounded, () {}),
-              const SizedBox(width: 8),
-              // Notifications
-              Stack(children: [
-                _iconBtn(Icons.notifications_none_rounded, () => Navigator.pushNamed(context, '/notifications')),
-                if (unread > 0) Positioned(right: 4, top: 4, child: Container(
-                  width: 16, height: 16, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.danger),
-                  child: Center(child: Text('$unread', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white))),
-                )),
-              ]),
-            ]),
-          ))),
-
-          // ═══════════════ KYC BANNER ═══════════════
-          if (kycStatus != 'verified') SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(colors: [AppTheme.warning.withValues(alpha: 0.08), AppTheme.warning.withValues(alpha: 0.04)]),
-                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.15)),
-              ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: RefreshIndicator(
+          color: AppTheme.primary,
+          onRefresh: _load,
+          child: CustomScrollView(slivers: [
+            // ═══════════════ APP BAR ═══════════════
+            SliverToBoxAdapter(child: SafeArea(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(children: [
                 Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.verified_user_outlined, color: AppTheme.warning, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('أكمل التحقق من هويتك', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
-                  Text('للوصول لجميع الخدمات المصرفية', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.35))),
-                ])),
-                Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.warning.withValues(alpha: 0.5)),
-              ]),
-            ),
-          )),
-
-          // ═══════════════ BALANCE CARD ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-                  colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF0F172A)]),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 30, offset: const Offset(0, 15))],
-              ),
-              child: Stack(children: [
-                // Decorative glow
-                Positioned(right: -20, top: -20, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [AppTheme.primary.withValues(alpha: 0.08), Colors.transparent])))),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
-                    _pill('الرصيد الإجمالي', AppTheme.success),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => setState(() => balanceHidden = !balanceHidden),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)),
-                        child: Icon(balanceHidden ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16, color: Colors.white.withValues(alpha: 0.4)),
-                      ),
-                    ),
-                  ]),
-                  const SizedBox(height: 16),
-                  Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Text('€', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: Colors.white.withValues(alpha: 0.4), height: 1.4)),
-                    const SizedBox(width: 4),
-                    Text(balanceHidden ? '••••••' : fmt(totalEur), style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1, height: 1)),
-                  ]),
-                  const SizedBox(height: 20),
-                  // Stats bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.04))),
-                    child: Row(children: [
-                      _statItem(Icons.trending_up_rounded, '${accounts.length}', 'حساب', AppTheme.success),
-                      _vDiv(),
-                      _statItem(Icons.credit_card_rounded, '${cards.length}', 'بطاقة', const Color(0xFF6366F1)),
-                      _vDiv(),
-                      _statItem(Icons.swap_horiz_rounded, '${txs.length}', 'معاملة', const Color(0xFFF59E0B)),
-                    ]),
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)]),
+                    boxShadow: [BoxShadow(color: const Color(0xFF6366F1).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
+                  child: Center(child: Text(
+                    (user?['full_name'] ?? 'U').substring(0, 1).toUpperCase(),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                  )),
+                ),
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(_greeting(), style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                  const SizedBox(height: 1),
+                  Text('${user?['full_name'] ?? 'عميل SDB'}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                ])),
+                _iconBtn(Icons.search_rounded, () {}),
+                const SizedBox(width: 8),
+                Stack(children: [
+                  _iconBtn(Icons.notifications_none_rounded, () => Navigator.pushNamed(context, '/notifications')),
+                  if (unread > 0) Positioned(right: 4, top: 4, child: Container(
+                    width: 16, height: 16, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.danger),
+                    child: Center(child: Text('$unread', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white))),
+                  )),
                 ]),
               ]),
-            ),
-          )),
+            ))),
 
-          // ═══════════════ QUICK ACTIONS ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-            child: Row(children: [
-              _actionBtn(Icons.arrow_upward_rounded, 'تحويل', const Color(0xFF6366F1), () => Navigator.pushNamed(context, '/transfer')),
-              const SizedBox(width: 10),
-              _actionBtn(Icons.add_rounded, 'إيداع', const Color(0xFF10B981), () => Navigator.pushNamed(context, '/deposit')),
-              const SizedBox(width: 10),
-              _actionBtn(Icons.currency_exchange_rounded, 'صرف', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
-              const SizedBox(width: 10),
-              _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899), () {}),
-              const SizedBox(width: 10),
-              _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4), () {}),
-            ]),
-          )),
-
-          // ═══════════════ PROMO BANNER ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E40AF), Color(0xFF3B82F6), Color(0xFF60A5FA)]),
-                boxShadow: [BoxShadow(color: const Color(0xFF1E40AF).withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 8))],
-              ),
-              child: Row(children: [
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _pill('جديد ✨', Colors.white),
-                  const SizedBox(height: 10),
-                  const Text('ادعُ صديقك واحصل\n على 10€ مجاناً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white, height: 1.4)),
-                  const SizedBox(height: 12),
+            // ═══════════════ KYC BANNER ═══════════════
+            if (kycStatus != 'verified') SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.warning.withValues(alpha: 0.06),
+                  border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
+                ),
+                child: Row(children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(100)),
-                    child: const Text('ادعُ الآن', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+                    child: Icon(Icons.verified_user_outlined, color: AppTheme.warning, size: 20),
                   ),
-                ])),
-                const SizedBox(width: 10),
-                Container(
-                  width: 64, height: 64,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
-                  child: const Icon(Icons.card_giftcard_rounded, size: 30, color: Colors.white),
-                ),
-              ]),
-            ),
-          )),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('أكمل التحقق من هويتك', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                    Text('للوصول لجميع الخدمات المصرفية', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                  ])),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.warning.withValues(alpha: 0.5)),
+                ]),
+              ),
+            )),
 
-          // ═══════════════ ACCOUNTS ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
-            child: _sectionHeader('حساباتي', '${accounts.length} حساب'),
-          )),
-          SliverToBoxAdapter(child: SizedBox(
-            height: 125,
-            child: accounts.isEmpty
-              ? Center(child: Text('لا توجد حسابات', style: TextStyle(color: Colors.white.withValues(alpha: 0.2))))
-              : ListView.builder(
-                  scrollDirection: Axis.horizontal, padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
-                  itemCount: accounts.length,
-                  itemBuilder: (_, i) => _accountCard(accounts[i], i),
+            // ═══════════════ BALANCE CARD (stays dark for contrast) ═══════════════
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
+                    colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF0F172A)]),
+                  boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.25), blurRadius: 30, offset: const Offset(0, 15))],
                 ),
-          )),
+                child: Stack(children: [
+                  Positioned(right: -20, top: -20, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle,
+                    gradient: RadialGradient(colors: [AppTheme.primary.withValues(alpha: 0.08), Colors.transparent])))),
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [
+                      _pill('الرصيد الإجمالي', AppTheme.success),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => setState(() => balanceHidden = !balanceHidden),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)),
+                          child: Icon(balanceHidden ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16, color: Colors.white.withValues(alpha: 0.4)),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 16),
+                    Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                      Text('€', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: Colors.white.withValues(alpha: 0.4), height: 1.4)),
+                      const SizedBox(width: 4),
+                      Text(balanceHidden ? '••••••' : fmt(totalEur), style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1, height: 1)),
+                    ]),
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.04))),
+                      child: Row(children: [
+                        _statItem(Icons.trending_up_rounded, '${accounts.length}', 'حساب', AppTheme.success),
+                        _vDiv(),
+                        _statItem(Icons.credit_card_rounded, '${cards.length}', 'بطاقة', const Color(0xFF6366F1)),
+                        _vDiv(),
+                        _statItem(Icons.swap_horiz_rounded, '${txs.length}', 'معاملة', const Color(0xFFF59E0B)),
+                      ]),
+                    ),
+                  ]),
+                ]),
+              ),
+            )),
 
-          // ═══════════════ CARDS PREVIEW ═══════════════
-          if (cards.isNotEmpty) ...[
+            // ═══════════════ QUICK ACTIONS ═══════════════
             SliverToBoxAdapter(child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-              child: _sectionHeader('بطاقاتي', 'عرض الكل'),
+              child: Row(children: [
+                _actionBtn(Icons.arrow_upward_rounded, 'تحويل', const Color(0xFF6366F1), () => Navigator.pushNamed(context, '/transfer')),
+                const SizedBox(width: 10),
+                _actionBtn(Icons.add_rounded, 'إيداع', const Color(0xFF10B981), () => Navigator.pushNamed(context, '/deposit')),
+                const SizedBox(width: 10),
+                _actionBtn(Icons.currency_exchange_rounded, 'صرف', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
+                const SizedBox(width: 10),
+                _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899), () {}),
+                const SizedBox(width: 10),
+                _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4), () {}),
+              ]),
+            )),
+
+            // ═══════════════ PROMO BANNER ═══════════════
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E40AF), Color(0xFF3B82F6), Color(0xFF60A5FA)]),
+                  boxShadow: [BoxShadow(color: const Color(0xFF1E40AF).withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
+                ),
+                child: Row(children: [
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _pill('جديد ✨', Colors.white),
+                    const SizedBox(height: 10),
+                    const Text('ادعُ صديقك واحصل\n على 10€ مجاناً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white, height: 1.4)),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(100)),
+                      child: const Text('ادعُ الآن', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                    ),
+                  ])),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 64, height: 64,
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
+                    child: const Icon(Icons.card_giftcard_rounded, size: 30, color: Colors.white),
+                  ),
+                ]),
+              ),
+            )),
+
+            // ═══════════════ ACCOUNTS ═══════════════
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              child: _sectionHeader('حساباتي', '${accounts.length} حساب'),
+            )),
+            SliverToBoxAdapter(child: SizedBox(
+              height: 125,
+              child: accounts.isEmpty
+                ? Center(child: Text('لا توجد حسابات', style: TextStyle(color: AppTheme.textMuted)))
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal, padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+                    itemCount: accounts.length,
+                    itemBuilder: (_, i) => _accountCard(accounts[i], i),
+                  ),
+            )),
+
+            // ═══════════════ CARDS PREVIEW ═══════════════
+            if (cards.isNotEmpty) ...[
+              SliverToBoxAdapter(child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                child: _sectionHeader('بطاقاتي', 'عرض الكل'),
+              )),
+              SliverToBoxAdapter(child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: _miniCard(cards.first),
+              )),
+            ],
+
+            // ═══════════════ SPENDING INSIGHTS ═══════════════
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: _sectionHeader('نظرة سريعة', 'هذا الشهر'),
             )),
             SliverToBoxAdapter(child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: _miniCard(cards.first),
+              child: Row(children: [
+                _insightCard('الوارد', '€0.00', Icons.trending_up_rounded, AppTheme.success),
+                const SizedBox(width: 10),
+                _insightCard('المنفق', '€0.00', Icons.trending_down_rounded, AppTheme.danger),
+              ]),
             )),
-          ],
 
-          // ═══════════════ SPENDING INSIGHTS ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-            child: _sectionHeader('نظرة سريعة', 'هذا الشهر'),
-          )),
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: Row(children: [
-              _insightCard('الوارد', '€0.00', Icons.trending_up_rounded, AppTheme.success),
-              const SizedBox(width: 10),
-              _insightCard('المنفق', '€0.00', Icons.trending_down_rounded, AppTheme.danger),
-            ]),
-          )),
-
-          // ═══════════════ TRANSACTIONS ═══════════════
-          SliverToBoxAdapter(child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
-            child: _sectionHeader('آخر المعاملات', 'عرض الكل'),
-          )),
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-          if (txs.isEmpty)
+            // ═══════════════ TRANSACTIONS ═══════════════
             SliverToBoxAdapter(child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Center(child: Column(children: [
-                Container(
-                  width: 70, height: 70,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(20)),
-                  child: Icon(Icons.receipt_long_outlined, size: 32, color: Colors.white.withValues(alpha: 0.1)),
-                ),
-                const SizedBox(height: 14),
-                Text('لا توجد معاملات بعد', style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 14)),
-                const SizedBox(height: 4),
-                Text('ستظهر معاملاتك هنا', style: TextStyle(color: Colors.white.withValues(alpha: 0.1), fontSize: 12)),
-              ])),
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              child: _sectionHeader('آخر المعاملات', 'عرض الكل'),
+            )),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+            if (txs.isEmpty)
+              SliverToBoxAdapter(child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Center(child: Column(children: [
+                  Container(
+                    width: 70, height: 70,
+                    decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(20)),
+                    child: Icon(Icons.receipt_long_outlined, size: 32, color: AppTheme.textMuted.withValues(alpha: 0.4)),
+                  ),
+                  const SizedBox(height: 14),
+                  Text('لا توجد معاملات بعد', style: TextStyle(color: AppTheme.textMuted, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text('ستظهر معاملاتك هنا', style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.5), fontSize: 12)),
+                ])),
+              )),
+
+            SliverList(delegate: SliverChildBuilderDelegate(
+              (_, i) => i < txs.length ? _txItem(txs[i]) : null,
+              childCount: txs.length,
             )),
 
-          SliverList(delegate: SliverChildBuilderDelegate(
-            (_, i) => i < txs.length ? _txItem(txs[i]) : null,
-            childCount: txs.length,
-          )),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ]),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ]),
+        ),
       ),
     );
   }
@@ -290,8 +289,8 @@ class _DashboardTabState extends State<DashboardTab> {
     onTap: onTap,
     child: Container(
       width: 42, height: 42,
-      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(13)),
-      child: Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 20),
+      decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(13), border: Border.all(color: AppTheme.border.withValues(alpha: 0.5))),
+      child: Icon(icon, color: AppTheme.textSecondary, size: 20),
     ),
   );
 
@@ -321,16 +320,16 @@ class _DashboardTabState extends State<DashboardTab> {
     child: Column(children: [
       Container(
         width: 52, height: 52,
-        decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(16), border: Border.all(color: c.withValues(alpha: 0.1))),
+        decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(16), border: Border.all(color: c.withValues(alpha: 0.12))),
         child: Icon(icon, color: c, size: 22),
       ),
       const SizedBox(height: 8),
-      Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))),
+      Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
     ]),
   ));
 
   Widget _sectionHeader(String title, String action) => Row(children: [
-    Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
+    Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
     const Spacer(),
     Text(action, style: TextStyle(fontSize: 12, color: AppTheme.primary.withValues(alpha: 0.7), fontWeight: FontWeight.w600)),
   ]);
@@ -349,7 +348,7 @@ class _DashboardTabState extends State<DashboardTab> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20), gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: c),
-        boxShadow: [BoxShadow(color: c[0].withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: c[0].withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 6))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -371,8 +370,7 @@ class _DashboardTabState extends State<DashboardTab> {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(24),
       gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0F172A), Color(0xFF1E293B)]),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
+      boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 8))],
     ),
     child: Stack(children: [
       Positioned(right: -20, top: -20, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.02)))),
@@ -398,18 +396,19 @@ class _DashboardTabState extends State<DashboardTab> {
   Widget _insightCard(String title, String amount, IconData icon, Color c) => Expanded(child: Container(
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
-      color: c.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: c.withValues(alpha: 0.08)),
+      color: AppTheme.bgCard, borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: AppTheme.border),
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Container(width: 34, height: 34, decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+        Container(width: 34, height: 34, decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: c, size: 18)),
         const Spacer(),
-        Icon(Icons.more_horiz, size: 16, color: Colors.white.withValues(alpha: 0.15)),
+        Icon(Icons.more_horiz, size: 16, color: AppTheme.textMuted.withValues(alpha: 0.4)),
       ]),
       const SizedBox(height: 14),
-      Text(title, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.35))),
+      Text(title, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
       const SizedBox(height: 2),
       Text(amount, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: c)),
     ]),
@@ -426,17 +425,21 @@ class _DashboardTabState extends State<DashboardTab> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
       child: Container(
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.02), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.03))),
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 6, offset: const Offset(0, 2))],
+        ),
         child: Row(children: [
           Container(width: 42, height: 42, decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(13)),
             child: Icon(icons[type] ?? Icons.swap_horiz, color: c, size: 18)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(labels[type] ?? type, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+            Text(labels[type] ?? type, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
             const SizedBox(height: 2),
-            Text(t['created_at'] != null ? DateFormat('MMM dd, HH:mm').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()) : '', style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.2))),
+            Text(t['created_at'] != null ? DateFormat('MMM dd, HH:mm').format(DateTime.tryParse('${t['created_at']}') ?? DateTime.now()) : '', style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
           ])),
-          Text('${type == 'deposit' ? '+' : '-'}${fmt(t['amount'])}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: type == 'deposit' ? AppTheme.success : Colors.white)),
+          Text('${type == 'deposit' ? '+' : '-'}${fmt(t['amount'])}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: type == 'deposit' ? AppTheme.success : AppTheme.textPrimary)),
         ]),
       ),
     );

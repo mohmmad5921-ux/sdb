@@ -25,10 +25,7 @@ class _TransferScreenState extends State<TransferScreen> {
     final r = await ApiService.getAccounts();
     if (r['success'] == true) {
       final d = r['data'];
-      setState(() {
-        accounts = d is List ? d : d?['accounts'] ?? [];
-        if (accounts.isNotEmpty) selectedAccount = accounts.first;
-      });
+      setState(() { accounts = d is List ? d : d?['accounts'] ?? []; if (accounts.isNotEmpty) selectedAccount = accounts.first; });
     }
     setState(() => loadingAccounts = false);
   }
@@ -36,117 +33,68 @@ class _TransferScreenState extends State<TransferScreen> {
   String fmt(dynamic a) => NumberFormat('#,##0.00').format(double.tryParse('$a') ?? 0);
 
   Future<void> _submit() async {
-    if (selectedAccount == null || _iban.text.isEmpty || _amount.text.isEmpty) {
-      setState(() => error = 'يرجى ملء جميع الحقول'); return;
-    }
+    if (selectedAccount == null || _iban.text.isEmpty || _amount.text.isEmpty) { setState(() => error = 'يرجى ملء جميع الحقول'); return; }
     final amount = double.tryParse(_amount.text) ?? 0;
     if (amount <= 0) { setState(() => error = 'المبلغ غير صحيح'); return; }
     final balance = double.tryParse('${selectedAccount!['balance']}') ?? 0;
     if (amount > balance) { setState(() => error = 'الرصيد غير كافي'); return; }
-
     setState(() { loading = true; error = null; success = null; });
-    final r = await ApiService.transfer({
-      'from_account_id': selectedAccount!['id'],
-      'to_iban': _iban.text.trim(),
-      'amount': amount,
-      'description': _desc.text,
-    });
-    setState(() { loading = false; });
-    if (r['success'] == true) {
-      setState(() => success = 'تم التحويل بنجاح! ✅');
-      _amount.clear(); _iban.clear(); _desc.clear();
-      _loadAccounts();
-    } else {
-      setState(() => error = r['data']?['message'] ?? 'فشل التحويل');
-    }
+    final r = await ApiService.transfer({'from_account_id': selectedAccount!['id'], 'to_iban': _iban.text.trim(), 'amount': amount, 'description': _desc.text});
+    setState(() => loading = false);
+    if (r['success'] == true) { setState(() => success = 'تم التحويل بنجاح! ✅'); _amount.clear(); _iban.clear(); _desc.clear(); _loadAccounts(); }
+    else { setState(() => error = r['data']?['message'] ?? 'فشل التحويل'); }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('تحويل', style: TextStyle(fontWeight: FontWeight.w700)),
-        backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded), onPressed: () => Navigator.pop(context)),
-      ),
-      body: loadingAccounts
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+      appBar: AppBar(title: const Text('تحويل', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary)), backgroundColor: Colors.transparent, elevation: 0,
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () => Navigator.pop(context))),
+      body: loadingAccounts ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
         : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            // From Account
             _label('من حساب'),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: _boxDeco(),
-              child: DropdownButton<int>(
-                isExpanded: true, underline: const SizedBox(),
-                dropdownColor: const Color(0xFF1A1A2E),
-                value: selectedAccount?['id'],
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                items: accounts.map<DropdownMenuItem<int>>((a) => DropdownMenuItem(
-                  value: a['id'] as int,
-                  child: Text('${a['currency']?['code'] ?? ''} — ${fmt(a['balance'])} ${a['currency']?['symbol'] ?? ''}', style: const TextStyle(color: Colors.white)),
-                )).toList(),
-                onChanged: (v) => setState(() => selectedAccount = accounts.firstWhere((a) => a['id'] == v)),
-              ),
-            ),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), decoration: _boxDeco(),
+              child: DropdownButton<int>(isExpanded: true, underline: const SizedBox(), dropdownColor: AppTheme.bgCard,
+                value: selectedAccount?['id'], style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                items: accounts.map<DropdownMenuItem<int>>((a) => DropdownMenuItem(value: a['id'] as int,
+                  child: Text('${a['currency']?['code'] ?? ''} — ${fmt(a['balance'])} ${a['currency']?['symbol'] ?? ''}', style: const TextStyle(color: AppTheme.textPrimary)))).toList(),
+                onChanged: (v) => setState(() => selectedAccount = accounts.firstWhere((a) => a['id'] == v)))),
             const SizedBox(height: 16),
-
-            // To IBAN
-            _label('IBAN المستلم'),
-            _field(_iban, 'أدخل رقم IBAN', Icons.account_balance_rounded, TextInputType.text, direction: TextDirection.ltr),
+            _label('IBAN المستلم'), _field(_iban, 'أدخل رقم IBAN', Icons.account_balance_rounded, TextInputType.text, direction: TextDirection.ltr),
             const SizedBox(height: 16),
-
-            // Amount
-            _label('المبلغ'),
-            _field(_amount, '0.00', Icons.attach_money_rounded, const TextInputType.numberWithOptions(decimal: true), direction: TextDirection.ltr),
+            _label('المبلغ'), _field(_amount, '0.00', Icons.attach_money_rounded, const TextInputType.numberWithOptions(decimal: true), direction: TextDirection.ltr),
             const SizedBox(height: 16),
-
-            // Description
-            _label('الوصف (اختياري)'),
-            _field(_desc, 'وصف التحويل...', Icons.description_outlined, TextInputType.text),
+            _label('الوصف (اختياري)'), _field(_desc, 'وصف التحويل...', Icons.description_outlined, TextInputType.text),
             const SizedBox(height: 8),
-
-            // Balance info
-            if (selectedAccount != null) Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)),
+            if (selectedAccount != null) Container(padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14)),
               child: Row(children: [
-                Icon(Icons.info_outline_rounded, size: 16, color: AppTheme.primary.withValues(alpha: 0.6)),
+                Icon(Icons.info_outline_rounded, size: 16, color: AppTheme.primary.withValues(alpha: 0.5)),
                 const SizedBox(width: 8),
-                Text('الرصيد المتاح: ${fmt(selectedAccount!['balance'])} ${selectedAccount!['currency']?['symbol'] ?? ''}', style: TextStyle(fontSize: 12, color: AppTheme.primary.withValues(alpha: 0.7))),
-              ]),
-            ),
+                Text('الرصيد المتاح: ${fmt(selectedAccount!['balance'])} ${selectedAccount!['currency']?['symbol'] ?? ''}', style: TextStyle(fontSize: 12, color: AppTheme.primary.withValues(alpha: 0.6))),
+              ])),
             const SizedBox(height: 16),
-
-            // Messages
             if (error != null) _msg(error!, AppTheme.danger),
             if (success != null) _msg(success!, AppTheme.success),
             const SizedBox(height: 16),
-
-            // Submit
-            _submitBtn('تحويل الآن', Icons.arrow_upward_rounded, loading, _submit),
+            _submitBtn('تحويل الآن', Icons.arrow_upward_rounded, loading, _submit, const [Color(0xFF1E5EFF), Color(0xFF3B82F6)]),
           ])),
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.5))));
-  BoxDecoration _boxDeco() => BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.06)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)));
+  BoxDecoration _boxDeco() => BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border));
   Widget _field(TextEditingController c, String hint, IconData icon, TextInputType type, {TextDirection direction = TextDirection.rtl}) => Container(
     decoration: _boxDeco(),
-    child: TextField(controller: c, keyboardType: type, textDirection: direction, style: const TextStyle(color: Colors.white, fontSize: 15),
-      decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)), prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.2), size: 20), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16))),
-  );
-  Widget _msg(String t, Color c) => Container(
-    padding: const EdgeInsets.all(14), margin: const EdgeInsets.only(bottom: 8),
-    decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14), border: Border.all(color: c.withValues(alpha: 0.15))),
-    child: Text(t, style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.w600)),
-  );
-  Widget _submitBtn(String label, IconData icon, bool busy, VoidCallback onTap) => Container(
-    height: 56,
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: const LinearGradient(colors: [Color(0xFF1E5EFF), Color(0xFF3B82F6)]),
-      boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8))]),
+    child: TextField(controller: c, keyboardType: type, textDirection: direction, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
+      decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: AppTheme.textMuted), prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16))));
+  Widget _msg(String t, Color c) => Container(padding: const EdgeInsets.all(14), margin: const EdgeInsets.only(bottom: 8),
+    decoration: BoxDecoration(color: c.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(14), border: Border.all(color: c.withValues(alpha: 0.15))),
+    child: Text(t, style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.w600)));
+  Widget _submitBtn(String label, IconData icon, bool busy, VoidCallback onTap, List<Color> colors) => Container(height: 56,
+    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: colors),
+      boxShadow: [BoxShadow(color: colors.first.withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 8))]),
     child: ElevatedButton(onPressed: busy ? null : onTap, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
       child: busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-        : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 20), const SizedBox(width: 8), Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))])),
-  );
+        : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 20), const SizedBox(width: 8), Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))])));
 }

@@ -36,15 +36,14 @@ class _CardsTabState extends State<CardsTab> {
             color: AppTheme.primary,
             onRefresh: _load,
             child: CustomScrollView(slivers: [
-              // Header
               SliverToBoxAdapter(child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(children: [
-                  const Text('بطاقاتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+                  const Text('بطاقاتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(100)),
+                    decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(100)),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(Icons.add_rounded, size: 16, color: AppTheme.primary),
                       const SizedBox(width: 4),
@@ -60,22 +59,20 @@ class _CardsTabState extends State<CardsTab> {
                   child: Center(child: Column(children: [
                     Container(
                       width: 80, height: 80,
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(24)),
-                      child: Icon(Icons.credit_card_off_outlined, size: 36, color: Colors.white.withValues(alpha: 0.15)),
+                      decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(24)),
+                      child: Icon(Icons.credit_card_off_outlined, size: 36, color: AppTheme.textMuted),
                     ),
                     const SizedBox(height: 16),
-                    const Text('لا توجد بطاقات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const Text('لا توجد بطاقات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
                     const SizedBox(height: 6),
-                    Text('أصدر بطاقتك الرقمية الأولى', style: TextStyle(color: Colors.white.withValues(alpha: 0.3))),
+                    Text('أصدر بطاقتك الرقمية الأولى', style: TextStyle(color: AppTheme.textMuted)),
                   ])),
                 )),
 
-              // Cards List
               SliverList(delegate: SliverChildBuilderDelegate(
                 (_, i) => _cardWidget(cards[i]),
                 childCount: cards.length,
               )),
-
               const SliverToBoxAdapter(child: SizedBox(height: 80)),
             ]),
           )),
@@ -87,22 +84,20 @@ class _CardsTabState extends State<CardsTab> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Column(children: [
-        // Visual Card
         Container(
           height: 210,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: isFrozen
-              ? const LinearGradient(colors: [Color(0xFF1E293B), Color(0xFF334155)])
-              : const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)]),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 25, offset: const Offset(0, 10))],
+              ? const LinearGradient(colors: [Color(0xFF64748B), Color(0xFF94A3B8)])
+              : const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF334155)]),
+            boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.15), blurRadius: 25, offset: const Offset(0, 10))],
           ),
           child: Stack(children: [
             Positioned(right: -30, top: -30, child: Container(width: 120, height: 120, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.03)))),
             Positioned(left: -20, bottom: -40, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.02)))),
             if (isFrozen) Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.ac_unit_rounded, size: 40, color: const Color(0xFF93C5FD).withValues(alpha: 0.5)),
+              Icon(Icons.ac_unit_rounded, size: 40, color: const Color(0xFF93C5FD).withValues(alpha: 0.7)),
               const SizedBox(height: 8),
               const Text('البطاقة مجمّدة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF93C5FD))),
             ])),
@@ -112,7 +107,7 @@ class _CardsTabState extends State<CardsTab> {
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(100)),
+                  decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(100)),
                   child: Text('✓ نشطة', style: TextStyle(fontSize: 10, color: AppTheme.success, fontWeight: FontWeight.w600)),
                 ),
               ]),
@@ -136,7 +131,6 @@ class _CardsTabState extends State<CardsTab> {
           ]),
         ),
         const SizedBox(height: 14),
-        // Actions
         Row(children: [
           _cardAction(isFrozen ? Icons.lock_open_rounded : Icons.ac_unit_rounded, isFrozen ? 'تفعيل' : 'تجميد', () async {
             await ApiService.toggleCardFreeze(card['id']);
@@ -156,11 +150,15 @@ class _CardsTabState extends State<CardsTab> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.white.withValues(alpha: 0.05))),
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.border),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4)],
+        ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.5)),
+          Icon(icon, size: 16, color: AppTheme.textSecondary),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.5))),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textSecondary)),
         ]),
       ),
     ));
