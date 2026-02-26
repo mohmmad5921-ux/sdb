@@ -23,7 +23,9 @@ class BankingController extends Controller
         private CardService $cardService,
         private CurrencyService $currencyService,
         private DepositService $depositService,
-    ) {}
+        )
+    {
+    }
 
     /**
      * Customer Dashboard
@@ -37,7 +39,7 @@ class BankingController extends Controller
         $accountIds = $accounts->pluck('id');
         $recentTransactions = Transaction::where(function ($q) use ($accountIds) {
             $q->whereIn('from_account_id', $accountIds)
-              ->orWhereIn('to_account_id', $accountIds);
+                ->orWhereIn('to_account_id', $accountIds);
         })
             ->with(['currency', 'fromAccount.currency', 'toAccount.currency'])
             ->orderByDesc('created_at')
@@ -48,12 +50,58 @@ class BankingController extends Controller
             return $account->balance * ($account->currency->exchange_rate_to_eur ?: 1);
         });
 
+        // Monthly spending (outgoing from user's accounts)
+        $monthlySpending = Transaction::whereIn('from_account_id', $accountIds)
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->sum('amount');
+
+        // Monthly income (incoming to user's accounts)
+        $monthlyIncome = Transaction::whereIn('to_account_id', $accountIds)
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->sum('amount');
+
+        // 7-day mini chart data
+        $weeklyData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dayOut = Transaction::whereIn('from_account_id', $accountIds)
+                ->where('status', 'completed')
+                ->whereDate('created_at', $date)
+                ->sum('amount');
+            $dayIn = Transaction::whereIn('to_account_id', $accountIds)
+                ->where('status', 'completed')
+                ->whereDate('created_at', $date)
+                ->sum('amount');
+            $weeklyData[] = [
+                'day' => $date->locale('ar')->shortDayName,
+                'out' => round($dayOut, 2),
+                'in' => round($dayIn, 2),
+            ];
+        }
+
+        // Notifications count
+        $notifCount = $user->notifications()->where('is_read', false)->count();
+
+        // Pending transactions
+        $pendingTx = Transaction::where(function ($q) use ($accountIds) {
+            $q->whereIn('from_account_id', $accountIds)
+                ->orWhereIn('to_account_id', $accountIds);
+        })->where('status', 'pending')->count();
+
         return Inertia::render('Banking/Dashboard', [
             'accounts' => $accounts,
             'cards' => $cards,
             'recentTransactions' => $recentTransactions,
             'totalBalanceEur' => round($totalBalance, 2),
             'currencies' => Currency::active()->get(),
+            'monthlySpending' => round($monthlySpending, 2),
+            'monthlyIncome' => round($monthlyIncome, 2),
+            'weeklyData' => $weeklyData,
+            'notifCount' => $notifCount,
+            'pendingTx' => $pendingTx,
+            'kycStatus' => $user->kyc_status ?? 'none',
         ]);
     }
 
@@ -84,7 +132,8 @@ class BankingController extends Controller
                 $fromAccount, $toAccount, $request->amount, $request->description ?? ''
             );
             return back()->with('success', 'Transfer completed! Ref: ' . $transaction->reference_number);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()]);
         }
     }
@@ -109,7 +158,8 @@ class BankingController extends Controller
             $rate = $this->currencyService->getRate($fromAccount->currency_id, $toAccount->currency_id);
             $transaction = $this->transactionService->exchange($fromAccount, $toAccount, $request->amount, $rate);
             return back()->with('success', 'Exchange completed!');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()]);
         }
     }
@@ -127,7 +177,8 @@ class BankingController extends Controller
         try {
             $card = $this->cardService->issueCard(auth()->user(), $account);
             return back()->with('success', 'Virtual Mastercard issued!');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return back()->withErrors(['account_id' => $e->getMessage()]);
         }
     }
@@ -142,7 +193,8 @@ class BankingController extends Controller
         if ($card->isActive()) {
             $this->cardService->freeze($card);
             return back()->with('success', 'Card frozen');
-        } else {
+        }
+        else {
             $this->cardService->unfreeze($card);
             return back()->with('success', 'Card activated');
         }
@@ -171,13 +223,14 @@ class BankingController extends Controller
             $cardNumber = $request->card_number;
             if ($request->payment_method === 'apple_pay') {
                 $cardNumber = '4' . str_pad(mt_rand(0, 999999999999999), 15, '0', STR_PAD_LEFT);
-            } elseif ($request->payment_method === 'google_pay') {
+            }
+            elseif ($request->payment_method === 'google_pay') {
                 $cardNumber = '5' . str_pad(mt_rand(0, 99999999999999), 14, '0', STR_PAD_LEFT) . '1';
             }
 
             $deposit = $this->depositService->depositViaCard(
                 $account,
-                (float) $request->amount,
+                (float)$request->amount,
                 $cardNumber,
                 $request->card_holder,
                 $request->card_expiry,
@@ -186,13 +239,14 @@ class BankingController extends Controller
             );
 
             $methodLabel = match ($request->payment_method) {
-                'apple_pay' => 'Apple Pay',
-                'google_pay' => 'Google Pay',
-                default => 'Card ••••' . $deposit->card_last_four,
-            };
+                    'apple_pay' => 'Apple Pay',
+                    'google_pay' => 'Google Pay',
+                    default => 'Card ••••' . $deposit->card_last_four,
+                };
 
             return back()->with('success', "Deposit of {$deposit->net_amount} {$deposit->currency_code} via {$methodLabel} completed! Ref: {$deposit->reference}");
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return back()->withErrors(['deposit' => $e->getMessage()]);
         }
     }
