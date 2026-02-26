@@ -36,6 +36,12 @@ Route::get('/', function () {
     ]);
 });
 
+// Legal & Info Pages
+Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('terms');
+Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('privacy');
+Route::get('/about', fn() => Inertia::render('Legal/About'))->name('about');
+Route::get('/faq', fn() => Inertia::render('Legal/Faq'))->name('faq');
+
 // Payment Gateway Checkout
 Route::get('/checkout/{sessionId}', [CheckoutController::class , 'show'])->name('checkout.pay');
 Route::post('/checkout/{sessionId}/pay', [CheckoutController::class , 'pay'])->name('checkout.process')->middleware('auth');
