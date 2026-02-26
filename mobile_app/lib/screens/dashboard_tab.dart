@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -10,13 +11,32 @@ class DashboardTab extends StatefulWidget {
   State<DashboardTab> createState() => _DashboardTabState();
 }
 
-class _DashboardTabState extends State<DashboardTab> {
+class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderStateMixin {
   Map<String, dynamic>? data;
   bool loading = true;
   bool balanceHidden = false;
 
+  // Live exchange rates
+  double rateEurUsd = 0, rateEurGbp = 0;
+  double prevEurUsd = 0, prevEurGbp = 0;
+  Timer? _rateTimer;
+  late AnimationController _pulseCtrl;
+
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
+    _load();
+    _fetchRates();
+    _rateTimer = Timer.periodic(const Duration(seconds: 3), (_) => _fetchRates());
+  }
+
+  @override
+  void dispose() {
+    _rateTimer?.cancel();
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _load() async {
     setState(() => loading = true);
@@ -25,6 +45,17 @@ class _DashboardTabState extends State<DashboardTab> {
       if (r['success'] == true) setState(() => data = r['data']);
     } catch (_) {}
     setState(() => loading = false);
+  }
+
+  Future<void> _fetchRates() async {
+    final r = await ApiService.getLiveRate('EUR', 'USD');
+    if (r['success'] == true && mounted) {
+      setState(() { prevEurUsd = rateEurUsd; rateEurUsd = (r['rate'] as num).toDouble(); });
+    }
+    final r2 = await ApiService.getLiveRate('EUR', 'GBP');
+    if (r2['success'] == true && mounted) {
+      setState(() { prevEurGbp = rateEurGbp; rateEurGbp = (r2['rate'] as num).toDouble(); });
+    }
   }
 
   String fmt(dynamic a) => NumberFormat('#,##0.00').format(double.tryParse('$a') ?? 0);
@@ -174,9 +205,65 @@ class _DashboardTabState extends State<DashboardTab> {
               ]),
             )),
 
-            // ═══════════════ PROMO BANNER ═══════════════
+            // ═══════════════ LIVE EXCHANGE RATES TICKER ═══════════════
             SliverToBoxAdapter(child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/exchange'),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.bgCard, borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTheme.border),
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                  ),
+                  child: Column(children: [
+                    Row(children: [
+                      Container(
+                        width: 32, height: 32,
+                        decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(9)),
+                        child: const Icon(Icons.show_chart_rounded, color: Color(0xFFF59E0B), size: 17),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('أسعار الصرف', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                      const Spacer(),
+                      AnimatedBuilder(
+                        animation: _pulseCtrl,
+                        builder: (_, __) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppTheme.success.withValues(alpha: 0.04 + (_pulseCtrl.value * 0.06)),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Container(width: 5, height: 5, decoration: BoxDecoration(shape: BoxShape.circle,
+                              color: AppTheme.success.withValues(alpha: 0.5 + (_pulseCtrl.value * 0.5)))),
+                            const SizedBox(width: 4),
+                            Text('LIVE', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: AppTheme.success, letterSpacing: 1)),
+                          ]),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 14),
+                    Row(children: [
+                      Expanded(child: _rateChip('EUR', 'USD', rateEurUsd, prevEurUsd)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _rateChip('EUR', 'GBP', rateEurGbp, prevEurGbp)),
+                    ]),
+                    const SizedBox(height: 10),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Icon(Icons.touch_app_outlined, size: 12, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+                      const SizedBox(width: 4),
+                      Text('اضغط لصرف العملات', style: TextStyle(fontSize: 10, color: AppTheme.textMuted.withValues(alpha: 0.4))),
+                    ]),
+                  ]),
+                ),
+              ),
+            )),
+
+            // ═══════════════ PROMO BANNER ═══════════════
+            SliverToBoxAdapter(child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -333,6 +420,32 @@ class _DashboardTabState extends State<DashboardTab> {
     const Spacer(),
     Text(action, style: TextStyle(fontSize: 12, color: AppTheme.primary.withValues(alpha: 0.7), fontWeight: FontWeight.w600)),
   ]);
+
+  // ═══════════════ LIVE RATE CHIP ═══════════════
+  Widget _rateChip(String from, String to, double rate, double prev) {
+    final up = rate > prev && prev > 0;
+    final down = rate < prev && prev > 0;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
+      ),
+      child: Row(children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('$from → $to', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+          const SizedBox(height: 3),
+          rate > 0
+            ? Text(rate.toStringAsFixed(4), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800,
+                color: up ? AppTheme.success : down ? AppTheme.danger : AppTheme.textPrimary))
+            : SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 1.5, color: AppTheme.textMuted)),
+        ]),
+        const Spacer(),
+        if (up) Icon(Icons.arrow_drop_up_rounded, color: AppTheme.success, size: 24),
+        if (down) Icon(Icons.arrow_drop_down_rounded, color: AppTheme.danger, size: 24),
+      ]),
+    );
+  }
 
   Widget _accountCard(Map<String, dynamic> a, int i) {
     final gradients = [
