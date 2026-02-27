@@ -124,6 +124,74 @@ class MobileApiController extends Controller
         return response()->json(['user' => $this->formatUser($request->user()->fresh())]);
     }
 
+    /* ==================== KYC ==================== */
+
+    public function kycStatus(Request $request)
+    {
+        $user = $request->user();
+        $docs = KycDocument::where('user_id', $user->id)->get();
+
+        return response()->json([
+            'kyc_status' => $user->kyc_status,
+            'documents' => $docs->map(fn($d) => [
+                'id' => $d->id,
+                'type' => $d->document_type,
+                'status' => $d->status,
+                'rejection_reason' => $d->rejection_reason,
+                'uploaded_at' => $d->created_at->toDateTimeString(),
+                'reviewed_at' => $d->reviewed_at?->toDateTimeString(),
+            ]),
+        ]);
+    }
+
+    public function uploadKyc(Request $request)
+    {
+        $request->validate([
+            'id_front' => 'required|image|max:10240',
+            'id_back' => 'required|image|max:10240',
+            'selfie' => 'required|image|max:10240',
+            'address_proof' => 'nullable|file|max:10240',
+        ]);
+
+        $user = $request->user();
+
+        // Delete old pending/rejected documents
+        KycDocument::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'rejected'])
+            ->delete();
+
+        $uploads = [
+            'id_front' => 'id_card',
+            'id_back' => 'id_card',
+            'selfie' => 'selfie',
+            'address_proof' => 'address_proof',
+        ];
+
+        $created = [];
+        foreach ($uploads as $field => $docType) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $path = $file->store("kyc/{$user->id}", 'local');
+                $created[] = KycDocument::create([
+                    'user_id' => $user->id,
+                    'document_type' => $docType,
+                    'file_path' => $path,
+                    'original_filename' => $field . '_' . $file->getClientOriginalName(),
+                    'status' => 'pending',
+                ]);
+            }
+        }
+
+        // Update user KYC status to submitted
+        $user->update(['kyc_status' => 'submitted']);
+
+        return response()->json([
+            'message' => 'Documents uploaded successfully. Pending admin review.',
+            'kyc_status' => 'submitted',
+            'documents_count' => count($created),
+        ]);
+    }
+
     /* ==================== DASHBOARD ==================== */
 
     public function dashboard(Request $request)
@@ -195,6 +263,11 @@ class MobileApiController extends Controller
 
     public function transfer(Request $request)
     {
+        // Gate behind KYC
+        if ($request->user()->kyc_status !== 'verified') {
+            return response()->json(['message' => 'يجب التحقق من الهوية قبل إجراء التحويلات', 'kyc_required' => true], 403);
+        }
+
         $request->validate([
             'from_account_id' => 'required|exists:accounts,id',
             'to_iban' => 'required|string',
@@ -256,6 +329,11 @@ class MobileApiController extends Controller
 
     public function deposit(Request $request)
     {
+        // Gate behind KYC
+        if ($request->user()->kyc_status !== 'verified') {
+            return response()->json(['message' => 'يجب التحقق من الهوية قبل الإيداع', 'kyc_required' => true], 403);
+        }
+
         $request->validate([
             'account_id' => 'required|exists:accounts,id',
             'amount' => 'required|numeric|min:1|max:50000',
@@ -300,6 +378,11 @@ class MobileApiController extends Controller
 
     public function issueCard(Request $request)
     {
+        // Gate behind KYC
+        if ($request->user()->kyc_status !== 'verified') {
+            return response()->json(['message' => 'يجب التحقق من الهوية قبل إصدار بطاقة', 'kyc_required' => true], 403);
+        }
+
         $request->validate(['account_id' => 'nullable|exists:accounts,id']);
 
         $user = $request->user();

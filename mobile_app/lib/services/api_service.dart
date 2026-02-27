@@ -130,5 +130,35 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
+  // KYC
+  static Future<Map<String, dynamic>> getKycStatus() async {
+    final r = await http.get(Uri.parse('$baseUrl/kyc/status'), headers: await _headers());
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+  static Future<Map<String, dynamic>> uploadKycDocuments({
+    required String idFrontPath,
+    required String idBackPath,
+    required String selfiePath,
+    String? addressProofPath,
+  }) async {
+    final t = await token;
+    final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/kyc/upload'));
+    request.headers.addAll({
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      if (t != null) 'Authorization': 'Bearer $t',
+    });
+    request.files.add(await http.MultipartFile.fromPath('id_front', idFrontPath));
+    request.files.add(await http.MultipartFile.fromPath('id_back', idBackPath));
+    request.files.add(await http.MultipartFile.fromPath('selfie', selfiePath));
+    if (addressProofPath != null) {
+      request.files.add(await http.MultipartFile.fromPath('address_proof', addressProofPath));
+    }
+    final response = await request.send();
+    final body = await response.stream.bytesToString();
+    return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

@@ -66,6 +66,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>نحتاج الكاميرا لالتقاط صور مستندات التحقق من الهوية</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>نحتاج الوصول لمعرض الصور لرفع مستندات التحقق من الهوية</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

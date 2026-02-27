@@ -28,6 +28,10 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('/profile', [MobileApiController::class , 'profile']);
             Route::patch('/profile', [MobileApiController::class , 'updateProfile']);
 
+            // KYC
+            Route::get('/kyc/status', [MobileApiController::class , 'kycStatus']);
+            Route::post('/kyc/upload', [MobileApiController::class , 'uploadKyc']);
+
             // Dashboard
             Route::get('/dashboard', [MobileApiController::class , 'dashboard']);
 

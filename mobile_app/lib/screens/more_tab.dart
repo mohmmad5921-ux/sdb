@@ -74,7 +74,7 @@ class _MoreTabState extends State<MoreTab> {
           _item(Icons.swap_horiz_rounded, 'التحويلات', const Color(0xFF6366F1), () => Navigator.pushNamed(context, '/transfer')),
           _item(Icons.add_rounded, 'الإيداع', const Color(0xFF10B981), () => Navigator.pushNamed(context, '/deposit')),
           _item(Icons.currency_exchange_rounded, 'صرف العملات', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
-          _item(Icons.verified_user_rounded, 'تحقق الهوية KYC', AppTheme.success, () => _showKYC(kyc)),
+          _item(Icons.verified_user_rounded, 'تحقق الهوية KYC', AppTheme.success, () => Navigator.pushNamed(context, '/kyc')),
         ]),
         const SizedBox(height: 20),
 

@@ -10,6 +10,7 @@ import 'screens/deposit_screen.dart';
 import 'screens/exchange_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/phone_verification_screen.dart';
+import 'screens/kyc_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +46,7 @@ class SDBApp extends StatelessWidget {
         '/exchange': (_) => const ExchangeScreen(),
         '/notifications': (_) => const NotificationsScreen(),
         '/phone-verify': (_) => const PhoneVerificationScreen(),
+        '/kyc': (_) => const KycScreen(),
       },
     );
   }
