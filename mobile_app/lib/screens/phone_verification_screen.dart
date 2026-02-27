@@ -119,6 +119,12 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         backgroundColor: Colors.transparent, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () => Navigator.pop(context)),
         title: const Text('تأكيد رقم الهاتف', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('تخطي', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+          ),
+        ],
       ),
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.all(24),
