@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     setState(() { _loading = true; _error = null; });
     try {
       final res = _isRegister
-        ? await ApiService.register({'name': _name.text, 'email': _email.text, 'password': _pass.text, 'password_confirmation': _confirmPass.text, 'phone': _phone.text, 'device_name': 'SDB App'})
+        ? await ApiService.register({'full_name': _name.text, 'email': _email.text, 'password': _pass.text, 'password_confirmation': _confirmPass.text, 'phone': _phone.text, 'device_name': 'SDB App'})
         : await ApiService.login(_email.text, _pass.text);
       if (res['success'] == true) {
         if (mounted) Navigator.pushReplacementNamed(context, '/home');

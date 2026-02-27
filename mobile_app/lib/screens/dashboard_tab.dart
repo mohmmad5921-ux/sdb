@@ -124,26 +124,29 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
             // ═══════════════ KYC BANNER ═══════════════
             if (kycStatus != 'verified') SliverToBoxAdapter(child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: AppTheme.warning.withValues(alpha: 0.06),
-                  border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
-                ),
-                child: Row(children: [
-                  Container(
-                    width: 40, height: 40,
-                    decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                    child: Icon(Icons.verified_user_outlined, color: AppTheme.warning, size: 20),
+              child: GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('اذهب إلى المزيد → تحقق الهوية KYC'), behavior: SnackBarBehavior.floating, backgroundColor: const Color(0xFF1E293B), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: AppTheme.warning.withValues(alpha: 0.06),
+                    border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('أكمل التحقق من هويتك', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                    Text('للوصول لجميع الخدمات المصرفية', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-                  ])),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.warning.withValues(alpha: 0.5)),
-                ]),
+                  child: Row(children: [
+                    Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+                      child: Icon(Icons.verified_user_outlined, color: AppTheme.warning, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      const Text('أكمل التحقق من هويتك', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                      Text('للوصول لجميع الخدمات المصرفية', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                    ])),
+                    Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.warning.withValues(alpha: 0.5)),
+                  ]),
+                ),
               ),
             )),
 
@@ -207,9 +210,17 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                 const SizedBox(width: 10),
                 _actionBtn(Icons.currency_exchange_rounded, 'صرف', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
                 const SizedBox(width: 10),
-                _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899), () {}),
+                _actionBtn(Icons.credit_card_rounded, 'بطاقة', const Color(0xFFEC4899), () {
+                  // Navigate to Cards tab by finding the HomeScreen ancestor
+                  final home = context.findAncestorStateOfType<State>();
+                  if (home != null && home.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('اذهب إلى تاب البطاقات لإصدار بطاقة'), behavior: SnackBarBehavior.floating, backgroundColor: const Color(0xFF1E293B), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                  }
+                }),
                 const SizedBox(width: 10),
-                _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4), () {}),
+                _actionBtn(Icons.qr_code_scanner_rounded, 'مسح', const Color(0xFF06B6D4), () {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('⏳ ماسح QR — قريباً!'), behavior: SnackBarBehavior.floating, backgroundColor: const Color(0xFF1E293B), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                }),
               ]),
             )),
 
