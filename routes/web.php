@@ -101,11 +101,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('/cards/{card}/freeze', [CardDetailsController::class , 'freeze'])->name('banking.cards.freeze');
                 Route::post('/cards/{card}/unfreeze', [CardDetailsController::class , 'unfreeze'])->name('banking.cards.unfreeze');
 
-                // Support
-                Route::get('/support', [SupportController::class , 'index'])->name('banking.support');
-                Route::get('/support/{id}', [SupportController::class , 'show'])->name('banking.support.show');
-                Route::post('/support', [SupportController::class , 'store'])->name('banking.support.store');
-                Route::post('/support/{id}/reply', [SupportController::class , 'reply'])->name('banking.support.reply');
+                // Support (customer tickets)
+                Route::get('/help-desk', [SupportController::class , 'index'])->name('banking.support');
+                Route::get('/help-desk/{id}', [SupportController::class , 'show'])->name('banking.support.show');
+                Route::post('/help-desk', [SupportController::class , 'store'])->name('banking.support.store');
+                Route::post('/help-desk/{id}/reply', [SupportController::class , 'reply'])->name('banking.support.reply');
 
                 // Security
                 Route::get('/security', [SecurityController::class , 'index'])->name('banking.security');
