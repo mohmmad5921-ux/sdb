@@ -60,6 +60,8 @@ PODS:
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
+  - open_filex (0.0.2):
+    - Flutter
   - RecaptchaInterop (101.0.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -75,6 +77,7 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
+  - open_filex (from `.symlinks/plugins/open_filex/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
 
@@ -104,6 +107,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
+  open_filex:
+    :path: ".symlinks/plugins/open_filex/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqflite_darwin:
@@ -125,6 +130,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: b8ab00db932816e14b0a0664a08cb73dda6d164b
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb
+  open_filex: 432f3cd11432da3e39f47fcc0df2b1603854eff1
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0

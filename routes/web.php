@@ -41,6 +41,7 @@ Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('terms');
 Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('privacy');
 Route::get('/about', fn() => Inertia::render('Legal/About'))->name('about');
 Route::get('/faq', fn() => Inertia::render('Legal/Faq'))->name('faq');
+Route::get('/support', fn() => Inertia::render('Legal/Support'))->name('support.public');
 
 // Payment Gateway Checkout
 Route::get('/checkout/{sessionId}', [CheckoutController::class , 'show'])->name('checkout.pay');
