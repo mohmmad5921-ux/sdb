@@ -206,19 +206,13 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
   </div>
   <div class="max-w-6xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
     <div v-for="(c,i) in [
-      {n:'Standard',sub:ar('مجاني','Free'),cls:'bk-standard',tc:'text-[#0B1F3A]',feats:ar(['بطاقة افتراضية','إشعارات فورية','تحويلات محلية','حد سحب 500$'],['Virtual card','Alerts','Local transfers','$500 limit'])},
-      {n:'Plus',sub:'5$/mo',cls:'bk-plus',tc:'text-[#1E5EFF]',feats:ar(['حدود مضاعفة','حماية مشتريات','Google & Apple Pay','دعم أولوية'],['Double limits','Purchase protection','Google & Apple Pay','Priority'])},
-      {n:'Premium',sub:'12$/mo',cls:'bk-premium',tc:'text-violet-600',feats:ar(['صرف غير محدود','تأمين سفر','بيانات eSIM','3x Lounge'],['Unlimited FX','Travel insurance','eSIM','3x Lounge'])},
-      {n:'Elite',sub:'25$/mo',cls:'bk-elite',tc:'text-[#C6A75E]',feats:ar(['Lounge غير محدود','مدير حساب خاص','مزايا VIP','استرداد نقدي'],['Unlimited Lounge','Dedicated manager','VIP perks','Cashback'])}
+      {n:'Standard',sub:ar('مجاني','Free'),img:'/images/card-standard.png',tc:'text-[#0B1F3A]',feats:ar(['بطاقة افتراضية','إشعارات فورية','تحويلات محلية','حد سحب 500€'],['Virtual card','Alerts','Local transfers','€500 limit'])},
+      {n:'Plus',sub:'5€/mo',img:'/images/card-plus.png',tc:'text-[#1E5EFF]',feats:ar(['حدود مضاعفة','حماية مشتريات','Google &amp; Apple Pay','دعم أولوية'],['Double limits','Purchase protection','Google &amp; Apple Pay','Priority'])},
+      {n:'Premium',sub:'12€/mo',img:'/images/card-premium.png',tc:'text-violet-600',feats:ar(['صرف غير محدود','تأمين سفر','بيانات eSIM','3x Lounge'],['Unlimited FX','Travel insurance','eSIM','3x Lounge'])},
+      {n:'Elite',sub:'25€/mo',img:'/images/card-elite.png',tc:'text-[#C6A75E]',feats:ar(['Lounge غير محدود','مدير حساب خاص','مزايا VIP','استرداد نقدي'],['Unlimited Lounge','Dedicated manager','VIP perks','Cashback'])}
     ]" :key="i" class="card-tier-wrap reveal" :style="{transitionDelay: (i * 120) + 'ms'}">
-      <div class="bk-card" :class="c.cls">
-        <div class="bk-shine"></div>
-        <div class="bk-inner">
-          <div class="flex justify-between items-start"><img src="/images/sdb-logo.png" alt="SDB" class="h-4 w-auto opacity-70" /><span class="text-[7px] text-white/35 font-bold tracking-[0.2em]">{{ c.n.toUpperCase() }}</span></div>
-          <div class="bk-chip"></div>
-          <div class="font-mono text-[11px] tracking-[0.18em] text-white/60 mt-1.5">•••• •••• •••• 4821</div>
-          <div class="flex justify-between items-end mt-auto"><div><div class="text-[5px] text-white/20 uppercase tracking-widest">HOLDER</div><div class="text-white/75 text-[9px] font-semibold">AHMAD M.</div></div><div class="text-right"><div class="text-[5px] text-white/20 uppercase tracking-widest">VALID</div><div class="text-white/75 text-[9px] font-semibold">12/28</div></div><div class="flex"><div class="w-3.5 h-3.5 rounded-full bg-[#EB001B]/80"></div><div class="w-3.5 h-3.5 rounded-full bg-[#F79E1B]/70 -ml-1.5"></div></div></div>
-        </div>
+      <div class="real-card-wrap">
+        <img :src="c.img" :alt="c.n + ' Card'" class="real-card-img" />
       </div>
       <div class="text-xl font-black mt-5 mb-3" :class="c.tc">{{ c.sub }}</div>
       <ul class="space-y-2"><li v-for="f in c.feats" :key="f" class="text-[13px] text-[#0B1F3A]/60 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#1E5EFF]/50 flex-shrink-0"></span>{{ f }}</li></ul>
@@ -441,7 +435,8 @@ html{scroll-behavior:smooth}
 
 /* REALISTIC BANK CARDS */
 .card-tier-wrap{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:20px;padding:24px;transition:all .35s}.card-tier-wrap:hover{border-color:rgba(30,94,255,0.15);box-shadow:0 12px 40px rgba(30,94,255,0.08);transform:translateY(-4px)}
-.bk-card{position:relative;width:100%;aspect-ratio:1.586;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.2),0 4px 12px rgba(0,0,0,0.1);transition:transform .5s cubic-bezier(.16,1,.3,1)}.bk-card:hover{transform:perspective(800px) rotateY(-8deg) rotateX(4deg) scale(1.04)}
+.real-card-wrap{perspective:800px;overflow:visible}
+.real-card-img{width:100%;height:auto;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.2),0 4px 12px rgba(0,0,0,0.1);transition:transform .5s cubic-bezier(.16,1,.3,1)}.real-card-img:hover{transform:perspective(800px) rotateY(-8deg) rotateX(4deg) scale(1.04)}
 .bk-shine{position:absolute;inset:0;background:linear-gradient(125deg,transparent 20%,rgba(255,255,255,0.06) 40%,rgba(255,255,255,0.12) 50%,rgba(255,255,255,0.06) 60%,transparent 80%);z-index:2;pointer-events:none}
 .bk-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:16px 18px}
 .bk-chip{width:32px;height:24px;border-radius:4px;background:linear-gradient(145deg,#C6A75E,#d4b56c,#b8943f);box-shadow:0 1px 4px rgba(198,167,94,0.3),inset 0 1px 2px rgba(255,255,255,0.3);margin-top:8px;position:relative;overflow:hidden}.bk-chip::after{content:'';position:absolute;inset:3px;border:1px solid rgba(0,0,0,0.1);border-radius:2px}
