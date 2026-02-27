@@ -85,9 +85,9 @@ class KycReviewController extends Controller
      */
     public function viewDocument(KycDocument $document)
     {
-        $path = storage_path("app/public/{$document->file_path}");
+        $path = storage_path("app/{$document->file_path}");
         if (!file_exists($path)) {
-            abort(404);
+            abort(404, 'Document file not found');
         }
         return response()->file($path);
     }
