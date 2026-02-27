@@ -20,6 +20,34 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
 
+  // Country picker data
+  String _selectedCountryCode = '+963';
+  String _selectedCountryName = 'سوريا';
+  String _selectedCountryFlag = '🇸🇾';
+
+  static const _countries = [
+    {'name': 'سوريا', 'code': '+963', 'flag': '🇸🇾', 'en': 'Syria'},
+    {'name': 'الدنمارك', 'code': '+45', 'flag': '🇩🇰', 'en': 'Denmark'},
+    {'name': 'ألمانيا', 'code': '+49', 'flag': '🇩🇪', 'en': 'Germany'},
+    {'name': 'تركيا', 'code': '+90', 'flag': '🇹🇷', 'en': 'Turkey'},
+    {'name': 'لبنان', 'code': '+961', 'flag': '🇱🇧', 'en': 'Lebanon'},
+    {'name': 'الأردن', 'code': '+962', 'flag': '🇯🇴', 'en': 'Jordan'},
+    {'name': 'العراق', 'code': '+964', 'flag': '🇮🇶', 'en': 'Iraq'},
+    {'name': 'السعودية', 'code': '+966', 'flag': '🇸🇦', 'en': 'Saudi Arabia'},
+    {'name': 'الإمارات', 'code': '+971', 'flag': '🇦🇪', 'en': 'UAE'},
+    {'name': 'مصر', 'code': '+20', 'flag': '🇪🇬', 'en': 'Egypt'},
+    {'name': 'الكويت', 'code': '+965', 'flag': '🇰🇼', 'en': 'Kuwait'},
+    {'name': 'قطر', 'code': '+974', 'flag': '🇶🇦', 'en': 'Qatar'},
+    {'name': 'البحرين', 'code': '+973', 'flag': '🇧🇭', 'en': 'Bahrain'},
+    {'name': 'عُمان', 'code': '+968', 'flag': '🇴🇲', 'en': 'Oman'},
+    {'name': 'السويد', 'code': '+46', 'flag': '🇸🇪', 'en': 'Sweden'},
+    {'name': 'النرويج', 'code': '+47', 'flag': '🇳🇴', 'en': 'Norway'},
+    {'name': 'هولندا', 'code': '+31', 'flag': '🇳🇱', 'en': 'Netherlands'},
+    {'name': 'فرنسا', 'code': '+33', 'flag': '🇫🇷', 'en': 'France'},
+    {'name': 'بريطانيا', 'code': '+44', 'flag': '🇬🇧', 'en': 'UK'},
+    {'name': 'أمريكا', 'code': '+1', 'flag': '🇺🇸', 'en': 'USA'},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -36,8 +64,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (_isRegister && _pass.text != _confirmPass.text) { setState(() => _error = 'كلمة المرور غير متطابقة'); return; }
     setState(() { _loading = true; _error = null; });
     try {
+      final fullPhone = '$_selectedCountryCode${_phone.text.replaceAll(RegExp(r'[^0-9]'), '')}';
       final res = _isRegister
-        ? await ApiService.register({'full_name': _name.text, 'email': _email.text, 'password': _pass.text, 'password_confirmation': _confirmPass.text, 'phone': _phone.text, 'device_name': 'SDB App'})
+        ? await ApiService.register({'full_name': _name.text, 'email': _email.text, 'password': _pass.text, 'password_confirmation': _confirmPass.text, 'phone': fullPhone, 'country': _selectedCountryName, 'device_name': 'SDB App'})
         : await ApiService.login(_email.text, _pass.text);
       if (res['success'] == true) {
         if (_isRegister) {
@@ -89,7 +118,40 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 if (_isRegister) ...[
                   _buildField('الاسم الكامل', _name, Icons.person_outline_rounded, TextInputType.name),
                   const SizedBox(height: 14),
-                  _buildField('رقم الهاتف', _phone, Icons.phone_outlined, TextInputType.phone),
+                  // Country picker + Phone
+                  Container(
+                    decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
+                    child: Row(children: [
+                      // Country selector
+                      GestureDetector(
+                        onTap: _showCountryPicker,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                          decoration: BoxDecoration(border: Border(left: BorderSide(color: AppTheme.border))),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Text(_selectedCountryFlag, style: const TextStyle(fontSize: 20)),
+                            const SizedBox(width: 6),
+                            Text(_selectedCountryCode, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                            const SizedBox(width: 2),
+                            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
+                          ]),
+                        ),
+                      ),
+                      // Phone input
+                      Expanded(child: TextField(
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        textDirection: TextDirection.ltr,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textPrimary),
+                        decoration: InputDecoration(
+                          hintText: 'رقم الهاتف',
+                          hintStyle: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.5)),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        ),
+                      )),
+                    ]),
+                  ),
                   const SizedBox(height: 14),
                 ],
                 _buildField('البريد الإلكتروني', _email, Icons.mail_outline_rounded, TextInputType.emailAddress),
@@ -200,5 +262,40 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
       ),
     );
+  }
+
+  void _showCountryPicker() {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (ctx) => Container(
+      height: MediaQuery.of(context).size.height * 0.6,
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      child: Column(children: [
+        const SizedBox(height: 12),
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
+        const SizedBox(height: 16),
+        const Text('اختر الدولة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        const SizedBox(height: 16),
+        Expanded(child: ListView.builder(
+          itemCount: _countries.length,
+          itemBuilder: (_, i) {
+            final c = _countries[i];
+            final isSelected = c['code'] == _selectedCountryCode;
+            return ListTile(
+              leading: Text(c['flag']!, style: const TextStyle(fontSize: 28)),
+              title: Text(c['name']!, style: TextStyle(fontSize: 15, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, color: AppTheme.textPrimary)),
+              subtitle: Text(c['code']!, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+              trailing: isSelected ? Icon(Icons.check_circle_rounded, color: AppTheme.primary, size: 22) : null,
+              onTap: () {
+                setState(() {
+                  _selectedCountryCode = c['code']!;
+                  _selectedCountryName = c['name']!;
+                  _selectedCountryFlag = c['flag']!;
+                });
+                Navigator.pop(ctx);
+              },
+            );
+          },
+        )),
+      ]),
+    ));
   }
 }

@@ -70,7 +70,7 @@ class MobileApiController extends Controller
             'full_name' => $request->full_name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => bcrypt($request->password),
+            'password' => $request->password,
             'status' => 'active',
             'kyc_status' => 'unverified',
             'role' => 'customer',
@@ -369,28 +369,6 @@ class MobileApiController extends Controller
             'exchangeRates' => \App\Models\ExchangeRate::with(['fromCurrency', 'toCurrency'])->where('is_active', true)->get(),
         ]);
     }
-
-    /* ==================== HELPERS ==================== */
-
-    private function formatUser($user): array
-    {
-        return [
-            'id' => $user->id,
-            'full_name' => $user->full_name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'status' => $user->status,
-            'kyc_status' => $user->kyc_status,
-            'nationality' => $user->nationality,
-            'date_of_birth' => $user->date_of_birth?->toDateString(),
-            'address' => $user->address,
-            'city' => $user->city,
-            'country' => $user->country,
-            'preferred_language' => $user->preferred_language,
-            'role' => $user->role,
-        ];
-    }
-}   }
 
     /* ==================== HELPERS ==================== */
 
