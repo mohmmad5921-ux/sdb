@@ -28,9 +28,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Landing Page — Rockie crypto+banking template
+// Landing Page
 Route::get('/', function () {
-    return redirect('/rockie/index.html');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
 // Legal & Info Pages
