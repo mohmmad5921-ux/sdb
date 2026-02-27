@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -483,24 +484,63 @@ class _CardsTabState extends State<CardsTab> {
     showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
 
     try {
-      final bytes = await ApiService.downloadWalletPass(card['id']);
-      if (mounted) Navigator.pop(context);
-
-      if (bytes != null && bytes.isNotEmpty) {
-        // Save to temp file
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/sdb_card.pkpass');
-        await file.writeAsBytes(bytes);
-
-        // Open with iOS (triggers Apple Wallet add dialog)
-        final result = await OpenFilex.open(file.path, type: 'application/vnd.apple.pkpass');
-        if (result.type != ResultType.done && mounted) {
+      // Check if device supports adding passes
+      const passChannel = MethodChannel('com.sdb.wallet/passkit');
+      final canAdd = await passChannel.invokeMethod('canAddPasses');
+      
+      if (canAdd != true) {
+        if (mounted) Navigator.pop(context);
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('تعذر فتح ملف البطاقة: ${result.message}'),
+            content: const Text('هذا الجهاز لا يدعم Apple Wallet'),
             backgroundColor: AppTheme.danger,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ));
+        }
+        return;
+      }
+
+      final bytes = await ApiService.downloadWalletPass(card['id']);
+      if (mounted) Navigator.pop(context);
+
+      if (bytes != null && bytes.isNotEmpty) {
+        try {
+          // Use native PassKit to add the pass
+          final result = await passChannel.invokeMethod('addPass', {
+            'passData': bytes,
+          });
+
+          if (result is Map && mounted) {
+            final status = result['status'] ?? '';
+            if (status == 'already_added') {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: const Text('✅ البطاقة موجودة بالفعل في Apple Wallet'),
+                backgroundColor: AppTheme.success,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ));
+            } else if (status == 'presented') {
+              // Pass dialog shown — user will accept/decline
+            }
+          }
+        } on PlatformException catch (e) {
+          // If native PassKit fails (unsigned pass), fall back to OpenFilex
+          if (mounted) {
+            final dir = await getTemporaryDirectory();
+            final file = File('${dir.path}/sdb_card.pkpass');
+            await file.writeAsBytes(bytes);
+            
+            final openResult = await OpenFilex.open(file.path, type: 'application/vnd.apple.pkpass');
+            if (openResult.type != ResultType.done && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('⚠️ يحتاج إعداد شهادة Apple Wallet - ${e.message}'),
+                backgroundColor: AppTheme.warning,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ));
+            }
+          }
         }
       } else {
         if (mounted) {
