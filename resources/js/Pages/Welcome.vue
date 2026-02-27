@@ -110,27 +110,25 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
   <div class="hero-blob-2"></div>
   <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center pt-36 pb-24 md:pt-44 md:pb-32">
     <div :class="isAr ? 'text-right' : ''" class="reveal">
-      <div class="hero-tag"><span class="tag-dot"></span>Banking. Reimagined.</div>
-      <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-[#0B1F3A] mb-6">{{ ar('أدر أموالك بطريقة ذكية مع','Manage Your Money Smarter with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
-      <p class="text-[#0B1F3A]/50 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق، بدّل بين العملات بسهولة، وتحكم الكامل ببطاقاتك من تطبيق واحد آمن.','Open your digital account in minutes, switch currencies easily, and fully control your cards from one secure app.') }}</p>
+      <div class="hero-tag"><span class="tag-dot"></span>{{ ar('مصرفية رقمية من الجيل الجديد','Next-Gen Digital Banking') }}</div>
+      <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-[#0B1F3A] mb-6">{{ ar('مستقبل المصارف بين يديك مع','The Future of Banking in Your Hands with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
+      <p class="text-[#0B1F3A]/50 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
       <div class="flex items-center gap-3 mb-3 max-w-md">
-        <div class="phone-wrap"><span class="phone-pre">963+</span><input v-model="phone" type="tel" :placeholder="ar('رقم هاتفك','Your phone')" class="phone-inp" /></div>
-        <Link v-if="canRegister" :href="route('register')" class="btn-blue btn-big whitespace-nowrap">{{ ar('ابدأ الآن','Start Now') }}</Link>
+        <Link v-if="canRegister" :href="route('register')" class="btn-blue btn-big whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
+        <a href="#cards" class="btn-outline whitespace-nowrap">{{ ar('اكتشف البطاقات','Explore Cards') }}</a>
       </div>
-      <p class="text-[11px] text-[#0B1F3A]/25">{{ ar('يجب أن يكون عمرك 18 عاماً على الأقل.','You must be at least 18 years old.') }}</p>
-    </div>
-    <!-- CARD -->
-    <div class="flex justify-center reveal-scale" style="perspective:1200px" @mousemove="handleCardMove" @mouseleave="handleCardLeave">
-      <div class="card-shadow-ring"></div>
-      <div class="credit-card" ref="cardRef">
-        <div class="card-gloss"></div>
-        <div class="relative z-10 flex flex-col justify-between h-full p-7">
-          <div class="flex justify-between items-start"><img src="/images/sdb-logo.png" alt="SDB" class="card-logo" /><div class="flex"><div class="w-6 h-6 rounded-full bg-[#EB001B]/80"></div><div class="w-6 h-6 rounded-full bg-[#F79E1B]/70 -ml-2.5"></div></div></div>
-          <div class="gold-chip"></div>
-          <div class="font-mono text-xl tracking-[0.3em] text-white/80">•••• •••• •••• 4821</div>
-          <div class="flex justify-between"><div><div class="text-[7px] text-white/30 uppercase tracking-widest mb-0.5">Card Holder</div><div class="text-white/90 text-[13px] font-semibold">AHMAD MOHAMMAD</div></div><div class="text-right"><div class="text-[7px] text-white/30 uppercase tracking-widest mb-0.5">Expires</div><div class="text-white/90 text-[13px] font-semibold">12/28</div></div></div>
+      <div class="flex items-center gap-4 mt-6">
+        <div class="flex -space-x-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">A</div>
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">S</div>
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">M</div>
         </div>
+        <p class="text-[12px] text-[#0B1F3A]/35">{{ ar('انضم لآلاف العملاء الذين يثقون بنا','Join thousands of customers who trust us') }}</p>
       </div>
+    </div>
+    <!-- HERO IMAGE -->
+    <div class="flex justify-center reveal-scale">
+      <img src="/images/hero-app.png" alt="SDB Banking App" class="hero-phone-img" />
     </div>
   </div>
 </section>
@@ -155,18 +153,23 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 <!-- SALARY -->
 <section id="salary" class="sec">
   <div class="sec-blue-bg"></div>
-  <div class="relative max-w-7xl mx-auto px-6 text-center mb-16 reveal">
-    <h2 class="sec-title">{{ ar('راتبك في مكان واحد — وتحكم كامل','Your Salary in One Place — Full Control') }}</h2>
-    <p class="sec-desc">{{ ar('تحويلات فورية، تقسيم تلقائي للراتب، ادخار ذكي، وتحليل مصاريف لحظي.','Instant transfers, auto salary split, smart savings, and real-time expense analysis.') }}</p>
-  </div>
-  <div class="relative max-w-5xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-    <div v-for="(f,i) in [{icon:'💰',t:ar('استقبال الراتب','Salary Receipt'),d:ar('إيداع مباشر لراتبك','Direct deposit')},{icon:'📊',t:ar('تقسيم تلقائي','Auto Split'),d:ar('مصاريف / ادخار / استثمار','Spend / Save / Invest')},{icon:'🔔',t:ar('إشعارات لحظية','Instant Alerts'),d:ar('تنبيه فوري لكل حركة','Real-time alerts')},{icon:'📈',t:ar('متابعة ذكية','Smart Tracking'),d:ar('تحليل مصاريف شهري','Monthly analysis')}]" :key="i" class="fcard reveal" :style="{transitionDelay: (i * 100) + 'ms'}">
-      <div class="fcard-icon">{{ f.icon }}</div>
-      <h3 class="font-bold text-[15px] text-[#0B1F3A] mb-1">{{ f.t }}</h3>
-      <p class="text-sm text-[#0B1F3A]/40">{{ f.d }}</p>
+  <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <div class="reveal">
+      <img src="/images/app-screens.png" alt="SDB App Screens" class="section-img" />
+    </div>
+    <div class="reveal-right" :class="isAr ? 'text-right' : ''">
+      <div class="sec-tag">{{ ar('إدارة الراتب','Salary Management') }}</div>
+      <h2 class="sec-title" style="text-align:inherit">{{ ar('راتبك في مكان واحد — وتحكم كامل','Your Salary in One Place — Full Control') }}</h2>
+      <p class="sec-desc" style="margin:0 0 24px 0">{{ ar('استقبل راتبك مباشرة، قسّمه تلقائياً بين المصاريف والادخار والاستثمار، وتابع تحليل مصاريفك الشهري بالوقت الحقيقي.','Receive your salary directly, auto-split between spending, savings, and investment. Track your monthly expense analysis in real-time.') }}</p>
+      <div class="feature-list">
+        <div v-for="(f,i) in [{t:ar('إيداع مباشر لراتبك','Direct salary deposit')},{t:ar('تقسيم تلقائي: مصاريف / ادخار / استثمار','Auto split: spend / save / invest')},{t:ar('إشعارات لحظية لكل حركة مالية','Real-time alerts for every transaction')},{t:ar('تحليل مصاريف ذكي بالرسوم البيانية','Smart expense analysis with charts')}]" :key="i" class="feature-item reveal" :style="{transitionDelay: (i * 100) + 'ms'}">
+          <svg class="w-5 h-5 flex-shrink-0 text-[#00D084]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span class="text-sm text-[#0B1F3A]/60">{{ f.t }}</span>
+        </div>
+      </div>
+      <Link v-if="canRegister" :href="route('register')" class="btn-outline mt-6 inline-flex">{{ ar('حوّل راتبك إلى SDB','Transfer Your Salary to SDB') }} →</Link>
     </div>
   </div>
-  <div class="text-center mt-10"><Link v-if="canRegister" :href="route('register')" class="btn-outline">{{ ar('حوّل راتبك إلى SDB','Transfer Your Salary to SDB') }} →</Link></div>
 </section>
 
 <!-- CARDS -->
@@ -201,29 +204,42 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </section>
 
 <!-- TRAVEL -->
-<section id="travel" class="sec">
-  <div class="sec-blue-bg" style="top:auto;bottom:0"></div>
-  <div class="relative max-w-7xl mx-auto px-6 text-center mb-16 reveal">
-    <h2 class="sec-title">{{ ar('سافر بثقة مع SDB','Travel with Confidence') }}</h2>
-  </div>
-  <div class="relative max-w-5xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-    <div v-for="(f,i) in [{icon:'🌍',t:ar('دعم SYP – USD – EUR','SYP – USD – EUR'),d:ar('صرف مباشر بأسعار تنافسية','Competitive exchange')},{icon:'⚡',t:ar('تحويل دولي سريع','Fast Intl Transfer'),d:ar('أرسل واستقبل بسرعة','Send & receive fast')},{icon:'💳',t:ar('استخدام عالمي','Global Card Use'),d:ar('ادفع في أي دولة','Pay anywhere')},{icon:'🛋',t:ar('صالات مطارات','Airport Lounges'),d:ar('دخول مجاني لـ Elite','Free for Elite')},{icon:'📶',t:ar('بيانات eSIM','eSIM Data'),d:ar('إنترنت في 100+ دولة','100+ countries')},{icon:'🛡',t:ar('تأمين سفر','Travel Insurance'),d:ar('تغطية شاملة','Full coverage')}]" :key="i" class="fcard reveal" :style="{transitionDelay: (i * 100) + 'ms'}">
-      <div class="fcard-icon">{{ f.icon }}</div>
-      <h3 class="font-bold text-[15px] text-[#0B1F3A] mb-1">{{ f.t }}</h3>
-      <p class="text-sm text-[#0B1F3A]/40">{{ f.d }}</p>
+<section id="travel" class="sec sec-dark">
+  <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <div class="reveal" :class="isAr ? 'text-right' : ''">
+      <div class="sec-tag sec-tag-light">{{ ar('تحويلات دولية','International Transfers') }}</div>
+      <h2 class="sec-title text-white" style="text-align:inherit">{{ ar('سافر وأرسل أموالك حول العالم','Travel & Send Money Worldwide') }}</h2>
+      <p class="text-white/50 text-[15px] leading-relaxed mb-8">{{ ar('حسابات بعملات متعددة (DKK, USD, EUR, GBP)، تحويلات SWIFT فورية، صرف بأسعار تنافسية، وبطاقات تعمل في أكثر من 150 دولة.','Multi-currency accounts (DKK, USD, EUR, GBP), instant SWIFT transfers, competitive exchange rates, and cards accepted in 150+ countries.') }}</p>
+      <div class="grid grid-cols-2 gap-4 mb-8">
+        <div v-for="(f,i) in [{n:ar('عملة مدعومة','Currencies'),v:'15+'},{n:ar('دولة','Countries'),v:'150+'},{n:ar('تحويل فوري','Instant Transfer'),v:'24/7'},{n:ar('أقل رسوم','Low Fees'),v:'0.5%'}]" :key="i" class="travel-stat reveal" :style="{transitionDelay: (i * 100) + 'ms'}">
+          <div class="text-2xl font-black text-white">{{ f.v }}</div>
+          <div class="text-xs text-white/40">{{ f.n }}</div>
+        </div>
+      </div>
+      <Link v-if="canRegister" :href="route('register')" class="btn-blue btn-big">{{ ar('افتح حساب متعدد العملات','Open Multi-Currency Account') }}</Link>
+    </div>
+    <div class="reveal-scale">
+      <img src="/images/world-map.png" alt="Global Network" class="section-img rounded-2xl" />
     </div>
   </div>
 </section>
 
 <!-- SECURITY -->
 <section id="security" class="sec">
-  <div class="relative max-w-7xl mx-auto px-6 text-center mb-16 reveal">
-    <h2 class="sec-title">{{ ar('أموالك محمية 24/7','Your Money Protected 24/7') }}</h2>
-  </div>
-  <div class="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
-    <div v-for="(f,i) in [{icon:'🔐',t:ar('Face ID / بصمة','Face ID / Touch ID')},{icon:'🔑',t:ar('OTP متقدم','Advanced OTP')},{icon:'💳',t:ar('بطاقات متجددة','Auto-rotating Cards')},{icon:'🤖',t:ar('كشف احتيال AI','AI Fraud Detection')},{icon:'❄️',t:ar('تجميد فوري','Instant Freeze')},{icon:'💬',t:ar('دعم 24/7','24/7 Support')}]" :key="i" class="sec-card reveal-scale" :style="{transitionDelay: (i * 80) + 'ms'}">
-      <div class="text-3xl mb-3">{{ f.icon }}</div>
-      <div class="text-[13px] text-[#0B1F3A] font-semibold">{{ f.t }}</div>
+  <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <div class="reveal-scale">
+      <img src="/images/security-shield.png" alt="Bank Security" class="section-img rounded-2xl" style="max-width:400px;margin:0 auto" />
+    </div>
+    <div class="reveal-right" :class="isAr ? 'text-right' : ''">
+      <div class="sec-tag">{{ ar('حماية متقدمة','Advanced Protection') }}</div>
+      <h2 class="sec-title" style="text-align:inherit">{{ ar('أموالك محمية بأعلى معايير الأمان','Your Money Protected by Highest Security Standards') }}</h2>
+      <p class="sec-desc" style="margin:0 0 24px 0">{{ ar('نستخدم تشفير AES-256 بمعايير بنكية عالمية، مراقبة ذكية بالذكاء الاصطناعي لكشف الاحتيال، والمصادقة البيومترية لحماية حسابك.','We use AES-256 bank-grade encryption, AI-powered fraud monitoring, and biometric authentication to protect your account.') }}</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div v-for="(f,i) in [{icon:'🔐',t:ar('Face ID / بصمة','Face ID / Touch ID')},{icon:'🔑',t:ar('مصادقة ثنائية','Two-Factor Auth')},{icon:'🤖',t:ar('كشف احتيال AI','AI Fraud Detection')},{icon:'❄️',t:ar('تجميد فوري','Instant Freeze')},{icon:'🔒',t:ar('تشفير AES-256','AES-256 Encryption')},{icon:'💬',t:ar('دعم 24/7','24/7 Support')}]" :key="i" class="sec-card reveal-scale" :style="{transitionDelay: (i * 80) + 'ms'}">
+          <div class="text-2xl mb-2">{{ f.icon }}</div>
+          <div class="text-[13px] text-[#0B1F3A] font-semibold">{{ f.t }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -309,14 +325,14 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
     <div class="grid md:grid-cols-5 gap-8 mb-12">
       <div class="md:col-span-2">
         <div class="flex items-center gap-2.5 mb-4"><img src="/images/sdb-logo.png" alt="SDB" class="footer-logo" /></div>
-        <p class="text-[#0B1F3A]/35 text-xs leading-relaxed max-w-xs">{{ ar('البنك الرقمي الأول في سوريا. خدمات مصرفية مبتكرة بمعايير عالمية.','The first digital bank in Syria.') }}</p>
+        <p class="text-[#0B1F3A]/35 text-xs leading-relaxed max-w-xs">{{ ar('بنك رقمي مرخّص في الدنمارك. خدمات مصرفية مبتكرة بمعايير أوروبية عالمية. حسابات متعددة العملات وبطاقات ذكية.','A licensed digital bank in Denmark. Innovative banking services with European standards. Multi-currency accounts and smart cards.') }}</p>
       </div>
-      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('المنتجات','Products') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li><a href="#features" class="hover:text-[#1E5EFF] transition-colors">{{ ar('حسابات شخصية','Personal') }}</a></li><li><a href="#cards" class="hover:text-[#1E5EFF] transition-colors">{{ ar('البطاقات','Cards') }}</a></li><li><Link href="/about" class="hover:text-[#1E5EFF] transition-colors">{{ ar('عن البنك','About Us') }}</Link></li><li><Link href="/faq" class="hover:text-[#1E5EFF] transition-colors">{{ ar('الأسئلة الشائعة','FAQ') }}</Link></li></ul></div>
-      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('قانوني','Legal') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li><Link href="/terms" class="hover:text-[#1E5EFF] transition-colors">{{ ar('الشروط والأحكام','Terms') }}</Link></li><li><Link href="/privacy" class="hover:text-[#1E5EFF] transition-colors">{{ ar('سياسة الخصوصية','Privacy') }}</Link></li><li><a href="#" class="hover:text-[#1E5EFF] transition-colors">{{ ar('مكافحة غسل الأموال','AML') }}</a></li><li><Link href="/about" class="hover:text-[#1E5EFF] transition-colors">{{ ar('التراخيص','Licenses') }}</Link></li></ul></div>
-      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('تواصل','Contact') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li>📧 info@sdb.sy</li><li>📞 +963 11 000 0000</li><li>📍 {{ ar('دمشق، سوريا','Damascus, Syria') }}</li></ul></div>
+      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('المنتجات','Products') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li><a href="#salary" class="hover:text-[#1E5EFF] transition-colors">{{ ar('حسابات شخصية','Personal Accounts') }}</a></li><li><a href="#cards" class="hover:text-[#1E5EFF] transition-colors">{{ ar('البطاقات','Cards') }}</a></li><li><a href="#travel" class="hover:text-[#1E5EFF] transition-colors">{{ ar('التحويلات الدولية','International Transfers') }}</a></li><li><Link href="/faq" class="hover:text-[#1E5EFF] transition-colors">{{ ar('الأسئلة الشائعة','FAQ') }}</Link></li></ul></div>
+      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('قانوني','Legal') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li><Link href="/terms" class="hover:text-[#1E5EFF] transition-colors">{{ ar('الشروط والأحكام','Terms') }}</Link></li><li><Link href="/privacy" class="hover:text-[#1E5EFF] transition-colors">{{ ar('سياسة الخصوصية','Privacy') }}</Link></li><li><Link href="/about" class="hover:text-[#1E5EFF] transition-colors">{{ ar('عن البنك','About Us') }}</Link></li><li><Link href="/support" class="hover:text-[#1E5EFF] transition-colors">{{ ar('الدعم','Support') }}</Link></li></ul></div>
+      <div><h4 class="text-sm font-bold text-[#0B1F3A] mb-4">{{ ar('تواصل','Contact') }}</h4><ul class="space-y-2.5 text-xs text-[#0B1F3A]/35"><li>📧 info@sdb-bank.com</li><li>📞 +45 42 80 55 94</li><li>📍 Wimosem 18, 4000 Roskilde</li><li>🇩🇰 Denmark</li></ul></div>
     </div>
     <div class="border-t border-[#0B1F3A]/8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-      <p class="text-[#0B1F3A]/25 text-[11px]">© 2026 Syria Digital Bank (SDB). {{ ar('جميع الحقوق محفوظة.','All rights reserved.') }}</p>
+      <p class="text-[#0B1F3A]/25 text-[11px]">© 2026 SDB Bank ApS. {{ ar('جميع الحقوق محفوظة. مسجل في الدنمارك.','All rights reserved. Registered in Denmark.') }}</p>
       <button @click="toggleLang" class="text-[11px] text-[#0B1F3A]/30 hover:text-[#1E5EFF] transition-colors">{{ ar('English','عربي') }}</button>
     </div>
   </div>
@@ -456,4 +472,25 @@ html{scroll-behavior:smooth}
 /* ICON BOUNCE ON REVEAL */
 .revealed .fcard-icon{animation:iconBounce .5s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes iconBounce{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+/* HERO PHONE IMAGE */
+.hero-phone-img{max-width:420px;width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(11,31,58,0.15));animation:phoneFloat 6s ease-in-out infinite}
+@keyframes phoneFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+
+/* SECTION IMAGES */
+.section-img{width:100%;height:auto;border-radius:16px;filter:drop-shadow(0 20px 40px rgba(11,31,58,0.1))}
+
+/* DARK TRAVEL SECTION */
+.sec-dark{background:linear-gradient(145deg,#0B1F3A 0%,#0f2d52 40%,#0B1F3A 100%);padding:120px 0;overflow:hidden}
+.sec-dark::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url('/images/world-map.png') center/contain no-repeat;opacity:0.03;pointer-events:none}
+.travel-stat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;text-align:center;transition:all .3s}
+.travel-stat:hover{background:rgba(255,255,255,0.08);border-color:rgba(30,94,255,0.3)}
+
+/* FEATURE LIST WITH CHECKMARKS */
+.feature-list{display:flex;flex-direction:column;gap:12px;margin-bottom:8px}
+.feature-item{display:flex;align-items:center;gap:10px}
+
+/* SECTION TAG */
+.sec-tag{display:inline-flex;padding:6px 16px;border-radius:100px;background:rgba(30,94,255,0.08);color:#1E5EFF;font-size:12px;font-weight:700;margin-bottom:16px;letter-spacing:0.02em}
+.sec-tag-light{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)}
 </style>
