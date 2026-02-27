@@ -7,11 +7,14 @@ import { Head, Link } from '@inertiajs/vue3';
     <div class="lg-root">
         <header class="lg-header">
             <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="text-xl font-black text-[#1E5EFF]">SDB</Link>
+                <Link href="/" class="flex items-center gap-2">
+                    <img src="/images/sdb-logo.png" alt="SDB" class="h-16 w-auto" />
+                </Link>
                 <div class="flex gap-3">
                     <Link href="/terms" class="lg-link">الشروط والأحكام</Link>
                     <Link href="/about" class="lg-link">عن البنك</Link>
                     <Link href="/faq" class="lg-link">الأسئلة الشائعة</Link>
+                    <Link href="/support" class="lg-link">الدعم</Link>
                 </div>
             </div>
         </header>
@@ -23,7 +26,7 @@ import { Head, Link } from '@inertiajs/vue3';
             <div class="lg-content">
                 <section class="lg-section">
                     <h2>1. التزامنا بالخصوصية</h2>
-                    <p>في ShambaDigital Bank (SDB)، نأخذ خصوصية عملائنا على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية ومشاركة معلوماتك الشخصية عند استخدام خدماتنا المصرفية.</p>
+                    <p>في SDB Bank ApS، نأخذ خصوصية عملائنا على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية ومشاركة معلوماتك الشخصية عند استخدام خدماتنا المصرفية.</p>
                     <p>نلتزم بأعلى معايير حماية البيانات ونتوافق مع اللائحة العامة لحماية البيانات (GDPR) والقوانين المحلية المعمول بها.</p>
                 </section>
 
@@ -122,8 +125,8 @@ import { Head, Link } from '@inertiajs/vue3';
                 <section class="lg-section">
                     <h2>10. الاتصال بمسؤول حماية البيانات</h2>
                     <ul>
-                        <li>البريد الإلكتروني: dpo@shambank.com</li>
-                        <li>العنوان: قسم حماية البيانات — SDB</li>
+                        <li>البريد الإلكتروني: dpo@sdb-bank.com</li>
+                        <li>العنوان: قسم حماية البيانات — SDB Bank ApS، Wimosem 18, 4000 Roskilde, Denmark</li>
                         <li>الدعم داخل التطبيق: متاح 24/7</li>
                     </ul>
                 </section>
@@ -132,8 +135,8 @@ import { Head, Link } from '@inertiajs/vue3';
 
         <footer class="lg-footer">
             <div class="max-w-4xl mx-auto px-6 flex justify-between items-center">
-                <span class="text-sm text-gray-400">© 2026 SDB. جميع الحقوق محفوظة.</span>
-                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
+                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. جميع الحقوق محفوظة. مسجل في الدنمارك.</span>
+                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/support" class="lg-flink">الدعم</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
             </div>
         </footer>
     </div>

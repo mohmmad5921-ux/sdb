@@ -7,11 +7,14 @@ import { Head, Link } from '@inertiajs/vue3';
     <div class="lg-root">
         <header class="lg-header">
             <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="text-xl font-black text-[#1E5EFF]">SDB</Link>
+                <Link href="/" class="flex items-center gap-2">
+                    <img src="/images/sdb-logo.png" alt="SDB" class="h-16 w-auto" />
+                </Link>
                 <div class="flex gap-3">
                     <Link href="/privacy" class="lg-link">الخصوصية</Link>
                     <Link href="/about" class="lg-link">عن البنك</Link>
                     <Link href="/faq" class="lg-link">الأسئلة الشائعة</Link>
+                    <Link href="/support" class="lg-link">الدعم</Link>
                 </div>
             </div>
         </header>
@@ -23,8 +26,8 @@ import { Head, Link } from '@inertiajs/vue3';
             <div class="lg-content">
                 <section class="lg-section">
                     <h2>1. مقدمة</h2>
-                    <p>مرحباً بك في ShambaDigital Bank (SDB). باستخدامك لخدماتنا المصرفية الرقمية، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل فتح حساب أو استخدام أي من خدماتنا.</p>
-                    <p>SDB هو بنك رقمي مرخّص ويعمل وفقاً للقوانين واللوائح المصرفية المعمول بها. نخضع لرقابة الجهات التنظيمية المختصة ونلتزم بأعلى معايير الامتثال المالي.</p>
+                    <p>مرحباً بك في SDB Bank ApS. باستخدامك لخدماتنا المصرفية الرقمية، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل فتح حساب أو استخدام أي من خدماتنا.</p>
+                    <p>SDB Bank هو مؤسسة مالية رقمية مسجّلة في الدنمارك ويعمل وفقاً للقوانين واللوائح المصرفية الأوروبية المعمول بها. نخضع لرقابة الجهات التنظيمية المختصة ونلتزم بأعلى معايير الامتثال المالي.</p>
                 </section>
 
                 <section class="lg-section">
@@ -112,16 +115,17 @@ import { Head, Link } from '@inertiajs/vue3';
 
                 <section class="lg-section">
                     <h2>10. القانون المطبق</h2>
-                    <p>تخضع هذه الشروط للقوانين المعمول بها. في حالة أي نزاع، يتم حله عبر الوساطة أولاً، ثم التحكيم إذا لزم الأمر.</p>
+                    <p>تخضع هذه الشروط لقوانين مملكة الدنمارك والاتحاد الأوروبي. في حالة أي نزاع، يتم حله عبر الوساطة أولاً، ثم التحكيم أمام المحاكم الدنماركية المختصة إذا لزم الأمر.</p>
                 </section>
 
                 <section class="lg-section">
                     <h2>11. الاتصال بنا</h2>
                     <p>لأي استفسارات حول هذه الشروط:</p>
                     <ul>
-                        <li>البريد الإلكتروني: legal@shambank.com</li>
-                        <li>الهاتف: +963-XXX-XXX-XXXX</li>
+                        <li>البريد الإلكتروني: legal@sdb-bank.com</li>
+                        <li>الهاتف: +45 42 80 55 94</li>
                         <li>الدعم داخل التطبيق: متاح 24/7</li>
+                        <li>العنوان: Wimosem 18, 4000 Roskilde, Denmark</li>
                     </ul>
                 </section>
             </div>
@@ -129,8 +133,8 @@ import { Head, Link } from '@inertiajs/vue3';
 
         <footer class="lg-footer">
             <div class="max-w-4xl mx-auto px-6 flex justify-between items-center">
-                <span class="text-sm text-gray-400">© 2026 SDB. جميع الحقوق محفوظة.</span>
-                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
+                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. جميع الحقوق محفوظة. مسجل في الدنمارك.</span>
+                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/support" class="lg-flink">الدعم</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
             </div>
         </footer>
     </div>

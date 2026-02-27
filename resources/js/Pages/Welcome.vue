@@ -112,7 +112,7 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
     <div :class="isAr ? 'text-right' : ''" class="reveal">
       <div class="hero-tag"><span class="tag-dot"></span>{{ ar('مصرفية رقمية من الجيل الجديد','Next-Gen Digital Banking') }}</div>
       <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-[#0B1F3A] mb-6">{{ ar('مستقبل المصارف بين يديك مع','The Future of Banking in Your Hands with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
-      <p class="text-[#0B1F3A]/50 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
+      <p class="text-[#0B1F3A]/65 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
       <div class="flex items-center gap-3 mb-3 max-w-md">
         <Link v-if="canRegister" :href="route('register')" class="btn-blue btn-big whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
         <a href="#cards" class="btn-outline whitespace-nowrap">{{ ar('اكتشف البطاقات','Explore Cards') }}</a>
@@ -144,7 +144,7 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
       <div class="step-num">{{ step.num }}</div>
       <div class="step-icon">{{ step.icon }}</div>
       <h3 class="font-bold text-lg text-[#0B1F3A] mb-2">{{ step.t }}</h3>
-      <p class="text-sm text-[#0B1F3A]/40 leading-relaxed">{{ step.d }}</p>
+      <p class="text-sm text-[#0B1F3A]/55 leading-relaxed">{{ step.d }}</p>
       <div v-if="i<2" class="step-arrow">→</div>
     </div>
   </div>
@@ -195,7 +195,7 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
         </div>
       </div>
       <div class="text-xl font-black mt-5 mb-3" :class="c.tc">{{ c.sub }}</div>
-      <ul class="space-y-2"><li v-for="f in c.feats" :key="f" class="text-[13px] text-[#0B1F3A]/40 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#1E5EFF]/40 flex-shrink-0"></span>{{ f }}</li></ul>
+      <ul class="space-y-2"><li v-for="f in c.feats" :key="f" class="text-[13px] text-[#0B1F3A]/60 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#1E5EFF]/50 flex-shrink-0"></span>{{ f }}</li></ul>
     </div>
   </div>
   <div class="max-w-4xl mx-auto px-6 mt-8 flex flex-wrap justify-center gap-3">
@@ -247,12 +247,12 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 <!-- STATS -->
 <section class="stats-bar">
   <div class="max-w-7xl mx-auto px-6 text-center mb-6">
-    <p class="text-[#0B1F3A]/35 text-sm font-medium">{{ ar('انضم إلى آلاف المستخدمين','Join thousands of users') }}</p>
+    <p class="text-[#0B1F3A]/50 text-sm font-medium">{{ ar('انضم إلى آلاف المستخدمين','Join thousands of users') }}</p>
   </div>
   <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
     <div v-for="(s,i) in stats" :key="i" class="text-center py-6 reveal" :style="{transitionDelay: (i * 150) + 'ms'}">
       <div class="text-[clamp(2rem,4vw,3rem)] font-black bg-gradient-to-br from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">{{ s.prefix || '' }}{{ s.current }}{{ s.suffix }}</div>
-      <div class="text-xs text-[#1E5EFF]/40 mt-2 font-semibold">{{ [ar('مستخدم','Users'),ar('معاملات','Volume'),ar('استقرار','Uptime'),ar('شراكة','Partners')][i] }}</div>
+      <div class="text-xs text-[#0B1F3A]/55 mt-2 font-semibold">{{ [ar('مستخدم نشط','Active Users'),ar('حجم المعاملات','Transaction Volume'),ar('وقت التشغيل','Uptime'),ar('عملة مدعومة','Currencies')][i] }}</div>
     </div>
   </div>
 </section>
@@ -297,14 +297,14 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
   <div class="max-w-5xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
     <div v-for="(p,i) in [
       {n:'Standard',price:ar('مجاني','Free'),nc:'text-[#0B1F3A]',pc:'text-[#0B1F3A]',bc:'btn-light',feats:ar(['حساب أساسي','بطاقة افتراضية','تحويلات محلية','إشعارات'],['Basic account','Virtual card','Local transfers','Alerts'])},
-      {n:'Plus',price:'5$',nc:'text-[#1E5EFF]',pc:'text-[#0B1F3A]',bc:'btn-pop',pop:true,feats:ar(['كل مزايا Standard','حدود أعلى','حماية مشتريات','دعم أولوية'],['All Standard +','Higher limits','Purchase protection','Priority'])},
-      {n:'Premium',price:'12$',nc:'text-violet-600',pc:'text-[#0B1F3A]',bc:'btn-prem',feats:ar(['كل مزايا Plus','صرف غير محدود','تأمين سفر','eSIM'],['All Plus +','Unlimited FX','Travel insurance','eSIM'])},
-      {n:'Elite',price:'25$',nc:'text-[#C6A75E]',pc:'text-[#C6A75E]',bc:'btn-elite',feats:ar(['كل مزايا Premium','Lounge غير محدود','مدير خاص','VIP + استرداد'],['All Premium +','Unlimited Lounge','Manager','VIP + Cashback'])}
+      {n:'Plus',price:'5€',nc:'text-[#1E5EFF]',pc:'text-[#0B1F3A]',bc:'btn-pop',pop:true,feats:ar(['كل مزايا Standard','حدود أعلى','حماية مشتريات','دعم أولوية'],['All Standard +','Higher limits','Purchase protection','Priority'])},
+      {n:'Premium',price:'12€',nc:'text-violet-600',pc:'text-[#0B1F3A]',bc:'btn-prem',feats:ar(['كل مزايا Plus','صرف غير محدود','تأمين سفر','eSIM'],['All Plus +','Unlimited FX','Travel insurance','eSIM'])},
+      {n:'Elite',price:'25€',nc:'text-[#C6A75E]',pc:'text-[#C6A75E]',bc:'btn-elite',feats:ar(['كل مزايا Premium','Lounge غير محدود','مدير خاص','VIP + استرداد'],['All Premium +','Unlimited Lounge','Manager','VIP + Cashback'])}
     ]" :key="i" class="pcard reveal" :class="p.pop ? 'pcard-pop' : ''" :style="{transitionDelay: (i * 120) + 'ms'}">
       <div v-if="p.pop" class="pop-tag">{{ ar('الأكثر طلباً','Popular') }}</div>
       <h3 class="font-black text-lg mb-1" :class="p.nc">{{ p.n }}</h3>
-      <div class="text-3xl font-black mb-5" :class="p.pc">{{ p.price }}<span v-if="p.price!==ar('مجاني','Free')" class="text-sm text-[#0B1F3A]/30 font-normal">/{{ ar('شهرياً','mo') }}</span></div>
-      <ul class="space-y-3 mb-6"><li v-for="f in p.feats" :key="f" class="text-[13px] text-[#0B1F3A]/45 flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0 text-[#00D084]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>{{ f }}</li></ul>
+      <div class="text-3xl font-black mb-5" :class="p.pc">{{ p.price }}<span v-if="!['مجاني','Free'].includes(p.price)" class="text-sm text-[#0B1F3A]/40 font-normal">/{{ ar('شهرياً','mo') }}</span></div>
+      <ul class="space-y-3 mb-6"><li v-for="f in p.feats" :key="f" class="text-[13px] text-[#0B1F3A]/60 flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0 text-[#00D084]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>{{ f }}</li></ul>
       <Link v-if="canRegister" :href="route('register')" class="pricing-btn" :class="p.bc">{{ ar('ابدأ الآن','Get Started') }}</Link>
     </div>
   </div>
@@ -380,13 +380,13 @@ html{scroll-behavior:smooth}
 
 /* SECTIONS - see ENHANCED SECTIONS below */
 .sec-title{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;margin-bottom:14px;color:#0B1F3A}
-.sec-desc{color:rgba(11,31,58,0.4);max-width:560px;margin:0 auto;font-size:15px;line-height:1.7}
+.sec-desc{color:rgba(11,31,58,0.6);max-width:560px;margin:0 auto;font-size:15px;line-height:1.7}
 
 /* FEATURE CARDS */
 .fcard{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:20px;padding:28px;transition:all .35s}.fcard:hover{border-color:rgba(30,94,255,0.2);box-shadow:0 12px 40px rgba(30,94,255,0.08);transform:translateY(-4px)}
 .fcard-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#EEF2FF,#DBEAFE);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;transition:transform .3s}.fcard:hover .fcard-icon{transform:scale(1.1)}
 .sec-card{background:rgba(30,94,255,0.02);border:1.5px solid rgba(11,31,58,0.06);border-radius:20px;padding:28px;text-align:center;transition:all .3s}.sec-card:hover{border-color:rgba(30,94,255,0.2);transform:translateY(-3px);box-shadow:0 10px 30px rgba(30,94,255,0.06)}
-.pill{padding:8px 18px;background:rgba(30,94,255,0.04);border:1px solid rgba(30,94,255,0.1);border-radius:100px;font-size:12px;color:rgba(11,31,58,0.4);transition:all .3s}.pill:hover{border-color:#1E5EFF;color:#1E5EFF}
+.pill{padding:8px 18px;background:rgba(30,94,255,0.05);border:1px solid rgba(30,94,255,0.15);border-radius:100px;font-size:12px;color:rgba(11,31,58,0.55);font-weight:500;transition:all .3s}.pill:hover{border-color:#1E5EFF;color:#1E5EFF}
 
 /* REALISTIC BANK CARDS */
 .card-tier-wrap{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:20px;padding:24px;transition:all .35s}.card-tier-wrap:hover{border-color:rgba(30,94,255,0.15);box-shadow:0 12px 40px rgba(30,94,255,0.08);transform:translateY(-4px)}
@@ -415,7 +415,7 @@ html{scroll-behavior:smooth}
 .btn-light{background:#F3F4F6;color:#374151}.btn-light:hover{background:#E5E7EB}
 .btn-pop{background:linear-gradient(135deg,#1E5EFF,#3B82F6);color:#fff;box-shadow:0 4px 15px rgba(30,94,255,0.2)}.btn-pop:hover{box-shadow:0 8px 25px rgba(30,94,255,0.3)}
 .btn-prem{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}.btn-prem:hover{box-shadow:0 4px 15px rgba(109,40,217,0.25)}
-.btn-elite{background:linear-gradient(135deg,#C6A75E,#d4b56c);color:#0B1F3A;font-weight:800}.btn-elite:hover{box-shadow:0 4px 15px rgba(198,167,94,0.3)}
+.btn-elite{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);color:#C6A75E;font-weight:800;border:1px solid rgba(198,167,94,0.3)}.btn-elite:hover{box-shadow:0 4px 15px rgba(198,167,94,0.3)}
 
 /* CTA */
 .cta-sec{padding:120px 0;background:linear-gradient(180deg,rgba(30,94,255,0.03),rgba(0,194,255,0.05),rgba(30,94,255,0.03))}

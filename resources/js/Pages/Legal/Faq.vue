@@ -34,7 +34,7 @@ const faqs = [
     { q: 'ما هو KYC ولماذا هو مطلوب؟', a: 'KYC (اعرف عميلك) هو إجراء تنظيمي إلزامي للتحقق من هوية العملاء. يشمل تقديم وثيقة هوية وإثبات عنوان. هذا يحمي حسابك ويساعد في مكافحة غسيل الأموال والاحتيال.' },
   ]},
   { cat: '🎧 الدعم', items: [
-    { q: 'كيف أتواصل مع خدمة العملاء؟', a: 'يمكنك التواصل معنا عبر: الدعم المباشر داخل التطبيق (24/7)، البريد الإلكتروني support@shambank.com، أو الهاتف. فريقنا متاح دائماً لمساعدتك.' },
+    { q: 'كيف أتواصل مع خدمة العملاء؟', a: 'يمكنك التواصل معنا عبر: الدعم المباشر داخل التطبيق (24/7)، البريد الإلكتروني support@sdb-bank.com، أو الهاتف +45 42 80 55 94. فريقنا متاح دائماً لمساعدتك.' },
     { q: 'كم تستغرق معالجة تذاكر الدعم؟', a: 'نسعى للرد على جميع التذاكر خلال 4 ساعات كحد أقصى. المسائل العاجلة (مثل الاحتيال) تُعالج فوراً.' },
   ]},
 ];
@@ -48,11 +48,14 @@ const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ .
     <div class="lg-root">
         <header class="lg-header">
             <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="text-xl font-black text-[#1E5EFF]">SDB</Link>
+                <Link href="/" class="flex items-center gap-2">
+                    <img src="/images/sdb-logo.png" alt="SDB" class="h-16 w-auto" />
+                </Link>
                 <div class="flex gap-3">
                     <Link href="/terms" class="lg-link">الشروط والأحكام</Link>
                     <Link href="/privacy" class="lg-link">الخصوصية</Link>
                     <Link href="/about" class="lg-link">عن البنك</Link>
+                    <Link href="/support" class="lg-link">الدعم</Link>
                 </div>
             </div>
         </header>
@@ -83,16 +86,16 @@ const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ .
                 <h3 class="font-bold text-[#0B1F3A] text-lg mb-1">لم تجد إجابتك؟</h3>
                 <p class="text-sm text-gray-400 mb-4">فريق الدعم لدينا متاح 24/7 لمساعدتك</p>
                 <div class="flex gap-3 justify-center">
-                    <a href="mailto:support@shambank.com" class="fq-btn">📧 راسلنا</a>
-                    <Link href="/login" class="fq-btn fq-btn-blue">🎧 الدعم المباشر</Link>
+                    <a href="mailto:support@sdb-bank.com" class="fq-btn">📧 راسلنا</a>
+                    <Link href="/support" class="fq-btn fq-btn-blue">🎧 الدعم المباشر</Link>
                 </div>
             </div>
         </main>
 
         <footer class="lg-footer">
             <div class="max-w-4xl mx-auto px-6 flex justify-between items-center">
-                <span class="text-sm text-gray-400">© 2026 SDB. جميع الحقوق محفوظة.</span>
-                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
+                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. جميع الحقوق محفوظة. مسجل في الدنمارك.</span>
+                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/support" class="lg-flink">الدعم</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
             </div>
         </footer>
     </div>
