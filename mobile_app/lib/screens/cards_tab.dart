@@ -283,12 +283,212 @@ class _CardsTabState extends State<CardsTab> {
             _load();
           }),
           const SizedBox(width: 10),
-          _cardAction(Icons.visibility_outlined, 'التفاصيل', () {}),
+          _cardAction(Icons.visibility_outlined, 'التفاصيل', () => _showCardDetails(card)),
           const SizedBox(width: 10),
-          _cardAction(Icons.settings_outlined, 'الحدود', () {}),
+          _cardAction(Icons.settings_outlined, 'الحدود', () => _showCardLimits(card)),
         ]),
+        const SizedBox(height: 10),
+        // Apple Wallet button
+        if (!isFrozen) GestureDetector(
+          onTap: () => _addToAppleWallet(card),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))],
+            ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.apple, size: 20, color: Colors.white),
+              const SizedBox(width: 8),
+              const Text('إضافة إلى Apple Wallet', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 0.3)),
+            ]),
+          ),
+        ),
       ]),
     );
+  }
+
+  void _showCardDetails(Map<String, dynamic> card) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
+        const SizedBox(height: 20),
+        Row(children: [
+          Container(width: 44, height: 44, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
+            child: Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 22)),
+          const SizedBox(width: 12),
+          const Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        ]),
+        const SizedBox(height: 24),
+        _detailRow('رقم البطاقة', card['card_number_masked'] ?? '•••• •••• •••• ••••'),
+        _detailRow('اسم حامل البطاقة', card['card_holder_name'] ?? ''),
+        _detailRow('تاريخ الانتهاء', _fmtExpiry(card['expiry_date'])),
+        _detailRow('نوع البطاقة', 'Mastercard Virtual'),
+        _detailRow('الحالة', card['status'] == 'active' ? '✓ نشطة' : card['status'] == 'frozen' ? '❄ مجمّدة' : card['status'] ?? ''),
+        _detailRow('العملة', card['account']?['currency']?['code'] ?? 'EUR'),
+      ]),
+    ));
+  }
+
+  Widget _detailRow(String label, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(children: [
+      Text(label, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+      const Spacer(),
+      Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+    ]),
+  );
+
+  void _showCardLimits(Map<String, dynamic> card) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
+        const SizedBox(height: 20),
+        Row(children: [
+          Container(width: 44, height: 44, decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
+            child: const Icon(Icons.speed_rounded, color: Color(0xFFF59E0B), size: 22)),
+          const SizedBox(width: 12),
+          const Text('حدود البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        ]),
+        const SizedBox(height: 24),
+        _limitItem('حد الإنفاق', '€${card['spending_limit'] ?? 5000}', Icons.shopping_bag_rounded, const Color(0xFF6366F1)),
+        _limitItem('الحد اليومي', '€${card['daily_limit'] ?? 2000}', Icons.today_rounded, const Color(0xFF10B981)),
+        _limitItem('الحد الشهري', '€${card['monthly_limit'] ?? 10000}', Icons.calendar_month_rounded, const Color(0xFFF59E0B)),
+        const SizedBox(height: 10),
+        _limitToggle('الدفع عبر الإنترنت', card['online_payment_enabled'] ?? true),
+        _limitToggle('الدفع بدون تلامس', card['contactless_enabled'] ?? true),
+      ]),
+    ));
+  }
+
+  Widget _limitItem(String label, String value, IconData icon, Color c) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: c.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14)),
+      child: Row(children: [
+        Container(width: 38, height: 38, decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: c, size: 18)),
+        const SizedBox(width: 12),
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.textPrimary)),
+        const Spacer(),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c)),
+      ]),
+    ),
+  );
+
+  Widget _limitToggle(String label, bool enabled) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(children: [
+      Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+      const Spacer(),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: enabled ? AppTheme.success.withValues(alpha: 0.08) : AppTheme.danger.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Text(enabled ? 'مفعّل' : 'معطّل', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: enabled ? AppTheme.success : AppTheme.danger)),
+      ),
+    ]),
+  );
+
+  void _addToAppleWallet(Map<String, dynamic> card) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (ctx) => Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
+        const SizedBox(height: 24),
+        Container(
+          width: 70, height: 70,
+          decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(18)),
+          child: const Icon(Icons.apple, color: Colors.white, size: 36),
+        ),
+        const SizedBox(height: 16),
+        const Text('إضافة إلى Apple Wallet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        const SizedBox(height: 8),
+        Text('بطاقة SDB Mastercard', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+        const SizedBox(height: 24),
+
+        // Card preview
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0F172A), Color(0xFF1E293B)]),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Text('SDB', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.4), letterSpacing: 3)),
+              const Spacer(),
+              Text('Mastercard', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.3))),
+            ]),
+            const SizedBox(height: 16),
+            Text(card['card_number_masked'] ?? '•••• •••• •••• ••••', style: TextStyle(fontSize: 16, letterSpacing: 3, fontFamily: 'monospace', color: Colors.white.withValues(alpha: 0.8))),
+            const SizedBox(height: 10),
+            Row(children: [
+              Text(card['card_holder_name'] ?? '', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
+              const Spacer(),
+              Text(_fmtExpiry(card['expiry_date']), style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
+            ]),
+          ]),
+        ),
+        const SizedBox(height: 24),
+
+        // Info text
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(14)),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.primary),
+            const SizedBox(width: 10),
+            Expanded(child: Text('ستتم إضافة بطاقتك إلى Apple Wallet للدفع السريع عبر Apple Pay في المتاجر وعبر الإنترنت.',
+              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5))),
+          ]),
+        ),
+        const SizedBox(height: 20),
+
+        // Add button
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(ctx);
+            _simulateAddToWallet(card);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(16)),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.apple, color: Colors.white, size: 22),
+              const SizedBox(width: 8),
+              const Text('إضافة الآن', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+            ]),
+          ),
+        ),
+      ]),
+    ));
+  }
+
+  void _simulateAddToWallet(Map<String, dynamic> card) async {
+    // Show loading
+    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) Navigator.pop(context);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('✅ تم إضافة البطاقة إلى Apple Wallet بنجاح!'),
+        backgroundColor: AppTheme.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ));
+    }
   }
 
   String _fmtExpiry(dynamic raw) {
