@@ -393,14 +393,15 @@ html{scroll-behavior:smooth}
 .btn-pill-white{display:inline-flex;align-items:center;padding:8px 24px;border-radius:100px;font-weight:600;background:#fff;color:#0B1F3A;transition:all .3s;border:none}.btn-pill-white:hover{background:rgba(255,255,255,0.85)}
 
 /* SECTION BACKGROUNDS */
-.sec-light{background:#F0F0F0}
-.sec-white{background:#fff}
-.sec-black{background:#0B1F3A;padding:100px 0}
+.sec-light{background:#F0F0F0!important}
+.sec-white{background:#fff!important}
+.sec-black{background:#0B1F3A!important;padding:100px 0}
 .sec-black .card-tier-wrap{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.08)}
 .sec-black .card-tier-wrap:hover{border-color:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
 .sec-black .card-tier-wrap .text-xl{color:#fff!important}
 .sec-black .card-tier-wrap li{color:rgba(255,255,255,0.45)!important}
 .sec-black .card-tier-wrap li span{background:rgba(255,255,255,0.2)!important}
+.sec-black .pill{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.15)!important;color:rgba(255,255,255,0.5)!important}
 
 /* HERO DARK */
 .hero-dark{position:relative;background:linear-gradient(145deg,#050d1a 0%,#0B1F3A 30%,#0a1a30 60%,#040c18 100%);overflow:hidden;min-height:100vh;display:flex;align-items:center}
