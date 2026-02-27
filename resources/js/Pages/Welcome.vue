@@ -310,22 +310,31 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </section>
 
 <!-- PRICING -->
-<section id="pricing" class="sec">
-  <div class="relative max-w-7xl mx-auto px-6 text-center mb-16 reveal">
-    <h2 class="sec-title">{{ ar('اختر خطتك','Choose Your Plan') }}</h2>
-  </div>
-  <div class="max-w-5xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-    <div v-for="(p,i) in [
-      {n:'Standard',price:ar('مجاني','Free'),nc:'text-[#0B1F3A]',pc:'text-[#0B1F3A]',bc:'btn-light',feats:ar(['حساب أساسي','بطاقة افتراضية','تحويلات محلية','إشعارات'],['Basic account','Virtual card','Local transfers','Alerts'])},
-      {n:'Plus',price:'5€',nc:'text-[#1E5EFF]',pc:'text-[#0B1F3A]',bc:'btn-pop',pop:true,feats:ar(['كل مزايا Standard','حدود أعلى','حماية مشتريات','دعم أولوية'],['All Standard +','Higher limits','Purchase protection','Priority'])},
-      {n:'Premium',price:'12€',nc:'text-violet-600',pc:'text-[#0B1F3A]',bc:'btn-prem',feats:ar(['كل مزايا Plus','صرف غير محدود','تأمين سفر','eSIM'],['All Plus +','Unlimited FX','Travel insurance','eSIM'])},
-      {n:'Elite',price:'25€',nc:'text-[#C6A75E]',pc:'text-[#C6A75E]',bc:'btn-elite',feats:ar(['كل مزايا Premium','Lounge غير محدود','مدير خاص','VIP + استرداد'],['All Premium +','Unlimited Lounge','Manager','VIP + Cashback'])}
-    ]" :key="i" class="pcard reveal" :class="p.pop ? 'pcard-pop' : ''" :style="{transitionDelay: (i * 120) + 'ms'}">
-      <div v-if="p.pop" class="pop-tag">{{ ar('الأكثر طلباً','Popular') }}</div>
-      <h3 class="font-black text-lg mb-1" :class="p.nc">{{ p.n }}</h3>
-      <div class="text-3xl font-black mb-5" :class="p.pc">{{ p.price }}<span v-if="!['مجاني','Free'].includes(p.price)" class="text-sm text-[#0B1F3A]/40 font-normal">/{{ ar('شهرياً','mo') }}</span></div>
-      <ul class="space-y-3 mb-6"><li v-for="f in p.feats" :key="f" class="text-[13px] text-[#0B1F3A]/60 flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0 text-[#00D084]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>{{ f }}</li></ul>
-      <Link v-if="canRegister" :href="route('register')" class="pricing-btn" :class="p.bc">{{ ar('ابدأ الآن','Get Started') }}</Link>
+<section id="pricing" class="pricing-dark">
+  <div class="max-w-7xl mx-auto px-6">
+    <h2 class="text-[clamp(2rem,4vw,3rem)] font-black text-white mb-12 reveal">{{ ar('اختر خطتك','Choose your plan') }}</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+      <div v-for="(p,i) in [
+        {n:'Standard',price:ar('مجاني','Free'),desc:ar('كل الأساسيات — حساب رقمي، بطاقة افتراضية، تحويلات محلية، وإدارة أموالك من تطبيق واحد.','The financial basics — everything you need for better money management in one place.')},
+        {n:'Plus',price:'3.99€',desc:ar('للمنفق الذكي — حدود أعلى للتحويلات، حماية مشتريات، وتأمين على مشترياتك بسعر معقول.','For the smart spender — access better limits for spending abroad and insurance for your purchases.')},
+        {n:'Premium',price:'7.99€',desc:ar('لحياة أفضل كل يوم — صرف عملات غير محدود، اشتراكات حصرية، وأسعار ادخار أفضل.','For elevating every day — access exclusive subscriptions, better savings rates, and unlimited currency exchange.')}
+      ]" :key="i" class="plan-card reveal" :style="{transitionDelay: (i * 100) + 'ms'}">
+        <h3 class="text-xl font-black text-[#0B1F3A] mb-1">{{ p.n }}</h3>
+        <div class="text-lg font-bold text-[#0B1F3A] mb-4">{{ p.price }}<span v-if="!['مجاني','Free'].includes(p.price)" class="text-sm text-[#0B1F3A]/40 font-normal">/{{ ar('شهرياً','month') }}</span></div>
+        <p class="text-sm text-[#0B1F3A]/50 leading-relaxed mb-6">{{ p.desc }}</p>
+        <Link v-if="canRegister" :href="route('register')" class="plan-arrow">→</Link>
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-5">
+      <div v-for="(p,i) in [
+        {n:'Metal',price:'14.99€',desc:ar('للمسافرين والتجار حول العالم — تأمين سفر شامل، حدود محسّنة، واشتراكات بقيمة 2,100€ سنوياً.','For the global travellers and traders — relax with travel insurance, enjoy enhanced limits, and subscriptions worth €2,100 annually.')},
+        {n:'Ultra',price:'45€',desc:ar('لمن يريد الأفضل — صالات مطارات غير محدودة، بيانات دولية شهرية، اشتراكات شركاء، وحماية إلغاء شاملة.','For those seeking the best — get unlimited airport lounge access, monthly global data, partner subscriptions, and cancellation cover.')}
+      ]" :key="i" class="plan-card reveal" :style="{transitionDelay: ((i+3) * 100) + 'ms'}">
+        <h3 class="text-xl font-black text-[#0B1F3A] mb-1">{{ p.n }}</h3>
+        <div class="text-lg font-bold text-[#0B1F3A] mb-4">{{ p.price }}<span class="text-sm text-[#0B1F3A]/40 font-normal">/{{ ar('شهرياً','month') }}</span></div>
+        <p class="text-sm text-[#0B1F3A]/50 leading-relaxed mb-6">{{ p.desc }}</p>
+        <Link v-if="canRegister" :href="route('register')" class="plan-arrow">→</Link>
+      </div>
     </div>
   </div>
 </section>
@@ -453,15 +462,10 @@ html{scroll-behavior:smooth}
 /* STATS */
 .stats-bar{padding:80px 0;background:linear-gradient(180deg,rgba(30,94,255,0.02),rgba(30,94,255,0.05),rgba(30,94,255,0.02))}
 
-/* PRICING */
-.pcard{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:22px;padding:28px;transition:all .35s;position:relative}.pcard:hover{transform:translateY(-4px);box-shadow:0 15px 40px rgba(30,94,255,0.08)}
-.pcard-pop{border-color:rgba(30,94,255,0.25);box-shadow:0 4px 20px rgba(30,94,255,0.08)}
-.pop-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:4px 16px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);border-radius:100px;font-size:11px;font-weight:700;color:#fff;box-shadow:0 4px 12px rgba(30,94,255,0.25);white-space:nowrap}
-.pricing-btn{display:block;text-align:center;padding:12px;border-radius:14px;font-size:14px;font-weight:700;transition:all .3s}
-.btn-light{background:#F3F4F6;color:#374151}.btn-light:hover{background:#E5E7EB}
-.btn-pop{background:linear-gradient(135deg,#1E5EFF,#3B82F6);color:#fff;box-shadow:0 4px 15px rgba(30,94,255,0.2)}.btn-pop:hover{box-shadow:0 8px 25px rgba(30,94,255,0.3)}
-.btn-prem{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}.btn-prem:hover{box-shadow:0 4px 15px rgba(109,40,217,0.25)}
-.btn-elite{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);color:#C6A75E;font-weight:800;border:1px solid rgba(198,167,94,0.3)}.btn-elite:hover{box-shadow:0 4px 15px rgba(198,167,94,0.3)}
+/* PRICING - DARK */
+.pricing-dark{padding:100px 0;background:#0B1F3A}
+.plan-card{background:#fff;border-radius:20px;padding:32px;transition:all .35s;display:flex;flex-direction:column}.plan-card:hover{transform:translateY(-4px);box-shadow:0 15px 40px rgba(0,0,0,0.2)}
+.plan-arrow{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(11,31,58,0.05);color:#0B1F3A;font-size:18px;transition:all .3s;margin-top:auto;align-self:flex-end}.plan-arrow:hover{background:#1E5EFF;color:#fff;transform:translateX(4px)}
 
 /* CTA */
 .cta-sec{padding:120px 0;background:linear-gradient(180deg,rgba(30,94,255,0.03),rgba(0,194,255,0.05),rgba(30,94,255,0.03))}
