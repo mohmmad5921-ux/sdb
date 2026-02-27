@@ -160,5 +160,17 @@ class ApiService {
     return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
   }
 
+  // Apple Wallet
+  static Future<List<int>?> downloadWalletPass(dynamic cardId) async {
+    final t = await token;
+    final r = await http.get(Uri.parse('$baseUrl/cards/$cardId/wallet-pass'), headers: {
+      'Accept': 'application/vnd.apple.pkpass',
+      'X-Requested-With': 'XMLHttpRequest',
+      if (t != null) 'Authorization': 'Bearer $t',
+    });
+    if (r.statusCode == 200) return r.bodyBytes;
+    return null;
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

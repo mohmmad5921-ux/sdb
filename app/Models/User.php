@@ -16,7 +16,7 @@ class User extends Authenticatable
         'nationality', 'date_of_birth', 'address', 'city', 'country',
         'postal_code', 'profile_photo', 'role', 'preferred_language',
         'last_login_at', 'last_login_ip', 'referral_code', 'referred_by',
-        'customer_number',
+        'customer_number', 'stripe_cardholder_id',
     ];
 
     protected static function booted(): void

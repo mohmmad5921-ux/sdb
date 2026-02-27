@@ -11,6 +11,7 @@ class Card extends Model
         'card_type', 'card_holder_name', 'status', 'spending_limit',
         'daily_limit', 'monthly_limit', 'expiry_date', 'cvv_hash',
         'billing_address', 'online_payment_enabled', 'contactless_enabled',
+        'stripe_card_id',
     ];
 
     protected $casts = [

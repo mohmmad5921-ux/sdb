@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -458,7 +461,7 @@ class _CardsTabState extends State<CardsTab> {
         GestureDetector(
           onTap: () {
             Navigator.pop(ctx);
-            _simulateAddToWallet(card);
+            _realAddToWallet(card);
           },
           child: Container(
             width: double.infinity,
@@ -475,19 +478,50 @@ class _CardsTabState extends State<CardsTab> {
     ));
   }
 
-  void _simulateAddToWallet(Map<String, dynamic> card) async {
+  void _realAddToWallet(Map<String, dynamic> card) async {
     // Show loading
     showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) Navigator.pop(context);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('✅ تم إضافة البطاقة إلى Apple Wallet بنجاح!'),
-        backgroundColor: AppTheme.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
+    try {
+      final bytes = await ApiService.downloadWalletPass(card['id']);
+      if (mounted) Navigator.pop(context);
+
+      if (bytes != null && bytes.isNotEmpty) {
+        // Save to temp file
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/sdb_card.pkpass');
+        await file.writeAsBytes(bytes);
+
+        // Open with iOS (triggers Apple Wallet add dialog)
+        final result = await OpenFilex.open(file.path, type: 'application/vnd.apple.pkpass');
+        if (result.type != ResultType.done && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('تعذر فتح ملف البطاقة: ${result.message}'),
+            backgroundColor: AppTheme.danger,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ));
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('فشل تحميل ملف البطاقة'),
+            backgroundColor: AppTheme.danger,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ));
+        }
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('خطأ: $e'),
+          backgroundColor: AppTheme.danger,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
     }
   }
 

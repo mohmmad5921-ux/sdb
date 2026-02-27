@@ -51,6 +51,7 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('/cards', [MobileApiController::class , 'cards']);
             Route::post('/cards/issue', [MobileApiController::class , 'issueCard']);
             Route::post('/cards/{card}/toggle-freeze', [MobileApiController::class , 'toggleCardFreeze']);
+            Route::get('/cards/{card}/wallet-pass', [\App\Http\Controllers\Api\AppleWalletController::class , 'generatePass']);
 
             // Notifications
             Route::get('/notifications', [MobileApiController::class , 'notifications']);
