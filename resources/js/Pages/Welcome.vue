@@ -89,8 +89,8 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
       <button @click="toggleLang" class="lang-toggle">{{ ar('EN','عربي') }}</button>
     </div>
     <div class="hidden md:flex items-center gap-3">
-      <Link v-if="canLogin" :href="route('login')" class="text-white/60 hover:text-[#60A5FA] text-sm px-4 py-2 transition-colors font-medium">{{ ar('تسجيل الدخول','Login') }}</Link>
-      <Link v-if="canRegister" :href="route('register')" class="btn-glow text-sm">{{ ar('فتح حساب','Open Account') }}</Link>
+      <Link v-if="canLogin" :href="route('login')" class="text-white/70 hover:text-white text-sm px-4 py-2 transition-colors font-medium">{{ ar('تسجيل الدخول','Log in') }}</Link>
+      <Link v-if="canRegister" :href="route('register')" class="btn-pill-white text-sm">{{ ar('فتح حساب','Sign up') }}</Link>
     </div>
     <button @click="mobileMenuOpen=!mobileMenuOpen" class="md:hidden text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
@@ -115,12 +115,10 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
   <div class="hero-grid-bg"></div>
   <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center pt-36 pb-24 md:pt-44 md:pb-32">
     <div :class="isAr ? 'text-right' : ''" class="reveal">
-      <div class="hero-tag-dark"><span class="tag-dot"></span>{{ ar('مصرفية رقمية من الجيل الجديد','Next-Gen Digital Banking') }}</div>
-      <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-white mb-6">{{ ar('مستقبل المصارف بين يديك مع','The Future of Banking in Your Hands with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
-      <p class="text-white/55 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
-      <div class="flex items-center gap-3 mb-3 max-w-md">
-        <Link v-if="canRegister" :href="route('register')" class="btn-glow btn-big whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
-        <a href="#cards" class="btn-glass whitespace-nowrap">{{ ar('اكتشف البطاقات','Explore Cards') }}</a>
+      <h1 class="text-[clamp(3rem,6vw,4.5rem)] font-black leading-[1.05] text-white mb-8">{{ ar('غيّر طريقة تعاملك مع أموالك','Change the way you money') }}</h1>
+      <p class="text-white/50 text-[18px] leading-relaxed mb-10 max-w-lg">{{ ar('بيتك أو بره، محلياً أو عالمياً — تنقّل بحرية بين العملات والدول. سجّل مجاناً بضغطة زر.','Home or away, local or global — move freely between countries and currencies. Sign up for free, in a tap.') }}</p>
+      <div class="flex items-center gap-4 mb-3">
+        <Link v-if="canRegister" :href="route('register')" class="btn-pill-black whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
       </div>
       <div class="flex items-center gap-4 mt-6">
         <div class="flex -space-x-2">
@@ -160,7 +158,7 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="sec">
+<section class="sec sec-light">
   <div class="max-w-7xl mx-auto px-6 text-center mb-16 reveal">
     <h2 class="sec-title">{{ ar('كيف تبدأ مع SDB؟','How It Works') }}</h2>
     <p class="sec-desc">{{ ar('ثلاث خطوات بسيطة لبدء رحلتك المصرفية الرقمية','Three simple steps to start your digital banking journey') }}</p>
@@ -177,7 +175,7 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </section>
 
 <!-- SALARY -->
-<section id="salary" class="sec">
+<section id="salary" class="sec sec-white">
   <div class="sec-blue-bg"></div>
   <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
     <div class="reveal">
@@ -199,10 +197,10 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </section>
 
 <!-- CARDS -->
-<section id="cards" class="sec">
+<section id="cards" class="sec sec-black">
   <div class="relative max-w-7xl mx-auto px-6 text-center mb-16 reveal">
-    <h2 class="sec-title">{{ ar('بطاقات تناسب أسلوب حياتك','Cards That Fit Your Lifestyle') }}</h2>
-    <p class="sec-desc">{{ ar('بطاقات رقمية ومعدنية بتصميم فاخر، إشعارات فورية، وإدارة كاملة للأمان.','Digital and metal cards with premium design and full security management.') }}</p>
+    <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black text-white mb-4">{{ ar('بطاقات تناسب أسلوب حياتك','Cards That Fit Your Lifestyle') }}</h2>
+    <p class="text-white/50 max-w-560 mx-auto text-[15px] leading-relaxed">{{ ar('بطاقات رقمية ومعدنية بتصميم فاخر، إشعارات فورية، وإدارة كاملة للأمان.','Digital and metal cards with premium design and full security management.') }}</p>
   </div>
   <div class="max-w-6xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
     <div v-for="(c,i) in [
@@ -389,6 +387,20 @@ html{scroll-behavior:smooth}
 .btn-big{padding:14px 32px;font-size:15px;border-radius:16px}
 .btn-huge{padding:18px 48px;font-size:18px;border-radius:20px;box-shadow:0 8px 35px rgba(30,94,255,0.3)}
 .btn-outline{display:inline-flex;padding:12px 32px;border-radius:14px;font-weight:600;font-size:14px;color:#1E5EFF;border:2px solid rgba(30,94,255,0.25);transition:all .3s;background:transparent}.btn-outline:hover{background:#1E5EFF;color:#fff;box-shadow:0 4px 20px rgba(30,94,255,0.25)}
+
+/* REVOLUT-STYLE PILL BUTTONS */
+.btn-pill-black{display:inline-flex;align-items:center;padding:14px 36px;border-radius:100px;font-weight:700;font-size:16px;background:#000;color:#fff;transition:all .3s;border:none}.btn-pill-black:hover{background:#222;transform:scale(1.02)}
+.btn-pill-white{display:inline-flex;align-items:center;padding:8px 24px;border-radius:100px;font-weight:600;background:#fff;color:#0B1F3A;transition:all .3s;border:none}.btn-pill-white:hover{background:rgba(255,255,255,0.85)}
+
+/* SECTION BACKGROUNDS */
+.sec-light{background:#F0F0F0}
+.sec-white{background:#fff}
+.sec-black{background:#0B1F3A;padding:100px 0}
+.sec-black .card-tier-wrap{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.08)}
+.sec-black .card-tier-wrap:hover{border-color:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.sec-black .card-tier-wrap .text-xl{color:#fff!important}
+.sec-black .card-tier-wrap li{color:rgba(255,255,255,0.45)!important}
+.sec-black .card-tier-wrap li span{background:rgba(255,255,255,0.2)!important}
 
 /* HERO DARK */
 .hero-dark{position:relative;background:linear-gradient(145deg,#050d1a 0%,#0B1F3A 30%,#0a1a30 60%,#040c18 100%);overflow:hidden;min-height:100vh;display:flex;align-items:center}
