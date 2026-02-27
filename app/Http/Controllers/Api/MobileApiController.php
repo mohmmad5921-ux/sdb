@@ -72,7 +72,7 @@ class MobileApiController extends Controller
             'phone' => $request->phone,
             'password' => $request->password,
             'status' => 'active',
-            'kyc_status' => 'unverified',
+            'kyc_status' => 'pending',
             'role' => 'customer',
         ]);
 
