@@ -89,10 +89,10 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
       <button @click="toggleLang" class="lang-toggle">{{ ar('EN','عربي') }}</button>
     </div>
     <div class="hidden md:flex items-center gap-3">
-      <Link v-if="canLogin" :href="route('login')" class="text-[#0B1F3A]/60 hover:text-[#1E5EFF] text-sm px-4 py-2 transition-colors font-medium">{{ ar('تسجيل الدخول','Login') }}</Link>
-      <Link v-if="canRegister" :href="route('register')" class="btn-blue text-sm">{{ ar('فتح حساب','Open Account') }}</Link>
+      <Link v-if="canLogin" :href="route('login')" class="text-white/60 hover:text-[#60A5FA] text-sm px-4 py-2 transition-colors font-medium">{{ ar('تسجيل الدخول','Login') }}</Link>
+      <Link v-if="canRegister" :href="route('register')" class="btn-glow text-sm">{{ ar('فتح حساب','Open Account') }}</Link>
     </div>
-    <button @click="mobileMenuOpen=!mobileMenuOpen" class="md:hidden text-[#0B1F3A]"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button @click="mobileMenuOpen=!mobileMenuOpen" class="md:hidden text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
   <!-- MOBILE MENU -->
   <div v-if="mobileMenuOpen" class="md:hidden mob-menu">
@@ -105,30 +105,56 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 </nav>
 
 <!-- HERO -->
-<section class="hero-white">
-  <div class="hero-blob-1"></div>
-  <div class="hero-blob-2"></div>
+<section class="hero-dark">
+  <!-- Animated particles -->
+  <div class="particles">
+    <div v-for="i in 20" :key="i" class="particle" :style="{left: Math.random()*100+'%', top: Math.random()*100+'%', animationDelay: Math.random()*5+'s', animationDuration: (3+Math.random()*4)+'s', width: (2+Math.random()*4)+'px', height: (2+Math.random()*4)+'px'}"></div>
+  </div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-grid-bg"></div>
   <div class="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center pt-36 pb-24 md:pt-44 md:pb-32">
     <div :class="isAr ? 'text-right' : ''" class="reveal">
-      <div class="hero-tag"><span class="tag-dot"></span>{{ ar('مصرفية رقمية من الجيل الجديد','Next-Gen Digital Banking') }}</div>
-      <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-[#0B1F3A] mb-6">{{ ar('مستقبل المصارف بين يديك مع','The Future of Banking in Your Hands with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
-      <p class="text-[#0B1F3A]/65 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
+      <div class="hero-tag-dark"><span class="tag-dot"></span>{{ ar('مصرفية رقمية من الجيل الجديد','Next-Gen Digital Banking') }}</div>
+      <h1 class="text-[clamp(2.4rem,5vw,3.6rem)] font-black leading-[1.08] text-white mb-6">{{ ar('مستقبل المصارف بين يديك مع','The Future of Banking in Your Hands with') }} <span class="bg-gradient-to-r from-[#1E5EFF] to-[#00C2FF] bg-clip-text text-transparent">SDB</span></h1>
+      <p class="text-white/55 text-[17px] leading-relaxed mb-10 max-w-lg">{{ ar('افتح حسابك الرقمي خلال دقائق. حسابات متعددة العملات، بطاقات افتراضية وحقيقية، تحويلات دولية فورية — كل ذلك من تطبيق واحد آمن.','Open your digital account in minutes. Multi-currency accounts, virtual and physical cards, instant international transfers — all from one secure app.') }}</p>
       <div class="flex items-center gap-3 mb-3 max-w-md">
-        <Link v-if="canRegister" :href="route('register')" class="btn-blue btn-big whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
-        <a href="#cards" class="btn-outline whitespace-nowrap">{{ ar('اكتشف البطاقات','Explore Cards') }}</a>
+        <Link v-if="canRegister" :href="route('register')" class="btn-glow btn-big whitespace-nowrap">{{ ar('افتح حسابك مجاناً','Open Free Account') }}</Link>
+        <a href="#cards" class="btn-glass whitespace-nowrap">{{ ar('اكتشف البطاقات','Explore Cards') }}</a>
       </div>
       <div class="flex items-center gap-4 mt-6">
         <div class="flex -space-x-2">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">A</div>
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">S</div>
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold">M</div>
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-[#0B1F3A] flex items-center justify-center text-white text-[10px] font-bold">A</div>
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-[#0B1F3A] flex items-center justify-center text-white text-[10px] font-bold">S</div>
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-2 border-[#0B1F3A] flex items-center justify-center text-white text-[10px] font-bold">M</div>
         </div>
-        <p class="text-[12px] text-[#0B1F3A]/35">{{ ar('انضم لآلاف العملاء الذين يثقون بنا','Join thousands of customers who trust us') }}</p>
+        <p class="text-[12px] text-white/30">{{ ar('انضم لآلاف العملاء الذين يثقون بنا','Join thousands of customers who trust us') }}</p>
       </div>
     </div>
-    <!-- HERO IMAGE -->
+    <!-- 3D HERO IMAGE -->
     <div class="flex justify-center reveal-scale">
-      <img src="/images/hero-app.png" alt="SDB Banking App" class="hero-phone-img" />
+      <img src="/images/hero-3d.png" alt="SDB Banking App" class="hero-3d-img" />
+    </div>
+  </div>
+</section>
+
+<!-- CRYPTO TICKER -->
+<section class="crypto-ticker">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="crypto-grid">
+      <div v-for="(coin,i) in [
+        {name:'Bitcoin',sym:'BTC',price:'$97,245',change:'+2.4%',up:true,icon:'₿',color:'#F7931A'},
+        {name:'Ethereum',sym:'ETH',price:'$3,480',change:'+5.1%',up:true,icon:'⟠',color:'#627EEA'},
+        {name:'Tether',sym:'USDT',price:'$1.00',change:'+0.01%',up:true,icon:'₮',color:'#26A17B'},
+        {name:'Solana',sym:'SOL',price:'$198.50',change:'-1.2%',up:false,icon:'◎',color:'#9945FF'}
+      ]" :key="i" class="crypto-card reveal" :style="{transitionDelay: (i*100)+'ms'}">
+        <div class="crypto-icon" :style="{background: coin.color+'18', color: coin.color}">{{ coin.icon }}</div>
+        <div>
+          <div class="text-sm font-bold text-[#0B1F3A]">{{ coin.name }} <span class="text-[#0B1F3A]/30 text-xs font-normal">{{ coin.sym }}</span></div>
+          <div class="text-lg font-black text-[#0B1F3A]">{{ coin.price }}</div>
+        </div>
+        <div class="crypto-change" :class="coin.up ? 'crypto-up' : 'crypto-down'">{{ coin.change }}</div>
+      </div>
     </div>
   </div>
 </section>
@@ -348,10 +374,10 @@ onUnmounted(() => { if (observer) observer.disconnect(); if (testimonialTimer) c
 html{scroll-behavior:smooth}
 
 /* NAV */
-.nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,0.85);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid rgba(11,31,58,0.06)}
-.nav-lnk{color:rgba(11,31,58,0.45);font-weight:500;transition:all .3s}.nav-lnk:hover{color:#1E5EFF}
-.lang-toggle{padding:4px 14px;border-radius:8px;border:1px solid rgba(11,31,58,0.1);color:rgba(11,31,58,0.4);font-size:12px;transition:all .3s}.lang-toggle:hover{border-color:#1E5EFF;color:#1E5EFF}
-.nav-logo{height:120px;width:auto;object-fit:contain}
+.nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(5,13,26,0.85);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid rgba(30,94,255,0.08)}
+.nav-lnk{color:rgba(255,255,255,0.45);font-weight:500;transition:all .3s}.nav-lnk:hover{color:#60A5FA}
+.lang-toggle{padding:4px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-size:12px;transition:all .3s}.lang-toggle:hover{border-color:#60A5FA;color:#60A5FA}
+.nav-logo{height:120px;width:auto;object-fit:contain;filter:brightness(0) invert(1)}
 .card-logo{height:50px;width:auto;object-fit:contain;filter:brightness(2) drop-shadow(0 0 4px rgba(30,94,255,0.3))}
 .footer-logo{height:100px;width:auto;object-fit:contain}
 
@@ -361,13 +387,38 @@ html{scroll-behavior:smooth}
 .btn-huge{padding:18px 48px;font-size:18px;border-radius:20px;box-shadow:0 8px 35px rgba(30,94,255,0.3)}
 .btn-outline{display:inline-flex;padding:12px 32px;border-radius:14px;font-weight:600;font-size:14px;color:#1E5EFF;border:2px solid rgba(30,94,255,0.25);transition:all .3s;background:transparent}.btn-outline:hover{background:#1E5EFF;color:#fff;box-shadow:0 4px 20px rgba(30,94,255,0.25)}
 
-/* HERO */
-.hero-white{position:relative;background:#fff;overflow:hidden;min-height:100vh;display:flex;align-items:center}
-.hero-blob-1{position:absolute;top:0;right:0;width:60%;height:100%;background:linear-gradient(160deg,rgba(30,94,255,0.04) 0%,rgba(0,194,255,0.06) 40%,rgba(30,94,255,0.03) 70%,transparent 100%);border-radius:0 0 0 40%}
-.hero-blob-2{position:absolute;bottom:-20%;left:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(30,94,255,0.05),transparent 70%);filter:blur(80px)}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:100px;border:1px solid rgba(30,94,255,0.15);background:rgba(30,94,255,0.04);color:#1E5EFF;font-size:12px;font-weight:600;margin-bottom:28px}
+/* HERO DARK */
+.hero-dark{position:relative;background:linear-gradient(145deg,#050d1a 0%,#0B1F3A 30%,#0a1a30 60%,#040c18 100%);overflow:hidden;min-height:100vh;display:flex;align-items:center}
+.hero-glow-1{position:absolute;top:-20%;right:10%;width:600px;height:600px;background:radial-gradient(circle,rgba(30,94,255,0.15),transparent 70%);filter:blur(100px);animation:glowPulse 4s ease-in-out infinite}
+.hero-glow-2{position:absolute;bottom:-10%;left:20%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,194,255,0.1),transparent 70%);filter:blur(80px);animation:glowPulse 5s ease-in-out infinite 1s}
+@keyframes glowPulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(30,94,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(30,94,255,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent)}
+.hero-tag-dark{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:100px;border:1px solid rgba(30,94,255,0.25);background:rgba(30,94,255,0.1);color:#60A5FA;font-size:12px;font-weight:600;margin-bottom:28px;backdrop-filter:blur(10px)}
 .tag-dot{width:6px;height:6px;border-radius:50%;background:#00D084;box-shadow:0 0 8px #00D084;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* PARTICLES */
+.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.particle{position:absolute;background:rgba(30,94,255,0.4);border-radius:50%;animation:float linear infinite}
+@keyframes float{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+
+/* HERO 3D IMAGE */
+.hero-3d-img{max-width:500px;width:100%;height:auto;filter:drop-shadow(0 30px 80px rgba(30,94,255,0.3));animation:hero3dFloat 6s ease-in-out infinite}
+@keyframes hero3dFloat{0%,100%{transform:translateY(0) rotateY(0deg)}50%{transform:translateY(-20px) rotateY(3deg)}}
+
+/* GLOW BUTTON */
+.btn-glow{padding:10px 28px;border-radius:14px;font-weight:700;background:linear-gradient(135deg,#1E5EFF,#3B82F6);color:#fff;box-shadow:0 4px 20px rgba(30,94,255,0.4),0 0 40px rgba(30,94,255,0.15);transition:all .4s}.btn-glow:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(30,94,255,0.5),0 0 60px rgba(30,94,255,0.2)}
+.btn-glass{display:inline-flex;padding:12px 32px;border-radius:14px;font-weight:600;font-size:14px;color:#fff;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);transition:all .3s}.btn-glass:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3)}
+
+/* CRYPTO TICKER */
+.crypto-ticker{padding:60px 0;background:linear-gradient(180deg,#fff 0%,#f8faff 100%);position:relative}
+.crypto-ticker::before{content:'';position:absolute;top:-60px;left:0;right:0;height:60px;background:linear-gradient(180deg,#050d1a,transparent)}
+.crypto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:768px){.crypto-grid{grid-template-columns:repeat(2,1fr)}}
+.crypto-card{display:flex;align-items:center;gap:12px;padding:20px;background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:16px;transition:all .35s}.crypto-card:hover{border-color:rgba(30,94,255,0.2);box-shadow:0 12px 40px rgba(30,94,255,0.08);transform:translateY(-4px)}
+.crypto-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;flex-shrink:0}
+.crypto-change{margin-left:auto;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700}
+.crypto-up{background:rgba(0,208,132,0.1);color:#00D084}
+.crypto-down{background:rgba(255,59,48,0.1);color:#FF3B30}
 
 /* CARD */
 .credit-card{position:relative;width:360px;height:220px;border-radius:20px;background:linear-gradient(145deg,#0B1F3A,#143060,#0f2540);border:1px solid rgba(30,94,255,0.15);box-shadow:0 30px 60px rgba(11,31,58,0.25),0 8px 25px rgba(30,94,255,0.1);transform:rotateY(-6deg) rotateX(4deg);transition:transform .6s;z-index:1}.credit-card:hover{transform:rotateY(0) rotateX(0) scale(1.03)}
@@ -473,7 +524,7 @@ html{scroll-behavior:smooth}
 .revealed .fcard-icon{animation:iconBounce .5s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes iconBounce{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 
-/* HERO PHONE IMAGE */
+/* HERO PHONE IMAGE (legacy) */
 .hero-phone-img{max-width:420px;width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(11,31,58,0.15));animation:phoneFloat 6s ease-in-out infinite}
 @keyframes phoneFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
 
