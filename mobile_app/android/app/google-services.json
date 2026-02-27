@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64712937822",
+    "project_id": "sdb-banking-471e1",
+    "storage_bucket": "sdb-banking-471e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64712937822:android:72be55c719eb1547ec7fcf",
+        "android_client_info": {
+          "package_name": "com.sdb.sdbApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwtY03TvIxQ7kYBCowx29cd2NhekQxxZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

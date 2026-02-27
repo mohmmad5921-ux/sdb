@@ -124,5 +124,11 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
+  // Update Profile
+  static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    final r = await http.patch(Uri.parse('$baseUrl/profile'), headers: await _headers(), body: jsonEncode(data));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

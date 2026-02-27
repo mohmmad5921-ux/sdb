@@ -40,7 +40,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ? await ApiService.register({'full_name': _name.text, 'email': _email.text, 'password': _pass.text, 'password_confirmation': _confirmPass.text, 'phone': _phone.text, 'device_name': 'SDB App'})
         : await ApiService.login(_email.text, _pass.text);
       if (res['success'] == true) {
-        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+        if (_isRegister) {
+          // After registration → phone verification
+          if (mounted) {
+            await Navigator.pushNamed(context, '/phone-verify');
+            if (mounted) Navigator.pushReplacementNamed(context, '/home');
+          }
+        } else {
+          if (mounted) Navigator.pushReplacementNamed(context, '/home');
+        }
       } else {
         setState(() => _error = res['data']?['message'] ?? 'فشل في ${_isRegister ? "إنشاء الحساب" : "تسجيل الدخول"}');
       }

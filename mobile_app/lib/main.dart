@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
@@ -8,9 +9,11 @@ import 'screens/transfer_screen.dart';
 import 'screens/deposit_screen.dart';
 import 'screens/exchange_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/phone_verification_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -37,6 +40,7 @@ class SDBApp extends StatelessWidget {
         '/deposit': (_) => const DepositScreen(),
         '/exchange': (_) => const ExchangeScreen(),
         '/notifications': (_) => const NotificationsScreen(),
+        '/phone-verify': (_) => const PhoneVerificationScreen(),
       },
     );
   }
