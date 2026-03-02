@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 defineProps({ canLogin: Boolean, canRegister: Boolean });
-const lang = ref('ar');
+const lang = ref('en');
 const isAr = computed(() => lang.value === 'ar');
 const toggleLang = () => lang.value = lang.value === 'ar' ? 'en' : 'ar';
 const ar = (a, e) => isAr.value ? a : e;
