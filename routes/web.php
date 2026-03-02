@@ -14,6 +14,7 @@ use App\Http\Controllers\Banking\AnalyticsController;
 use App\Http\Controllers\Banking\BankingController;
 use App\Http\Controllers\Banking\BeneficiaryController;
 use App\Http\Controllers\Banking\CardDetailsController;
+use App\Http\Controllers\Banking\CryptoController;
 use App\Http\Controllers\Banking\KycController;
 use App\Http\Controllers\Banking\NotificationController;
 use App\Http\Controllers\Banking\ReferralController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Banking\SecurityController;
 use App\Http\Controllers\Banking\SupportController;
 use App\Http\Controllers\Banking\TransactionHistoryController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MoonPayController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KycRequiredMiddleware;
@@ -64,6 +66,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // MoonPay (Crypto Purchases)
+    Route::post('/moonpay/sign', [MoonPayController::class, 'signUrl'])->name('moonpay.sign');
 
     // Banking features — KYC REQUIRED
     Route::middleware([KycRequiredMiddleware::class])->group(
@@ -120,6 +125,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             // Referral
             Route::get('/referral', [ReferralController::class, 'index'])->name('banking.referral');
+
+            // Crypto Trading
+            Route::get('/crypto', [CryptoController::class, 'index'])->name('banking.crypto');
+            Route::get('/crypto/prices', [CryptoController::class, 'prices'])->name('banking.crypto.prices');
+            Route::post('/crypto/buy', [CryptoController::class, 'buy'])->name('banking.crypto.buy');
+            Route::post('/crypto/sell', [CryptoController::class, 'sell'])->name('banking.crypto.sell');
         }
     );
 });

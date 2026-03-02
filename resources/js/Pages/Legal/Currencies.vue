@@ -1,5 +1,14 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+
+const cryptoList = [
+  {name:'Bitcoin',sym:'BTC',price:'€89,450',change:'+2.4%',up:true,icon:'₿',color:'#F7931A'},
+  {name:'Ethereum',sym:'ETH',price:'€3,210',change:'+5.1%',up:true,icon:'⟠',color:'#627EEA'},
+  {name:'Tether',sym:'USDT',price:'€0.92',change:'+0.01%',up:true,icon:'₮',color:'#26A17B'},
+  {name:'Solana',sym:'SOL',price:'€183.20',change:'-1.2%',up:false,icon:'◎',color:'#9945FF'},
+  {name:'Ripple',sym:'XRP',price:'€2.15',change:'+3.8%',up:true,icon:'✕',color:'#23292F'},
+  {name:'Cardano',sym:'ADA',price:'€0.68',change:'+1.5%',up:true,icon:'⬡',color:'#3CC8C8'},
+];
 </script>
 <template>
 <Head title="العملات - SDB Bank | Currencies" />
@@ -104,23 +113,23 @@ import { Head, Link } from '@inertiajs/vue3';
   <section class="pg-sec">
     <div class="pg-wrap">
       <h2 class="pg-h2">العملات الرقمية</h2>
-      <p class="pg-sub">تداول وراقب أسعار العملات الرقمية الأكثر شهرة مباشرة من التطبيق.</p>
+      <p class="pg-sub">تداول وراقب أسعار العملات الرقمية الأكثر شهرة — واشترِ مباشرة من حسابك.</p>
       <div class="crypto-grid">
-        <div v-for="(c,i) in [
-          {name:'Bitcoin',sym:'BTC',price:'€89,450',change:'+2.4%',up:true,icon:'₿',color:'#F7931A'},
-          {name:'Ethereum',sym:'ETH',price:'€3,210',change:'+5.1%',up:true,icon:'⟠',color:'#627EEA'},
-          {name:'Tether',sym:'USDT',price:'€0.92',change:'+0.01%',up:true,icon:'₮',color:'#26A17B'},
-          {name:'Solana',sym:'SOL',price:'€183.20',change:'-1.2%',up:false,icon:'◎',color:'#9945FF'},
-          {name:'Ripple',sym:'XRP',price:'€2.15',change:'+3.8%',up:true,icon:'✕',color:'#23292F'},
-          {name:'Cardano',sym:'ADA',price:'€0.68',change:'+1.5%',up:true,icon:'⬡',color:'#3CC8C8'}
-        ]" :key="i" class="cr-card">
+        <div v-for="(c,i) in cryptoList" :key="i" class="cr-card">
           <div class="cr-icon" :style="{background:c.color+'15',color:c.color}">{{ c.icon }}</div>
           <div class="cr-info">
             <div class="cr-name">{{ c.name }} <span class="cr-sym">{{ c.sym }}</span></div>
             <div class="cr-price">{{ c.price }}</div>
           </div>
-          <div class="cr-change" :class="c.up ? 'cr-up' : 'cr-dn'">{{ c.change }}</div>
+          <div class="cr-actions">
+            <div class="cr-change" :class="c.up ? 'cr-up' : 'cr-dn'">{{ c.change }}</div>
+            <Link :href="route('register')" class="cr-buy-btn">اشترِ {{ c.sym }}</Link>
+          </div>
         </div>
+      </div>
+      <div class="mp-badge">
+        <span class="mp-badge-text">🔒 سجّل حساب وابدأ التداول</span>
+        <span class="mp-badge-logo">SDB Crypto</span>
       </div>
     </div>
   </section>
@@ -200,14 +209,46 @@ import { Head, Link } from '@inertiajs/vue3';
 .cur-sym{margin-right:auto;font-weight:700;font-size:16px;color:rgba(11,31,58,0.2)}
 
 /* CRYPTO */
-.crypto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.crypto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .cr-card{display:flex;align-items:center;gap:14px;padding:20px;background:#FAFBFC;border:1px solid rgba(11,31,58,0.06);border-radius:16px;transition:all .3s}.cr-card:hover{border-color:rgba(37,99,235,0.15);box-shadow:0 8px 20px rgba(0,0,0,0.04)}
 .cr-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex-shrink:0}
 .cr-info{flex:1}.cr-name{font-weight:700;font-size:15px}.cr-sym{font-weight:400;font-size:12px;color:rgba(11,31,58,0.3)}
 .cr-price{font-weight:800;font-size:18px;margin-top:2px}
+.cr-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .cr-change{padding:5px 12px;border-radius:8px;font-size:13px;font-weight:700}
 .cr-up{background:rgba(0,208,132,0.1);color:#00D084}
 .cr-dn{background:rgba(255,59,48,0.1);color:#FF3B30}
+
+/* BUY BUTTON */
+.cr-buy-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,#2563EB 0%,#4DA3E8 100%);color:#fff;
+  border:none;cursor:pointer;transition:all .25s;min-width:100px;
+  box-shadow:0 2px 8px rgba(37,99,235,0.25);
+}
+.cr-buy-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,0.35)}
+.cr-buy-btn:active{transform:translateY(0)}
+.cr-buy-btn:disabled{opacity:0.7;cursor:wait}
+.cr-buy-loading{background:linear-gradient(135deg,#94a3b8 0%,#64748b 100%)}
+
+/* SPINNER */
+.cr-spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MOONPAY BADGE */
+.mp-badge{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:32px;padding:12px 24px;
+  background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.1);
+  border-radius:12px;
+}
+.mp-badge-text{font-size:13px;color:rgba(11,31,58,0.5)}
+.mp-badge-logo{font-weight:900;font-size:15px;color:#7C3AED;letter-spacing:-0.02em}
 
 /* WHY */
 .why-card{padding:32px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)}
@@ -217,3 +258,4 @@ import { Head, Link } from '@inertiajs/vue3';
 
 .pg-ft{padding:24px 0;border-top:1px solid rgba(11,31,58,0.06);background:#FAFBFC}
 </style>
+
