@@ -23,6 +23,7 @@ use App\Http\Controllers\Banking\SupportController;
 use App\Http\Controllers\Banking\TransactionHistoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MoonPayController;
+use App\Http\Controllers\PreregistrationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KycRequiredMiddleware;
@@ -48,6 +49,9 @@ Route::get('/currencies', fn() => Inertia::render('Legal/Currencies'))->name('cu
 Route::get('/cards-info', fn() => Inertia::render('Legal/CardsInfo'))->name('cards.info');
 Route::get('/transfers-info', fn() => Inertia::render('Legal/TransfersInfo'))->name('transfers.info');
 
+// Pre-registration
+Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');
+Route::post('/preregister', [PreregistrationController::class, 'store']);
 // Payment Gateway Checkout
 Route::get('/checkout/{sessionId}', [CheckoutController::class, 'show'])->name('checkout.pay');
 Route::post('/checkout/{sessionId}/pay', [CheckoutController::class, 'pay'])->name('checkout.process')->middleware('auth');
