@@ -6,26 +6,18 @@ const lang = ref('ar');
 const isAr = computed(() => lang.value === 'ar');
 const toggleLang = () => lang.value = lang.value === 'ar' ? 'en' : 'ar';
 const ar = (a, e) => isAr.value ? a : e;
+const mob = ref(false);
 
 const launchDate = new Date('2026-04-15T00:00:00');
-const countdown = ref({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-let timer;
-function tick() {
-  const d = launchDate - new Date();
-  if (d <= 0) return;
-  countdown.value = {
-    days: Math.floor(d / 864e5),
-    hours: Math.floor((d % 864e5) / 36e5),
-    minutes: Math.floor((d % 36e5) / 6e4),
-    seconds: Math.floor((d % 6e4) / 1e3),
-  };
-}
-const email = ref('');
-const submitted = ref(false);
+const cd = ref({ d:0, h:0, m:0, s:0 });
+let ti;
+function tick(){const x=launchDate-new Date();if(x<=0)return;cd.value={d:Math.floor(x/864e5),h:Math.floor(x%864e5/36e5),m:Math.floor(x%36e5/6e4),s:Math.floor(x%6e4/1e3)}}
+const em = ref('');
+const done = ref(false);
 
 let obs;
-onMounted(() => { tick(); timer = setInterval(tick, 1000); obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('vi'); }), { threshold: 0.1 }); document.querySelectorAll('.an').forEach(el => obs.observe(el)); });
-onUnmounted(() => { clearInterval(timer); obs?.disconnect(); });
+onMounted(()=>{tick();ti=setInterval(tick,1e3);obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vi')}),{threshold:.08});document.querySelectorAll('.a').forEach(el=>obs.observe(el))});
+onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 </script>
 
 <template>
@@ -34,153 +26,177 @@ onUnmounted(() => { clearInterval(timer); obs?.disconnect(); });
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
 </Head>
 
-<div :class="['page', isAr ? 'rtl ar-font' : 'ltr']" :dir="isAr ? 'rtl' : 'ltr'">
+<div :class="['pg', isAr ? 'rtl af' : 'ltr']" :dir="isAr ? 'rtl' : 'ltr'">
 
-<!-- Top bar -->
-<header class="topbar">
-  <div class="wrap flex items-center justify-between">
-    <a href="/" class="logo">SDB<span class="logo-dot">.</span></a>
+<!-- Nav -->
+<nav class="nav">
+  <div class="mx flex items-center justify-between">
+    <a href="/" class="mark">SDB<span class="dot">.</span></a>
     <div class="flex items-center gap-5">
-      <button @click="toggleLang" class="lang">{{ ar('EN','عربي') }}</button>
-      <Link v-if="canLogin" :href="route('login')" class="login-link">{{ ar('دخول','Log in') }}</Link>
-      <Link v-if="canRegister" :href="route('register')" class="cta-sm">{{ ar('سجّل مبكراً','Early access') }}</Link>
+      <button @click="toggleLang" class="nl">{{ ar('EN','عربي') }}</button>
+      <Link v-if="canLogin" :href="route('login')" class="nl">{{ ar('دخول','Log in') }}</Link>
+      <Link v-if="canRegister" :href="route('register')" class="nbtn">{{ ar('سجّل مبكراً','Early access') }}</Link>
     </div>
   </div>
-</header>
+</nav>
 
-<!-- Hero -->
+<!-- ████  HERO  ████ -->
 <section class="hero">
-  <div class="wrap hero-inner">
-    <p class="pill an">{{ ar('نطلق قريباً','Launching Soon') }}</p>
-    <h1 class="h1 an">{{ ar('طريقة جديدة كلياً\nلإدارة أموالك','A completely new way\nto manage your money') }}</h1>
-    <p class="hero-p an">{{ ar('حسابات متعددة العملات · بطاقات Mastercard · تداول كريبتو · تحويلات دولية','Multi-currency accounts · Mastercard cards · Crypto trading · International transfers') }}</p>
+  <div class="mx hero-mx">
+    <div class="htag a">{{ ar('الإطلاق قريباً','LAUNCHING SOON') }}</div>
+    <h1 class="hd a">
+      <span class="hd-line">{{ ar('بنك لعصر','Banking for') }}</span>
+      <span class="hd-em">{{ ar('جديد','a new era') }}</span>
+    </h1>
+    <p class="hp a">{{ ar('حسابات متعددة العملات · بطاقات Mastercard فورية · تداول كريبتو بمحافظ حقيقية · تحويلات لـ 150+ دولة. كل ذلك من مكان واحد.','Multi-currency accounts · Instant Mastercard · Crypto with real wallets · Transfers to 150+ countries. All in one place.') }}</p>
 
-    <div class="timer an">
-      <div v-for="(label, key) in { days: ar('يوم','days'), hours: ar('ساعة','hrs'), minutes: ar('دقيقة','min'), seconds: ar('ثانية','sec') }" :key="key" class="timer-block">
-        <span class="timer-n">{{ String(countdown[key]).padStart(2,'0') }}</span>
-        <span class="timer-l">{{ label }}</span>
+    <!-- countdown -->
+    <div class="cd a">
+      <div v-for="(lb,k) in {d:ar('يوم','Days'),h:ar('ساعة','Hrs'),m:ar('دقيقة','Min'),s:ar('ثانية','Sec')}" :key="k" class="cd-b">
+        <div class="cd-n">{{ String(cd[k]).padStart(2,'0') }}</div>
+        <div class="cd-l">{{ lb }}</div>
       </div>
     </div>
 
-    <div class="email-row an">
-      <template v-if="!submitted">
-        <input v-model="email" type="email" class="email-in" :placeholder="ar('بريدك الإلكتروني','Your email')" @keyup.enter="submitted = !!email" />
-        <button class="email-btn" @click="submitted = !!email">{{ ar('أُبلغني','Notify me') }}</button>
+    <!-- email -->
+    <div class="eml a">
+      <template v-if="!done">
+        <input v-model="em" type="email" :placeholder="ar('بريدك الإلكتروني...','Your email...')" class="eml-i" @keyup.enter="done=!!em"/>
+        <button @click="done=!!em" class="eml-b">{{ ar('أبلغني عند الإطلاق','Notify me') }}</button>
       </template>
-      <p v-else class="done-msg">✓ {{ ar('تم! سنُبلغك عند الإطلاق','Done! We\'ll notify you at launch') }}</p>
+      <div v-else class="eml-ok">✓ {{ ar('تم! سنبلغك فور الإطلاق.','Done! We\'ll let you know.') }}</div>
+    </div>
+
+    <!-- trust -->
+    <div class="trust a">
+      <span v-for="t in ['🇩🇰 '+ar('مرخّص في الدنمارك','Licensed in Denmark'),'🔒 '+ar('تشفير 256-bit','256-bit encrypted'),'🏦 Mastercard '+ar('معتمد','certified')]" :key="t" class="trust-i">{{ t }}</span>
     </div>
   </div>
 </section>
 
-<!-- What we offer -->
-<section class="sec">
-  <div class="wrap">
-    <h2 class="h2 an">{{ ar('كل ما تحتاجه في مكان واحد','Everything you need in one place') }}</h2>
-    <div class="grid3">
+<!-- ████  MARQUEE  ████ -->
+<div class="mq">
+  <div class="mq-track">
+    <span v-for="(p,i) in ['Mastercard','Visa','Apple Pay','Google Pay','SWIFT','SEPA','Mastercard','Visa','Apple Pay','Google Pay','SWIFT','SEPA']" :key="i" class="mq-i">{{ p }}</span>
+  </div>
+</div>
+
+<!-- ████  FEATURES  ████ -->
+<section class="sec sec-w">
+  <div class="mx">
+    <div class="sec-hdr a">
+      <h2 class="t2">{{ ar('كل ما تحتاجه.','Everything you need.') }}<br><span class="t2-fade">{{ ar('لا شيء لا تحتاجه.','Nothing you don\'t.') }}</span></h2>
+    </div>
+    <div class="fg">
       <div v-for="(f,i) in [
-        { icon:'💳', title:ar('بطاقات Mastercard','Mastercard Cards'), text:ar('بطاقة افتراضية فورية أو معدنية فاخرة. ادفع في أي مكان بالعالم وأضفها لـ Apple Pay.','Instant virtual or premium metal card. Pay anywhere and add to Apple Pay.') },
-        { icon:'🌍', title:ar('30+ عملة','30+ Currencies'), text:ar('احتفظ بأرصدة وحوّل بأسعار السوق الحقيقية بدون عمولات مخفية.','Hold balances and convert at real market rates with no hidden fees.') },
-        { icon:'🪙', title:ar('تداول كريبتو','Crypto Trading'), text:ar('اشترِ وبِع Bitcoin وEthereum وعملات أخرى. محافظ حقيقية على البلوكتشين.','Buy and sell Bitcoin, Ethereum and more. Real blockchain wallets.') },
-        { icon:'⚡', title:ar('تحويلات فورية','Instant Transfers'), text:ar('أرسل لـ 150+ دولة بأقل الرسوم عبر SWIFT وSEPA. يوصل بدقائق.','Send to 150+ countries at low fees via SWIFT & SEPA. Arrives in minutes.') },
-        { icon:'🛡️', title:ar('أمان بنكي','Bank-grade Security'), text:ar('تشفير 256-bit ومصادقة ثنائية ومراقبة احتيال على مدار الساعة.','256-bit encryption, 2FA, and 24/7 fraud monitoring.') },
-        { icon:'📱', title:ar('تطبيق iOS + Android','iOS + Android App'), text:ar('تحكم كامل بحساباتك وبطاقاتك وتداولاتك من هاتفك.','Full control of accounts, cards and trades from your phone.') }
-      ]" :key="i" class="card an" :style="{ transitionDelay: (i*70)+'ms' }">
-        <span class="card-icon">{{ f.icon }}</span>
-        <h3 class="card-t">{{ f.title }}</h3>
-        <p class="card-p">{{ f.text }}</p>
+        {ic:'💳',t:ar('بطاقات Mastercard','Mastercard Cards'),p:ar('بطاقة افتراضية فورية عند فتح حسابك. أو اطلب بطاقة معدنية فاخرة. ادفع بـ Apple Pay في أي مكان بالعالم.','Instant virtual card on signup. Or order a premium metal card. Pay with Apple Pay anywhere.'),tag:'CARDS'},
+        {ic:'💱',t:ar('30+ عملة عالمية','30+ Global Currencies'),p:ar('احتفظ بأرصدة وحوّل بأسعار السوق الحقيقية. بدون عمولات مخفية. EUR, USD, GBP, AED, SAR والمزيد.','Hold and convert at real market rates. No hidden fees. EUR, USD, GBP, AED, SAR and more.'),tag:'FX'},
+        {ic:'🪙',t:ar('كريبتو بمحافظ حقيقية','Crypto with Real Wallets'),p:ar('اشترِ وبِع BTC, ETH, SOL وأكثر. كل عميل يحصل على عنوان محفظة حقيقي معترف به عالمياً. أرسل واستقبل بحرية.','Buy and sell BTC, ETH, SOL and more. Every customer gets a real, globally recognized wallet address. Send and receive freely.'),tag:'CRYPTO'},
+        {ic:'⚡',t:ar('تحويلات دولية','International Transfers'),p:ar('أرسل لـ 150+ دولة عبر SWIFT وSEPA. يوصل بدقائق مع أقل رسوم ممكنة.','Send to 150+ countries via SWIFT & SEPA. Arrives in minutes with lowest fees.'),tag:'TRANSFERS'},
+        {ic:'🛡️',t:ar('أمان لا يُخترق','Unbreakable Security'),p:ar('تشفير بنكي 256-bit. مصادقة ثنائية وبصمة الوجه. فريق مراقبة احتيال يعمل 24/7.','Bank-grade 256-bit encryption. 2FA and Face ID. 24/7 fraud monitoring team.'),tag:'SECURITY'},
+        {ic:'📱',t:ar('تطبيق واحد لكل شيء','One App for Everything'),p:ar('iOS وAndroid. تحكم كامل بحساباتك وبطاقاتك وتداولاتك ومحافظك من مكان واحد.','iOS & Android. Full control of accounts, cards, trades and wallets in one place.'),tag:'APP'}
+      ]" :key="i" class="fc a" :style="{transitionDelay:(i*60)+'ms'}">
+        <div class="fc-top">
+          <span class="fc-tag">{{ f.tag }}</span>
+          <span class="fc-ic">{{ f.ic }}</span>
+        </div>
+        <h3 class="fc-t">{{ f.t }}</h3>
+        <p class="fc-p">{{ f.p }}</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Crypto -->
-<section class="sec sec-alt">
-  <div class="wrap text-center">
-    <h2 class="h2 an">{{ ar('عملاتك الرقمية، محفظتك الحقيقية','Your crypto, your real wallet') }}</h2>
-    <p class="sub an">{{ ar('كل عميل يحصل على عنوان محفظة معترف به عالمياً. أرسل واستقبل بحرية.','Every customer gets a globally recognized wallet address. Send and receive freely.') }}</p>
-    <div class="coins an">
-      <div v-for="c in [{s:'BTC',n:'Bitcoin',cl:'#F7931A'},{s:'ETH',n:'Ethereum',cl:'#627EEA'},{s:'USDT',n:'Tether',cl:'#26A17B'},{s:'SOL',n:'Solana',cl:'#9945FF'},{s:'XRP',n:'Ripple',cl:'#23292F'},{s:'ADA',n:'Cardano',cl:'#3CC8C8'}]" :key="c.s" class="coin">
-        <span class="coin-dot" :style="{ background: c.cl }"></span>
-        <span class="coin-name">{{ c.n }}</span>
-        <span class="coin-sym">{{ c.s }}</span>
+<!-- ████  CRYPTO  ████ -->
+<section class="sec sec-bk">
+  <div class="mx">
+    <div class="sec-hdr a">
+      <h2 class="t2 text-white">{{ ar('عملاتك الرقمية.','Your crypto.') }}<br><span class="t2-fade-w">{{ ar('محفظتك الحقيقية.','Your real wallet.') }}</span></h2>
+      <p class="sp sp-w">{{ ar('اشترِ وبِع وأرسل واستقبل — محافظ على البلوكتشين باسمك.','Buy, sell, send and receive — blockchain wallets in your name.') }}</p>
+    </div>
+    <div class="cr-coins a">
+      <div v-for="c in [{s:'BTC',n:'Bitcoin',c:'#F7931A'},{s:'ETH',n:'Ethereum',c:'#627EEA'},{s:'USDT',n:'Tether',c:'#26A17B'},{s:'SOL',n:'Solana',c:'#9945FF'},{s:'XRP',n:'Ripple',c:'#fff'},{s:'ADA',n:'Cardano',c:'#3CC8C8'}]" :key="c.s" class="cr-c">
+        <span class="cr-dot" :style="{background:c.c}"></span>
+        <div><div class="cr-cn">{{ c.n }}</div><div class="cr-cs">{{ c.s }}</div></div>
       </div>
     </div>
-    <div class="grid4 an">
-      <div v-for="f in [
-        {icon:'📥',t:ar('استقبال','Receive')},
-        {icon:'📤',t:ar('إرسال','Send')},
-        {icon:'💱',t:ar('تحويل','Swap')},
-        {icon:'📊',t:ar('أسعار حية','Live Prices')}
-      ]" :key="f.t" class="mini-card">
-        <span class="text-2xl">{{ f.icon }}</span>
-        <span class="mini-t">{{ f.t }}</span>
-      </div>
+    <div class="cr-grid a">
+      <div class="cr-box"><span class="cr-box-ic">📥</span><span class="cr-box-t">{{ ar('استقبال','Receive') }}</span><span class="cr-box-d">{{ ar('عنوان محفظة فريد لك','Your unique wallet address') }}</span></div>
+      <div class="cr-box"><span class="cr-box-ic">📤</span><span class="cr-box-t">{{ ar('إرسال','Send') }}</span><span class="cr-box-d">{{ ar('لأي محفظة بالعالم','To any wallet worldwide') }}</span></div>
+      <div class="cr-box"><span class="cr-box-ic">🔄</span><span class="cr-box-t">{{ ar('تحويل','Swap') }}</span><span class="cr-box-d">{{ ar('بين الكريبتو والعملات','Between crypto & fiat') }}</span></div>
+      <div class="cr-box"><span class="cr-box-ic">📊</span><span class="cr-box-t">{{ ar('تتبع','Track') }}</span><span class="cr-box-d">{{ ar('أسعار حية ومحفظتك','Live prices & portfolio') }}</span></div>
     </div>
   </div>
 </section>
 
-<!-- Plans -->
-<section class="sec">
-  <div class="wrap text-center">
-    <h2 class="h2 an">{{ ar('خطط بسيطة وواضحة','Simple, clear plans') }}</h2>
-    <div class="plans an">
+<!-- ████  PLANS  ████ -->
+<section class="sec sec-w">
+  <div class="mx">
+    <div class="sec-hdr a">
+      <h2 class="t2">{{ ar('خطط واضحة.','Clear plans.') }}<br><span class="t2-fade">{{ ar('بدون مفاجآت.','No surprises.') }}</span></h2>
+    </div>
+    <div class="pl a">
       <div v-for="(p,i) in [
-        {n:'Standard',pr:ar('مجاناً','Free'),items:[ar('بطاقة افتراضية','Virtual card'),'Apple Pay & Google Pay',ar('حساب EUR + USD','EUR + USD account')]},
-        {n:'Premium',pr:'7.99€',pop:true,items:[ar('صرف عملات غير محدود','Unlimited FX'),ar('تأمين سفر','Travel insurance'),ar('صالات مطارات','Lounge access')]},
-        {n:'Elite',pr:'14.99€',items:[ar('استرداد نقدي 1%','1% cashback'),ar('مدير حساب خاص','Personal manager'),ar('صالات VIP غير محدودة','Unlimited VIP lounges')]}
-      ]" :key="i" class="plan" :class="{ 'plan-pop': p.pop }">
-        <h3 class="plan-n">{{ p.n }}</h3>
-        <div class="plan-pr">{{ p.pr }}<span v-if="!['مجاناً','Free'].includes(p.pr)" class="plan-mo">/{{ ar('شهرياً','mo') }}</span></div>
-        <ul class="plan-list"><li v-for="item in p.items" :key="item"><span class="chk">✓</span>{{ item }}</li></ul>
+        {n:'Standard',pr:ar('مجاناً','Free'),ft:[ar('بطاقة Mastercard افتراضية','Virtual Mastercard'),ar('حسابات EUR + USD + GBP','EUR + USD + GBP accounts'),'Apple Pay & Google Pay',ar('تحويلات SEPA مجانية','Free SEPA transfers')]},
+        {n:'Premium',pr:'7.99€',pop:true,ft:[ar('كل مميزات Standard','All Standard features'),ar('صرف عملات غير محدود','Unlimited FX'),ar('تأمين سفر شامل','Full travel insurance'),ar('3 زيارات صالات مطارات','3 lounge visits/mo')]},
+        {n:'Elite',pr:'14.99€',ft:[ar('كل مميزات Premium','All Premium features'),ar('صالات VIP غير محدودة','Unlimited VIP lounges'),ar('استرداد نقدي 1%','1% cashback'),ar('مدير حساب خاص','Personal account manager')]}
+      ]" :key="i" class="pl-c" :class="{'pl-pop':p.pop}">
+        <div v-if="p.pop" class="pl-badge">{{ ar('الأكثر طلباً','POPULAR') }}</div>
+        <div class="pl-n">{{ p.n }}</div>
+        <div class="pl-pr">{{ p.pr }}<span v-if="!['مجاناً','Free'].includes(p.pr)" class="pl-mo">/{{ ar('شهر','mo') }}</span></div>
+        <div class="pl-div"></div>
+        <ul class="pl-ul"><li v-for="f in p.ft" :key="f"><span class="pl-ck" :class="{'pl-ck-w':p.pop}">✓</span>{{ f }}</li></ul>
+        <Link v-if="canRegister" :href="route('register')" class="pl-btn" :class="{'pl-btn-w':p.pop}">{{ ar('ابدأ','Get started') }}</Link>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Numbers -->
-<section class="sec sec-dark">
-  <div class="wrap">
-    <div class="nums an">
-      <div v-for="s in [{v:'30+',l:ar('عملة','currencies')},{v:'6',l:ar('عملة رقمية','cryptos')},{v:'150+',l:ar('دولة','countries')},{v:'24/7',l:ar('دعم','support')}]" :key="s.v" class="num-item">
-        <div class="num-v">{{ s.v }}</div>
-        <div class="num-l">{{ s.l }}</div>
+<section class="sec sec-bk">
+  <div class="mx">
+    <div class="st a">
+      <div v-for="s in [{v:'30+',l:ar('عملة مدعومة','Currencies')},{v:'6+',l:ar('كريبتو','Cryptos')},{v:'150+',l:ar('دولة','Countries')},{v:'24/7',l:ar('دعم فني','Support')}]" :key="s.v" class="st-i">
+        <div class="st-v">{{ s.v }}</div>
+        <div class="st-l">{{ s.l }}</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Final CTA -->
-<section class="sec sec-cta">
-  <div class="wrap text-center">
-    <h2 class="h2 an" style="color:#fff">{{ ar('كن من الأوائل','Be among the first') }}</h2>
-    <p class="sub an" style="opacity:.4">{{ ar('سجّل الآن واحصل على وصول مبكر عند الإطلاق. بدون رسوم.','Sign up now and get early access at launch. No fees.') }}</p>
-    <Link v-if="canRegister" :href="route('register')" class="cta-lg an">{{ ar('افتح حساب مجاناً','Open free account') }}</Link>
+<!-- CTA -->
+<section class="sec sec-w" style="padding:120px 0">
+  <div class="mx text-center">
+    <h2 class="t2 a">{{ ar('جاهز للمستقبل؟','Ready for the future?') }}</h2>
+    <p class="sp a" style="margin-bottom:32px">{{ ar('سجّل الآن واحصل على وصول مبكر. مجاناً تماماً.','Sign up now and get early access. Completely free.') }}</p>
+    <Link v-if="canRegister" :href="route('register')" class="cta-big a">{{ ar('افتح حسابك مجاناً →','Open your free account →') }}</Link>
   </div>
 </section>
 
 <!-- Footer -->
 <footer class="ft">
-  <div class="wrap">
-    <div class="ft-top">
+  <div class="mx">
+    <div class="ft-g">
       <div>
-        <a href="/" class="logo ft-logo">SDB<span class="logo-dot">.</span></a>
-        <p class="ft-desc">{{ ar('بنك رقمي مرخّص في الدنمارك. خدمات مصرفية مبتكرة بمعايير أوروبية.','Licensed digital bank in Denmark. Innovative banking with European standards.') }}</p>
+        <a href="/" class="mark mark-ft">SDB<span class="dot">.</span></a>
+        <p class="ft-d">{{ ar('بنك رقمي مرخّص في الدنمارك.\nخدمات مصرفية بمعايير أوروبية.','Licensed digital bank in Denmark.\nBanking with European standards.') }}</p>
       </div>
-      <div class="ft-links">
-        <Link href="/terms">{{ ar('الشروط','Terms') }}</Link>
-        <Link href="/privacy">{{ ar('الخصوصية','Privacy') }}</Link>
-        <Link href="/about">{{ ar('عن البنك','About') }}</Link>
-        <Link href="/support">{{ ar('الدعم','Support') }}</Link>
+      <div>
+        <div class="ft-h">{{ ar('المنتجات','Products') }}</div>
+        <div class="ft-lk"><Link href="/currencies">{{ ar('العملات','Currencies') }}</Link><Link href="/cards-info">{{ ar('البطاقات','Cards') }}</Link><Link href="/transfers-info">{{ ar('التحويلات','Transfers') }}</Link></div>
       </div>
-      <div class="ft-contact">
-        <p>info@sdb-bank.com</p>
-        <p>+45 42 80 55 94</p>
-        <p>Denmark 🇩🇰</p>
+      <div>
+        <div class="ft-h">{{ ar('قانوني','Legal') }}</div>
+        <div class="ft-lk"><Link href="/terms">{{ ar('الشروط','Terms') }}</Link><Link href="/privacy">{{ ar('الخصوصية','Privacy') }}</Link><Link href="/about">{{ ar('عن البنك','About') }}</Link></div>
+      </div>
+      <div>
+        <div class="ft-h">{{ ar('تواصل','Contact') }}</div>
+        <div class="ft-lk" style="gap:4px"><span>info@sdb-bank.com</span><span>+45 42 80 55 94</span><span>Denmark 🇩🇰</span></div>
       </div>
     </div>
     <div class="ft-btm">
       <span>© 2026 SDB Bank ApS</span>
-      <button @click="toggleLang" class="lang">{{ ar('English','عربي') }}</button>
+      <button @click="toggleLang" class="nl">{{ ar('English','عربي') }}</button>
     </div>
   </div>
 </footer>
@@ -189,109 +205,129 @@ onUnmounted(() => { clearInterval(timer); obs?.disconnect(); });
 </template>
 
 <style>
-/* ── Base ── */
 *{margin:0;padding:0;box-sizing:border-box}
-.ar-font{font-family:'Cairo',sans-serif}
-.page{font-family:'Inter',sans-serif;background:#fff;color:#111;overflow-x:hidden}
+.af{font-family:'Cairo',sans-serif}
+.pg{font-family:'Inter',sans-serif;color:#0a0a0a;overflow-x:hidden}
 .rtl{direction:rtl}.ltr{direction:ltr}
 html{scroll-behavior:smooth}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.mx{max-width:1120px;margin:0 auto;padding:0 28px}
 .text-center{text-align:center}
+.text-white{color:#fff}
 
-/* ── Top bar ── */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.06);height:60px;display:flex;align-items:center}
-.logo{font-size:26px;font-weight:900;color:#111;text-decoration:none;letter-spacing:-1px}
-.logo-dot{color:#2563EB}
-.lang{font-size:13px;color:#999;font-weight:500;background:none;border:none;cursor:pointer}.lang:hover{color:#111}
-.login-link{font-size:14px;color:#666;font-weight:500;text-decoration:none}.login-link:hover{color:#111}
-.cta-sm{font-size:13px;font-weight:700;color:#fff;background:#111;padding:8px 20px;border-radius:8px;text-decoration:none;transition:background .2s}.cta-sm:hover{background:#333}
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:99;height:64px;display:flex;align-items:center;background:rgba(255,255,255,.88);backdrop-filter:blur(20px) saturate(1.8);border-bottom:1px solid rgba(0,0,0,.06)}
+.mark{font-size:28px;font-weight:900;color:#0a0a0a;text-decoration:none;letter-spacing:-1.5px}
+.dot{color:#2563EB;font-size:32px;line-height:0}
+.nl{font-size:13px;color:#0a0a0a;opacity:.35;font-weight:500;background:none;border:none;cursor:pointer;transition:opacity .2s;text-decoration:none}.nl:hover{opacity:.7}
+.nbtn{font-size:13px;font-weight:700;color:#fff;background:#0a0a0a;padding:9px 22px;border-radius:10px;text-decoration:none;transition:all .2s;border:none}.nbtn:hover{background:#222}
 
 /* ── Hero ── */
-.hero{padding:160px 0 100px;background:#fafafa;border-bottom:1px solid rgba(0,0,0,.05)}
-.hero-inner{max-width:680px}
-.pill{display:inline-block;font-size:12px;font-weight:700;color:#2563EB;background:rgba(37,99,235,.07);padding:6px 16px;border-radius:6px;margin-bottom:28px;letter-spacing:.5px}
-.h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;line-height:1.15;letter-spacing:-.03em;color:#111;margin-bottom:20px;white-space:pre-line}
-.hero-p{font-size:16px;color:#888;line-height:1.8;margin-bottom:48px}
+.hero{padding:200px 0 120px;background:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:-20%;width:60%;height:100%;background:radial-gradient(ellipse at center,rgba(37,99,235,.04) 0%,transparent 70%);pointer-events:none}
+.hero-mx{max-width:720px;position:relative;z-index:1}
+.htag{font-size:11px;font-weight:800;letter-spacing:3px;color:#2563EB;margin-bottom:32px;text-transform:uppercase}
+.hd{margin-bottom:28px;line-height:1}
+.hd-line{display:block;font-size:clamp(3rem,7vw,5.5rem);font-weight:900;letter-spacing:-.04em;color:#0a0a0a}
+.hd-em{display:block;font-size:clamp(3rem,7vw,5.5rem);font-weight:900;letter-spacing:-.04em;color:#2563EB}
+.hp{font-size:17px;color:#0a0a0a;opacity:.35;line-height:1.9;margin-bottom:56px;max-width:540px}
 
-/* Timer */
-.timer{display:flex;gap:20px;margin-bottom:40px}
-.timer-block{display:flex;flex-direction:column;align-items:center}
-.timer-n{font-size:42px;font-weight:900;color:#111;line-height:1;font-variant-numeric:tabular-nums}
-.timer-l{font-size:11px;color:#bbb;margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.cd{display:flex;gap:24px;margin-bottom:48px}
+.cd-b{text-align:center;min-width:60px}
+.cd-n{font-size:52px;font-weight:900;color:#0a0a0a;line-height:1;font-variant-numeric:tabular-nums}
+.cd-l{font-size:10px;color:#0a0a0a;opacity:.2;margin-top:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
 
-/* Email */
-.email-row{display:flex;gap:8px;max-width:420px}
-.email-in{flex:1;padding:12px 16px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;outline:none;background:#fff;color:#111}.email-in:focus{border-color:#2563EB}.email-in::placeholder{color:#ccc}
-.email-btn{padding:12px 24px;background:#111;color:#fff;font-size:14px;font-weight:700;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;transition:background .2s}.email-btn:hover{background:#333}
-.done-msg{font-size:14px;color:#2563EB;font-weight:600;padding:12px 0}
+.eml{display:flex;gap:0;max-width:460px;border:2px solid #0a0a0a;border-radius:14px;overflow:hidden}
+.eml-i{flex:1;padding:16px 20px;border:none;outline:none;font-size:15px;background:transparent;color:#0a0a0a;font-family:inherit}.eml-i::placeholder{color:#ccc}
+.eml-b{padding:16px 28px;background:#0a0a0a;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;white-space:nowrap}.eml-b:hover{background:#222}
+.eml-ok{padding:16px;color:#2563EB;font-weight:700;font-size:15px}
+
+.trust{display:flex;gap:24px;margin-top:48px;flex-wrap:wrap}
+.trust-i{font-size:12px;color:#0a0a0a;opacity:.25;font-weight:600}
+
+/* ── Marquee ── */
+.mq{padding:20px 0;border-top:1px solid rgba(0,0,0,.04);border-bottom:1px solid rgba(0,0,0,.04);overflow:hidden;background:#fafafa}
+.mq-track{display:flex;gap:56px;animation:mqs 18s linear infinite;white-space:nowrap}
+.mq-i{font-size:13px;font-weight:800;color:#0a0a0a;opacity:.08;letter-spacing:3px;text-transform:uppercase}
+@keyframes mqs{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* ── Sections ── */
-.sec{padding:100px 0}
-.sec-alt{background:#fafafa}
-.sec-dark{background:#111}
-.sec-cta{background:#111;padding:120px 0}
-.h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;line-height:1.15;letter-spacing:-.02em;margin-bottom:16px}
-.sub{font-size:15px;color:#999;line-height:1.7;max-width:480px;margin:0 auto 48px}
+.sec{padding:120px 0}
+.sec-w{background:#fff}
+.sec-bk{background:#0a0a0a}
+.sec-hdr{margin-bottom:64px}
+.t2{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:900;line-height:1.1;letter-spacing:-.03em}
+.t2-fade{opacity:.15}
+.t2-fade-w{opacity:.25}
+.sp{font-size:16px;opacity:.35;line-height:1.8;max-width:440px;margin-top:16px}.sp-w{color:#fff}
 
-/* ── Feature cards ── */
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:48px}
-.card{padding:28px 24px;border:1px solid rgba(0,0,0,.06);border-radius:12px;background:#fff;transition:all .3s}.card:hover{border-color:rgba(0,0,0,.12);box-shadow:0 4px 20px rgba(0,0,0,.04)}
-.card-icon{font-size:28px;display:block;margin-bottom:14px}
-.card-t{font-size:15px;font-weight:800;color:#111;margin-bottom:6px}
-.card-p{font-size:13px;color:#999;line-height:1.7}
+/* ── Feature grid ── */
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.06);border-radius:20px;overflow:hidden}
+.fc{padding:36px 32px;background:#fff;transition:background .3s}.fc:hover{background:#fafafa}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.fc-tag{font-size:10px;font-weight:800;letter-spacing:2px;color:#2563EB;opacity:.5;text-transform:uppercase}
+.fc-ic{font-size:32px}
+.fc-t{font-size:17px;font-weight:800;color:#0a0a0a;margin-bottom:8px}
+.fc-p{font-size:13px;color:#0a0a0a;opacity:.3;line-height:1.8}
 
 /* ── Crypto ── */
-.coins{display:flex;justify-content:center;gap:10px;margin-bottom:40px;flex-wrap:wrap}
-.coin{display:flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid rgba(0,0,0,.06);border-radius:10px;background:#fff}
-.coin-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.coin-name{font-size:14px;font-weight:600;color:#111}
-.coin-sym{font-size:12px;color:#bbb;font-weight:500}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:560px;margin:0 auto}
-.mini-card{padding:20px;border:1px solid rgba(0,0,0,.06);border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff}
-.mini-t{font-size:13px;font-weight:700;color:#111}
+.cr-coins{display:flex;gap:12px;margin-bottom:48px;flex-wrap:wrap}
+.cr-c{display:flex;align-items:center;gap:12px;padding:14px 20px;border:1px solid rgba(255,255,255,.08);border-radius:12px;flex:1;min-width:140px}
+.cr-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.cr-cn{font-size:14px;font-weight:700;color:#fff}
+.cr-cs{font-size:11px;color:rgba(255,255,255,.25);font-weight:600}
+.cr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+.cr-box{padding:28px 20px;background:#0a0a0a;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.cr-box-ic{font-size:28px}
+.cr-box-t{font-size:14px;font-weight:800;color:#fff}
+.cr-box-d{font-size:11px;color:rgba(255,255,255,.2);line-height:1.5}
 
 /* ── Plans ── */
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:40px;text-align:right}
-.plan{padding:32px 28px;border:1px solid rgba(0,0,0,.06);border-radius:14px;background:#fff;transition:all .3s}.plan:hover{box-shadow:0 6px 24px rgba(0,0,0,.06)}
-.plan-pop{background:#111;color:#fff;border-color:transparent}
-.plan-n{font-size:18px;font-weight:900;margin-bottom:4px}
-.plan-pr{font-size:26px;font-weight:900;margin-bottom:20px}
-.plan-mo{font-size:13px;font-weight:400;opacity:.4}
-.plan-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
-.plan-list li{font-size:13px;display:flex;align-items:center;gap:8px}
-.plan-pop .plan-list li{color:rgba(255,255,255,.6)}
-.chk{color:#2563EB;font-weight:700;font-size:12px}
-.plan-pop .chk{color:#60A5FA}
+.pl{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pl-c{padding:36px 32px;border:1px solid rgba(0,0,0,.07);border-radius:20px;display:flex;flex-direction:column;transition:all .3s;position:relative;background:#fff}.pl-c:hover{box-shadow:0 8px 30px rgba(0,0,0,.06);transform:translateY(-4px)}
+.pl-pop{background:#0a0a0a;border-color:transparent;color:#fff}.pl-pop:hover{box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.pl-badge{position:absolute;top:-11px;right:20px;font-size:10px;font-weight:800;letter-spacing:1.5px;background:#2563EB;color:#fff;padding:4px 14px;border-radius:6px;text-transform:uppercase}
+.pl-n{font-size:14px;font-weight:700;opacity:.4;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.pl-pr{font-size:36px;font-weight:900;margin-bottom:20px}
+.pl-mo{font-size:14px;font-weight:400;opacity:.3}
+.pl-div{height:1px;background:rgba(0,0,0,.06);margin-bottom:20px}.pl-pop .pl-div{background:rgba(255,255,255,.08)}
+.pl-ul{list-style:none;display:flex;flex-direction:column;gap:12px;flex:1;margin-bottom:28px}
+.pl-ul li{font-size:13px;display:flex;align-items:center;gap:10px;opacity:.5}.pl-pop .pl-ul li{opacity:.6}
+.pl-ck{color:#2563EB;font-weight:900;font-size:13px;flex-shrink:0}.pl-ck-w{color:#60A5FA}
+.pl-btn{display:block;text-align:center;padding:14px;border:2px solid rgba(0,0,0,.08);border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;color:#0a0a0a;transition:all .2s}.pl-btn:hover{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+.pl-btn-w{border-color:rgba(255,255,255,.15);color:#fff}.pl-btn-w:hover{background:#fff;color:#0a0a0a}
 
-/* ── Numbers ── */
-.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center}
-.num-v{font-size:36px;font-weight:900;color:#fff;margin-bottom:4px}
-.num-l{font-size:13px;color:rgba(255,255,255,.3);font-weight:500}
+/* ── Stats ── */
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+.st-i{padding:48px 24px;background:#0a0a0a;text-align:center}
+.st-v{font-size:44px;font-weight:900;color:#fff;margin-bottom:4px}
+.st-l{font-size:12px;color:rgba(255,255,255,.2);font-weight:600}
 
 /* ── CTA ── */
-.cta-lg{display:inline-block;padding:16px 40px;background:#fff;color:#111;font-size:15px;font-weight:800;border-radius:10px;text-decoration:none;transition:all .2s;margin-top:8px}.cta-lg:hover{background:#f0f0f0;transform:translateY(-1px)}
+.cta-big{display:inline-block;padding:18px 48px;background:#0a0a0a;color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s;letter-spacing:-.02em}.cta-big:hover{background:#222;transform:translateY(-2px)}
 
 /* ── Footer ── */
-.ft{padding:60px 0 28px;border-top:1px solid rgba(0,0,0,.06);background:#fafafa}
-.ft-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px}
-.ft-logo{font-size:22px}
-.ft-desc{font-size:12px;color:#bbb;line-height:1.7;max-width:280px;margin-top:10px}
-.ft-links{display:flex;flex-direction:column;gap:10px}.ft-links a{font-size:13px;color:#999;text-decoration:none}.ft-links a:hover{color:#111}
-.ft-contact p{font-size:12px;color:#bbb;margin-bottom:4px}
-.ft-btm{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(0,0,0,.06);padding-top:20px}
-.ft-btm span{font-size:11px;color:#ccc}
+.ft{padding:80px 0 32px;background:#fafafa;border-top:1px solid rgba(0,0,0,.05)}
+.ft-g{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.mark-ft{font-size:22px;display:block;margin-bottom:8px}
+.ft-d{font-size:12px;color:#0a0a0a;opacity:.2;line-height:1.7;white-space:pre-line;max-width:260px}
+.ft-h{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#0a0a0a;opacity:.2;margin-bottom:16px}
+.ft-lk{display:flex;flex-direction:column;gap:10px}.ft-lk a,.ft-lk span{font-size:13px;color:#0a0a0a;opacity:.35;text-decoration:none;transition:opacity .2s}.ft-lk a:hover{opacity:.7}
+.ft-btm{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(0,0,0,.05);padding-top:24px}
+.ft-btm span{font-size:11px;color:#0a0a0a;opacity:.15}
 
 /* ── Animation ── */
-.an{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.an.vi{opacity:1;transform:none}
+.a{opacity:0;transform:translateY(22px);transition:opacity .65s cubic-bezier(.25,.46,.45,.94),transform .65s cubic-bezier(.25,.46,.45,.94)}.a.vi{opacity:1;transform:none}
 
 /* ── Responsive ── */
 @media(max-width:768px){
-  .grid3,.plans{grid-template-columns:1fr}
-  .grid4{grid-template-columns:repeat(2,1fr)}
-  .nums{grid-template-columns:repeat(2,1fr);gap:20px}
-  .ft-top{grid-template-columns:1fr}
-  .timer{gap:12px}.timer-n{font-size:30px}
-  .hero{padding:120px 0 60px}
-  .sec{padding:60px 0}
+  .fg{grid-template-columns:1fr}
+  .pl{grid-template-columns:1fr}
+  .cr-grid,.st{grid-template-columns:repeat(2,1fr)}
+  .ft-g{grid-template-columns:1fr;gap:24px}
+  .hero{padding:140px 0 80px}
+  .sec{padding:80px 0}
+  .cd{gap:14px}.cd-n{font-size:36px}
+  .cr-coins{flex-direction:column}
+  .trust{flex-direction:column;gap:8px}
 }
 </style>
