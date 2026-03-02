@@ -6,36 +6,36 @@ const openFaq = ref(null);
 const toggle = (i) => openFaq.value = openFaq.value === i ? null : i;
 
 const faqs = [
-  { cat: '🏦 الحساب', items: [
-    { q: 'كيف أفتح حساب في SDB؟', a: 'يمكنك فتح حساب خلال دقائق من خلال التسجيل على الموقع أو التطبيق. ستحتاج لتقديم بياناتك الشخصية ووثيقة هوية سارية المفعول، ثم إتمام عملية التحقق من الهوية (KYC).' },
-    { q: 'ما هي الوثائق المطلوبة لفتح حساب؟', a: 'تحتاج إلى جواز سفر ساري المفعول أو بطاقة هوية وطنية، بالإضافة إلى إثبات عنوان حديث (كشف حساب بنكي، فاتورة خدمات، أو عقد إيجار صادر خلال آخر 3 أشهر).' },
-    { q: 'هل يمكنني فتح أكثر من حساب واحد؟', a: 'نعم! يمكنك فتح حسابات بعملات مختلفة. كل حساب يحصل على رقم IBAN فريد ورقم حساب داخلي مكون من 10 أرقام.' },
-    { q: 'ما هو رقم العميل؟', a: 'رقم العميل هو رقم مكون من 10 أرقام يُمنح لك عند فتح الحساب. هو معرّفك الفريد في نظامنا ويمكنك استخدامه للتعريف عن نفسك عند التواصل مع خدمة العملاء.' },
+  { cat: '🏦 Account', items: [
+    { q: 'How do I open an account with SDB?', a: 'You can open an account in minutes by registering on the website or app. You\'ll need to provide your personal details and a valid ID, then complete identity verification (KYC).' },
+    { q: 'What documents are required to open an account?', a: 'You need a valid passport or national ID, plus a recent proof of address (bank statement, utility bill, or rental contract issued within the last 3 months).' },
+    { q: 'Can I open more than one account?', a: 'Yes! You can open accounts in different currencies. Each account gets a unique IBAN and a 10-digit internal account number.' },
+    { q: 'What is the customer number?', a: 'Your customer number is a 10-digit number assigned when you open your account. It\'s your unique identifier in our system and can be used to identify yourself when contacting support.' },
   ]},
-  { cat: '💳 البطاقات', items: [
-    { q: 'كيف أحصل على بطاقة SDB Mastercard؟', a: 'يمكنك إصدار بطاقة افتراضية فوراً من لوحة التحكم. البطاقة الافتراضية تعمل للمشتريات عبر الإنترنت والدفع عبر Apple Pay و Google Pay. البطاقات الفعلية تُشحن إلى عنوانك خلال 5-7 أيام عمل.' },
-    { q: 'ما الفرق بين البطاقة الافتراضية والفعلية؟', a: 'البطاقة الافتراضية تُصدر فوراً وتُستخدم للمشتريات الإلكترونية فقط. البطاقة الفعلية هي بطاقة بلاستيكية تصل لعنوانك ويمكن استخدامها في المتاجر وأجهزة الصراف الآلي بالإضافة للمشتريات الإلكترونية.' },
-    { q: 'كيف أجمّد بطاقتي؟', a: 'يمكنك تجميد البطاقة فوراً من التطبيق بضغطة واحدة. التجميد يمنع جميع المعاملات ويمكنك إلغاء التجميد بنفس السهولة في أي وقت.' },
-    { q: 'ما هي حدود البطاقة؟', a: 'تختلف الحدود حسب خطتك. الحد اليومي الأساسي هو 5,000€ والشهري 25,000€. يمكنك تعديل الحدود من صفحة إدارة البطاقة أو التواصل مع الدعم لرفع الحدود.' },
+  { cat: '💳 Cards', items: [
+    { q: 'How do I get an SDB Mastercard?', a: 'You can issue a virtual card instantly from the dashboard. The virtual card works for online purchases and payments via Apple Pay & Google Pay. Physical cards are shipped to your address within 5-7 business days.' },
+    { q: 'What is the difference between virtual and physical cards?', a: 'Virtual cards are issued instantly and used for online purchases only. Physical cards arrive at your address and can be used in stores, ATMs, and online.' },
+    { q: 'How do I freeze my card?', a: 'You can freeze your card instantly from the app with one tap. Freezing prevents all transactions and you can unfreeze just as easily at any time.' },
+    { q: 'What are the card limits?', a: 'Limits vary by plan. The basic daily limit is €5,000 and monthly €25,000. You can adjust limits from the card management page or contact support for higher limits.' },
   ]},
-  { cat: '💸 التحويلات', items: [
-    { q: 'كم تستغرق التحويلات؟', a: 'التحويلات الداخلية بين حسابات SDB فورية ومجانية. التحويلات الخارجية (SWIFT) تستغرق 1-3 أيام عمل حسب بنك المستلم.' },
-    { q: 'هل هناك رسوم على التحويلات؟', a: 'التحويلات الداخلية مجانية تماماً. التحويلات الخارجية تخضع لرسوم تبدأ من 2€ حسب الوجهة والعملة.' },
-    { q: 'كيف أعمل صرف عملات؟', a: 'من لوحة التحكم، اضغط على "صرف عملات"، اختر الحساب المصدر والحساب الهدف (بعملة مختلفة)، أدخل المبلغ وسيتم الصرف بسعر السوق الحي مع هامش تنافسي.' },
+  { cat: '💸 Transfers', items: [
+    { q: 'How long do transfers take?', a: 'Internal transfers between SDB accounts are instant and free. External (SWIFT) transfers take 1-3 business days depending on the recipient\'s bank.' },
+    { q: 'Are there fees on transfers?', a: 'Internal transfers are completely free. External transfers are subject to fees starting from €2 depending on the destination and currency.' },
+    { q: 'How do I exchange currencies?', a: 'From the dashboard, select "Exchange", choose the source and target account (in a different currency), enter the amount and the exchange will be executed at live market rates with a competitive spread.' },
   ]},
-  { cat: '💰 الإيداع', items: [
-    { q: 'كيف أودع أموال في حسابي؟', a: 'يمكنك الإيداع من خلال: بطاقة Visa/Mastercard خارجية، Apple Pay، أو Google Pay. الحد الأقصى للإيداع الواحد هو 50,000€.' },
-    { q: 'ما هي رسوم الإيداع؟', a: 'رسوم الإيداع هي 1.5% من المبلغ + 0.50€ رسوم ثابتة. مثلاً: إيداع 100€ = رسوم 2€، يُضاف لحسابك 98€.' },
-    { q: 'متى يظهر الإيداع في حسابي؟', a: 'الإيداعات عبر البطاقة و Apple Pay و Google Pay فورية. يظهر المبلغ في حسابك خلال ثوانٍ من تأكيد الدفع.' },
+  { cat: '💰 Deposits', items: [
+    { q: 'How do I deposit money into my account?', a: 'You can deposit via: an external Visa/Mastercard, Apple Pay, or Google Pay. The maximum single deposit is €50,000.' },
+    { q: 'What are the deposit fees?', a: 'Deposit fees are 1.5% of the amount + €0.50 fixed fee. For example: depositing €100 = €2 in fees, €98 credited to your account.' },
+    { q: 'When does the deposit appear in my account?', a: 'Card and Apple Pay / Google Pay deposits are instant. The amount appears in your account within seconds of payment confirmation.' },
   ]},
-  { cat: '🔒 الأمان', items: [
-    { q: 'كيف يحمي SDB أموالي؟', a: 'نستخدم تشفير TLS 256-bit، مصادقة ثنائية (2FA)، مراقبة أمنية 24/7، وكشف الاحتيال بالذكاء الاصطناعي. حسابك محمي بأعلى معايير الأمان المصرفي.' },
-    { q: 'ماذا أفعل إذا فقدت هاتفي؟', a: 'تواصل فوراً مع الدعم على مدار الساعة لتجميد حسابك وبطاقاتك. يمكنك أيضاً تسجيل الدخول من جهاز آخر وتجميد البطاقات بنفسك.' },
-    { q: 'ما هو KYC ولماذا هو مطلوب؟', a: 'KYC (اعرف عميلك) هو إجراء تنظيمي إلزامي للتحقق من هوية العملاء. يشمل تقديم وثيقة هوية وإثبات عنوان. هذا يحمي حسابك ويساعد في مكافحة غسيل الأموال والاحتيال.' },
+  { cat: '🔒 Security', items: [
+    { q: 'How does SDB protect my money?', a: 'We use TLS 256-bit encryption, two-factor authentication (2FA), 24/7 security monitoring, and AI-powered fraud detection. Your account is protected by the highest banking security standards.' },
+    { q: 'What should I do if I lose my phone?', a: 'Contact support immediately 24/7 to freeze your account and cards. You can also log in from another device and freeze your cards yourself.' },
+    { q: 'What is KYC and why is it required?', a: 'KYC (Know Your Customer) is a mandatory regulatory process to verify customer identity. It involves providing an ID document and proof of address. This protects your account and helps combat money laundering and fraud.' },
   ]},
-  { cat: '🎧 الدعم', items: [
-    { q: 'كيف أتواصل مع خدمة العملاء؟', a: 'يمكنك التواصل معنا عبر: الدعم المباشر داخل التطبيق (24/7)، البريد الإلكتروني support@sdb-bank.com، أو الهاتف +45 42 80 55 94. فريقنا متاح دائماً لمساعدتك.' },
-    { q: 'كم تستغرق معالجة تذاكر الدعم؟', a: 'نسعى للرد على جميع التذاكر خلال 4 ساعات كحد أقصى. المسائل العاجلة (مثل الاحتيال) تُعالج فوراً.' },
+  { cat: '🎧 Support', items: [
+    { q: 'How do I contact customer support?', a: 'You can reach us via: in-app live support (24/7), email at support@sdb-bank.com, or phone at +45 42 80 55 94. Our team is always available to help.' },
+    { q: 'How long does it take to process support tickets?', a: 'We aim to respond to all tickets within 4 hours maximum. Urgent matters (such as fraud) are processed immediately.' },
   ]},
 ];
 
@@ -44,26 +44,24 @@ const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ .
 </script>
 
 <template>
-    <Head title="FAQ - الأسئلة الشائعة" />
+    <Head title="FAQ — SDB Bank" />
     <div class="lg-root">
         <header class="lg-header">
             <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="flex items-center gap-2">
-                    <img src="/images/sdb-logo.png" alt="SDB" class="h-16 w-auto" />
-                </Link>
+                <Link href="/" class="lg-mark">SDB<span class="lg-dot">.</span></Link>
                 <div class="flex gap-3">
-                    <Link href="/terms" class="lg-link">الشروط والأحكام</Link>
-                    <Link href="/privacy" class="lg-link">الخصوصية</Link>
-                    <Link href="/about" class="lg-link">عن البنك</Link>
-                    <Link href="/support" class="lg-link">الدعم</Link>
+                    <Link href="/terms" class="lg-link">Terms</Link>
+                    <Link href="/privacy" class="lg-link">Privacy</Link>
+                    <Link href="/about" class="lg-link">About</Link>
+                    <Link href="/support" class="lg-link">Support</Link>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto px-6 py-12" style="direction:rtl">
+        <main class="max-w-4xl mx-auto px-6 py-12">
             <div class="text-center mb-10">
-                <h1 class="text-3xl font-black text-[#0B1F3A] mb-2">الأسئلة الشائعة</h1>
-                <p class="text-sm text-gray-400">إجابات شاملة على أكثر الأسئلة المتكررة حول خدماتنا المصرفية</p>
+                <h1 class="text-3xl font-black text-[#0B1F3A] mb-2">Frequently Asked Questions</h1>
+                <p class="text-sm text-gray-400">Comprehensive answers to the most common questions about our services</p>
             </div>
 
             <div class="space-y-8">
@@ -83,19 +81,19 @@ const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ .
 
             <div class="fq-cta">
                 <div class="text-2xl mb-2">🤔</div>
-                <h3 class="font-bold text-[#0B1F3A] text-lg mb-1">لم تجد إجابتك؟</h3>
-                <p class="text-sm text-gray-400 mb-4">فريق الدعم لدينا متاح 24/7 لمساعدتك</p>
+                <h3 class="font-bold text-[#0B1F3A] text-lg mb-1">Didn't find your answer?</h3>
+                <p class="text-sm text-gray-400 mb-4">Our support team is available 24/7 to help you</p>
                 <div class="flex gap-3 justify-center">
-                    <a href="mailto:support@sdb-bank.com" class="fq-btn">📧 راسلنا</a>
-                    <Link href="/support" class="fq-btn fq-btn-blue">🎧 الدعم المباشر</Link>
+                    <a href="mailto:support@sdb-bank.com" class="fq-btn">📧 Email us</a>
+                    <Link href="/support" class="fq-btn fq-btn-blue">🎧 Live Support</Link>
                 </div>
             </div>
         </main>
 
         <footer class="lg-footer">
             <div class="max-w-4xl mx-auto px-6 flex justify-between items-center">
-                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. جميع الحقوق محفوظة. مسجل في الدنمارك.</span>
-                <div class="flex gap-4"><Link href="/terms" class="lg-flink">الشروط</Link><Link href="/privacy" class="lg-flink">الخصوصية</Link><Link href="/support" class="lg-flink">الدعم</Link><Link href="/" class="lg-flink">الرئيسية</Link></div>
+                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. All rights reserved.</span>
+                <div class="flex gap-4"><Link href="/terms" class="lg-flink">Terms</Link><Link href="/privacy" class="lg-flink">Privacy</Link><Link href="/support" class="lg-flink">Support</Link><Link href="/" class="lg-flink">Home</Link></div>
             </div>
         </footer>
     </div>
@@ -104,18 +102,20 @@ const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ .
 <style scoped>
 .lg-root{min-height:100vh;background:#fff;font-family:'Inter',system-ui,sans-serif}
 .lg-header{padding:16px 0;border-bottom:1px solid rgba(11,31,58,0.06);position:sticky;top:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);z-index:10}
-.lg-link{font-size:13px;color:rgba(11,31,58,0.5);text-decoration:none;font-weight:500}.lg-link:hover{color:#1E5EFF}
+.lg-mark{font-size:24px;font-weight:900;color:#0a0a0a;text-decoration:none;letter-spacing:-1.5px}
+.lg-dot{color:#2563EB;font-size:28px;line-height:0}
+.lg-link{font-size:13px;color:rgba(11,31,58,0.5);text-decoration:none;font-weight:500}.lg-link:hover{color:#2563EB}
 .fq-card{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:12px;overflow:hidden;transition:all .3s}
-.fq-card:hover{border-color:rgba(30,94,255,0.15)}
-.fq-card-open{border-color:rgba(30,94,255,0.2);background:rgba(30,94,255,0.01)}
-.fq-q{width:100%;text-align:right;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#0B1F3A;background:none;border:none}
-.fq-arrow{font-size:20px;color:rgba(30,94,255,0.5);transition:transform .2s;font-weight:300}
-.fq-arrow-open{transform:rotate(90deg);color:#1E5EFF}
+.fq-card:hover{border-color:rgba(37,99,235,0.15)}
+.fq-card-open{border-color:rgba(37,99,235,0.2);background:rgba(37,99,235,0.01)}
+.fq-q{width:100%;text-align:left;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#0B1F3A;background:none;border:none}
+.fq-arrow{font-size:20px;color:rgba(37,99,235,0.5);transition:transform .2s;font-weight:300}
+.fq-arrow-open{transform:rotate(90deg);color:#2563EB}
 .fq-a{padding:0 18px 16px;font-size:13px;line-height:1.9;color:rgba(11,31,58,0.55);border-top:1px solid rgba(11,31,58,0.05);padding-top:12px;margin:0 18px;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-.fq-cta{text-align:center;padding:40px;background:linear-gradient(135deg,rgba(30,94,255,0.03),rgba(0,194,255,0.03));border:1.5px solid rgba(30,94,255,0.1);border-radius:20px;margin-top:40px}
-.fq-btn{display:inline-flex;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;color:rgba(11,31,58,0.5);border:1.5px solid rgba(11,31,58,0.1);text-decoration:none;transition:all .3s;background:#fff}.fq-btn:hover{border-color:#1E5EFF;color:#1E5EFF}
-.fq-btn-blue{background:linear-gradient(135deg,#1E5EFF,#3B82F6)!important;color:#fff!important;border-color:#1E5EFF!important;box-shadow:0 4px 12px rgba(30,94,255,0.2)}.fq-btn-blue:hover{box-shadow:0 6px 20px rgba(30,94,255,0.3)}
+.fq-cta{text-align:center;padding:40px;background:linear-gradient(135deg,rgba(37,99,235,0.03),rgba(0,194,255,0.03));border:1.5px solid rgba(37,99,235,0.1);border-radius:20px;margin-top:40px}
+.fq-btn{display:inline-flex;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;color:rgba(11,31,58,0.5);border:1.5px solid rgba(11,31,58,0.1);text-decoration:none;transition:all .3s;background:#fff}.fq-btn:hover{border-color:#2563EB;color:#2563EB}
+.fq-btn-blue{background:linear-gradient(135deg,#2563EB,#3B82F6)!important;color:#fff!important;border-color:#2563EB!important;box-shadow:0 4px 12px rgba(37,99,235,0.2)}.fq-btn-blue:hover{box-shadow:0 6px 20px rgba(37,99,235,0.3)}
 .lg-footer{padding:24px 0;border-top:1px solid rgba(11,31,58,0.06);background:#FAFBFC}
-.lg-flink{font-size:12px;color:rgba(11,31,58,0.4);text-decoration:none}.lg-flink:hover{color:#1E5EFF}
+.lg-flink{font-size:12px;color:rgba(11,31,58,0.4);text-decoration:none}.lg-flink:hover{color:#2563EB}
 </style>
