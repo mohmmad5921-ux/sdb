@@ -34,8 +34,7 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
     <a href="/" class="mark">SDB<span class="dot">.</span></a>
     <div class="flex items-center gap-5">
       <button @click="toggleLang" class="nl">{{ ar('EN','عربي') }}</button>
-      <Link v-if="canLogin" :href="route('login')" class="nl">{{ ar('دخول','Log in') }}</Link>
-      <Link v-if="canRegister" href="/preregister" class="nbtn">{{ ar('سجّل مبكراً','Early access') }}</Link>
+      <Link href="/preregister" class="nbtn">{{ ar('سجّل مبكراً','Early access') }}</Link>
     </div>
   </div>
 </nav>
