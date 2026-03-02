@@ -35,7 +35,7 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
     <div class="flex items-center gap-5">
       <button @click="toggleLang" class="nl">{{ ar('EN','عربي') }}</button>
       <Link v-if="canLogin" :href="route('login')" class="nl">{{ ar('دخول','Log in') }}</Link>
-      <Link v-if="canRegister" :href="route('register')" class="nbtn">{{ ar('سجّل مبكراً','Early access') }}</Link>
+      <Link v-if="canRegister" href="/preregister" class="nbtn">{{ ar('سجّل مبكراً','Early access') }}</Link>
     </div>
   </div>
 </nav>
@@ -146,7 +146,7 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
         <div class="pl-pr">{{ p.pr }}<span v-if="!['مجاناً','Free'].includes(p.pr)" class="pl-mo">/{{ ar('شهر','mo') }}</span></div>
         <div class="pl-div"></div>
         <ul class="pl-ul"><li v-for="f in p.ft" :key="f"><span class="pl-ck" :class="{'pl-ck-w':p.pop}">✓</span>{{ f }}</li></ul>
-        <Link v-if="canRegister" :href="route('register')" class="pl-btn" :class="{'pl-btn-w':p.pop}">{{ ar('ابدأ','Get started') }}</Link>
+        <Link v-if="canRegister" href="/preregister" class="pl-btn" :class="{'pl-btn-w':p.pop}">{{ ar('ابدأ','Get started') }}</Link>
       </div>
     </div>
   </div>
@@ -169,7 +169,7 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
   <div class="mx text-center">
     <h2 class="t2 a">{{ ar('جاهز للمستقبل؟','Ready for the future?') }}</h2>
     <p class="sp a" style="margin-bottom:32px">{{ ar('سجّل الآن واحصل على وصول مبكر. مجاناً تماماً.','Sign up now and get early access. Completely free.') }}</p>
-    <Link v-if="canRegister" :href="route('register')" class="cta-big a">{{ ar('افتح حسابك مجاناً →','Open your free account →') }}</Link>
+    <Link v-if="canRegister" href="/preregister" class="cta-big a">{{ ar('افتح حسابك مجاناً →','Open your free account →') }}</Link>
   </div>
 </section>
 
