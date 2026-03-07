@@ -25,10 +25,7 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 <!-- Nav -->
 <nav class="nav">
   <div class="mx flex items-center justify-between">
-    <div class="flex flex-col">
-      <span style="font-weight:900;font-size:13px;color:#0a0a0a;letter-spacing:0.5px;">مهدي العلي</span>
-      <a href="/" class="mark">SDB<span class="dot">.</span></a>
-    </div>
+    <a href="/" class="mark">SDB<span class="dot">.</span></a>
     <Link href="/preregister" class="nbtn">Early access</Link>
   </div>
 </nav>
