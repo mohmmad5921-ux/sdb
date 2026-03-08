@@ -63,24 +63,24 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}
-.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:#0a0a0a;color:#fff}
+.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
 .tc{text-align:center}
 .t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:16px}.t2-w{color:#fff}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:500px;margin-bottom:32px}.t2-sub-w{color:rgba(255,255,255,.3)}
 .p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#0a0a0a 0%,#162d4d 100%);color:#fff;text-align:center}
-.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#60A5FA;text-transform:uppercase;margin-bottom:24px}
+.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#7DD3FC;text-transform:uppercase;margin-bottom:24px}
 .p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:20px}
-.p-hero-em{color:#60A5FA}
+.p-hero-em{color:#7DD3FC}
 .p-hero-p{font-size:17px;color:rgba(255,255,255,.45);max-width:560px;margin:0 auto;line-height:1.8}
 .p-cta{display:inline-block;padding:16px 44px;background:#fff;color:#0a0a0a;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.p-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .fx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.fx-c{padding:16px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:14px;display:flex;align-items:center;gap:12px;transition:all .3s}.fx-c:hover{border-color:rgba(37,99,235,.15);transform:translateY(-2px)}
+.fx-c{padding:16px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:14px;display:flex;align-items:center;gap:12px;transition:all .3s}.fx-c:hover{border-color:rgba(14,165,233,.15);transform:translateY(-2px)}
 .fx-pair{display:flex;align-items:center;gap:4px;font-size:20px}
 .fx-ar{color:rgba(10,10,10,.15);font-size:14px}
 .fx-code{font-size:13px;font-weight:700;flex:1}
-.fx-rate{font-size:14px;font-weight:800;color:#2563EB}
+.fx-rate{font-size:14px;font-weight:800;color:#0EA5E9}
 .cur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
-.cur-c{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:12px;transition:all .3s}.cur-c:hover{border-color:rgba(37,99,235,.15);transform:translateY(-1px)}
+.cur-c{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:12px;transition:all .3s}.cur-c:hover{border-color:rgba(14,165,233,.15);transform:translateY(-1px)}
 .cur-fl{font-size:24px}
 .cur-code{font-size:14px;font-weight:800}
 .cur-name{font-size:11px;color:rgba(10,10,10,.4)}

@@ -10,7 +10,7 @@ const t = computed(() => isAr.value ? {
   heroCta:'احصل على بطاقتك',
   tierTitle:'اختر بطاقتك المثالية',
   tiers:[
-    {name:'Standard',badge:'مجاني',color:'#2563EB',feats:['بطاقة افتراضية فورية','Apple Pay و Google Pay','ادفع بأي متجر إلكتروني','حد سحب يومي €500','إشعارات فورية لكل عملية','تجميد فوري من التطبيق']},
+    {name:'Standard',badge:'مجاني',color:'#0EA5E9',feats:['بطاقة افتراضية فورية','Apple Pay و Google Pay','ادفع بأي متجر إلكتروني','حد سحب يومي €500','إشعارات فورية لكل عملية','تجميد فوري من التطبيق']},
     {name:'Plus',badge:'€3.99/شهر',color:'#7C3AED',feats:['بطاقة معدنية فاخرة','حماية مشتريات €1,000','حد يومي مضاعف €2,000','دعم أولوية 24/7','CVV ديناميكي','تحويلات دولية مجانية (€1,000/شهر)']},
     {name:'Premium',badge:'€7.99/شهر',color:'#DB2777',feats:['صرف عملات بلا حدود بسعر السوق','تأمين سفر شامل','3 زيارات صالة مطار شهرياً','شريحة eSIM دولية (3GB)','حماية مشتريات €5,000','حد سحب يومي €5,000']},
     {name:'Elite',badge:'€14.99/شهر',color:'#B45309',feats:['صالات VIP بلا حدود','مدير حساب شخصي','استرداد نقدي 1% على كل عملية','تأمين شامل (سفر + صحة)','شريحة eSIM دولية (10GB)','حد سحب يومي €10,000']},
@@ -37,7 +37,7 @@ const t = computed(() => isAr.value ? {
   heroCta:'Get your card',
   tierTitle:'Choose your perfect card',
   tiers:[
-    {name:'Standard',badge:'Free',color:'#2563EB',feats:['Instant virtual Mastercard','Apple Pay & Google Pay','Pay at any online store','Daily withdrawal limit €500','Instant notifications','Instant freeze from app']},
+    {name:'Standard',badge:'Free',color:'#0EA5E9',feats:['Instant virtual Mastercard','Apple Pay & Google Pay','Pay at any online store','Daily withdrawal limit €500','Instant notifications','Instant freeze from app']},
     {name:'Plus',badge:'€3.99/mo',color:'#7C3AED',feats:['Premium metal Mastercard','Purchase protection €1,000','Double daily limit €2,000','Priority 24/7 support','Dynamic CVV','Free intl. transfers (€1,000/mo)']},
     {name:'Premium',badge:'€7.99/mo',color:'#DB2777',feats:['Unlimited FX at market rate','Comprehensive travel insurance','3 airport lounges/month','Intl. eSIM data (3GB)','Purchase protection €5,000','Daily withdrawal €5,000']},
     {name:'Elite',badge:'€14.99/mo',color:'#B45309',feats:['Unlimited VIP lounges','Personal account manager','1% cashback on everything','Full insurance (travel + health)','Intl. eSIM data (10GB)','Daily withdrawal €10,000']},
@@ -74,14 +74,14 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}
-.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:#0a0a0a;color:#fff}
+.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
 .tc{text-align:center}
 .t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:48px}.t2-w{color:#fff}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:500px}.t2-sub-w{color:rgba(255,255,255,.3)}
 .p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#0a0a0a 0%,#162d4d 100%);color:#fff;text-align:center}
-.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#60A5FA;text-transform:uppercase;margin-bottom:24px}
+.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#7DD3FC;text-transform:uppercase;margin-bottom:24px}
 .p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:20px}
-.p-hero-em{color:#60A5FA}
+.p-hero-em{color:#7DD3FC}
 .p-hero-p{font-size:17px;color:rgba(255,255,255,.45);max-width:560px;margin:0 auto 32px;line-height:1.8}
 .p-cta{display:inline-block;padding:16px 44px;background:#fff;color:#0a0a0a;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.p-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -97,7 +97,7 @@ const t = computed(() => isAr.value ? {
 .tbl th{padding:14px;text-align:center;font-weight:800;background:#0a0a0a;color:#fff;font-size:12px}.tbl th:first-child{text-align:start;border-radius:12px 0 0 0}.tbl th:last-child{border-radius:0 12px 0 0}
 .tbl td{padding:12px 14px;text-align:center;border-bottom:1px solid rgba(10,10,10,.06);color:rgba(10,10,10,.5)}
 .tbl-first{text-align:start!important;font-weight:600;color:#0a0a0a!important}
-.tbl tbody tr:hover{background:rgba(37,99,235,.02)}
+.tbl tbody tr:hover{background:rgba(14,165,233,.02)}
 .feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .feat-c{padding:32px 24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:18px;transition:all .3s}.feat-c:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.04)}
 .feat-ic{font-size:28px;display:block;margin-bottom:12px}

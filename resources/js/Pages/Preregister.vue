@@ -74,7 +74,7 @@ const t = computed(() => isAr.value ? {
 .pr-left{flex:1}
 .pr-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px}
 .pr-mark{font-size:28px;font-weight:900;color:#0a0a0a;text-decoration:none;letter-spacing:-1.5px}
-.pr-dot{color:#2563EB;font-size:32px;line-height:0}
+.pr-dot{color:#0EA5E9;font-size:32px;line-height:0}
 .pr-lang{font-size:13px;font-weight:600;color:rgba(10,10,10,.4);background:transparent;border:1.5px solid rgba(10,10,10,.1);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s}.pr-lang:hover{border-color:rgba(10,10,10,.3);color:#0a0a0a}
 .pr-h1{font-size:clamp(2.4rem,5vw,3.8rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:#0a0a0a;margin-bottom:20px}
 .pr-sub{font-size:16px;color:#0a0a0a;opacity:.35;line-height:1.7;margin-bottom:40px;max-width:360px}
@@ -88,7 +88,7 @@ const t = computed(() => isAr.value ? {
 .pr-field{display:flex;flex-direction:column;gap:6px}
 .pr-label{font-size:12px;font-weight:700;color:#0a0a0a;opacity:.4;letter-spacing:.3px}
 .pr-opt{font-weight:400;opacity:.5}
-.pr-input{padding:13px 16px;border:1.5px solid rgba(0,0,0,.08);border-radius:10px;font-size:14px;font-family:inherit;outline:none;color:#0a0a0a;transition:border-color .2s;background:#fff}.pr-input:focus{border-color:#2563EB}.pr-input::placeholder{color:#ddd}
+.pr-input{padding:13px 16px;border:1.5px solid rgba(0,0,0,.08);border-radius:10px;font-size:14px;font-family:inherit;outline:none;color:#0a0a0a;transition:border-color .2s;background:#fff}.pr-input:focus{border-color:#0EA5E9}.pr-input::placeholder{color:#ddd}
 .pr-err{font-size:12px;color:#ef4444;font-weight:500}
 .pr-row{display:flex;gap:12px}
 .pr-btn{padding:15px;background:#0a0a0a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s;margin-top:4px}.pr-btn:hover{background:#222}.pr-btn:disabled{opacity:.5;cursor:not-allowed}

@@ -214,43 +214,43 @@ html{scroll-behavior:smooth}
 .rtl{direction:rtl;text-align:right}
 .rtl .text-center{text-align:center}
 
-/* ─── Nav ─── */
-.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:64px;display:flex;align-items:center;background:rgba(10,10,10,.97);backdrop-filter:blur(20px) saturate(1.8)}
+/* ─── Nav — Vibrant Sky Blue ─── */
+.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 50%,#38BDF8 100%);backdrop-filter:blur(20px);box-shadow:0 4px 20px rgba(2,132,199,.25)}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
-.sn-logo{font-size:26px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-1.5px;flex-shrink:0}
-.sn-dot{color:#2563EB;font-size:30px;line-height:0}
+.sn-logo{font-size:28px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-1.5px;flex-shrink:0;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:28px;margin:0 auto}
-.sn-link{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s;letter-spacing:.2px}.sn-link:hover{color:rgba(255,255,255,.85)}
-.sn-active{color:#fff!important;font-weight:600}
+.sn-link{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:all .2s;letter-spacing:.2px}.sn-link:hover{color:#fff;text-shadow:0 0 8px rgba(255,255,255,.3)}
+.sn-active{color:#fff!important;font-weight:700;text-shadow:0 0 12px rgba(255,255,255,.4)}
 .sn-right{display:flex;align-items:center;gap:10px}
-.sn-lang{font-size:13px;font-weight:600;color:rgba(255,255,255,.5);background:transparent;border:1.5px solid rgba(255,255,255,.12);padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit}.sn-lang:hover{border-color:rgba(255,255,255,.3);color:#fff}
-.sn-cta{font-size:13px;font-weight:700;color:#0a0a0a;background:#fff;padding:9px 22px;border-radius:10px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap}.sn-cta:hover{background:rgba(255,255,255,.88);transform:translateY(-1px)}
+.sn-lang{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;backdrop-filter:blur(8px)}.sn-lang:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.4);color:#fff}
+.sn-cta{font-size:13px;font-weight:700;color:#0284C7;background:#fff;padding:9px 22px;border-radius:10px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.sn-cta:hover{background:#F0F9FF;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .sn-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
 .sn-hamburger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .2s}
 
 /* Mobile nav */
-.sn-mobile{position:fixed;top:64px;left:0;right:0;background:#0a0a0a;padding:20px 24px;display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,.06);z-index:98}
-.sn-mob-link{font-size:15px;color:rgba(255,255,255,.6);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);font-weight:500}
+.sn-mobile{position:fixed;top:68px;left:0;right:0;background:linear-gradient(180deg,#0284C7,#0369A1);padding:20px 24px;display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.sn-mob-link{font-size:15px;color:rgba(255,255,255,.8);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:500}
 .sn-mob-cta{text-align:center;margin-top:8px}
 
-/* ─── Mega Footer ─── */
-.sf{background:#0a0a0a;padding:80px 0 0;color:#fff;margin-top:auto}
-.sf-top{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.06)}
+/* ─── Mega Footer — Deep Navy Blue ─── */
+.sf{background:linear-gradient(180deg,#0C1B2E 0%,#0A1628 100%);padding:80px 0 0;color:#fff;margin-top:auto}
+.sf-top{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(56,189,248,.08)}
 .sf-brand{display:flex;flex-direction:column;gap:12px}
 .sn-logo-ft{font-size:22px;display:inline-block;margin-bottom:4px}
-.sf-desc{font-size:12.5px;color:rgba(255,255,255,.25);line-height:1.8;white-space:pre-line;max-width:280px}
+.sf-desc{font-size:12.5px;color:rgba(148,210,255,.3);line-height:1.8;white-space:pre-line;max-width:280px}
 .sf-social{display:flex;gap:8px;margin-top:4px}
-.sf-soc-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:11px;font-weight:800;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(255,255,255,.2);color:#fff}
+.sf-soc-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(56,189,248,.12);border-radius:8px;font-size:11px;font-weight:800;color:rgba(148,210,255,.4);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(56,189,248,.3);color:#38BDF8;background:rgba(56,189,248,.05)}
 .sf-col{display:flex;flex-direction:column;gap:10px}
-.sf-col-h{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:4px}
+.sf-col-h{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(56,189,248,.4);margin-bottom:4px}
 .rtl .sf-col-h{letter-spacing:0}
-.sf-link{font-size:13px;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;line-height:1.4}.sf-link:hover{color:rgba(255,255,255,.7)}
-.sf-contact{padding:28px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.sf-link{font-size:13px;color:rgba(148,210,255,.35);text-decoration:none;transition:color .2s;line-height:1.4}.sf-link:hover{color:rgba(148,210,255,.8)}
+.sf-contact{padding:28px 0;border-bottom:1px solid rgba(56,189,248,.08)}
 .sf-contact-row{display:flex;gap:32px;flex-wrap:wrap}
-.sf-contact-item{font-size:13px;color:rgba(255,255,255,.3)}
+.sf-contact-item{font-size:13px;color:rgba(148,210,255,.35)}
 .sf-bottom{padding:24px 0;display:flex;flex-direction:column;gap:12px}
-.sf-reg{font-size:11px;color:rgba(255,255,255,.12);line-height:1.7;max-width:700px}
-.sf-copy{font-size:11px;color:rgba(255,255,255,.15)}
+.sf-reg{font-size:11px;color:rgba(148,210,255,.15);line-height:1.7;max-width:700px}
+.sf-copy{font-size:11px;color:rgba(148,210,255,.2)}
 
 /* ─── Responsive ─── */
 @media(max-width:900px){

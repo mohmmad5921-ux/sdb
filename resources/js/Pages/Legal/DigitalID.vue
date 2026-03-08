@@ -76,21 +76,21 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}
-.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:#0a0a0a;color:#fff}
+.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
 .tc{text-align:center}
-.t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:24px}.t2-w{color:#fff}.t2-em-w{color:#60A5FA}
+.t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:24px}.t2-w{color:#fff}.t2-em-w{color:#7DD3FC}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:540px;margin-bottom:32px}.t2-sub-w{color:rgba(255,255,255,.3)}
-.p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a3e 100%);color:#fff;text-align:center}
-.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#60A5FA;text-transform:uppercase;margin-bottom:24px}
+.p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff;text-align:center}
+.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#7DD3FC;text-transform:uppercase;margin-bottom:24px}
 .p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:20px}
-.p-hero-em{color:#60A5FA}
+.p-hero-em{color:#7DD3FC}
 .p-hero-p{font-size:17px;color:rgba(255,255,255,.45);max-width:600px;margin:0 auto;line-height:1.8}
-.p-cta{display:inline-block;padding:16px 44px;background:#0a0a0a;color:#fff;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.p-cta:hover{transform:translateY(-2px)}
+.p-cta{display:inline-block;padding:16px 44px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.p-cta:hover{transform:translateY(-2px)}
 .ab-box{max-width:700px}
 .ab-desc{font-size:16px;color:rgba(10,10,10,.45);line-height:1.9}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .step{padding:32px 20px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:20px;text-align:center;transition:all .3s}.step:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.05)}
-.step-n{font-size:40px;font-weight:900;color:rgba(37,99,235,.08);line-height:1;margin-bottom:6px}
+.step-n{font-size:40px;font-weight:900;color:rgba(14,165,233,.08);line-height:1;margin-bottom:6px}
 .step-ic{font-size:32px;margin-bottom:10px}
 .step-t{font-size:15px;font-weight:800;margin-bottom:6px}
 .step-d{font-size:12px;color:rgba(10,10,10,.4);line-height:1.7}
@@ -100,7 +100,7 @@ const t = computed(() => isAr.value ? {
 .feat-t{font-size:15px;font-weight:800;margin-bottom:6px}
 .feat-d{font-size:13px;color:rgba(10,10,10,.35);line-height:1.75}
 .docs-g{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.doc-c{padding:16px 24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:12px;font-size:14px;font-weight:600;transition:all .3s}.doc-c:hover{border-color:rgba(37,99,235,.15)}
+.doc-c{padding:16px 24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:12px;font-size:14px;font-weight:600;transition:all .3s}.doc-c:hover{border-color:rgba(14,165,233,.15)}
 .soon-g{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}
 .soon-i{padding:18px 24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:14px;font-weight:600;color:rgba(255,255,255,.5)}
 @media(max-width:768px){.steps{grid-template-columns:repeat(2,1fr)}.feat-g{grid-template-columns:1fr}.soon-g{grid-template-columns:1fr}}
