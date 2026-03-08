@@ -48,6 +48,9 @@ Route::get('/support', fn() => Inertia::render('Legal/Support'))->name('support.
 Route::get('/currencies', fn() => Inertia::render('Legal/Currencies'))->name('currencies.public');
 Route::get('/cards-info', fn() => Inertia::render('Legal/CardsInfo'))->name('cards.info');
 Route::get('/transfers-info', fn() => Inertia::render('Legal/TransfersInfo'))->name('transfers.info');
+Route::get('/salary', fn() => Inertia::render('Legal/Salary'))->name('salary');
+Route::get('/digital-id', fn() => Inertia::render('Legal/DigitalID'))->name('digital-id');
+Route::get('/wallet-guide', fn() => Inertia::render('Legal/WalletGuide'))->name('wallet-guide');
 
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');

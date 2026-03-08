@@ -1,213 +1,108 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { inject, ref, computed } from 'vue';
+import SiteLayout from '@/Layouts/SiteLayout.vue';
+defineOptions({ layout: SiteLayout });
+const isAr = inject('isAr', computed(() => true));
+const t = computed(() => isAr.value ? {
+  title:'البطاقات — SDB Bank',tag:'بطاقات ماستركارد',
+  heroH:'بطاقتك.',heroEm:'بين يديك فوراً.',heroP:'بطاقة افتراضية فورية مجانية عند التسجيل. أو بطاقة معدنية فاخرة تصلك لأي مكان. ادفع بـ Apple Pay و Google Pay بكل مكان بالعالم.',
+  heroCta:'احصل على بطاقتك',
+  tierTitle:'اختر بطاقتك المثالية',
+  tiers:[
+    {name:'Standard',badge:'مجاني',color:'#2563EB',feats:['بطاقة افتراضية فورية','Apple Pay و Google Pay','ادفع بأي متجر إلكتروني','حد سحب يومي €500','إشعارات فورية لكل عملية','تجميد فوري من التطبيق']},
+    {name:'Plus',badge:'€3.99/شهر',color:'#7C3AED',feats:['بطاقة معدنية فاخرة','حماية مشتريات €1,000','حد يومي مضاعف €2,000','دعم أولوية 24/7','CVV ديناميكي','تحويلات دولية مجانية (€1,000/شهر)']},
+    {name:'Premium',badge:'€7.99/شهر',color:'#DB2777',feats:['صرف عملات بلا حدود بسعر السوق','تأمين سفر شامل','3 زيارات صالة مطار شهرياً','شريحة eSIM دولية (3GB)','حماية مشتريات €5,000','حد سحب يومي €5,000']},
+    {name:'Elite',badge:'€14.99/شهر',color:'#B45309',feats:['صالات VIP بلا حدود','مدير حساب شخصي','استرداد نقدي 1% على كل عملية','تأمين شامل (سفر + صحة)','شريحة eSIM دولية (10GB)','حد سحب يومي €10,000']},
+  ],
+  compTitle:'مقارنة البطاقات',
+  compH:['الميزة','Standard','Plus','Premium','Elite'],
+  compR:[['السعر الشهري','مجاني','€3.99','€7.99','€14.99'],['بطاقة افتراضية','✓','✓','✓','✓'],['بطاقة معدنية','—','✓','✓','✓'],['Apple Pay','✓','✓','✓','✓'],['حد السحب اليومي','€500','€2,000','€5,000','€10,000'],['صرف عملات مجاني','€200/شهر','€1,000/شهر','بلا حدود','بلا حدود'],['حماية مشتريات','—','€1,000','€5,000','€10,000'],['تأمين سفر','—','—','✓','✓ شامل'],['صالات مطار','—','—','3/شهر','بلا حدود'],['CVV ديناميكي','—','✓','✓','✓'],['استرداد نقدي','—','—','0.5%','1%'],['مدير حساب','—','—','—','✓']],
+  featTitle:'كل مميزات البطاقة',
+  feats:[
+    {ic:'📱',t:'Apple Pay و Google Pay',d:'أضف بطاقتك لمحفظتك الرقمية وادفع بهاتفك أو ساعتك الذكية بأي متجر.'},
+    {ic:'❄️',t:'تجميد فوري',d:'جمّد بطاقتك فوراً من التطبيق إذا فقدتها أو شككت بنشاط غير عادي.'},
+    {ic:'🔄',t:'CVV ديناميكي',d:'رمز أمان يتغير تلقائياً كل ساعة لحماية إضافية بالمشتريات الإلكترونية.'},
+    {ic:'🔔',t:'إشعارات فورية',d:'كل عملية دفع أو سحب ترسل إشعار فوري بكل التفاصيل لهاتفك.'},
+    {ic:'🌍',t:'ادفع بأي مكان',d:'ماستركارد مقبولة بأكثر من 80 مليون متجر حول العالم.'},
+    {ic:'💱',t:'تحويل تلقائي',d:'ادفع بأي عملة والتحويل يتم تلقائياً بسعر الصرف الحقيقي.'},
+    {ic:'🛡️',t:'3D Secure',d:'طبقة أمان إضافية تتحقق من هويتك عند الدفع إلكترونياً.'},
+    {ic:'📊',t:'تحليل المصاريف',d:'تتبع وين رايحة فلوسك مع تصنيف تلقائي وتقارير شهرية.'},
+    {ic:'🔐',t:'أمان متعدد الطبقات',d:'تشفير 256-بت، مصادقة ثنائية، وبصمة الوجه أو الإصبع.'},
+  ],
+  ctaTitle:'احصل على بطاقتك اليوم',ctaSub:'سجّل بدقائق واحصل على بطاقة افتراضية فوراً. بدون رسوم مخفية.',ctaBtn:'سجّل مجاناً ←',
+} : {
+  title:'Cards — SDB Bank',tag:'Mastercard Cards',
+  heroH:'Your card.',heroEm:'Instantly yours.',heroP:'Free instant virtual card on signup. Or a premium metal card delivered anywhere. Pay with Apple Pay and Google Pay worldwide.',
+  heroCta:'Get your card',
+  tierTitle:'Choose your perfect card',
+  tiers:[
+    {name:'Standard',badge:'Free',color:'#2563EB',feats:['Instant virtual Mastercard','Apple Pay & Google Pay','Pay at any online store','Daily withdrawal limit €500','Instant notifications','Instant freeze from app']},
+    {name:'Plus',badge:'€3.99/mo',color:'#7C3AED',feats:['Premium metal Mastercard','Purchase protection €1,000','Double daily limit €2,000','Priority 24/7 support','Dynamic CVV','Free intl. transfers (€1,000/mo)']},
+    {name:'Premium',badge:'€7.99/mo',color:'#DB2777',feats:['Unlimited FX at market rate','Comprehensive travel insurance','3 airport lounges/month','Intl. eSIM data (3GB)','Purchase protection €5,000','Daily withdrawal €5,000']},
+    {name:'Elite',badge:'€14.99/mo',color:'#B45309',feats:['Unlimited VIP lounges','Personal account manager','1% cashback on everything','Full insurance (travel + health)','Intl. eSIM data (10GB)','Daily withdrawal €10,000']},
+  ],
+  compTitle:'Card Comparison',
+  compH:['Feature','Standard','Plus','Premium','Elite'],
+  compR:[['Monthly price','Free','€3.99','€7.99','€14.99'],['Virtual card','✓','✓','✓','✓'],['Metal card','—','✓','✓','✓'],['Apple Pay','✓','✓','✓','✓'],['Daily withdrawal','€500','€2,000','€5,000','€10,000'],['Free FX','€200/mo','€1,000/mo','Unlimited','Unlimited'],['Purchase protection','—','€1,000','€5,000','€10,000'],['Travel insurance','—','—','✓','✓ Full'],['Airport lounges','—','—','3/mo','Unlimited'],['Dynamic CVV','—','✓','✓','✓'],['Cashback','—','—','0.5%','1%'],['Account manager','—','—','—','✓']],
+  featTitle:'All Card Features',
+  feats:[
+    {ic:'📱',t:'Apple Pay & Google Pay',d:'Add your card to your digital wallet and pay with your phone or smartwatch.'},
+    {ic:'❄️',t:'Instant Freeze',d:'Freeze your card instantly from the app if lost or suspicious activity detected.'},
+    {ic:'🔄',t:'Dynamic CVV',d:'Security code that changes automatically every hour for extra protection.'},
+    {ic:'🔔',t:'Instant Notifications',d:'Every payment triggers instant notification with full details.'},
+    {ic:'🌍',t:'Pay Anywhere',d:'Mastercard accepted at 80M+ stores worldwide.'},
+    {ic:'💱',t:'Auto Conversion',d:'Pay in any currency with auto conversion at real exchange rate.'},
+    {ic:'🛡️',t:'3D Secure',d:'Extra security layer verifying identity during online payments.'},
+    {ic:'📊',t:'Spending Analytics',d:'Track where your money goes with auto categorization.'},
+    {ic:'🔐',t:'Multi-Layer Security',d:'256-bit encryption, 2FA, and Face ID or fingerprint.'},
+  ],
+  ctaTitle:'Get your card today',ctaSub:'Sign up in minutes and get a virtual card instantly. No hidden fees.',ctaBtn:'Sign up free →',
+});
 </script>
 <template>
-<Head title="Mastercard Cards — SDB Bank" />
-<div class="pg">
-  <nav class="pg-nav">
-    <div class="pg-wrap flex items-center justify-between h-16">
-      <Link href="/" class="pg-mark">SDB<span class="pg-dot">.</span></Link>
-      <div class="hidden md:flex items-center gap-6 text-sm">
-        <Link href="/" class="pg-link">Home</Link>
-        <Link href="/cards-info" class="pg-link pg-active">Cards</Link>
-        <Link href="/currencies" class="pg-link">Currencies</Link>
-        <Link href="/transfers-info" class="pg-link">Transfers</Link>
-        <Link href="/about" class="pg-link">About</Link>
-      </div>
-      <Link href="/preregister" class="pg-btn">Open Account</Link>
-    </div>
-  </nav>
+<Head :title="t.title" />
+<section class="p-hero"><div class="sw"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><a href="/preregister" class="p-cta">{{ t.heroCta }}</a></div></section>
 
-  <section class="pg-hero pg-hero-dark">
-    <h1 class="pg-hero-h">SDB Mastercard Cards</h1>
-    <p class="pg-hero-p">Virtual and premium metal cards. Pay anywhere, online or in-store, with full protection.</p>
-    <Link href="/preregister" class="pg-btn-light mt-6">Get your card</Link>
-  </section>
+<section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.tierTitle }}</h2><div class="tiers"><div v-for="(tr,i) in t.tiers" :key="i" class="tier"><div class="tier-top" :style="{background:`linear-gradient(135deg,${tr.color},${tr.color}dd)`}"><div class="tier-emoji">💳</div></div><div class="tier-body"><span class="tier-badge" :style="{color:tr.color,background:tr.color+'12'}">{{ tr.badge }}</span><h3 class="tier-name">{{ tr.name }}</h3><ul class="tier-feats"><li v-for="f in tr.feats" :key="f">✓ {{ f }}</li></ul></div></div></div></div></section>
 
-  <section class="pg-sec">
-    <div class="pg-wrap">
-      <h2 class="pg-h2 text-center">Choose your perfect card</h2>
-      <p class="pg-sub text-center max-w-2xl mx-auto">From a free virtual card to a premium metal card — we have something for your lifestyle.</p>
+<section class="sec sec-alt"><div class="sw"><h2 class="t2 tc">{{ t.compTitle }}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th v-for="h in t.compH" :key="h">{{ h }}</th></tr></thead><tbody><tr v-for="(r,i) in t.compR" :key="i"><td v-for="(c,j) in r" :key="j" :class="{'tbl-first':j===0}">{{ c }}</td></tr></tbody></table></div></div></section>
 
-      <div class="cd-tier">
-        <div class="cd-tier-img"><div class="cd-placeholder">💳</div></div>
-        <div class="cd-tier-info">
-          <span class="cd-badge">Free</span>
-          <h3 class="cd-name">Standard</h3>
-          <p class="cd-desc">A free virtual Mastercard issued instantly when you open your account. Perfect for online payments and everyday purchases.</p>
-          <ul class="cd-features">
-            <li>✓ Instant virtual Mastercard</li>
-            <li>✓ Apple Pay & Google Pay</li>
-            <li>✓ Pay online at any store</li>
-            <li>✓ Daily withdrawal limit €500</li>
-            <li>✓ Instant notifications for every transaction</li>
-            <li>✓ Instant freeze from the app</li>
-          </ul>
-        </div>
-      </div>
+<section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.featTitle }}</h2><div class="feat-g"><div v-for="f in t.feats" :key="f.t" class="feat-c"><span class="feat-ic">{{ f.ic }}</span><h4 class="feat-t">{{ f.t }}</h4><p class="feat-d">{{ f.d }}</p></div></div></div></section>
 
-      <div class="cd-tier cd-tier-rev">
-        <div class="cd-tier-info">
-          <span class="cd-badge cd-badge-plus">€3.99/month</span>
-          <h3 class="cd-name">Plus</h3>
-          <p class="cd-desc">A sleek metal Mastercard with higher limits and purchase protection. For the smart spender who wants more.</p>
-          <ul class="cd-features">
-            <li>✓ Premium metal Mastercard</li>
-            <li>✓ Purchase protection up to €1,000</li>
-            <li>✓ Double daily limits €2,000</li>
-            <li>✓ Priority 24/7 support</li>
-            <li>✓ Dynamic CVV for extra protection</li>
-            <li>✓ Fee-free international transfers (up to €1,000/month)</li>
-          </ul>
-        </div>
-        <div class="cd-tier-img"><div class="cd-placeholder cd-placeholder-plus">💳</div></div>
-      </div>
-
-      <div class="cd-tier">
-        <div class="cd-tier-img"><div class="cd-placeholder cd-placeholder-prem">💳</div></div>
-        <div class="cd-tier-info">
-          <span class="cd-badge cd-badge-prem">€7.99/month</span>
-          <h3 class="cd-name">Premium</h3>
-          <p class="cd-desc">For travel and international shopping lovers. Unlimited FX, comprehensive travel insurance, and airport lounges worldwide.</p>
-          <ul class="cd-features">
-            <li>✓ Unlimited currency exchange at market rate</li>
-            <li>✓ Comprehensive travel insurance (medical + cancellation + delay)</li>
-            <li>✓ 3 monthly airport lounge visits</li>
-            <li>✓ International eSIM data (3GB/month)</li>
-            <li>✓ Purchase protection up to €5,000</li>
-            <li>✓ Daily withdrawal limit €5,000</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="cd-tier cd-tier-rev">
-        <div class="cd-tier-info">
-          <span class="cd-badge cd-badge-elite">€14.99/month</span>
-          <h3 class="cd-name">Elite</h3>
-          <p class="cd-desc">The pinnacle of digital banking. Unlimited VIP lounges, a personal account manager, and cashback on every transaction.</p>
-          <ul class="cd-features">
-            <li>✓ Unlimited VIP airport lounges</li>
-            <li>✓ Dedicated personal account manager</li>
-            <li>✓ 1% cashback on every transaction</li>
-            <li>✓ Comprehensive insurance (travel + health + vehicle)</li>
-            <li>✓ International eSIM data (10GB/month)</li>
-            <li>✓ Daily withdrawal limit €10,000</li>
-            <li>✓ Partner subscriptions worth €2,100/year</li>
-          </ul>
-        </div>
-        <div class="cd-tier-img"><div class="cd-placeholder cd-placeholder-elite">💳</div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="pg-sec pg-sec-light">
-    <div class="pg-wrap">
-      <h2 class="pg-h2 text-center">Card Comparison</h2>
-      <div class="cd-table-wrap">
-        <table class="cd-table">
-          <thead>
-            <tr><th>Feature</th><th>Standard</th><th>Plus</th><th>Premium</th><th>Elite</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Monthly price</td><td>Free</td><td>€3.99</td><td>€7.99</td><td>€14.99</td></tr>
-            <tr><td>Virtual card</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Metal card</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Apple Pay & Google Pay</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Daily withdrawal limit</td><td>€500</td><td>€2,000</td><td>€5,000</td><td>€10,000</td></tr>
-            <tr><td>Free FX exchange</td><td>€200/mo</td><td>€1,000/mo</td><td>Unlimited</td><td>Unlimited</td></tr>
-            <tr><td>Purchase protection</td><td>—</td><td>€1,000</td><td>€5,000</td><td>€10,000</td></tr>
-            <tr><td>Travel insurance</td><td>—</td><td>—</td><td>✓</td><td>✓ Full</td></tr>
-            <tr><td>Airport lounges</td><td>—</td><td>—</td><td>3/month</td><td>Unlimited</td></tr>
-            <tr><td>Dynamic CVV</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Cashback</td><td>—</td><td>—</td><td>0.5%</td><td>1%</td></tr>
-            <tr><td>Personal account manager</td><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="pg-sec">
-    <div class="pg-wrap">
-      <h2 class="pg-h2 text-center">All Card Features</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-        <div v-for="f in [
-          {icon:'📱',t:'Apple Pay & Google Pay',d:'Add your card to your digital wallet and pay with your phone or smartwatch at any store.'},
-          {icon:'❄️',t:'Instant Freeze',d:'Freeze your card instantly from the app if you lose it or suspect unusual activity. Unfreeze just as easily.'},
-          {icon:'🔄',t:'Dynamic CVV',d:'A security code that changes automatically every hour for extra protection in online purchases.'},
-          {icon:'🔔',t:'Instant Notifications',d:'Every payment or withdrawal triggers an instant notification with full details to your phone.'},
-          {icon:'🌍',t:'Pay Anywhere',d:'Mastercard accepted at over 80 million stores worldwide and online.'},
-          {icon:'💱',t:'Auto Conversion',d:'Pay in any currency and conversion happens automatically at the real exchange rate with no hidden fees.'},
-          {icon:'🛡️',t:'3D Secure',d:'Extra security layer that verifies your identity during online payments to prevent fraud.'},
-          {icon:'📊',t:'Spending Analytics',d:'Track where your money goes with automatic categorisation and detailed monthly reports.'},
-          {icon:'🔐',t:'Multi-Layer Security',d:'256-bit encryption, two-factor authentication, and Face ID or fingerprint for every transaction.'}
-        ]" :key="f.t" class="cd-feat">
-          <div class="cd-feat-icon">{{ f.icon }}</div>
-          <h4 class="cd-feat-title">{{ f.t }}</h4>
-          <p class="cd-feat-desc">{{ f.d }}</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="pg-sec pg-sec-dark">
-    <div class="pg-wrap text-center">
-      <h2 class="pg-h2 text-white max-w-2xl mx-auto">Get your Mastercard today</h2>
-      <p class="pg-sub text-white/35 max-w-xl mx-auto">Sign up in minutes and get a virtual card instantly. No hidden fees.</p>
-      <Link href="/preregister" class="pg-btn-light pg-btn-lg">Sign up for free</Link>
-    </div>
-  </section>
-
-  <footer class="pg-ft">
-    <div class="pg-wrap flex flex-col md:flex-row items-center justify-between gap-3">
-      <p class="text-[#0B1F3A]/20 text-xs">© 2026 SDB Bank ApS. All rights reserved.</p>
-      <div class="flex gap-4 text-xs text-[#0B1F3A]/30"><Link href="/">Home</Link><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/support">Support</Link></div>
-    </div>
-  </footer>
-</div>
+<section class="sec sec-dark tc"><div class="sw"><h2 class="t2 t2-w">{{ t.ctaTitle }}</h2><p class="t2-sub t2-sub-w tc" style="margin:0 auto 28px">{{ t.ctaSub }}</p><a href="/preregister" class="p-cta">{{ t.ctaBtn }}</a></div></section>
 </template>
-
 <style scoped>
-.pg{font-family:'Inter',sans-serif;background:#fff;color:#0B1F3A}
-.pg-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
-.pg-nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(11,31,58,0.95);backdrop-filter:blur(20px)}
-.pg-mark{font-size:24px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-1.5px}
-.pg-dot{color:#60A5FA;font-size:28px;line-height:0}
-.pg-link{color:rgba(255,255,255,0.5);font-weight:500;transition:color .3s;text-decoration:none}.pg-link:hover,.pg-active{color:#fff}
-.pg-btn{display:inline-flex;align-items:center;padding:10px 28px;border-radius:100px;font-weight:700;font-size:14px;background:#fff;color:#0B1F3A;transition:all .25s;text-decoration:none}.pg-btn:hover{background:rgba(255,255,255,0.85)}
-.pg-btn-light{display:inline-flex;align-items:center;padding:14px 36px;border-radius:100px;font-weight:700;font-size:15px;background:#fff;color:#0B1F3A;transition:all .25s;text-decoration:none}.pg-btn-light:hover{background:rgba(255,255,255,0.9);transform:translateY(-1px)}
-.pg-btn-lg{padding:18px 48px;font-size:17px}
-.pg-hero{padding:140px 24px 60px;text-align:center}
-.pg-hero-dark{background:linear-gradient(135deg,#0B1F3A 0%,#162d4d 50%,#0B1F3A 100%)}
-.pg-hero-h{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;color:#fff;margin-bottom:16px}
-.pg-hero-p{font-size:18px;color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto}
-.pg-sec{padding:80px 0}.pg-sec-light{background:#F0F0F0}.pg-sec-dark{background:#0B1F3A}
-.pg-h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:900;margin-bottom:12px}
-.pg-sub{font-size:16px;color:rgba(11,31,58,0.45);margin-bottom:32px}
-.cd-tier{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:60px 0;border-bottom:1px solid rgba(11,31,58,0.06)}
-.cd-tier-rev{direction:ltr}
-.cd-tier:last-of-type{border-bottom:none}
-.cd-placeholder{width:100%;max-width:380px;height:240px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(135deg,#2563EB,#3B82F6);box-shadow:0 20px 50px rgba(37,99,235,0.3)}
-.cd-placeholder-plus{background:linear-gradient(135deg,#7C3AED,#A855F7)}
-.cd-placeholder-prem{background:linear-gradient(135deg,#DB2777,#EC4899)}
-.cd-placeholder-elite{background:linear-gradient(135deg,#B45309,#D97706)}
-.cd-badge{display:inline-flex;padding:6px 18px;border-radius:100px;font-size:13px;font-weight:700;background:rgba(37,99,235,0.08);color:#2563EB;margin-bottom:12px}
-.cd-badge-plus{background:rgba(168,85,247,0.08);color:#A855F7}
-.cd-badge-prem{background:rgba(236,72,153,0.08);color:#EC4899}
-.cd-badge-elite{background:rgba(245,158,11,0.08);color:#D97706}
-.cd-name{font-size:2rem;font-weight:900;margin-bottom:12px}
-.cd-desc{font-size:15px;color:rgba(11,31,58,0.5);line-height:1.7;margin-bottom:20px}
-.cd-features{list-style:none;padding:0}.cd-features li{padding:6px 0;font-size:14px;color:rgba(11,31,58,0.6);border-bottom:1px solid rgba(11,31,58,0.04)}
-.cd-table-wrap{overflow-x:auto;margin-top:32px}
-.cd-table{width:100%;border-collapse:collapse;font-size:14px}
-.cd-table th{padding:14px 16px;text-align:center;font-weight:800;background:#0B1F3A;color:#fff;font-size:13px}.cd-table th:first-child{text-align:left;border-radius:12px 0 0 0}.cd-table th:last-child{border-radius:0 12px 0 0}
-.cd-table td{padding:12px 16px;text-align:center;border-bottom:1px solid rgba(11,31,58,0.06);font-size:13px;color:rgba(11,31,58,0.6)}.cd-table td:first-child{text-align:left;font-weight:600;color:#0B1F3A}
-.cd-table tbody tr:hover{background:rgba(37,99,235,0.02)}
-.cd-table tbody tr:last-child td{border-bottom:none}
-.cd-feat{padding:28px;background:#FAFBFC;border:1px solid rgba(11,31,58,0.05);border-radius:18px;transition:all .3s}.cd-feat:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.05)}
-.cd-feat-icon{font-size:28px;margin-bottom:12px}
-.cd-feat-title{font-weight:800;font-size:15px;margin-bottom:8px}
-.cd-feat-desc{font-size:13px;color:rgba(11,31,58,0.45);line-height:1.7}
-.pg-ft{padding:24px 0;border-top:1px solid rgba(11,31,58,0.06);background:#FAFBFC}
-@media(max-width:768px){.cd-tier{grid-template-columns:1fr;gap:24px}.pg-hero-h{font-size:2rem}}
+.sw{max-width:1200px;margin:0 auto;padding:0 24px}
+.sec{padding:100px 0}.sec-alt{background:#fafafa}.sec-dark{background:#0a0a0a;color:#fff}
+.tc{text-align:center}
+.t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:48px}.t2-w{color:#fff}
+.t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:500px}.t2-sub-w{color:rgba(255,255,255,.3)}
+.p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#0a0a0a 0%,#162d4d 100%);color:#fff;text-align:center}
+.p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#60A5FA;text-transform:uppercase;margin-bottom:24px}
+.p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:20px}
+.p-hero-em{color:#60A5FA}
+.p-hero-p{font-size:17px;color:rgba(255,255,255,.45);max-width:560px;margin:0 auto 32px;line-height:1.8}
+.p-cta{display:inline-block;padding:16px 44px;background:#fff;color:#0a0a0a;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.p-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tier{background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:20px;overflow:hidden;transition:all .3s}.tier:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.06)}
+.tier-top{height:140px;display:flex;align-items:center;justify-content:center}
+.tier-emoji{font-size:56px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.tier-body{padding:24px}
+.tier-badge{display:inline-block;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:700;margin-bottom:12px}
+.tier-name{font-size:24px;font-weight:900;margin-bottom:16px}
+.tier-feats{list-style:none;padding:0}.tier-feats li{padding:8px 0;font-size:13px;color:rgba(10,10,10,.5);border-bottom:1px solid rgba(10,10,10,.04)}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{padding:14px;text-align:center;font-weight:800;background:#0a0a0a;color:#fff;font-size:12px}.tbl th:first-child{text-align:start;border-radius:12px 0 0 0}.tbl th:last-child{border-radius:0 12px 0 0}
+.tbl td{padding:12px 14px;text-align:center;border-bottom:1px solid rgba(10,10,10,.06);color:rgba(10,10,10,.5)}
+.tbl-first{text-align:start!important;font-weight:600;color:#0a0a0a!important}
+.tbl tbody tr:hover{background:rgba(37,99,235,.02)}
+.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat-c{padding:32px 24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:18px;transition:all .3s}.feat-c:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.04)}
+.feat-ic{font-size:28px;display:block;margin-bottom:12px}
+.feat-t{font-size:15px;font-weight:800;margin-bottom:6px}
+.feat-d{font-size:13px;color:rgba(10,10,10,.35);line-height:1.75}
+@media(max-width:900px){.tiers{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.tiers,.feat-g{grid-template-columns:1fr}}
 </style>
