@@ -52,11 +52,11 @@ const settingLabels = {
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.st-root{min-height:100vh;background:#0f172a;direction:rtl}
-.st-header{background:#1e293b;border-bottom:1px solid #334155}
-.st-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.st-back:hover{background:#10b981;color:#fff}
-.st-card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}
-.st-card-header{padding:16px 24px;border-bottom:1px solid #334155;background:#1e293b}
-.st-input{flex:1;max-width:280px;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none;transition:border-color .2s}.st-input:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+.st-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.st-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.st-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.st-back:hover{background:#10b981;color:#fff}
+.st-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden}
+.st-card-header{padding:16px 24px;border-bottom:1px solid #e2e8f0;background:#ffffff}
+.st-input{flex:1;max-width:280px;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;color:#0f172a;outline:none;transition:border-color .2s}.st-input:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
 .st-save-btn{padding:12px 32px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.25);transition:all .2s}.st-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,0.3)}.st-save-btn:disabled{opacity:0.5;transform:none}
 </style>

@@ -61,13 +61,13 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.sd-root{min-height:100vh;background:#0f172a;direction:rtl;display:flex;flex-direction:column}
-.sd-header{background:#1e293b;border-bottom:1px solid #334155}
-.sd-back{padding:6px 14px;background:#1e293b;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sd-back:hover{background:#10b981;color:#fff}
+.sd-root{min-height:100vh;background:#f1f5f9;direction:rtl;display:flex;flex-direction:column}
+.sd-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.sd-back{padding:6px 14px;background:#ffffff;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sd-back:hover{background:#10b981;color:#fff}
 .sd-status-btn{font-size:11px;padding:4px 12px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s}
-.sd-btn-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.sd-btn-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.sd-btn-gray{background:#0f172a;color:#94a3b8}
-.sd-msg-admin{background:#1e293b;border:1px solid rgba(16,185,129,0.2)}.sd-msg-user{background:#1e293b;border:1px solid #334155}
-.sd-reply-bar{border-top:1px solid #E8ECF1;padding:16px;background:#1e293b}
-.sd-reply-input{flex:1;border:1px solid #334155;border-radius:14px;padding:12px 16px;font-size:13px;color:#f1f5f9;outline:none}.sd-reply-input:focus{border-color:#10b981}.sd-reply-input::placeholder{color:#94a3b8}
+.sd-btn-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.sd-btn-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.sd-btn-gray{background:#f1f5f9;color:#64748b}
+.sd-msg-admin{background:#ffffff;border:1px solid rgba(16,185,129,0.2)}.sd-msg-user{background:#ffffff;border:1px solid #e2e8f0}
+.sd-reply-bar{border-top:1px solid #E8ECF1;padding:16px;background:#ffffff}
+.sd-reply-input{flex:1;border:1px solid #e2e8f0;border-radius:14px;padding:12px 16px;font-size:13px;color:#0f172a;outline:none}.sd-reply-input:focus{border-color:#10b981}.sd-reply-input::placeholder{color:#64748b}
 .sd-reply-btn{padding:12px 24px;background:#10b981;color:#fff;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer}.sd-reply-btn:hover{background:#1047b8}.sd-reply-btn:disabled{opacity:0.5}
 </style>

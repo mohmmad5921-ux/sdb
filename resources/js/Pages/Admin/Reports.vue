@@ -32,10 +32,10 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
 
     <!-- Summary Cards -->
     <div class="ad-stats-grid">
-      <div class="ad-sum"><div class="ad-sum-icon" style="background:#172554">💸</div><div><div class="ad-sum-label">إجمالي الحجم</div><div class="ad-sum-value" style="color:#60a5fa">{{ fmtM(totalVolume) }} €</div></div></div>
-      <div class="ad-sum"><div class="ad-sum-icon" style="background:#064e3b">💰</div><div><div class="ad-sum-label">إيرادات الرسوم</div><div class="ad-sum-value" style="color:#34d399">{{ fmtM(totalFees) }} €</div></div></div>
-      <div class="ad-sum"><div class="ad-sum-icon" style="background:#2e1065">📊</div><div><div class="ad-sum-label">إجمالي المعاملات</div><div class="ad-sum-value" style="color:#a78bfa">{{ fmt(totalTxCount) }}</div></div></div>
-      <div class="ad-sum"><div class="ad-sum-icon" style="background:#422006">📉</div><div><div class="ad-sum-label">متوسط المعاملة</div><div class="ad-sum-value" style="color:#fbbf24">{{ totalTxCount > 0 ? fmtM(totalTxAmount / totalTxCount) : '0' }} €</div></div></div>
+      <div class="ad-sum"><div class="ad-sum-icon" style="background:#eff6ff">💸</div><div><div class="ad-sum-label">إجمالي الحجم</div><div class="ad-sum-value" style="color:#2563eb">{{ fmtM(totalVolume) }} €</div></div></div>
+      <div class="ad-sum"><div class="ad-sum-icon" style="background:#d1fae5">💰</div><div><div class="ad-sum-label">إيرادات الرسوم</div><div class="ad-sum-value" style="color:#059669">{{ fmtM(totalFees) }} €</div></div></div>
+      <div class="ad-sum"><div class="ad-sum-icon" style="background:#f5f3ff">📊</div><div><div class="ad-sum-label">إجمالي المعاملات</div><div class="ad-sum-value" style="color:#7c3aed">{{ fmt(totalTxCount) }}</div></div></div>
+      <div class="ad-sum"><div class="ad-sum-icon" style="background:#fef3c7">📉</div><div><div class="ad-sum-label">متوسط المعاملة</div><div class="ad-sum-value" style="color:#d97706">{{ totalTxCount > 0 ? fmtM(totalTxAmount / totalTxCount) : '0' }} €</div></div></div>
     </div>
 
     <!-- Charts -->
@@ -46,7 +46,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
           <div v-for="d in dailyVolume" :key="d.date" class="ad-bar-col" :title="'الحجم: ' + fmtM(d.volume)">
             <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-blue" :style="{height: Math.max((d.volume / maxVol) * 100, 4) + '%'}"></div></div>
             <div class="ad-bar-date">{{ d.date }}</div>
-            <div class="ad-bar-val" style="color:#60a5fa">{{ fmtM(d.volume) }}</div>
+            <div class="ad-bar-val" style="color:#2563eb">{{ fmtM(d.volume) }}</div>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
           <div v-for="d in dailyVolume" :key="d.date" class="ad-bar-col" :title="'العدد: ' + d.count">
             <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-green" :style="{height: Math.max((d.count / maxCount) * 100, 4) + '%'}"></div></div>
             <div class="ad-bar-date">{{ d.date }}</div>
-            <div class="ad-bar-val" style="color:#34d399">{{ d.count }}</div>
+            <div class="ad-bar-val" style="color:#059669">{{ d.count }}</div>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
           <div v-for="d in dailyUsers" :key="d.date" class="ad-bar-col" :title="'جديد: ' + d.count + ' · إجمالي: ' + d.cumulative">
             <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-purple" :style="{height: Math.max((d.count / Math.max(maxUsers, 1)) * 100, 4) + '%'}"></div></div>
             <div class="ad-bar-date">{{ d.date }}</div>
-            <div class="ad-bar-val" style="color:#a78bfa">+{{ d.count }}</div>
+            <div class="ad-bar-val" style="color:#7c3aed">+{{ d.count }}</div>
             <div class="ad-bar-sub">Σ{{ d.cumulative }}</div>
           </div>
         </div>
@@ -81,7 +81,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
           <div v-for="d in dailyVolume" :key="d.date" class="ad-bar-col" :title="'الرسوم: ' + fmtM(d.fees)">
             <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-amber" :style="{height: Math.max((d.fees / Math.max(...dailyVolume.map(x=>x.fees), 1)) * 100, 4) + '%'}"></div></div>
             <div class="ad-bar-date">{{ d.date }}</div>
-            <div class="ad-bar-val" style="color:#fbbf24">{{ fmtM(d.fees) }}</div>
+            <div class="ad-bar-val" style="color:#d97706">{{ fmtM(d.fees) }}</div>
           </div>
         </div>
       </div>
@@ -113,7 +113,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
         <div class="ad-breakdown-list">
           <div v-for="c in currencyDist" :key="c.currency" class="ad-breakdown-row">
             <div class="flex items-center gap-3"><span style="font-size:20px">{{ c.symbol }}</span><span class="ad-breakdown-label">{{ c.currency }}</span></div>
-            <div class="ad-breakdown-right"><span class="ad-breakdown-count">{{ c.accounts }} حساب</span><span class="ad-breakdown-amount" style="color:#34d399">{{ fmtM(c.balance) }}</span></div>
+            <div class="ad-breakdown-right"><span class="ad-breakdown-count">{{ c.accounts }} حساب</span><span class="ad-breakdown-amount" style="color:#059669">{{ fmtM(c.balance) }}</span></div>
           </div>
         </div>
       </div>

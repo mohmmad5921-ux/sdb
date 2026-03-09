@@ -66,12 +66,12 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">📩</span><span class="ad-stat-label">قائمة الانتظار</span></div>
         <div class="ad-stat-value" style="color:#6366f1">{{ stats.total_waitlist }}</div>
-        <div class="ad-stat-sub" style="color:#818cf8">+{{ stats.waitlist_today }} اليوم</div>
+        <div class="ad-stat-sub" style="color:#6366f1">+{{ stats.waitlist_today }} اليوم</div>
       </div>
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">📝</span><span class="ad-stat-label">التسجيل المبكر</span></div>
         <div class="ad-stat-value" style="color:#ec4899">{{ stats.total_preregistrations }}</div>
-        <div class="ad-stat-sub" style="color:#f472b6">+{{ stats.prereg_today }} اليوم</div>
+        <div class="ad-stat-sub" style="color:#db2777">+{{ stats.prereg_today }} اليوم</div>
       </div>
     </div>
 

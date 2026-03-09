@@ -112,18 +112,18 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.cu-root{min-height:100vh;background:#0f172a;direction:rtl}
-.cu-header{background:#1e293b;border-bottom:1px solid #334155}
-.cu-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.cu-back:hover{background:#10b981;color:#fff}
+.cu-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.cu-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.cu-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.cu-back:hover{background:#10b981;color:#fff}
 .cu-btn-blue{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.cu-btn-blue:hover{background:#1047b8}
 .cu-btn-green{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.cu-btn-green:hover{background:#059669}
-.cu-currency-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:16px;transition:all .25s}.cu-currency-card:hover{border-color:#10b981;transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,0.1)}
+.cu-currency-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;transition:all .25s}.cu-currency-card:hover{border-color:#10b981;transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,0.1)}
 .cu-active-badge{font-size:10px;padding:2px 8px;border-radius:100px;background:rgba(16,185,129,0.1);color:#059669;font-weight:600;border:none;cursor:pointer}
 .cu-inactive-badge{font-size:10px;padding:2px 8px;border-radius:100px;background:rgba(239,68,68,0.1);color:#dc2626;font-weight:600;border:none;cursor:pointer}
-.cu-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.cu-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .cu-table{width:100%;border-collapse:collapse;font-size:13px}
-.cu-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.cu-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle;color:#cbd5e1}
-.cu-table tr:hover td{background:#1e293b}
-.cu-input{width:100%;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}.cu-input:focus{border-color:#10b981}
+.cu-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.cu-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle;color:#334155}
+.cu-table tr:hover td{background:#ffffff}
+.cu-input{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;color:#0f172a;outline:none}.cu-input:focus{border-color:#10b981}
 </style>

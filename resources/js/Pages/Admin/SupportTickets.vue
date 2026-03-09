@@ -50,11 +50,11 @@ const catLabels = { general: 'عام', account: 'حساب', card: 'بطاقة', 
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.sp-root{min-height:100vh;background:#0f172a;direction:rtl}
-.sp-header{background:#1e293b;border-bottom:1px solid #334155}
-.sp-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sp-back:hover{background:#10b981;color:#fff}
-.sp-stat{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px;text-align:center}
-.sp-ticket{display:block;background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px 20px;transition:all .2s;text-decoration:none}.sp-ticket:hover{border-color:#10b981;box-shadow:0 4px 12px rgba(30,94,255,0.06);transform:translateY(-1px)}
+.sp-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.sp-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.sp-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sp-back:hover{background:#10b981;color:#fff}
+.sp-stat{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;text-align:center}
+.sp-ticket{display:block;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 20px;transition:all .2s;text-decoration:none}.sp-ticket:hover{border-color:#10b981;box-shadow:0 4px 12px rgba(30,94,255,0.06);transform:translateY(-1px)}
 .sp-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
-.sp-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}.sp-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.sp-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}.sp-badge-green{background:rgba(16,185,129,0.1);color:#059669}.sp-badge-gray{background:#0f172a;color:#94a3b8}
+.sp-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}.sp-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.sp-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}.sp-badge-green{background:rgba(16,185,129,0.1);color:#059669}.sp-badge-gray{background:#f1f5f9;color:#64748b}
 </style>

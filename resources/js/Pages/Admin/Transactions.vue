@@ -94,23 +94,23 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.at-root{min-height:100vh;background:#0f172a;direction:rtl}
-.at-header{background:#1e293b;border-bottom:1px solid #334155}
-.at-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.at-back:hover{background:#10b981;color:#fff}
-.at-search{width:320px;padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none}.at-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.at-search::placeholder{color:#94a3b8}
-.at-filter-select{padding:10px 14px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none;cursor:pointer}.at-filter-select:focus{border-color:#10b981}
-.at-summary{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px 20px}
-.at-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.at-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.at-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.at-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.at-back:hover{background:#10b981;color:#fff}
+.at-search{width:320px;padding:10px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none}.at-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.at-search::placeholder{color:#64748b}
+.at-filter-select{padding:10px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none;cursor:pointer}.at-filter-select:focus{border-color:#10b981}
+.at-summary{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px}
+.at-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .at-table{width:100%;border-collapse:collapse;font-size:13px}
-.at-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.at-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.at-table tr:hover td{background:#1e293b}
-.at-type{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#cbd5e1}
+.at-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.at-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.at-table tr:hover td{background:#ffffff}
+.at-type{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#334155}
 .at-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .at-badge-green{background:rgba(16,185,129,0.1);color:#059669}
 .at-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}
 .at-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .at-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
-.at-page{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none}.at-page:hover{border-color:#10b981;color:#3b82f6}
+.at-page{padding:6px 14px;border-radius:8px;font-size:13px;background:#ffffff;color:#334155;border:1px solid #e2e8f0;text-decoration:none}.at-page:hover{border-color:#10b981;color:#3b82f6}
 .at-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>

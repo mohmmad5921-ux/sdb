@@ -82,8 +82,8 @@ const formatDate = (d) => new Date(d).toLocaleDateString('ar-EG', { day: 'numeri
                         <td><input type="checkbox" :value="w.id" v-model="selected" /></td>
                         <td class="ad-table-mono">{{ w.email }}</td>
                         <td><span class="ad-badge ad-badge-green">{{ w.source || '—' }}</span></td>
-                        <td style="font-family:monospace;color:#94a3b8;font-size:14px">{{ w.ip_address || '—' }}</td>
-                        <td style="color:#94a3b8;font-size:14px">{{ formatDate(w.created_at) }}</td>
+                        <td style="font-family:monospace;color:#64748b;font-size:14px">{{ w.ip_address || '—' }}</td>
+                        <td style="color:#64748b;font-size:14px">{{ formatDate(w.created_at) }}</td>
                         <td><button @click="deleteOne('waitlist', w.id)" class="wl-del-one">🗑</button></td>
                     </tr>
                     <tr v-if="!waitlist.data.length"><td colspan="6" class="ad-empty">لا توجد نتائج</td></tr>
@@ -106,10 +106,10 @@ const formatDate = (d) => new Date(d).toLocaleDateString('ar-EG', { day: 'numeri
                         <td><input type="checkbox" :value="p.id" v-model="selected" /></td>
                         <td class="ad-table-name">{{ p.full_name }}</td>
                         <td class="ad-table-mono">{{ p.email }}</td>
-                        <td style="font-family:monospace;font-size:14px;color:#94a3b8" dir="ltr">{{ p.phone || '—' }}</td>
+                        <td style="font-family:monospace;font-size:14px;color:#64748b" dir="ltr">{{ p.phone || '—' }}</td>
                         <td>{{ p.country || '—' }}</td>
                         <td>{{ p.governorate || '—' }}</td>
-                        <td style="color:#94a3b8;font-size:14px">{{ formatDate(p.created_at) }}</td>
+                        <td style="color:#64748b;font-size:14px">{{ formatDate(p.created_at) }}</td>
                         <td><button @click="deleteOne('prereg', p.id)" class="wl-del-one">🗑</button></td>
                     </tr>
                     <tr v-if="!preregistrations.data.length"><td colspan="8" class="ad-empty">لا توجد نتائج</td></tr>

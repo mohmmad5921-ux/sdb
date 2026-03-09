@@ -195,15 +195,15 @@ const analyzeDocument = (doc) => {
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.ky-root{min-height:100vh;background:#0f172a;direction:rtl}
-.ky-header{background:#1e293b;border-bottom:1px solid #334155}
-.ky-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ky-back:hover{background:#10b981;color:#fff}
-.ky-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#10b981}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
-.ky-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.ky-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.ky-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.ky-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ky-back:hover{background:#10b981;color:#fff}
+.ky-stat{background:#ffffff;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#10b981}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
+.ky-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .ky-table{width:100%;border-collapse:collapse;font-size:13px}
-.ky-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.ky-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.ky-table tr:hover td{background:#1e293b}
+.ky-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.ky-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.ky-table tr:hover td{background:#ffffff}
 .ky-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
 .ky-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .ky-badge-green{background:rgba(16,185,129,0.1);color:#059669}.ky-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.ky-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}

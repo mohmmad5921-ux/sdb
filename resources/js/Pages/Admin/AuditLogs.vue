@@ -51,16 +51,16 @@ const applyFilter = () => router.get(route('admin.audit-logs'), { search: search
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.al-root{min-height:100vh;background:#0f172a;direction:rtl}
-.al-header{background:#1e293b;border-bottom:1px solid #334155}
-.al-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.al-back:hover{background:#10b981;color:#fff}
-.al-search{width:320px;padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none}.al-search:focus{border-color:#10b981}.al-search::placeholder{color:#94a3b8}
-.al-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.al-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.al-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.al-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.al-back:hover{background:#10b981;color:#fff}
+.al-search{width:320px;padding:10px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none}.al-search:focus{border-color:#10b981}.al-search::placeholder{color:#64748b}
+.al-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .al-table{width:100%;border-collapse:collapse;font-size:13px}
-.al-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.al-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.al-table tr:hover td{background:#1e293b}
+.al-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.al-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.al-table tr:hover td{background:#ffffff}
 .al-action{font-size:12px;font-weight:600;color:#3b82f6;background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:6px}
-.al-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none}.al-pg:hover{border-color:#10b981;color:#3b82f6}
+.al-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#ffffff;color:#334155;border:1px solid #e2e8f0;text-decoration:none}.al-pg:hover{border-color:#10b981;color:#3b82f6}
 .al-pg-act{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>

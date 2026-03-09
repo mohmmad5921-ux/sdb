@@ -99,17 +99,17 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.md-root{min-height:100vh;background:#0f172a;direction:rtl}
-.md-header{background:#1e293b;border-bottom:1px solid #334155}
-.md-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.md-back:hover{background:#10b981;color:#fff}
-.md-stat{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px 20px}
-.md-card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}
-.md-card-header{padding:14px 20px;border-bottom:1px solid #334155;background:#1e293b}
-.md-input{width:100%;border:1px solid #334155;border-radius:10px;padding:8px 12px;font-size:13px;color:#f1f5f9;outline:none}.md-input:focus{border-color:#10b981}
+.md-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.md-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.md-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.md-back:hover{background:#10b981;color:#fff}
+.md-stat{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px}
+.md-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden}
+.md-card-header{padding:14px 20px;border-bottom:1px solid #e2e8f0;background:#ffffff}
+.md-input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;font-size:13px;color:#0f172a;outline:none}.md-input:focus{border-color:#10b981}
 .md-table{width:100%;border-collapse:collapse;font-size:13px}
-.md-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.md-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.md-table tr:hover td{background:#1e293b}
+.md-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.md-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.md-table tr:hover td{background:#ffffff}
 .md-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
-.md-badge-green{background:rgba(16,185,129,0.1);color:#059669}.md-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.md-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}.md-badge-gray{background:#0f172a;color:#94a3b8}.md-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
+.md-badge-green{background:rgba(16,185,129,0.1);color:#059669}.md-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.md-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}.md-badge-gray{background:#f1f5f9;color:#64748b}.md-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
 </style>

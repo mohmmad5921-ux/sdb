@@ -89,18 +89,18 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.me-root{min-height:100vh;background:#0f172a;direction:rtl}
-.me-header{background:#1e293b;border-bottom:1px solid #334155}
-.me-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.me-back:hover{background:#10b981;color:#fff}
+.me-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.me-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.me-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.me-back:hover{background:#10b981;color:#fff}
 .me-btn-blue{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.me-btn-blue:hover{background:#1047b8}
-.me-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.me-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .me-table{width:100%;border-collapse:collapse;font-size:13px}
-.me-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.me-table td{padding:14px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.me-table tr:hover td{background:#1e293b}
-.me-avatar{width:36px;height:36px;border-radius:10px;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.me-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.me-table td{padding:14px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.me-table tr:hover td{background:#ffffff}
+.me-avatar{width:36px;height:36px;border-radius:10px;background:#ffffff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .me-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .me-badge-green{background:rgba(16,185,129,0.1);color:#059669}.me-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.me-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .me-link{font-size:12px;color:#3b82f6;font-weight:600;text-decoration:none}.me-link:hover{text-decoration:underline}
-.me-input{width:100%;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}.me-input:focus{border-color:#10b981}
+.me-input{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;color:#0f172a;outline:none}.me-input:focus{border-color:#10b981}
 </style>

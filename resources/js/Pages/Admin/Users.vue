@@ -80,15 +80,15 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
 <style>
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
-.ul-root{min-height:100vh;background:#0f172a;direction:rtl}
-.ul-header{background:#1e293b;border-bottom:1px solid #334155}
-.ul-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-back:hover{background:#10b981;color:#fff}
-.ul-search{width:100%;max-width:440px;padding:12px 18px;border:1px solid #334155;border-radius:14px;background:#1e293b;font-size:14px;color:#f1f5f9;outline:none;transition:border-color .2s}.ul-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.ul-search::placeholder{color:#94a3b8}
-.ul-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
+.ul-root{min-height:100vh;background:#f1f5f9;direction:rtl}
+.ul-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
+.ul-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-back:hover{background:#10b981;color:#fff}
+.ul-search{width:100%;max-width:440px;padding:12px 18px;border:1px solid #e2e8f0;border-radius:14px;background:#ffffff;font-size:14px;color:#0f172a;outline:none;transition:border-color .2s}.ul-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.ul-search::placeholder{color:#64748b}
+.ul-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .ul-table{width:100%;border-collapse:collapse;font-size:14px}
-.ul-table th{text-align:right;padding:14px 18px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
-.ul-table td{padding:14px 18px;border-bottom:1px solid #1e293b;vertical-align:middle}
-.ul-table tr:hover td{background:#1e293b}
+.ul-table th{text-align:right;padding:14px 18px;background:#ffffff;color:#64748b;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+.ul-table td{padding:14px 18px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.ul-table tr:hover td{background:#ffffff}
 .ul-table tr:last-child td{border-bottom:none}
 .ul-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
 .ul-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
@@ -96,7 +96,7 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
 .ul-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}
 .ul-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .ul-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}
-.ul-view-btn{padding:6px 14px;background:#1e293b;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-view-btn:hover{background:#10b981;color:#fff}
-.ul-page-btn{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none;transition:all .2s}.ul-page-btn:hover{border-color:#10b981;color:#3b82f6}
+.ul-view-btn{padding:6px 14px;background:#ffffff;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-view-btn:hover{background:#10b981;color:#fff}
+.ul-page-btn{padding:6px 14px;border-radius:8px;font-size:13px;background:#ffffff;color:#334155;border:1px solid #e2e8f0;text-decoration:none;transition:all .2s}.ul-page-btn:hover{border-color:#10b981;color:#3b82f6}
 .ul-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>
