@@ -23,7 +23,7 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
     <div class="me-root">
       <div class="me-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">🔌 بوابة الدفع — التجار</h1><p class="text-sm text-[#94a3b8] mt-1">{{ merchants.total }} تاجر مسجل</p></div>
+          <div><h1 class="text-2xl font-bold text-[#0f172a]">🔌 بوابة الدفع — التجار</h1><p class="text-sm text-[#475569] mt-1">{{ merchants.total }} تاجر مسجل</p></div>
           <div class="flex gap-2">
             <button @click="showCreateModal = true" class="me-btn-blue">+ تاجر جديد</button>
             <Link :href="route('admin.dashboard')" class="me-back">← الرئيسية</Link>
@@ -39,17 +39,17 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="me-avatar">🏪</div>
-                    <div><div class="text-sm font-semibold text-[#f1f5f9]">{{ m.business_name }}</div><div class="text-xs text-[#94a3b8]">{{ m.business_email }}</div></div>
+                    <div><div class="text-sm font-semibold text-[#0f172a]">{{ m.business_name }}</div><div class="text-xs text-[#475569]">{{ m.business_email }}</div></div>
                   </div>
                 </td>
-                <td class="text-[#cbd5e1]">{{ categoryLabels[m.category] }}</td>
+                <td class="text-[#334155]">{{ categoryLabels[m.category] }}</td>
                 <td class="text-center"><span :class="statusBadge[m.status]" class="me-badge">{{ m.status }}</span></td>
-                <td class="font-semibold text-[#f1f5f9]">{{ m.fee_percentage }}%</td>
+                <td class="font-semibold text-[#0f172a]">{{ m.fee_percentage }}%</td>
                 <td class="font-mono text-[#1E5EFF]">{{ Number(m.total_volume).toLocaleString() }} {{ m.settlement_currency }}</td>
-                <td class="text-center text-[#cbd5e1]">{{ m.payment_sessions_count }}</td>
+                <td class="text-center text-[#334155]">{{ m.payment_sessions_count }}</td>
                 <td><Link :href="route('admin.merchants.show', m.id)" class="me-link">إدارة ←</Link></td>
               </tr>
-              <tr v-if="!merchants.data?.length"><td colspan="7" class="py-12 text-center text-[#94a3b8]">لا يوجد تجار بعد</td></tr>
+              <tr v-if="!merchants.data?.length"><td colspan="7" class="py-12 text-center text-[#475569]">لا يوجد تجار بعد</td></tr>
             </tbody>
           </table>
         </div>
@@ -58,26 +58,26 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
       <Teleport to="body">
         <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showCreateModal = false">
           <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155] max-h-[80vh] overflow-y-auto" style="direction:rtl">
-            <h3 class="text-xl font-bold text-[#f1f5f9] mb-5">إضافة تاجر جديد</h3>
+            <h3 class="text-xl font-bold text-[#0f172a] mb-5">إضافة تاجر جديد</h3>
             <form @submit.prevent="submit" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs text-[#94a3b8] mb-1">اسم النشاط (EN)</label><input v-model="form.business_name" required class="me-input" /></div>
-                <div><label class="block text-xs text-[#94a3b8] mb-1">اسم النشاط (AR)</label><input v-model="form.business_name_ar" class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">اسم النشاط (EN)</label><input v-model="form.business_name" required class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">اسم النشاط (AR)</label><input v-model="form.business_name_ar" class="me-input" /></div>
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs text-[#94a3b8] mb-1">البريد</label><input v-model="form.business_email" type="email" required class="me-input" /></div>
-                <div><label class="block text-xs text-[#94a3b8] mb-1">الهاتف</label><input v-model="form.business_phone" class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">البريد</label><input v-model="form.business_email" type="email" required class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">الهاتف</label><input v-model="form.business_phone" class="me-input" /></div>
               </div>
-              <div><label class="block text-xs text-[#94a3b8] mb-1">الموقع</label><input v-model="form.website_url" type="url" class="me-input" /></div>
+              <div><label class="block text-xs text-[#475569] mb-1">الموقع</label><input v-model="form.website_url" type="url" class="me-input" /></div>
               <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs text-[#94a3b8] mb-1">الفئة</label><select v-model="form.category" class="me-input"><option v-for="(label, key) in categoryLabels" :key="key" :value="key">{{ label }}</option></select></div>
-                <div><label class="block text-xs text-[#94a3b8] mb-1">عملة التسوية</label><select v-model="form.settlement_currency" class="me-input"><option value="EUR">EUR</option><option value="USD">USD</option><option value="SYP">SYP</option></select></div>
+                <div><label class="block text-xs text-[#475569] mb-1">الفئة</label><select v-model="form.category" class="me-input"><option v-for="(label, key) in categoryLabels" :key="key" :value="key">{{ label }}</option></select></div>
+                <div><label class="block text-xs text-[#475569] mb-1">عملة التسوية</label><select v-model="form.settlement_currency" class="me-input"><option value="EUR">EUR</option><option value="USD">USD</option><option value="SYP">SYP</option></select></div>
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs text-[#94a3b8] mb-1">نسبة العمولة %</label><input v-model="form.fee_percentage" type="number" step="0.01" class="me-input" /></div>
-                <div><label class="block text-xs text-[#94a3b8] mb-1">رسوم ثابتة</label><input v-model="form.fee_fixed" type="number" step="0.01" class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">نسبة العمولة %</label><input v-model="form.fee_percentage" type="number" step="0.01" class="me-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1">رسوم ثابتة</label><input v-model="form.fee_fixed" type="number" step="0.01" class="me-input" /></div>
               </div>
-              <div class="flex gap-3"><button type="submit" :disabled="form.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">إنشاء</button><button type="button" @click="showCreateModal = false" class="flex-1 bg-[#0f172a] text-[#cbd5e1] py-3 rounded-xl">إلغاء</button></div>
+              <div class="flex gap-3"><button type="submit" :disabled="form.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">إنشاء</button><button type="button" @click="showCreateModal = false" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>

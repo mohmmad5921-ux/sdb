@@ -18,8 +18,8 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
       <div class="ul-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-[#f1f5f9]">إدارة العملاء</h1>
-            <p class="text-sm text-[#94a3b8] mt-1">{{ users.total }} عميل مسجل</p>
+            <h1 class="text-2xl font-bold text-[#0f172a]">إدارة العملاء</h1>
+            <p class="text-sm text-[#475569] mt-1">{{ users.total }} عميل مسجل</p>
           </div>
           <Link :href="route('admin.dashboard')" class="ul-back">← الرئيسية</Link>
         </div>
@@ -47,23 +47,23 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
                   <div class="flex items-center gap-3">
                     <div class="ul-avatar">{{ user.full_name?.charAt(0) }}</div>
                     <div>
-                      <div class="text-sm font-semibold text-[#f1f5f9]">{{ user.full_name }}</div>
-                      <div class="text-xs text-[#94a3b8]">{{ user.email }}</div>
+                      <div class="text-sm font-semibold text-[#0f172a]">{{ user.full_name }}</div>
+                      <div class="text-xs text-[#475569]">{{ user.email }}</div>
                       <div class="text-[10px] font-mono text-[#1E5EFF]" v-if="user.customer_number">رقم: {{ user.customer_number }}</div>
                     </div>
                   </div>
                 </td>
-                <td class="text-[#cbd5e1]">{{ user.phone || '—' }}</td>
+                <td class="text-[#334155]">{{ user.phone || '—' }}</td>
                 <td class="text-center"><span :class="statusBadge[user.status]" class="ul-badge">{{ user.status }}</span></td>
                 <td class="text-center"><span :class="statusBadge[user.kyc_status]" class="ul-badge">{{ user.kyc_status }}</span></td>
-                <td class="text-center text-[#cbd5e1]">{{ user.accounts_count }}</td>
-                <td class="text-center text-[#cbd5e1]">{{ user.cards_count }}</td>
-                <td class="text-[#94a3b8] text-sm">{{ new Date(user.created_at).toLocaleDateString('en-GB') }}</td>
+                <td class="text-center text-[#334155]">{{ user.accounts_count }}</td>
+                <td class="text-center text-[#334155]">{{ user.cards_count }}</td>
+                <td class="text-[#475569] text-sm">{{ new Date(user.created_at).toLocaleDateString('en-GB') }}</td>
                 <td><Link :href="route('admin.users.show', user.id)" class="ul-view-btn">عرض التفاصيل ←</Link></td>
               </tr>
             </tbody>
           </table>
-          <div v-if="!users.data?.length" class="py-12 text-center text-[#94a3b8]">لا يوجد عملاء</div>
+          <div v-if="!users.data?.length" class="py-12 text-center text-[#475569]">لا يوجد عملاء</div>
         </div>
 
         <!-- Pagination -->

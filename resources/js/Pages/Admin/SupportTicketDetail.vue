@@ -20,8 +20,8 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
         <div class="max-w-3xl mx-auto px-6 py-4">
           <div class="flex justify-between items-start">
             <div>
-              <h1 class="text-xl font-bold text-[#f1f5f9]">{{ ticket.subject }}</h1>
-              <div class="text-xs text-[#94a3b8] mt-1 flex items-center gap-2">
+              <h1 class="text-xl font-bold text-[#0f172a]">{{ ticket.subject }}</h1>
+              <div class="text-xs text-[#475569] mt-1 flex items-center gap-2">
                 <span class="font-mono text-[#1E5EFF]">{{ ticket.ticket_number }}</span><span>·</span><span>{{ ticket.user?.full_name }}</span><span>·</span><span>{{ statusLabels[ticket.status] }}</span>
               </div>
             </div>
@@ -40,10 +40,10 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
           <div v-for="msg in ticket.messages" :key="msg.id" :class="msg.is_admin ? 'ml-auto' : 'mr-auto'" class="max-w-[80%]">
             <div :class="msg.is_admin ? 'sd-msg-admin' : 'sd-msg-user'" class="rounded-2xl p-4">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-medium" :class="msg.is_admin ? 'text-[#1E5EFF]' : 'text-[#cbd5e1]'">{{ msg.is_admin ? '🛡 أنت (الدعم)' : '👤 ' + msg.user?.full_name }}</span>
-                <span class="text-[10px] text-[#94a3b8]">{{ timeAgo(msg.created_at) }}</span>
+                <span class="text-xs font-medium" :class="msg.is_admin ? 'text-[#1E5EFF]' : 'text-[#334155]'">{{ msg.is_admin ? '🛡 أنت (الدعم)' : '👤 ' + msg.user?.full_name }}</span>
+                <span class="text-[10px] text-[#475569]">{{ timeAgo(msg.created_at) }}</span>
               </div>
-              <p class="text-sm leading-relaxed whitespace-pre-wrap text-[#f1f5f9]">{{ msg.message }}</p>
+              <p class="text-sm leading-relaxed whitespace-pre-wrap text-[#0f172a]">{{ msg.message }}</p>
             </div>
           </div>
         </div>

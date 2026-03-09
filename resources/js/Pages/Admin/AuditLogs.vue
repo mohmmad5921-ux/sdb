@@ -14,7 +14,7 @@ const applyFilter = () => router.get(route('admin.audit-logs'), { search: search
     <div class="al-root">
       <div class="al-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">📋 سجل التدقيق</h1><p class="text-sm text-[#94a3b8] mt-1">جميع الإجراءات المسجلة في النظام</p></div>
+          <div><h1 class="text-2xl font-bold text-[#0f172a]">📋 سجل التدقيق</h1><p class="text-sm text-[#475569] mt-1">جميع الإجراءات المسجلة في النظام</p></div>
           <Link :href="route('admin.dashboard')" class="al-back">← الرئيسية</Link>
         </div>
       </div>
@@ -25,18 +25,18 @@ const applyFilter = () => router.get(route('admin.audit-logs'), { search: search
             <thead><tr><th>التاريخ</th><th>المستخدم</th><th>الإجراء</th><th>الكيان</th><th>التفاصيل</th><th>IP</th></tr></thead>
             <tbody>
               <tr v-for="log in logs.data" :key="log.id">
-                <td class="text-[#94a3b8] text-xs">{{ new Date(log.created_at).toLocaleString('en-GB') }}</td>
-                <td class="font-semibold text-[#f1f5f9]">{{ log.user?.full_name || '—' }}</td>
+                <td class="text-[#475569] text-xs">{{ new Date(log.created_at).toLocaleString('en-GB') }}</td>
+                <td class="font-semibold text-[#0f172a]">{{ log.user?.full_name || '—' }}</td>
                 <td><span class="al-action">{{ log.action }}</span></td>
-                <td class="text-[#94a3b8]">{{ log.entity_type }} #{{ log.entity_id }}</td>
+                <td class="text-[#475569]">{{ log.entity_type }} #{{ log.entity_id }}</td>
                 <td class="text-xs max-w-[250px]">
                   <span v-if="log.old_values" class="text-red-500">{{ JSON.stringify(log.old_values) }}</span>
-                  <span v-if="log.old_values && log.new_values" class="text-[#94a3b8]"> → </span>
+                  <span v-if="log.old_values && log.new_values" class="text-[#475569]"> → </span>
                   <span v-if="log.new_values" class="text-emerald-600">{{ JSON.stringify(log.new_values) }}</span>
                 </td>
-                <td class="text-xs text-[#94a3b8] font-mono">{{ log.ip_address }}</td>
+                <td class="text-xs text-[#475569] font-mono">{{ log.ip_address }}</td>
               </tr>
-              <tr v-if="!logs.data?.length"><td colspan="6" class="py-12 text-center text-[#94a3b8]">لا توجد سجلات</td></tr>
+              <tr v-if="!logs.data?.length"><td colspan="6" class="py-12 text-center text-[#475569]">لا توجد سجلات</td></tr>
             </tbody>
           </table>
         </div>

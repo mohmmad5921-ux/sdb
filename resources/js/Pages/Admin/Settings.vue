@@ -25,7 +25,7 @@ const settingLabels = {
     <div class="st-root">
       <div class="st-header">
         <div class="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">⚙️ إعدادات النظام</h1><p class="text-sm text-[#94a3b8] mt-1">تكوين إعدادات البنك والرسوم والحدود</p></div>
+          <div><h1 class="text-2xl font-bold text-[#0f172a]">⚙️ إعدادات النظام</h1><p class="text-sm text-[#475569] mt-1">تكوين إعدادات البنك والرسوم والحدود</p></div>
           <Link :href="route('admin.dashboard')" class="st-back">← الرئيسية</Link>
         </div>
       </div>
@@ -33,11 +33,11 @@ const settingLabels = {
         <form @submit.prevent="saveSettings" class="space-y-6">
           <div v-for="(items, group) in settings" :key="group" class="st-card">
             <div class="st-card-header">
-              <h2 class="font-bold text-[#f1f5f9] flex items-center gap-2"><span>{{ groupIcons[group] || '📌' }}</span>{{ groupLabels[group] || group }}</h2>
+              <h2 class="font-bold text-[#0f172a] flex items-center gap-2"><span>{{ groupIcons[group] || '📌' }}</span>{{ groupLabels[group] || group }}</h2>
             </div>
             <div class="p-6 space-y-4">
               <div v-for="s in items" :key="s.key" class="flex items-center justify-between gap-6">
-                <label class="text-sm text-[#cbd5e1] min-w-[200px] font-medium">{{ settingLabels[s.key] || s.key }}</label>
+                <label class="text-sm text-[#334155] min-w-[200px] font-medium">{{ settingLabels[s.key] || s.key }}</label>
                 <input v-model="form[s.key]" :type="['numeric','float'].includes(s.type) ? 'number' : 'text'" step="any" class="st-input" />
               </div>
             </div>
