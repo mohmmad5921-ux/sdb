@@ -3,7 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 
-const props = defineProps({ stats: Object, dailyTransactions: Array, dailyUsers: Array, recentTransactions: Array, recentUsers: Array, currencies: Array, alerts: Array });
+const props = defineProps({ stats: Object, dailyTransactions: Array, dailyUsers: Array, recentTransactions: Array, recentUsers: Array, currencies: Array, alerts: Array, recentWaitlist: Array, recentPrereg: Array });
 const sidebarOpen = ref(true);
 const fmt = (a, s='€') => Number(a).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' ' + s;
 const fmtM = (a) => {
@@ -26,6 +26,7 @@ const sideLinks = [
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
+  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.dashboard' },
 ];
 
 // Bar chart heights
@@ -83,6 +84,8 @@ const statusBadge = { completed: 'db-badge-green', pending: 'db-badge-yellow', f
             <div class="db-stat"><div class="db-stat-icon db-stat-yellow">💸</div><div><div class="text-xs text-[#8896AB]">المعاملات</div><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total_transactions }}</div><div class="text-[10px] text-emerald-500">+{{ stats.today_transactions }} اليوم</div></div></div>
             <div class="db-stat"><div class="db-stat-icon db-stat-red">🪪</div><div><div class="text-xs text-[#8896AB]">طلبات KYC</div><div class="text-2xl font-black text-amber-600">{{ stats.pending_kyc }}</div><div class="text-[10px] text-amber-500">بانتظار المراجعة</div></div></div>
             <div class="db-stat"><div class="db-stat-icon db-stat-green">💰</div><div><div class="text-xs text-[#8896AB]">حجم المعاملات (الكلي)</div><div class="text-2xl font-black text-emerald-600">{{ fmtM(stats.total_volume) }}</div><div class="text-[10px] text-emerald-500">{{ fmtM(stats.today_volume) }} اليوم</div></div></div>
+            <div class="db-stat"><div class="db-stat-icon" style="background:rgba(99,102,241,.08)">📩</div><div><div class="text-xs text-[#8896AB]">قائمة الانتظار</div><div class="text-2xl font-black text-indigo-600">{{ stats.total_waitlist }}</div><div class="text-[10px] text-indigo-500">+{{ stats.waitlist_today }} اليوم</div></div></div>
+            <div class="db-stat"><div class="db-stat-icon" style="background:rgba(236,72,153,.08)">📝</div><div><div class="text-xs text-[#8896AB]">التسجيل المبكر</div><div class="text-2xl font-black text-pink-600">{{ stats.total_preregistrations }}</div><div class="text-[10px] text-pink-500">+{{ stats.prereg_today }} اليوم</div></div></div>
           </div>
 
           <!-- Volume Stats Row -->
@@ -208,6 +211,53 @@ const statusBadge = { completed: 'db-badge-green', pending: 'db-badge-yellow', f
                     <div class="text-[10px] text-[#8896AB] mt-0.5">{{ new Date(u.created_at).toLocaleDateString('en-GB') }}</div>
                   </div>
                 </Link>
+              </div>
+            </div>
+
+            <!-- Recent Waitlist -->
+            <div class="db-card">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-[#1A2B4A]">📩 آخر تسجيلات الانتظار</h3>
+                <div class="flex gap-2">
+                  <a href="/admin/export/waitlist" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg font-bold hover:bg-indigo-100">📥 CSV</a>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div v-for="w in recentWaitlist" :key="w.id" class="db-tx-row">
+                  <div class="flex items-center gap-2">
+                    <span class="db-badge-sm db-badge-green">📧</span>
+                    <div>
+                      <div class="text-xs font-semibold text-[#1A2B4A]">{{ w.email }}</div>
+                      <div class="text-[10px] text-[#8896AB]">{{ w.source }} · {{ new Date(w.created_at).toLocaleDateString('en-GB') }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="!recentWaitlist?.length" class="text-xs text-[#8896AB] text-center py-4">لا يوجد تسجيلات بعد</div>
+              </div>
+            </div>
+
+            <!-- Recent Preregistrations -->
+            <div class="db-card">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-[#1A2B4A]">📝 آخر التسجيلات المبكرة</h3>
+                <div class="flex gap-2">
+                  <a href="/admin/export/preregistrations" class="text-xs bg-pink-50 text-pink-600 px-3 py-1 rounded-lg font-bold hover:bg-pink-100">📥 CSV</a>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div v-for="p in recentPrereg" :key="p.id" class="db-tx-row">
+                  <div class="flex items-center gap-2">
+                    <div class="db-user-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">{{ p.full_name?.charAt(0) }}</div>
+                    <div>
+                      <div class="text-sm font-semibold text-[#1A2B4A]">{{ p.full_name }}</div>
+                      <div class="text-[10px] text-[#8896AB]">{{ p.email }} · {{ p.country }}</div>
+                    </div>
+                  </div>
+                  <div class="text-left">
+                    <div class="text-[10px] text-[#8896AB]">{{ new Date(p.created_at).toLocaleDateString('en-GB') }}</div>
+                  </div>
+                </div>
+                <div v-if="!recentPrereg?.length" class="text-xs text-[#8896AB] text-center py-4">لا يوجد تسجيلات بعد</div>
               </div>
             </div>
           </div>

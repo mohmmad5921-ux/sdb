@@ -8,6 +8,8 @@ use App\Models\Card;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\WaitlistEmail;
+use App\Models\Preregistration;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -19,8 +21,6 @@ class DashboardController extends Controller
         $today = Carbon::today();
         $thisWeek = Carbon::now()->startOfWeek();
         $thisMonth = Carbon::now()->startOfMonth();
-        $lastMonth = Carbon::now()->subMonth()->startOfMonth();
-        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
         // Core stats
         $stats = [
@@ -47,6 +47,13 @@ class DashboardController extends Controller
             'new_users_today' => User::where('role', 'customer')->whereDate('created_at', $today)->count(),
             'new_users_week' => User::where('role', 'customer')->where('created_at', '>=', $thisWeek)->count(),
             'new_users_month' => User::where('role', 'customer')->where('created_at', '>=', $thisMonth)->count(),
+            // Waitlist & Preregistration stats
+            'total_waitlist' => WaitlistEmail::count(),
+            'waitlist_today' => WaitlistEmail::whereDate('created_at', $today)->count(),
+            'waitlist_week' => WaitlistEmail::where('created_at', '>=', $thisWeek)->count(),
+            'total_preregistrations' => Preregistration::count(),
+            'prereg_today' => Preregistration::whereDate('created_at', $today)->count(),
+            'prereg_week' => Preregistration::where('created_at', '>=', $thisWeek)->count(),
         ];
 
         // Last 7 days transaction growth
@@ -83,6 +90,10 @@ class DashboardController extends Controller
 
         $currencies = Currency::where('is_active', true)->get();
 
+        // Recent waitlist entries
+        $recentWaitlist = WaitlistEmail::orderByDesc('created_at')->limit(5)->get();
+        $recentPrereg = Preregistration::orderByDesc('created_at')->limit(5)->get();
+
         // System alerts
         $alerts = [];
         if ($stats['pending_kyc'] > 0)
@@ -95,6 +106,8 @@ class DashboardController extends Controller
             $alerts[] = ['type' => 'warning', 'msg' => $stats['frozen_accounts'] . ' حساب مجمّد'];
         if ($stats['suspended_users'] > 0)
             $alerts[] = ['type' => 'error', 'msg' => $stats['suspended_users'] . ' مستخدم موقوف'];
+        if ($stats['waitlist_today'] > 0)
+            $alerts[] = ['type' => 'info', 'msg' => $stats['waitlist_today'] . ' تسجيل جديد بقائمة الانتظار اليوم'];
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
@@ -104,6 +117,8 @@ class DashboardController extends Controller
             'recentUsers' => $recentUsers,
             'currencies' => $currencies,
             'alerts' => $alerts,
+            'recentWaitlist' => $recentWaitlist,
+            'recentPrereg' => $recentPrereg,
         ]);
     }
 }
