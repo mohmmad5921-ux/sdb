@@ -12,7 +12,7 @@ const kill = id => { if(confirm('إنهاء الجلسة؟')) router.delete(rout
   <table class="ss-tbl"><thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>IP</th><th>آخر نشاط</th><th>إجراء</th></tr></thead>
     <tbody><tr v-for="s in p.sessions" :key="s.id">
       <td class="ss-bold">{{ s.user_name||'—' }}</td><td>{{ s.user_email||'—' }}</td>
-      <td><span class="ss-role" :class="s.role==='admin'?'ss-admin':'ss-user'">{{ s.role==='admin'?'أدمن':'عميل' }}</span></td>
+      <td><span class="ss-role" :class="s.role?.includes('admin')?'ss-admin':'ss-user'">{{ s.role==='super_admin'?'مدير عام':s.role==='admin'?'أدمن':'عميل' }}</span></td>
       <td class="ss-ip">{{ s.ip_address }}</td><td class="ss-time">{{ s.last_active }}</td>
       <td><button @click="kill(s.id)" class="ss-kill">إنهاء</button></td>
     </tr></tbody>
