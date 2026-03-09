@@ -59,6 +59,12 @@ Route::get('/app', fn() => Inertia::render('Legal/AppDownload'))->name('app');
 Route::get('/exchange-rates', fn() => Inertia::render('Legal/ExchangeRates'))->name('exchange-rates');
 Route::get('/compliance', fn() => Inertia::render('Legal/Compliance'))->name('compliance');
 Route::get('/bills', fn() => Inertia::render('Legal/Bills'))->name('bills');
+Route::get('/cards/standard', fn() => Inertia::render('Legal/CardStandard'))->name('cards.standard');
+Route::get('/cards/plus', fn() => Inertia::render('Legal/CardPlus'))->name('cards.plus');
+Route::get('/cards/premium', fn() => Inertia::render('Legal/CardPremium'))->name('cards.premium');
+Route::get('/cards/elite', fn() => Inertia::render('Legal/CardElite'))->name('cards.elite');
+Route::get('/family', fn() => Inertia::render('Legal/Family'))->name('family');
+Route::get('/savings', fn() => Inertia::render('Legal/Savings'))->name('savings');
 
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');
