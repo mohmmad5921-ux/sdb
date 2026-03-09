@@ -10,7 +10,7 @@ class VerificationLogController extends Controller
     {
         $logs = DB::table('verification_logs')
             ->join('users', 'verification_logs.user_id', '=', 'users.id')
-            ->select('verification_logs.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('verification_logs.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('verification_logs.created_at', 'desc')->limit(100)->get();
         $stats = [
             'total' => DB::table('verification_logs')->count(),

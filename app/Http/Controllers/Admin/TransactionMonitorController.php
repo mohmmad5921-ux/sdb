@@ -34,7 +34,7 @@ class TransactionMonitorController extends Controller
             ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
             ->where('transactions.amount', '>=', 10000)
             ->where('transactions.created_at', '>=', Carbon::now()->subDays(7))
-            ->select('transactions.*', 'users.name as user_name')
+            ->select('transactions.*', 'users.full_name as user_name')
             ->orderBy('transactions.amount', 'desc')->limit(20)->get();
         return Inertia::render('Admin/TransactionMonitor', compact('stats', 'hourly', 'byCountry', 'anomalies'));
     }

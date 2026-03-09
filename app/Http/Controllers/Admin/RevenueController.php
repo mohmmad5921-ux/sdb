@@ -26,8 +26,8 @@ class RevenueController extends Controller
         $topUsers = DB::table('transactions')
             ->join('users', 'transactions.user_id', '=', 'users.id')
             ->where('transactions.status', 'completed')
-            ->selectRaw("users.name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
-            ->groupBy('users.id', 'users.name', 'users.email')
+            ->selectRaw("users.full_name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
+            ->groupBy('users.id', 'users.full_name', 'users.email')
             ->orderBy('total_volume', 'desc')
             ->limit(10)
             ->get();

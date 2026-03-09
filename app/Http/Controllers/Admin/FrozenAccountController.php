@@ -12,7 +12,7 @@ class FrozenAccountController extends Controller
     {
         $frozen = DB::table('frozen_accounts')
             ->join('users', 'frozen_accounts.user_id', '=', 'users.id')
-            ->select('frozen_accounts.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('frozen_accounts.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('frozen_accounts.created_at', 'desc')
             ->limit(100)
             ->get();

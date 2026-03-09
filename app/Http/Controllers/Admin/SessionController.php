@@ -11,7 +11,7 @@ class SessionController extends Controller
     {
         $sessions = DB::table('sessions')
             ->leftJoin('users', 'sessions.user_id', '=', 'users.id')
-            ->select('sessions.*', 'users.name as user_name', 'users.email as user_email', 'users.role')
+            ->select('sessions.*', 'users.full_name as user_name', 'users.email as user_email', 'users.role')
             ->whereNotNull('sessions.user_id')
             ->orderBy('sessions.last_activity', 'desc')
             ->limit(100)->get()->map(function ($s) {

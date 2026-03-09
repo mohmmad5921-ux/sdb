@@ -17,7 +17,7 @@ class RiskDashboardController extends Controller
             ->orderBy('risk_score', 'desc')->limit(20)->get();
         $recentIncidents = DB::table('fraud_incidents')
             ->leftJoin('users', 'fraud_incidents.user_id', '=', 'users.id')
-            ->select('fraud_incidents.*', 'users.name as user_name')
+            ->select('fraud_incidents.*', 'users.full_name as user_name')
             ->where('fraud_incidents.status', 'open')
             ->orderBy('fraud_incidents.created_at', 'desc')->limit(10)->get();
         $stats = [

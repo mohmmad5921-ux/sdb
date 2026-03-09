@@ -11,7 +11,7 @@ class CampaignController extends Controller
     {
         $campaigns = DB::table('email_campaigns')
             ->join('users', 'email_campaigns.created_by', '=', 'users.id')
-            ->select('email_campaigns.*', 'users.name as creator_name')
+            ->select('email_campaigns.*', 'users.full_name as creator_name')
             ->orderBy('email_campaigns.created_at', 'desc')->get();
         return Inertia::render('Admin/Campaigns', ['campaigns' => $campaigns]);
     }

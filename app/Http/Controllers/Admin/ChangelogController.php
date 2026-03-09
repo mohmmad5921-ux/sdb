@@ -12,7 +12,7 @@ class ChangelogController extends Controller
     {
         $query = DB::table('system_changelog')
             ->join('users', 'system_changelog.admin_id', '=', 'users.id')
-            ->select('system_changelog.*', 'users.name as admin_name');
+            ->select('system_changelog.*', 'users.full_name as admin_name');
 
         if ($request->category) {
             $query->where('system_changelog.category', $request->category);

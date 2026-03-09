@@ -12,7 +12,7 @@ class FraudController extends Controller
         $rules = DB::table('fraud_rules')->orderBy('severity', 'desc')->get();
         $incidents = DB::table('fraud_incidents')
             ->leftJoin('users', 'fraud_incidents.user_id', '=', 'users.id')
-            ->select('fraud_incidents.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('fraud_incidents.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('fraud_incidents.created_at', 'desc')->limit(50)->get();
         $stats = [
             'total_incidents' => DB::table('fraud_incidents')->count(),

@@ -11,7 +11,7 @@ class IpWhitelistController extends Controller
     {
         $ips = DB::table('admin_ip_whitelist')
             ->join('users', 'admin_ip_whitelist.added_by', '=', 'users.id')
-            ->select('admin_ip_whitelist.*', 'users.name as admin_name')
+            ->select('admin_ip_whitelist.*', 'users.full_name as admin_name')
             ->orderBy('admin_ip_whitelist.created_at', 'desc')->get();
         return Inertia::render('Admin/IpWhitelist', ['ips' => $ips, 'currentIp' => request()->ip()]);
     }

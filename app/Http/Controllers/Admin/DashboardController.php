@@ -32,8 +32,8 @@ class DashboardController extends Controller
         // Most active users
         $topActiveUsers = DB::table('transactions')
             ->join('users', 'transactions.user_id', '=', 'users.id')
-            ->selectRaw("users.id, users.name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
-            ->groupBy('users.id', 'users.name', 'users.email')
+            ->selectRaw("users.id, users.full_name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
+            ->groupBy('users.id', 'users.full_name', 'users.email')
             ->orderBy('tx_count', 'desc')->limit(10)->get();
 
         // ══════════════════════════════════════
@@ -60,7 +60,7 @@ class DashboardController extends Controller
         // Last 10 transactions
         $recentTransactions = DB::table('transactions')
             ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
-            ->select('transactions.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('transactions.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('transactions.created_at', 'desc')->limit(10)->get();
 
         // ══════════════════════════════════════

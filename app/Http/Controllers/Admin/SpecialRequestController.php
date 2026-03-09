@@ -11,7 +11,7 @@ class SpecialRequestController extends Controller
     {
         $requests = DB::table('special_requests')
             ->join('users', 'special_requests.user_id', '=', 'users.id')
-            ->select('special_requests.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('special_requests.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('special_requests.created_at', 'desc')->limit(100)->get();
         return Inertia::render('Admin/SpecialRequests', ['requests' => $requests]);
     }

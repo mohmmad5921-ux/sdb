@@ -11,7 +11,7 @@ class AmlController extends Controller
     {
         $reports = DB::table('aml_reports')
             ->join('users', 'aml_reports.user_id', '=', 'users.id')
-            ->select('aml_reports.*', 'users.name as user_name', 'users.email as user_email')
+            ->select('aml_reports.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('aml_reports.created_at', 'desc')->limit(50)->get();
         $stats = [
             'total' => DB::table('aml_reports')->count(),
@@ -26,7 +26,7 @@ class AmlController extends Controller
         $largeTransfers = DB::table('transactions')
             ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
             ->where('transactions.amount', '>=', 5000)
-            ->select('transactions.*', 'users.name as user_name')
+            ->select('transactions.*', 'users.full_name as user_name')
             ->orderBy('transactions.created_at', 'desc')->limit(20)->get();
         return Inertia::render('Admin/AmlDashboard', compact('reports', 'stats', 'largeTransfers'));
     }
