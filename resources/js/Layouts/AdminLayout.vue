@@ -51,6 +51,9 @@ const sideLinks = [
   { label: 'تصنيف العملاء', icon: '🏷️', route: 'admin.tags' },
   // Operations
   { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
+  // Business Accounts
+  { label: 'لوحة الشركات', icon: '🏢', route: 'admin.businesses.dashboard' },
+  { label: 'حسابات الشركات', icon: '🏗️', route: 'admin.businesses.index' },
   { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
   { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },

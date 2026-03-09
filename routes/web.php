@@ -381,6 +381,20 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::post('/data-management/reports/{id}/toggle', [\App\Http\Controllers\Admin\DataManagementController::class, 'toggleReport'])->name('data.reports.toggle');
 
     Route::get('/report-center', [\App\Http\Controllers\Admin\ReportCenterController::class, 'index'])->name('report-center');
+
+    // ═══ Phase 8: Business Accounts ═══
+    Route::get('/businesses/dashboard', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'dashboard'])->name('businesses.dashboard');
+    Route::get('/businesses', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'index'])->name('businesses.index');
+    Route::get('/businesses/{id}', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'show'])->name('businesses.show');
+    Route::post('/businesses/{id}/activate', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'activate'])->name('businesses.activate');
+    Route::post('/businesses/{id}/suspend', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'suspend'])->name('businesses.suspend');
+    Route::post('/businesses/{id}/reject', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'reject'])->name('businesses.reject');
+    Route::post('/businesses/{id}/freeze', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'freezeAccount'])->name('businesses.freeze');
+    Route::post('/businesses/{id}/unfreeze', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'unfreezeAccount'])->name('businesses.unfreeze');
+    Route::post('/businesses/{id}/limits', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'updateLimits'])->name('businesses.updateLimits');
+    Route::post('/businesses/{id}/notify', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'sendNotification'])->name('businesses.notify');
+    Route::post('/businesses/{business}/employees/{employee}/role', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'updateEmployeeRole'])->name('businesses.updateEmployeeRole');
+    Route::post('/businesses/{business}/employees/{employee}/remove', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'removeEmployee'])->name('businesses.removeEmployee');
 });
 
 require __DIR__ . '/auth.php';
