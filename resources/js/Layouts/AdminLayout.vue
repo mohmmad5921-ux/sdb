@@ -1,10 +1,42 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
 
 const sidebarOpen = ref(true);
 const page = usePage();
 const currentRoute = computed(() => page.url);
+
+// Global Search
+const searchQuery = ref('');
+const searchResults = ref([]);
+const searchOpen = ref(false);
+let searchTimeout = null;
+
+watch(searchQuery, (val) => {
+  clearTimeout(searchTimeout);
+  if (val.length < 2) { searchResults.value = []; searchOpen.value = false; return; }
+  searchTimeout = setTimeout(async () => {
+    try {
+      const res = await fetch(route('admin.search') + '?q=' + encodeURIComponent(val));
+      const data = await res.json();
+      searchResults.value = data.results || [];
+      searchOpen.value = searchResults.value.length > 0;
+    } catch (e) { searchResults.value = []; }
+  }, 300);
+});
+
+const goToResult = (r) => {
+  searchOpen.value = false;
+  searchQuery.value = '';
+  router.visit(r.url);
+};
+
+const closeSearch = () => { searchOpen.value = false; };
+
+// Notifications badge
+const pendingKyc = computed(() => page.props.auth?.admin_stats?.pending_kyc || 0);
+const newUsersToday = computed(() => page.props.auth?.admin_stats?.new_users_today || 0);
+const notifCount = computed(() => pendingKyc.value + newUsersToday.value);
 
 const sideLinks = [
   { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
@@ -47,6 +79,7 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
           :class="['adl-nav-item', isActive(l.route) ? 'adl-nav-active' : '']">
           <span class="adl-nav-icon">{{ l.icon }}</span>
           <span v-if="sidebarOpen" class="adl-nav-label">{{ l.label }}</span>
+          <span v-if="sidebarOpen && l.route === 'admin.kyc' && pendingKyc > 0" class="adl-nav-badge">{{ pendingKyc }}</span>
         </Link>
       </nav>
       <!-- Logout -->
@@ -68,8 +101,37 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
             <p v-if="subtitle" class="adl-subtitle">{{ subtitle }}</p>
           </div>
         </div>
+
+        <div class="adl-topbar-center">
+          <!-- Global Search -->
+          <div class="adl-search-wrap" @click.stop>
+            <div class="adl-search-box">
+              <span class="adl-search-icon">🔍</span>
+              <input v-model="searchQuery" type="text" placeholder="بحث سريع — عملاء، حسابات، معاملات..." class="adl-search-input" @focus="searchOpen = searchResults.length > 0" @blur="setTimeout(closeSearch, 200)" />
+              <kbd v-if="!searchQuery" class="adl-kbd">⌘K</kbd>
+            </div>
+            <!-- Search Results Dropdown -->
+            <div v-if="searchOpen" class="adl-search-dropdown">
+              <div v-for="(r, i) in searchResults" :key="i" class="adl-search-result" @mousedown.prevent="goToResult(r)">
+                <span class="adl-sr-icon">{{ r.icon }}</span>
+                <div class="adl-sr-info">
+                  <div class="adl-sr-title">{{ r.title }}</div>
+                  <div class="adl-sr-sub">{{ r.subtitle }}</div>
+                </div>
+                <span :class="['adl-sr-status', 'adl-sr-' + r.status]">{{ r.status }}</span>
+              </div>
+              <div v-if="!searchResults.length" class="adl-search-empty">لا توجد نتائج</div>
+            </div>
+          </div>
+        </div>
+
         <div class="adl-topbar-left">
           <slot name="actions" />
+          <!-- Notification Bell -->
+          <Link :href="route('admin.kyc')" class="adl-notif-btn" v-if="notifCount > 0" title="إشعارات">
+            <span>🔔</span>
+            <span class="adl-notif-badge">{{ notifCount }}</span>
+          </Link>
           <span class="adl-date">{{ new Date().toLocaleDateString('ar-EG', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) }}</span>
         </div>
       </header>
@@ -135,6 +197,7 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
 }
 .adl-nav-icon { font-size: 20px; width: 26px; text-align: center; flex-shrink: 0; }
 .adl-nav-label { white-space: nowrap; }
+.adl-nav-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: auto; }
 .adl-nav-bottom { padding: 10px; border-top: 1px solid #e2e8f0; }
 .adl-logout { color: #dc2626 !important; }
 .adl-logout:hover { background: #fef2f2 !important; }
@@ -148,9 +211,11 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
   background: #ffffff; border-bottom: 1px solid #e2e8f0;
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  gap: 16px;
 }
-.adl-topbar-right { display: flex; align-items: center; gap: 16px; }
-.adl-topbar-left { display: flex; align-items: center; gap: 16px; }
+.adl-topbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.adl-topbar-center { flex: 1; display: flex; justify-content: center; max-width: 500px; margin: 0 auto; }
+.adl-topbar-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 .adl-title { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
 .adl-subtitle { font-size: 14px; color: #64748b; margin-top: 4px; }
 .adl-toggle {
@@ -158,7 +223,38 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
   cursor: pointer; padding: 6px 10px; border-radius: 8px;
 }
 .adl-toggle:hover { background: #f1f5f9; color: #0f172a; }
-.adl-date { font-size: 14px; color: #94a3b8; }
+.adl-date { font-size: 14px; color: #94a3b8; white-space: nowrap; }
+
+/* Global Search */
+.adl-search-wrap { position: relative; width: 100%; }
+.adl-search-box { display: flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 14px; transition: all .2s; }
+.adl-search-box:focus-within { background: #ffffff; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+.adl-search-icon { font-size: 16px; margin-left: 8px; }
+.adl-search-input { flex: 1; border: none; background: transparent; padding: 10px 8px; font-size: 14px; color: #0f172a; outline: none; direction: rtl; }
+.adl-search-input::placeholder { color: #94a3b8; font-size: 13px; }
+.adl-kbd { font-size: 11px; background: #e2e8f0; color: #64748b; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+
+.adl-search-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; margin-top: 6px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); z-index: 999; max-height: 360px; overflow-y: auto; }
+.adl-search-result { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background .15s; border-bottom: 1px solid #f8fafc; }
+.adl-search-result:hover { background: #f8fafc; }
+.adl-search-result:last-child { border-bottom: none; }
+.adl-sr-icon { font-size: 22px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; flex-shrink: 0; }
+.adl-sr-info { flex: 1; min-width: 0; }
+.adl-sr-title { font-size: 14px; font-weight: 600; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adl-sr-sub { font-size: 12px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adl-sr-status { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; flex-shrink: 0; }
+.adl-sr-active { color: #059669; background: #ecfdf5; }
+.adl-sr-pending { color: #d97706; background: #fffbeb; }
+.adl-sr-frozen { color: #3b82f6; background: #eff6ff; }
+.adl-sr-completed { color: #059669; background: #ecfdf5; }
+.adl-sr-failed { color: #dc2626; background: #fef2f2; }
+.adl-sr-suspended,.adl-sr-blocked,.adl-sr-cancelled { color: #dc2626; background: #fef2f2; }
+.adl-search-empty { padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; }
+
+/* Notification bell */
+.adl-notif-btn { position: relative; font-size: 20px; text-decoration: none; padding: 6px; border-radius: 10px; transition: background .15s; }
+.adl-notif-btn:hover { background: #f1f5f9; }
+.adl-notif-badge { position: absolute; top: -2px; right: -4px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 8px; min-width: 16px; text-align: center; }
 
 .adl-content { padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; }
 
@@ -167,6 +263,7 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
 
 @media (max-width: 1100px) {
   .adl-sidebar { width: 68px; overflow: hidden; }
-  .adl-nav-label, .adl-logo-text { display: none; }
+  .adl-nav-label, .adl-logo-text, .adl-nav-badge { display: none; }
+  .adl-topbar-center { display: none; }
 }
 </style>

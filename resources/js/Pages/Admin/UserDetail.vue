@@ -3,7 +3,7 @@ import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 
-const props = defineProps({ user: Object, accounts: Array, cards: Array, kycDocuments: Array, transactions: Array, cardTransactions: Array, totalBalance: Number, loginHistory: Array });
+const props = defineProps({ user: Object, accounts: Array, cards: Array, kycDocuments: Array, transactions: Array, cardTransactions: Array, totalBalance: Number, loginHistory: Array, adminNotes: Array });
 const flash = computed(() => usePage().props.flash || {});
 
 const fmt = (a, s = '€') => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(a) + ' ' + s;
@@ -60,6 +60,14 @@ const showSendNote = ref(false);
 const noteForm = useForm({ note: '' });
 const sendNote = () => noteForm.post(route('admin.users.send-note', props.user.id), { onSuccess: () => { showSendNote.value = false; noteForm.reset(); } });
 
+// Internal notes
+const adminNoteForm = useForm({ content: '', category: 'general' });
+const addAdminNote = () => adminNoteForm.post(route('admin.users.add-note', props.user.id), { onSuccess: () => adminNoteForm.reset(), preserveScroll: true });
+const deleteNote = (id) => { if (confirm('حذف الملاحظة؟')) router.delete(route('admin.notes.delete', id), { preserveScroll: true }); };
+const togglePin = (id) => router.patch(route('admin.notes.pin', id), {}, { preserveScroll: true });
+const catLabels = { general: '📝 عامة', kyc: '🪪 KYC', support: '🎧 دعم', risk: '🛡️ مخاطر' };
+const catColors = { general: '#64748b', kyc: '#3b82f6', support: '#8b5cf6', risk: '#ef4444' };
+
 const activeTab = ref('overview');
 const tabs = [
   { id: 'overview', label: 'نظرة عامة', icon: '📊' },
@@ -69,6 +77,7 @@ const tabs = [
   { id: 'purchases', label: 'المشتريات', icon: '🛒' },
   { id: 'kyc', label: 'KYC', icon: '🪪' },
   { id: 'security', label: 'الأمان', icon: '🔒' },
+  { id: 'notes', label: 'ملاحظات', icon: '📝' },
   { id: 'actions', label: 'تحكم إداري', icon: '⚡' },
 ];
 
@@ -276,6 +285,43 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
           </div>
         </template>
 
+        <!-- NOTES TAB -->
+        <template v-if="activeTab === 'notes'">
+          <div class="ud-card">
+            <h3 class="ud-card-title mb-4">📝 ملاحظات داخلية — {{ (adminNotes || []).length }} ملاحظة</h3>
+            <!-- Add note form -->
+            <div class="ud-note-form mb-4">
+              <div class="flex gap-2 mb-2">
+                <select v-model="adminNoteForm.category" class="ud-select" style="width:auto;min-width:140px">
+                  <option v-for="(label, key) in catLabels" :key="key" :value="key">{{ label }}</option>
+                </select>
+              </div>
+              <div class="flex gap-2">
+                <textarea v-model="adminNoteForm.content" rows="2" class="ud-input flex-1" placeholder="أضف ملاحظة داخلية..."></textarea>
+                <button @click="addAdminNote" :disabled="!adminNoteForm.content || adminNoteForm.processing" class="ud-action-btn ud-btn-green" style="align-self:flex-end">➕ إضافة</button>
+              </div>
+              <div v-if="adminNoteForm.errors.content" class="text-red-500 text-xs mt-1">{{ adminNoteForm.errors.content }}</div>
+            </div>
+            <!-- Notes list -->
+            <div v-for="note in (adminNotes || [])" :key="note.id" class="ud-note-item" :class="{ 'ud-note-pinned': note.is_pinned }">
+              <div class="ud-note-header">
+                <div class="flex items-center gap-2">
+                  <span v-if="note.is_pinned" class="ud-pin-icon">📌</span>
+                  <span class="ud-note-cat" :style="{ color: catColors[note.category], background: catColors[note.category] + '15' }">{{ catLabels[note.category] || note.category }}</span>
+                  <span class="ud-note-admin">{{ note.admin?.full_name }}</span>
+                  <span class="ud-note-date">{{ fmtDate(note.created_at) }}</span>
+                </div>
+                <div class="flex gap-1">
+                  <button @click="togglePin(note.id)" class="ud-note-action" :title="note.is_pinned ? 'إلغاء التثبيت' : 'تثبيت'">{{ note.is_pinned ? '📌' : '📍' }}</button>
+                  <button @click="deleteNote(note.id)" class="ud-note-action ud-note-del" title="حذف">🗑️</button>
+                </div>
+              </div>
+              <div class="ud-note-content">{{ note.content }}</div>
+            </div>
+            <div v-if="!(adminNotes || []).length" class="ud-empty py-8">📝 لا توجد ملاحظات بعد</div>
+          </div>
+        </template>
+
         <!-- ADMIN ACTIONS TAB -->
         <template v-if="activeTab === 'actions'">
           <div class="grid lg:grid-cols-3 gap-4">
@@ -421,4 +467,19 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
 .ud-action-info{border-color:rgba(30,94,255,0.2);color:#3b82f6}.ud-action-info:hover{background:rgba(30,94,255,0.05);border-color:#10b981}
 .ud-modal-input{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;color:#0f172a;outline:none}.ud-modal-input:focus{border-color:#10b981}
 .ud-table-scroll::-webkit-scrollbar{width:4px;height:4px}.ud-table-scroll::-webkit-scrollbar-track{background:transparent}.ud-table-scroll::-webkit-scrollbar-thumb{background:#E2E8F0;border-radius:4px}
+/* Notes */
+.ud-note-form{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
+.ud-note-item{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:8px;transition:all .15s}
+.ud-note-item:hover{border-color:#cbd5e1}
+.ud-note-pinned{border-color:#fbbf24;background:#fffbeb}
+.ud-note-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ud-note-cat{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px}
+.ud-note-admin{font-size:12px;font-weight:600;color:#334155}
+.ud-note-date{font-size:11px;color:#94a3b8}
+.ud-note-content{font-size:14px;color:#334155;line-height:1.6;white-space:pre-wrap}
+.ud-note-action{background:none;border:none;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;transition:background .15s}
+.ud-note-action:hover{background:#f1f5f9}
+.ud-note-del:hover{background:#fef2f2}
+.ud-pin-icon{font-size:14px}
+.ud-empty{text-align:center;color:#94a3b8;font-size:14px}
 </style>

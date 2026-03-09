@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\AdminActivityLog;
+use App\Models\AdminNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -80,6 +81,13 @@ class UserController extends Controller
         } catch (\Exception $e) {
         }
 
+        // Admin notes
+        $adminNotes = AdminNote::where('user_id', $user->id)
+            ->with('admin')
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('created_at')
+            ->get();
+
         return Inertia::render('Admin/UserDetail', [
             'user' => $user,
             'accounts' => $user->accounts,
@@ -89,6 +97,7 @@ class UserController extends Controller
             'cardTransactions' => $cardTransactions,
             'totalBalance' => round($totalBalance, 2),
             'loginHistory' => $loginHistory,
+            'adminNotes' => $adminNotes,
         ]);
     }
 
@@ -228,5 +237,33 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', "تم إرسال الإشعار إلى {$count} عميل");
+    }
+
+    // Internal Notes
+    public function addNote(Request $request, User $user)
+    {
+        $request->validate([
+            'content' => 'required|string|max:2000',
+            'category' => 'required|in:general,kyc,support,risk',
+        ]);
+        AdminNote::create([
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'content' => $request->content,
+            'category' => $request->category,
+        ]);
+        return back()->with('success', 'تم إضافة الملاحظة');
+    }
+
+    public function deleteNote(AdminNote $note)
+    {
+        $note->delete();
+        return back()->with('success', 'تم حذف الملاحظة');
+    }
+
+    public function togglePinNote(AdminNote $note)
+    {
+        $note->update(['is_pinned' => !$note->is_pinned]);
+        return back()->with('success', $note->is_pinned ? 'تم تثبيت الملاحظة' : 'تم إلغاء التثبيت');
     }
 }

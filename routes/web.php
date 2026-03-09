@@ -190,6 +190,9 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::post('/users/{user}/freeze-all', [AdminUsers::class, 'freezeAllAccounts'])->name('users.freeze-all');
     Route::post('/users/{user}/unfreeze-all', [AdminUsers::class, 'unfreezeAllAccounts'])->name('users.unfreeze-all');
     Route::post('/users/{user}/send-note', [AdminUsers::class, 'sendNote'])->name('users.send-note');
+    Route::post('/users/{user}/add-note', [AdminUsers::class, 'addNote'])->name('users.add-note');
+    Route::delete('/notes/{note}', [AdminUsers::class, 'deleteNote'])->name('notes.delete');
+    Route::patch('/notes/{note}/pin', [AdminUsers::class, 'togglePinNote'])->name('notes.pin');
 
     Route::get('/transactions', [AdminTransactions::class, 'index'])->name('transactions');
 
@@ -237,6 +240,9 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/waitlist', [\App\Http\Controllers\Admin\WaitlistController::class, 'index'])->name('waitlist');
     Route::delete('/waitlist/{type}/{id}', [\App\Http\Controllers\Admin\WaitlistController::class, 'destroy'])->name('waitlist.delete');
     Route::post('/waitlist/bulk-delete', [\App\Http\Controllers\Admin\WaitlistController::class, 'bulkDelete'])->name('waitlist.bulk-delete');
+
+    // Global Search
+    Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'search'])->name('search');
 
     // Broadcast Notifications
     Route::get('/broadcast', [AdminUsers::class, 'broadcastForm'])->name('broadcast');
