@@ -35,11 +35,11 @@ const t = computed(() => isAr.value ? {
     {ic:'💳',t:'بطاقات ماستركارد',d:'بطاقة افتراضية فورية مجانية عند التسجيل. بطاقة معدنية فاخرة. 4 مستويات: Standard مجاني، Plus، Premium، Elite. ادفع بـ Apple Pay و Google Pay.',tag:'بطاقات',href:'/cards-info'},
     {ic:'💱',t:'أكثر من 30 عملة',d:'احتفظ وحوّل بأسعار السوق الحقيقية. يورو، دولار، جنيه إسترليني، ليرة تركية، درهم إماراتي والمزيد. بدون هوامش ربح مخفية.',tag:'عملات',href:'/currencies'},
     {ic:'⚡',t:'تحويلات فورية',d:'تحويلات داخلية مجانية بالكامل. دولية بـ 0.5% فقط. SEPA أوروبي فوري. SWIFT لأي بنك بالعالم. أرسل لأهلك بسوريا.',tag:'تحويلات',href:'/transfers-info'},
-    {ic:'🛡️',t:'أمان لا يُخترق',d:'تشفير بنكي AES-256. مصادقة بالوجه والبصمة. فريق مراقبة احتيال 24/7. حماية المشتريات. CVV ديناميكي. 3D Secure.',tag:'أمان',href:'/about'},
-    {ic:'🧾',t:'دفع الفواتير',d:'قريباً: ادفع فواتير الكهرباء والماء والإنترنت والهاتف والإيجار والأقساط مباشرة من التطبيق. بدون طوابير.',tag:'قريباً',href:'#'},
+    {ic:'🛡️',t:'أمان لا يُخترق',d:'تشفير بنكي AES-256. مصادقة بالوجه والبصمة. فريق مراقبة احتيال 24/7. حماية المشتريات. CVV ديناميكي. 3D Secure.',tag:'أمان',href:'/security'},
+    {ic:'🧾',t:'دفع الفواتير',d:'قريباً: ادفع فواتير الكهرباء والماء والإنترنت والهاتف والإيجار والأقساط مباشرة من التطبيق. بدون طوابير.',tag:'قريباً',href:'/bills'},
     {ic:'🪪',t:'الهوية الرقمية',d:'Syria Digital ID — تحقق من هويتك رقمياً بدون أوراق. مسح الوثائق بالذكاء الاصطناعي. تعرّف على الوجه فوري.',tag:'جديد',href:'/digital-id'},
     {ic:'📱',t:'المحفظة الرقمية',d:'أضف بطاقتك لـ Apple Wallet أو Google Wallet وادفع بهاتفك أو ساعتك الذكية بأي مكان بالعالم.',tag:'محفظة',href:'/wallet-guide'},
-    {ic:'📊',t:'تحليلات مالية',d:'تتبع مصاريفك بذكاء اصطناعي. تصنيف تلقائي، ميزانيات شهرية، تقارير مفصّلة، وأهداف ادخار ذكية.',tag:'ذكاء',href:'#'},
+    {ic:'📊',t:'تحليلات مالية',d:'تتبع مصاريفك بذكاء اصطناعي. تصنيف تلقائي، ميزانيات شهرية، تقارير مفصّلة، وأهداف ادخار ذكية.',tag:'ذكاء',href:'/analytics'},
   ],
   techTag:'التأخر التكنولوجي انتهى',techTitle:'تكنولوجيا أوروبية.',techFade:'بروح سورية.',
   techDesc:'سنوات الحرب خلّفت فجوة تكنولوجية هائلة في القطاع المالي السوري. SDB Bank يسد هذه الفجوة بتقنيات أوروبية متقدمة — بنك رقمي بالكامل، بدون فروع، بدون ورق، بدون طوابير.',
@@ -102,10 +102,10 @@ const t = computed(() => isAr.value ? {
   soonItems:['⚡ فواتير الكهرباء','💧 فواتير المياه','🌐 فواتير الإنترنت','📱 شحن الهاتف','🏠 إيجار المنزل','🎓 أقساط جامعية','📺 اشتراكات رقمية','🏥 فواتير طبية'],
   acctTitle:'حسابات لكل حاجة.',
   acctTypes:[
-    {ic:'👤',t:'حساب شخصي',d:'حساب يومي لإدارة أموالك. بطاقة فورية، تحويلات، صرف عملات.', f:['IBAN دولي','بطاقة ماستركارد مجانية','تحويلات داخلية مجانية','تطبيق ذكي كامل']},
-    {ic:'👨‍👩‍👧‍👦',t:'حساب عائلي',d:'شارك حسابك مع عائلتك. بطاقات فرعية مع حدود مصاريف للأطفال.', f:['حتى 5 بطاقات فرعية','حدود مصاريف قابلة للتعديل','إشعارات فورية للعائلة','حماية المشتريات']},
-    {ic:'💼',t:'حساب تجاري',d:'للشركات والمتاجر. إدارة مالية متكاملة مع أدوات محاسبة.', f:['فواتير إلكترونية','تكامل مع أنظمة المحاسبة','تقارير مالية تفصيلية','بطاقات لكل موظف']},
-    {ic:'🏦',t:'حساب توفير',d:'ادّخر بذكاء. أهداف ادخار، تحويل تلقائي، وعوائد تنافسية.', f:['أهداف ادخار ذكية','تحويل تلقائي شهري','تقارير نمو الادخار','سحب بأي وقت']},
+    {ic:'👤',t:'حساب شخصي',d:'حساب يومي لإدارة أموالك. بطاقة فورية، تحويلات، صرف عملات.', f:['IBAN دولي','بطاقة ماستركارد مجانية','تحويلات داخلية مجانية','تطبيق ذكي كامل'],href:'/personal'},
+    {ic:'👨‍👩‍👧‍👦',t:'حساب عائلي',d:'شارك حسابك مع عائلتك. بطاقات فرعية مع حدود مصاريف للأطفال.', f:['حتى 5 بطاقات فرعية','حدود مصاريف قابلة للتعديل','إشعارات فورية للعائلة','حماية المشتريات'],href:'/family'},
+    {ic:'💼',t:'حساب تجاري',d:'للشركات والمتاجر. إدارة مالية متكاملة مع أدوات محاسبة.', f:['فواتير إلكترونية','تكامل مع أنظمة المحاسبة','تقارير مالية تفصيلية','بطاقات لكل موظف'],href:'/business'},
+    {ic:'🏦',t:'حساب توفير',d:'ادّخر بذكاء. أهداف ادخار، تحويل تلقائي، وعوائد تنافسية.', f:['أهداف ادخار ذكية','تحويل تلقائي شهري','تقارير نمو الادخار','سحب بأي وقت'],href:'/savings'},
   ],
   stats:[{v:'30+',l:'عملة مدعومة'},{v:'150+',l:'دولة'},{v:'24/7',l:'دعم فني'},{v:'0',l:'رسوم مخفية'},{v:'<60',l:'ثانية للتحويل'},{v:'4',l:'مستويات بطاقات'}],
   ctaTag:'جاهز؟',ctaTitle:'مستقبلك المالي يبدأ هنا.',
@@ -133,11 +133,11 @@ const t = computed(() => isAr.value ? {
     {ic:'💳',t:'Mastercard Cards',d:'Free instant virtual card on signup. Premium metal card. 4 tiers: Standard Free, Plus, Premium, Elite. Apple Pay & Google Pay.',tag:'CARDS',href:'/cards-info'},
     {ic:'💱',t:'30+ Currencies',d:'Hold and convert at real market rates. EUR, USD, GBP, TRY, AED and more. No hidden markup or spreads.',tag:'FX',href:'/currencies'},
     {ic:'⚡',t:'Instant Transfers',d:'Free domestic transfers. International at only 0.5%. SEPA instant in Europe. SWIFT to any bank. Send to family in Syria.',tag:'TRANSFERS',href:'/transfers-info'},
-    {ic:'🛡️',t:'Unbreakable Security',d:'AES-256 encryption. Face ID & fingerprint auth. 24/7 fraud monitoring. Purchase protection. Dynamic CVV. 3D Secure.',tag:'SECURITY',href:'/about'},
-    {ic:'🧾',t:'Bill Payments',d:'Coming soon: Pay electricity, water, internet, phone, rent, and tuition directly from the app. No queues.',tag:'SOON',href:'#'},
+    {ic:'🛡️',t:'Unbreakable Security',d:'AES-256 encryption. Face ID & fingerprint auth. 24/7 fraud monitoring. Purchase protection. Dynamic CVV. 3D Secure.',tag:'SECURITY',href:'/security'},
+    {ic:'🧾',t:'Bill Payments',d:'Coming soon: Pay electricity, water, internet, phone, rent, and tuition directly from the app. No queues.',tag:'SOON',href:'/bills'},
     {ic:'🪪',t:'Digital Identity',d:'Syria Digital ID — verify digitally without paperwork. AI document scanning. Instant facial recognition.',tag:'NEW',href:'/digital-id'},
     {ic:'📱',t:'Digital Wallet',d:'Add your card to Apple Wallet or Google Wallet. Pay with your phone or smartwatch anywhere worldwide.',tag:'WALLET',href:'/wallet-guide'},
-    {ic:'📊',t:'Financial Analytics',d:'AI-powered spending tracking. Auto-categorization, monthly budgets, detailed reports, and smart savings goals.',tag:'AI',href:'#'},
+    {ic:'📊',t:'Financial Analytics',d:'AI-powered spending tracking. Auto-categorization, monthly budgets, detailed reports, and smart savings goals.',tag:'AI',href:'/analytics'},
   ],
   techTag:'The tech gap ends here',techTitle:'European technology.',techFade:'Syrian soul.',
   techDesc:'Years of war left a massive technological gap in Syria\'s financial sector. SDB Bank bridges this gap with advanced European technology — a fully digital bank, no branches, no paper, no queues.',
@@ -200,10 +200,10 @@ const t = computed(() => isAr.value ? {
   soonItems:['⚡ Electricity bills','💧 Water bills','🌐 Internet bills','📱 Phone top-up','🏠 Rent payments','🎓 University tuition','📺 Digital subscriptions','🏥 Medical bills'],
   acctTitle:'Accounts for every need.',
   acctTypes:[
-    {ic:'👤',t:'Personal Account',d:'Daily account for managing your finances. Instant card, transfers, FX.', f:['International IBAN','Free Mastercard','Free domestic transfers','Full smart app']},
-    {ic:'👨‍👩‍👧‍👦',t:'Family Account',d:'Share your account with family. Sub-cards with spending limits for kids.', f:['Up to 5 sub-cards','Adjustable spending limits','Family instant notifications','Purchase protection']},
-    {ic:'💼',t:'Business Account',d:'For companies and shops. Complete financial management with accounting tools.', f:['E-invoicing','Accounting integration','Detailed financial reports','Employee cards']},
-    {ic:'🏦',t:'Savings Account',d:'Save smart. Savings goals, auto-transfer, competitive returns.', f:['Smart savings goals','Monthly auto-transfer','Growth tracking reports','Withdraw anytime']},
+    {ic:'👤',t:'Personal Account',d:'Daily account for managing your finances. Instant card, transfers, FX.', f:['International IBAN','Free Mastercard','Free domestic transfers','Full smart app'],href:'/personal'},
+    {ic:'👨‍👩‍👧‍👦',t:'Family Account',d:'Share your account with family. Sub-cards with spending limits for kids.', f:['Up to 5 sub-cards','Adjustable spending limits','Family instant notifications','Purchase protection'],href:'/family'},
+    {ic:'💼',t:'Business Account',d:'For companies and shops. Complete financial management with accounting tools.', f:['E-invoicing','Accounting integration','Detailed financial reports','Employee cards'],href:'/business'},
+    {ic:'🏦',t:'Savings Account',d:'Save smart. Savings goals, auto-transfer, competitive returns.', f:['Smart savings goals','Monthly auto-transfer','Growth tracking reports','Withdraw anytime'],href:'/savings'},
   ],
   stats:[{v:'30+',l:'Currencies'},{v:'150+',l:'Countries'},{v:'24/7',l:'Support'},{v:'0',l:'Hidden Fees'},{v:'<60',l:'Sec to Transfer'},{v:'4',l:'Card Tiers'}],
   ctaTag:'Ready?',ctaTitle:'Your financial future starts here.',
@@ -236,7 +236,7 @@ const t = computed(() => isAr.value ? {
 <section class="sec"><div class="sw app-row an"><div class="app-text"><h2 class="t2">{{ t.appTitle }}<br><span class="t2-em">{{ t.appFade }}</span></h2><p class="t2-sub">{{ t.appDesc }}</p><div class="app-feats"><span v-for="f in t.appFeats" :key="f" class="app-feat">✓ {{ f }}</span></div></div><div class="app-img"><img src="/images/app-mockup.png" alt="SDB Bank App" loading="lazy"/></div></div></section>
 
 <!-- CARDS SECTION -->
-<section class="sec sec-alt"><div class="sw"><div class="sec-hdr an"><h2 class="t2">{{ t.cardsTitle }}<br><span class="t2-em">{{ t.cardsFade }}</span></h2><p class="t2-sub">{{ t.cardsDesc }}</p></div><div class="app-img-center an"><img src="/images/cards-lineup.png" alt="SDB Cards" loading="lazy" style="max-width:700px;width:100%;border-radius:20px"/></div><div class="tiers an"><div v-for="c in t.cardTiers" :key="c.n" class="tier-mini"><div class="tier-bar" :style="{background:c.c}"></div><h4 class="tier-n">{{ c.n }} <span class="tier-p">{{ c.p }}</span></h4><ul class="tier-f"><li v-for="f in c.f" :key="f">{{ f }}</li></ul></div></div><div class="tc an" style="margin-top:32px"><Link href="/cards-info" class="link-btn">{{ t.cardsBtn }}</Link></div></div></section>
+<section class="sec sec-alt"><div class="sw"><div class="sec-hdr an"><h2 class="t2">{{ t.cardsTitle }}<br><span class="t2-em">{{ t.cardsFade }}</span></h2><p class="t2-sub">{{ t.cardsDesc }}</p></div><div class="app-img-center an"><img src="/images/cards-lineup.png" alt="SDB Cards" loading="lazy" style="max-width:700px;width:100%;border-radius:20px"/></div><div class="tiers an"><Link v-for="(c,i) in [{n:'Standard',h:'/cards/standard'},{n:'Plus',h:'/cards/plus'},{n:'Premium',h:'/cards/premium'},{n:'Elite',h:'/cards/elite'}]" :key="c.n" :href="c.h" class="tier-mini" style="text-decoration:none;color:inherit"><div class="tier-bar" :style="{background:t.cardTiers[i].c}"></div><h4 class="tier-n">{{ t.cardTiers[i].n }} <span class="tier-p">{{ t.cardTiers[i].p }}</span></h4><ul class="tier-f"><li v-for="f in t.cardTiers[i].f" :key="f">{{ f }}</li></ul></Link></div><div class="tc an" style="margin-top:32px"><Link href="/plans" class="link-btn">{{ t.cardsBtn }}</Link></div></div></section>
 
 <!-- SALARY -->
 <section class="sec"><div class="sw"><div class="sec-hdr an"><h2 class="t2">{{ t.salTitle }}<br><span class="t2-em">{{ t.salFade }}</span></h2><p class="t2-sub">{{ t.salDesc }}</p></div><div class="g6 an"><div v-for="c in t.salCards" :key="c.t" class="sal-c"><span class="sal-ic">{{ c.ic }}</span><h4 class="sal-t">{{ c.t }}</h4><p class="sal-d">{{ c.d }}</p></div></div><div class="tc an" style="margin-top:32px"><Link href="/salary" class="link-btn">{{ t.salBtn }}</Link></div></div></section>
@@ -251,7 +251,7 @@ const t = computed(() => isAr.value ? {
 <section class="sec sec-alt"><div class="sw"><div class="sec-hdr an"><h2 class="t2">{{ t.secTitle }}<br><span class="t2-em">{{ t.secFade }}</span></h2><p class="t2-sub">{{ t.secDesc }}</p></div><div class="g4b an"><div v-for="(f,i) in t.secFeats" :key="i" class="sec-c" :style="{transitionDelay:(i*50)+'ms'}"><span class="sec-ic">{{ f.ic }}</span><h4 class="sec-t">{{ f.t }}</h4><p class="sec-d">{{ f.d }}</p></div></div></div></section>
 
 <!-- ACCOUNT TYPES -->
-<section class="sec"><div class="sw"><div class="sec-hdr an"><h2 class="t2 tc">{{ t.acctTitle }}</h2></div><div class="g4b an"><div v-for="a in t.acctTypes" :key="a.t" class="acct-c"><span class="acct-ic">{{ a.ic }}</span><h4 class="acct-t">{{ a.t }}</h4><p class="acct-d">{{ a.d }}</p><ul class="acct-f"><li v-for="f in a.f" :key="f">✓ {{ f }}</li></ul></div></div></div></section>
+<section class="sec"><div class="sw"><div class="sec-hdr an"><h2 class="t2 tc">{{ t.acctTitle }}</h2></div><div class="g4b an"><Link v-for="a in t.acctTypes" :key="a.t" :href="a.href||'/preregister'" class="acct-c"><span class="acct-ic">{{ a.ic }}</span><h4 class="acct-t">{{ a.t }}</h4><p class="acct-d">{{ a.d }}</p><ul class="acct-f"><li v-for="f in a.f" :key="f">✓ {{ f }}</li></ul></Link></div></div></section>
 
 <!-- COMING SOON -->
 <section class="sec sec-dark"><div class="sw"><div class="sec-hdr an"><h2 class="t2 t2-w">{{ t.soonTitle }}<br><span class="t2-em-w">{{ t.soonFade }}</span></h2><p class="t2-sub t2-sub-w">{{ t.soonDesc }}</p></div><div class="soon-grid an"><div v-for="s in t.soonItems" :key="s" class="soon-item">{{ s }}</div></div></div></section>
