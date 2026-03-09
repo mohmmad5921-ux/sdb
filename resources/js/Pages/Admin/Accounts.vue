@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 
 const props = defineProps({ accounts: Object, filters: Object, stats: Object, currencies: Array });
@@ -28,7 +28,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
 
 <template>
   <Head title="Accounts - الحسابات" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🏦 إدارة الحسابات">
     <div class="aa-root">
       <div class="aa-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -141,34 +141,36 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
         </div>
       </Teleport>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.aa-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.aa-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.aa-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.aa-back:hover{background:#1E5EFF;color:#fff}
-.aa-stat{background:#fff;border:2px solid #E8ECF1;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}.aa-stat:hover{border-color:#1E5EFF}
-.aa-stat-active{border-color:#10b981!important;background:rgba(16,185,129,0.03)}.aa-stat-active-blue{border-color:#1E5EFF!important;background:rgba(30,94,255,0.03)}.aa-stat-active-red{border-color:#ef4444!important;background:rgba(239,68,68,0.03)}
-.aa-search{width:380px;padding:10px 16px;border:1px solid #E8ECF1;border-radius:12px;background:#fff;font-size:13px;color:#1A2B4A;outline:none}.aa-search:focus{border-color:#1E5EFF;box-shadow:0 0 0 3px rgba(30,94,255,0.08)}.aa-search::placeholder{color:#8896AB}
-.aa-filter-select{padding:10px 16px;border:1px solid #E8ECF1;border-radius:12px;background:#fff;font-size:13px;color:#1A2B4A;outline:none;min-width:140px}.aa-filter-select:focus{border-color:#1E5EFF}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.aa-root{min-height:100vh;background:#0f172a;direction:rtl}
+.aa-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.aa-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.aa-back:hover{background:#10b981;color:#fff}
+.aa-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}.aa-stat:hover{border-color:#10b981}
+.aa-stat-active{border-color:#10b981!important;background:rgba(16,185,129,0.03)}.aa-stat-active-blue{border-color:#10b981!important;background:rgba(30,94,255,0.03)}.aa-stat-active-red{border-color:#ef4444!important;background:rgba(239,68,68,0.03)}
+.aa-search{width:380px;padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none}.aa-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.aa-search::placeholder{color:#94a3b8}
+.aa-filter-select{padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none;min-width:140px}.aa-filter-select:focus{border-color:#10b981}
 .aa-clear-btn{padding:8px 14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;font-size:12px;font-weight:600;color:#dc2626;background:rgba(239,68,68,0.05);cursor:pointer}.aa-clear-btn:hover{background:rgba(239,68,68,0.1)}
-.aa-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+.aa-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .aa-table{width:100%;border-collapse:collapse;font-size:13px}
-.aa-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.aa-table td{padding:14px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.aa-table tr:hover td{background:#FAFBFC}
-.aa-expanded-row td{background:#fff!important;padding:0!important;border:none!important}
+.aa-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.aa-table td{padding:14px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.aa-table tr:hover td{background:#1e293b}
+.aa-expanded-row td{background:#1e293b!important;padding:0!important;border:none!important}
 .aa-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
 .aa-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
-.aa-badge-green{background:rgba(16,185,129,0.1);color:#059669}.aa-badge-blue{background:rgba(30,94,255,0.1);color:#1E5EFF}.aa-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
+.aa-badge-green{background:rgba(16,185,129,0.1);color:#059669}.aa-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}.aa-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .aa-act{font-size:11px;padding:4px 10px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s;text-decoration:none}
 .aa-act-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.aa-act-yellow:hover{background:rgba(245,158,11,0.15)}
-.aa-act-blue{background:rgba(30,94,255,0.08);color:#1E5EFF;border-color:rgba(30,94,255,0.15)}.aa-act-blue:hover{background:rgba(30,94,255,0.15)}
+.aa-act-blue{background:rgba(16,185,129,0.1);color:#3b82f6;border-color:rgba(30,94,255,0.15)}.aa-act-blue:hover{background:rgba(30,94,255,0.15)}
 .aa-act-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.aa-act-green:hover{background:rgba(16,185,129,0.15)}
 .aa-act-red{background:rgba(239,68,68,0.08);color:#dc2626;border-color:rgba(239,68,68,0.15)}.aa-act-red:hover{background:rgba(239,68,68,0.15)}
 .aa-act-purple{background:rgba(139,92,246,0.08);color:#8b5cf6;border-color:rgba(139,92,246,0.15)}.aa-act-purple:hover{background:rgba(139,92,246,0.15)}
-.aa-modal-input{width:100%;border:1px solid #E8ECF1;border-radius:12px;padding:10px 14px;font-size:13px;color:#1A2B4A;outline:none}.aa-modal-input:focus{border-color:#1E5EFF}
-.aa-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#fff;color:#5A6B82;border:1px solid #E8ECF1;text-decoration:none}.aa-pg:hover{border-color:#1E5EFF;color:#1E5EFF}
-.aa-pg-act{background:#1E5EFF!important;color:#fff!important;border-color:#1E5EFF!important}
+.aa-modal-input{width:100%;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}.aa-modal-input:focus{border-color:#10b981}
+.aa-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none}.aa-pg:hover{border-color:#10b981;color:#3b82f6}
+.aa-pg-act{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>

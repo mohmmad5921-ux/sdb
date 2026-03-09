@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ currencies: Array, exchangeRates: Array });
@@ -17,7 +17,7 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
 
 <template>
   <Head title="Currencies - العملات" />
-  <AuthenticatedLayout>
+  <AdminLayout title="💱 إدارة العملات">
     <div class="cu-root">
       <div class="cu-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -106,22 +106,24 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
         </div>
       </Teleport>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.cu-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.cu-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.cu-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.cu-back:hover{background:#1E5EFF;color:#fff}
-.cu-btn-blue{padding:8px 18px;background:#1E5EFF;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.cu-btn-blue:hover{background:#1047b8}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.cu-root{min-height:100vh;background:#0f172a;direction:rtl}
+.cu-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.cu-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.cu-back:hover{background:#10b981;color:#fff}
+.cu-btn-blue{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.cu-btn-blue:hover{background:#1047b8}
 .cu-btn-green{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.cu-btn-green:hover{background:#059669}
-.cu-currency-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:16px;transition:all .25s}.cu-currency-card:hover{border-color:#1E5EFF;transform:translateY(-2px);box-shadow:0 6px 20px rgba(30,94,255,0.08)}
+.cu-currency-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:16px;transition:all .25s}.cu-currency-card:hover{border-color:#10b981;transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,0.1)}
 .cu-active-badge{font-size:10px;padding:2px 8px;border-radius:100px;background:rgba(16,185,129,0.1);color:#059669;font-weight:600;border:none;cursor:pointer}
 .cu-inactive-badge{font-size:10px;padding:2px 8px;border-radius:100px;background:rgba(239,68,68,0.1);color:#dc2626;font-weight:600;border:none;cursor:pointer}
-.cu-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+.cu-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .cu-table{width:100%;border-collapse:collapse;font-size:13px}
-.cu-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.cu-table td{padding:12px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle;color:#5A6B82}
-.cu-table tr:hover td{background:#FAFBFC}
-.cu-input{width:100%;border:1px solid #E8ECF1;border-radius:12px;padding:10px 14px;font-size:13px;color:#1A2B4A;outline:none}.cu-input:focus{border-color:#1E5EFF}
+.cu-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.cu-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle;color:#cbd5e1}
+.cu-table tr:hover td{background:#1e293b}
+.cu-input{width:100%;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}.cu-input:focus{border-color:#10b981}
 </style>

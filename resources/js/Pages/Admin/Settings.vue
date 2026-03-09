@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, reactive } from 'vue';
 
 const props = defineProps({ settings: Object });
@@ -21,7 +21,7 @@ const settingLabels = {
 
 <template>
   <Head title="Settings - الإعدادات" />
-  <AuthenticatedLayout>
+  <AdminLayout title="⚙️ إعدادات النظام">
     <div class="st-root">
       <div class="st-header">
         <div class="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -46,15 +46,17 @@ const settingLabels = {
         </form>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.st-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.st-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.st-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.st-back:hover{background:#1E5EFF;color:#fff}
-.st-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;overflow:hidden}
-.st-card-header{padding:16px 24px;border-bottom:1px solid #E8ECF1;background:#FAFBFC}
-.st-input{flex:1;max-width:280px;border:1px solid #E8ECF1;border-radius:12px;padding:10px 14px;font-size:13px;color:#1A2B4A;outline:none;transition:border-color .2s}.st-input:focus{border-color:#1E5EFF;box-shadow:0 0 0 3px rgba(30,94,255,0.08)}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.st-root{min-height:100vh;background:#0f172a;direction:rtl}
+.st-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.st-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.st-back:hover{background:#10b981;color:#fff}
+.st-card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}
+.st-card-header{padding:16px 24px;border-bottom:1px solid #334155;background:#1e293b}
+.st-input{flex:1;max-width:280px;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none;transition:border-color .2s}.st-input:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
 .st-save-btn{padding:12px 32px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);color:#fff;border-radius:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(30,94,255,0.25);transition:all .2s}.st-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,94,255,0.3)}.st-save-btn:disabled{opacity:0.5;transform:none}
 </style>

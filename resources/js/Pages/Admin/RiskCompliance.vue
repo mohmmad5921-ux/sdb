@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ largeTransactions: Array, suspiciousUsers: Array, frozenAccounts: Array, stats: Object, threshold: Number });
@@ -31,7 +31,7 @@ const sideLinks = [
 
 <template>
   <Head title="Risk & Compliance - المخاطر والامتثال" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🛡️ المخاطر والامتثال">
     <div class="rk-root">
       <aside class="rk-sidebar">
         <div class="rk-logo"><span class="text-lg font-black text-[#1A2B4A]">SDB Admin</span></div>
@@ -143,37 +143,39 @@ const sideLinks = [
         </div>
       </main>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.rk-root{display:flex;min-height:100vh;background:#F0F2F5;direction:rtl}
-.rk-sidebar{width:200px;background:#fff;border-left:1px solid #E8ECF1;flex-shrink:0}
-.rk-logo{padding:16px;border-bottom:1px solid #E8ECF1}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.rk-root{display:flex;min-height:100vh;background:#0f172a;direction:rtl}
+.rk-sidebar{width:200px;background:#1e293b;border-left:1px solid #E8ECF1;flex-shrink:0}
+.rk-logo{padding:16px;border-bottom:1px solid #334155}
 .rk-nav{padding:10px 8px;display:flex;flex-direction:column;gap:2px}
-.rk-nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:12px;color:#5A6B82;text-decoration:none;font-weight:500}.rk-nav-item:hover{background:#F0F4FF;color:#1E5EFF}
-.rk-nav-active{background:#F0F4FF!important;color:#1E5EFF!important;font-weight:700}
+.rk-nav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;font-size:12px;color:#cbd5e1;text-decoration:none;font-weight:500}.rk-nav-item:hover{background:#1e293b;color:#3b82f6}
+.rk-nav-active{background:#1e293b!important;color:#3b82f6!important;font-weight:700}
 .rk-main{flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.rk-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;border-bottom:1px solid #E8ECF1}
+.rk-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#1e293b;border-bottom:1px solid #334155}
 .rk-content{padding:20px 24px;display:flex;flex-direction:column;gap:16px}
-.rk-stat{background:#fff;border:2px solid #E8ECF1;border-radius:12px;padding:12px;text-align:center}
+.rk-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:12px;padding:12px;text-align:center}
 .rk-stat-red{border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.02)}.rk-stat-yellow{border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.02)}.rk-stat-blue{border-color:rgba(30,94,255,0.2);background:rgba(30,94,255,0.02)}.rk-stat-orange{border-color:rgba(249,115,22,0.2);background:rgba(249,115,22,0.02)}
-.rk-section-btn{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid #E8ECF1;background:#fff;color:#5A6B82;cursor:pointer}.rk-section-btn:hover{border-color:#1E5EFF;color:#1E5EFF}
-.rk-section-active{background:#1E5EFF!important;color:#fff!important;border-color:#1E5EFF!important}
-.rk-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:20px}
+.rk-section-btn{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid #334155;background:#1e293b;color:#cbd5e1;cursor:pointer}.rk-section-btn:hover{border-color:#10b981;color:#3b82f6}
+.rk-section-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
+.rk-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px}
 .rk-table{width:100%;border-collapse:collapse;font-size:13px}
-.rk-table th{text-align:right;padding:10px 12px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;border-bottom:2px solid #E8ECF1}
-.rk-table td{padding:10px 12px;border-bottom:1px solid #F0F2F5;color:#1A2B4A;vertical-align:middle}
-.rk-table tr:hover td{background:#FAFBFC}
+.rk-table th{text-align:right;padding:10px 12px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;border-bottom:2px solid #334155}
+.rk-table td{padding:10px 12px;border-bottom:1px solid #1e293b;color:#f1f5f9;vertical-align:middle}
+.rk-table tr:hover td{background:#1e293b}
 .rk-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
 .rk-avatar-red{background:linear-gradient(135deg,#dc2626,#ef4444)}.rk-avatar-blue{background:linear-gradient(135deg,#2563eb,#3b82f6)}
 .rk-risk-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
 .rk-risk-high{background:rgba(239,68,68,0.1);color:#dc2626}.rk-risk-med{background:rgba(245,158,11,0.1);color:#d97706}.rk-risk-low{background:rgba(16,185,129,0.1);color:#059669}
-.rk-score-bar{width:60px;height:6px;background:#F0F2F5;border-radius:100px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:4px}
+.rk-score-bar{width:60px;height:6px;background:#0f172a;border-radius:100px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:4px}
 .rk-score-fill{height:100%;border-radius:100px;transition:width .5s}
 .rk-sf-red{background:#ef4444}.rk-sf-yellow{background:#f59e0b}.rk-sf-green{background:#10b981}
 .rk-flag{font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.06);color:#dc2626;border:1px solid rgba(239,68,68,0.1);font-weight:500}
-.rk-link{font-size:12px;color:#1E5EFF;text-decoration:none;font-weight:600}.rk-link:hover{text-decoration:underline}
+.rk-link{font-size:12px;color:#3b82f6;text-decoration:none;font-weight:600}.rk-link:hover{text-decoration:underline}
 .rk-badge-sm{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:600}
 .rk-badge-green{background:rgba(16,185,129,0.1);color:#059669}.rk-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}
 </style>

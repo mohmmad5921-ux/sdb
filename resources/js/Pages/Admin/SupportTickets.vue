@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { computed } from 'vue';
 
 const props = defineProps({ tickets: Object, filters: Object, stats: Object });
@@ -12,7 +12,7 @@ const catLabels = { general: 'عام', account: 'حساب', card: 'بطاقة', 
 
 <template>
   <Head title="Support Admin - إدارة الدعم" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🎧 تذاكر الدعم">
     <div class="sp-root">
       <div class="sp-header">
         <div class="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
@@ -44,15 +44,17 @@ const catLabels = { general: 'عام', account: 'حساب', card: 'بطاقة', 
         <div v-else class="text-center text-[#8896AB] py-16"><div class="text-4xl mb-3">📭</div><p>لا توجد تذاكر</p></div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.sp-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.sp-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.sp-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.sp-back:hover{background:#1E5EFF;color:#fff}
-.sp-stat{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center}
-.sp-ticket{display:block;background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:18px 20px;transition:all .2s;text-decoration:none}.sp-ticket:hover{border-color:#1E5EFF;box-shadow:0 4px 12px rgba(30,94,255,0.06);transform:translateY(-1px)}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.sp-root{min-height:100vh;background:#0f172a;direction:rtl}
+.sp-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.sp-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sp-back:hover{background:#10b981;color:#fff}
+.sp-stat{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px;text-align:center}
+.sp-ticket{display:block;background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px 20px;transition:all .2s;text-decoration:none}.sp-ticket:hover{border-color:#10b981;box-shadow:0 4px 12px rgba(30,94,255,0.06);transform:translateY(-1px)}
 .sp-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
-.sp-badge-blue{background:rgba(30,94,255,0.1);color:#1E5EFF}.sp-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.sp-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}.sp-badge-green{background:rgba(16,185,129,0.1);color:#059669}.sp-badge-gray{background:#F0F2F5;color:#8896AB}
+.sp-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}.sp-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.sp-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}.sp-badge-green{background:rgba(16,185,129,0.1);color:#059669}.sp-badge-gray{background:#0f172a;color:#94a3b8}
 </style>

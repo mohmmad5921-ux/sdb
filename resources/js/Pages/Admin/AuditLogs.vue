@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ logs: Object, filters: Object });
@@ -10,7 +10,7 @@ const applyFilter = () => router.get(route('admin.audit-logs'), { search: search
 
 <template>
   <Head title="Audit Logs - سجل التدقيق" />
-  <AuthenticatedLayout>
+  <AdminLayout title="📋 سجلات التدقيق">
     <div class="al-root">
       <div class="al-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -45,20 +45,22 @@ const applyFilter = () => router.get(route('admin.audit-logs'), { search: search
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.al-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.al-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.al-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.al-back:hover{background:#1E5EFF;color:#fff}
-.al-search{width:320px;padding:10px 16px;border:1px solid #E8ECF1;border-radius:12px;background:#fff;font-size:13px;color:#1A2B4A;outline:none}.al-search:focus{border-color:#1E5EFF}.al-search::placeholder{color:#8896AB}
-.al-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.al-root{min-height:100vh;background:#0f172a;direction:rtl}
+.al-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.al-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.al-back:hover{background:#10b981;color:#fff}
+.al-search{width:320px;padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none}.al-search:focus{border-color:#10b981}.al-search::placeholder{color:#94a3b8}
+.al-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .al-table{width:100%;border-collapse:collapse;font-size:13px}
-.al-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.al-table td{padding:12px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.al-table tr:hover td{background:#FAFBFC}
-.al-action{font-size:12px;font-weight:600;color:#1E5EFF;background:rgba(30,94,255,0.08);padding:2px 8px;border-radius:6px}
-.al-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#fff;color:#5A6B82;border:1px solid #E8ECF1;text-decoration:none}.al-pg:hover{border-color:#1E5EFF;color:#1E5EFF}
-.al-pg-act{background:#1E5EFF!important;color:#fff!important;border-color:#1E5EFF!important}
+.al-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.al-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.al-table tr:hover td{background:#1e293b}
+.al-action{font-size:12px;font-weight:600;color:#3b82f6;background:rgba(16,185,129,0.1);padding:2px 8px;border-radius:6px}
+.al-pg{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none}.al-pg:hover{border-color:#10b981;color:#3b82f6}
+.al-pg-act{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>

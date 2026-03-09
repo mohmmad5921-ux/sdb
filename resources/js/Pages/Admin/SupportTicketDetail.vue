@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { computed } from 'vue';
 
 const props = defineProps({ ticket: Object });
@@ -14,7 +14,7 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
 
 <template>
   <Head :title="'Support: ' + ticket.ticket_number" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🎧 تفاصيل التذكرة">
     <div class="sd-root">
       <div class="sd-header">
         <div class="max-w-3xl mx-auto px-6 py-4">
@@ -55,17 +55,19 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
         </form>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.sd-root{min-height:100vh;background:#F0F2F5;direction:rtl;display:flex;flex-direction:column}
-.sd-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.sd-back{padding:6px 14px;background:#F0F4FF;color:#1E5EFF;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.sd-back:hover{background:#1E5EFF;color:#fff}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.sd-root{min-height:100vh;background:#0f172a;direction:rtl;display:flex;flex-direction:column}
+.sd-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.sd-back{padding:6px 14px;background:#1e293b;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sd-back:hover{background:#10b981;color:#fff}
 .sd-status-btn{font-size:11px;padding:4px 12px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s}
-.sd-btn-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.sd-btn-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.sd-btn-gray{background:#F0F2F5;color:#8896AB}
-.sd-msg-admin{background:#F0F4FF;border:1px solid rgba(30,94,255,0.12)}.sd-msg-user{background:#fff;border:1px solid #E8ECF1}
-.sd-reply-bar{border-top:1px solid #E8ECF1;padding:16px;background:#fff}
-.sd-reply-input{flex:1;border:1px solid #E8ECF1;border-radius:14px;padding:12px 16px;font-size:13px;color:#1A2B4A;outline:none}.sd-reply-input:focus{border-color:#1E5EFF}.sd-reply-input::placeholder{color:#8896AB}
-.sd-reply-btn{padding:12px 24px;background:#1E5EFF;color:#fff;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer}.sd-reply-btn:hover{background:#1047b8}.sd-reply-btn:disabled{opacity:0.5}
+.sd-btn-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.sd-btn-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.sd-btn-gray{background:#0f172a;color:#94a3b8}
+.sd-msg-admin{background:#1e293b;border:1px solid rgba(16,185,129,0.2)}.sd-msg-user{background:#1e293b;border:1px solid #334155}
+.sd-reply-bar{border-top:1px solid #E8ECF1;padding:16px;background:#1e293b}
+.sd-reply-input{flex:1;border:1px solid #334155;border-radius:14px;padding:12px 16px;font-size:13px;color:#f1f5f9;outline:none}.sd-reply-input:focus{border-color:#10b981}.sd-reply-input::placeholder{color:#94a3b8}
+.sd-reply-btn{padding:12px 24px;background:#10b981;color:#fff;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer}.sd-reply-btn:hover{background:#1047b8}.sd-reply-btn:disabled{opacity:0.5}
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 
 const props = defineProps({ documents: Object, filters: Object, stats: Object });
@@ -61,7 +61,7 @@ const analyzeDocument = (doc) => {
 
 <template>
   <Head title="KYC Review - مراجعة وثائق الهوية" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🪪 مراجعة KYC">
     <div class="ky-root">
       <div class="ky-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
@@ -189,23 +189,25 @@ const analyzeDocument = (doc) => {
         </div>
       </Teleport>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.ky-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.ky-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.ky-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.ky-back:hover{background:#1E5EFF;color:#fff}
-.ky-stat{background:#fff;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#1E5EFF}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
-.ky-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.ky-root{min-height:100vh;background:#0f172a;direction:rtl}
+.ky-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.ky-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ky-back:hover{background:#10b981;color:#fff}
+.ky-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#10b981}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
+.ky-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .ky-table{width:100%;border-collapse:collapse;font-size:13px}
-.ky-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.ky-table td{padding:12px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.ky-table tr:hover td{background:#FAFBFC}
+.ky-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.ky-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.ky-table tr:hover td{background:#1e293b}
 .ky-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
 .ky-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .ky-badge-green{background:rgba(16,185,129,0.1);color:#059669}.ky-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.ky-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
-.ky-file-link{font-size:12px;color:#1E5EFF;text-decoration:none;display:flex;align-items:center;gap:4px}.ky-file-link:hover{text-decoration:underline}
+.ky-file-link{font-size:12px;color:#3b82f6;text-decoration:none;display:flex;align-items:center;gap:4px}.ky-file-link:hover{text-decoration:underline}
 .ky-auth-score{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px}
 .ky-auth-pass{background:rgba(16,185,129,0.1);color:#059669}.ky-auth-warn{background:rgba(245,158,11,0.1);color:#d97706}.ky-auth-fail{background:rgba(239,68,68,0.1);color:#dc2626}
 .ky-btn-green{font-size:11px;padding:5px 12px;background:#10b981;color:#fff;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:background .2s}.ky-btn-green:hover{background:#059669}

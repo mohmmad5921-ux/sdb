@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ users: Object, filters: Object });
@@ -12,7 +12,7 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
 
 <template>
   <Head title="Users Management - إدارة العملاء" />
-  <AuthenticatedLayout>
+  <AdminLayout title="👥 إدارة العملاء">
     <div class="ul-root">
       <!-- Header -->
       <div class="ul-header">
@@ -74,27 +74,29 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.ul-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.ul-header{background:linear-gradient(135deg,#fff 0%,#F8FAFC 100%);border-bottom:1px solid #E8ECF1}
-.ul-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12);transition:all .2s}.ul-back:hover{background:#1E5EFF;color:#fff}
-.ul-search{width:100%;max-width:440px;padding:12px 18px;border:1px solid #E8ECF1;border-radius:14px;background:#fff;font-size:14px;color:#1A2B4A;outline:none;transition:border-color .2s}.ul-search:focus{border-color:#1E5EFF;box-shadow:0 0 0 3px rgba(30,94,255,0.08)}.ul-search::placeholder{color:#8896AB}
-.ul-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.ul-root{min-height:100vh;background:#0f172a;direction:rtl}
+.ul-header{background:#1e293b;border-bottom:1px solid #334155}
+.ul-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-back:hover{background:#10b981;color:#fff}
+.ul-search{width:100%;max-width:440px;padding:12px 18px;border:1px solid #334155;border-radius:14px;background:#1e293b;font-size:14px;color:#f1f5f9;outline:none;transition:border-color .2s}.ul-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.ul-search::placeholder{color:#94a3b8}
+.ul-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .ul-table{width:100%;border-collapse:collapse;font-size:14px}
-.ul-table th{text-align:right;padding:14px 18px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.ul-table td{padding:14px 18px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.ul-table tr:hover td{background:#FAFBFC}
+.ul-table th{text-align:right;padding:14px 18px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.ul-table td{padding:14px 18px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.ul-table tr:hover td{background:#1e293b}
 .ul-table tr:last-child td{border-bottom:none}
 .ul-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
 .ul-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
 .ul-badge-green{background:rgba(16,185,129,0.1);color:#059669}
 .ul-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}
 .ul-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
-.ul-badge-blue{background:rgba(30,94,255,0.1);color:#1E5EFF}
-.ul-view-btn{padding:6px 14px;background:#F0F4FF;color:#1E5EFF;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12);transition:all .2s}.ul-view-btn:hover{background:#1E5EFF;color:#fff}
-.ul-page-btn{padding:6px 14px;border-radius:8px;font-size:13px;background:#fff;color:#5A6B82;border:1px solid #E8ECF1;text-decoration:none;transition:all .2s}.ul-page-btn:hover{border-color:#1E5EFF;color:#1E5EFF}
-.ul-page-active{background:#1E5EFF!important;color:#fff!important;border-color:#1E5EFF!important}
+.ul-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}
+.ul-view-btn{padding:6px 14px;background:#1e293b;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-view-btn:hover{background:#10b981;color:#fff}
+.ul-page-btn{padding:6px 14px;border-radius:8px;font-size:13px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;text-decoration:none;transition:all .2s}.ul-page-btn:hover{border-color:#10b981;color:#3b82f6}
+.ul-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ merchants: Object, filters: Object });
@@ -19,7 +19,7 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
 
 <template>
   <Head title="Payment Gateway - بوابة الدفع" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🔌 إدارة التجار">
     <div class="me-root">
       <div class="me-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -83,22 +83,24 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
         </div>
       </Teleport>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.me-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.me-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.me-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.me-back:hover{background:#1E5EFF;color:#fff}
-.me-btn-blue{padding:8px 18px;background:#1E5EFF;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.me-btn-blue:hover{background:#1047b8}
-.me-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.me-root{min-height:100vh;background:#0f172a;direction:rtl}
+.me-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.me-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.me-back:hover{background:#10b981;color:#fff}
+.me-btn-blue{padding:8px 18px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer}.me-btn-blue:hover{background:#1047b8}
+.me-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
 .me-table{width:100%;border-collapse:collapse;font-size:13px}
-.me-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.me-table td{padding:14px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.me-table tr:hover td{background:#FAFBFC}
-.me-avatar{width:36px;height:36px;border-radius:10px;background:#F0F4FF;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.me-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.me-table td{padding:14px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.me-table tr:hover td{background:#1e293b}
+.me-avatar{width:36px;height:36px;border-radius:10px;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .me-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .me-badge-green{background:rgba(16,185,129,0.1);color:#059669}.me-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.me-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
-.me-link{font-size:12px;color:#1E5EFF;font-weight:600;text-decoration:none}.me-link:hover{text-decoration:underline}
-.me-input{width:100%;border:1px solid #E8ECF1;border-radius:12px;padding:10px 14px;font-size:13px;color:#1A2B4A;outline:none}.me-input:focus{border-color:#1E5EFF}
+.me-link{font-size:12px;color:#3b82f6;font-weight:600;text-decoration:none}.me-link:hover{text-decoration:underline}
+.me-input{width:100%;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}.me-input:focus{border-color:#10b981}
 </style>

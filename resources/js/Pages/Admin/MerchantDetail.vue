@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, usePage, router, useForm } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps({ merchant: Object, apiKeys: Array, sessions: Object });
@@ -22,7 +22,7 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
 
 <template>
   <Head :title="`Merchant: ${merchant.business_name}`" />
-  <AuthenticatedLayout>
+  <AdminLayout title="🔌 تفاصيل التاجر">
     <div class="md-root">
       <div class="md-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
@@ -93,21 +93,23 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
+  </AdminLayout>
 </template>
 
-<style scoped>
-.md-root{min-height:100vh;background:#F0F2F5;direction:rtl}
-.md-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #E8ECF1}
-.md-back{padding:8px 18px;background:#F0F4FF;color:#1E5EFF;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(30,94,255,0.12)}.md-back:hover{background:#1E5EFF;color:#fff}
-.md-stat{background:#fff;border:1px solid #E8ECF1;border-radius:14px;padding:16px 20px}
-.md-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;overflow:hidden}
-.md-card-header{padding:14px 20px;border-bottom:1px solid #E8ECF1;background:#FAFBFC}
-.md-input{width:100%;border:1px solid #E8ECF1;border-radius:10px;padding:8px 12px;font-size:13px;color:#1A2B4A;outline:none}.md-input:focus{border-color:#1E5EFF}
+<style>
+@import '../../../css/admin.css';
+@import '../../../css/admin.css';
+.md-root{min-height:100vh;background:#0f172a;direction:rtl}
+.md-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.md-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.md-back:hover{background:#10b981;color:#fff}
+.md-stat{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px 20px}
+.md-card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}
+.md-card-header{padding:14px 20px;border-bottom:1px solid #334155;background:#1e293b}
+.md-input{width:100%;border:1px solid #334155;border-radius:10px;padding:8px 12px;font-size:13px;color:#f1f5f9;outline:none}.md-input:focus{border-color:#10b981}
 .md-table{width:100%;border-collapse:collapse;font-size:13px}
-.md-table th{text-align:right;padding:12px 16px;background:#FAFBFC;color:#8896AB;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #E8ECF1}
-.md-table td{padding:12px 16px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
-.md-table tr:hover td{background:#FAFBFC}
+.md-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
+.md-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+.md-table tr:hover td{background:#1e293b}
 .md-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
-.md-badge-green{background:rgba(16,185,129,0.1);color:#059669}.md-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.md-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}.md-badge-gray{background:#F0F2F5;color:#8896AB}.md-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
+.md-badge-green{background:rgba(16,185,129,0.1);color:#059669}.md-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.md-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}.md-badge-gray{background:#0f172a;color:#94a3b8}.md-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
 </style>
