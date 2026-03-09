@@ -20,9 +20,9 @@ class TransactionMonitorController extends Controller
         ];
         // Hourly volume chart (last 24 hours)
         $hourly = DB::table('transactions')
-            ->selectRaw("HOUR(created_at) as hour, COUNT(*) as count, COALESCE(SUM(amount),0) as volume")
+            ->selectRaw("cast(strftime('%H', created_at) as integer) as hour, COUNT(*) as count, COALESCE(SUM(amount),0) as volume")
             ->where('created_at', '>=', Carbon::now()->subHours(24))
-            ->groupByRaw("HOUR(created_at)")->orderBy('hour')->get();
+            ->groupByRaw("cast(strftime('%H', created_at) as integer)")->orderBy('hour')->get();
         // By country
         $byCountry = DB::table('transactions')
             ->leftJoin('accounts as tx_acc', 'transactions.from_account_id', '=', 'tx_acc.id')->leftJoin('users', 'tx_acc.user_id', '=', 'users.id')

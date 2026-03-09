@@ -14,9 +14,9 @@ class RevenueController extends Controller
 
         // Monthly transaction volume
         $monthlyVolume = DB::table('transactions')
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, type, COUNT(*) as count, SUM(amount) as volume")
+            ->selectRaw("strftime('%Y-%m', created_at) as month, type, COUNT(*) as count, SUM(amount) as volume")
             ->where('status', 'completed')
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m'), type")
+            ->groupByRaw("strftime('%Y-%m', created_at), type")
             ->orderBy('month', 'desc')
             ->limit(60)
             ->get()

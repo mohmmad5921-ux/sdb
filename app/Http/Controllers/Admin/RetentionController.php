@@ -37,8 +37,8 @@ class RetentionController extends Controller
         // Monthly new registrations
         $monthlyReg = DB::table('users')
             ->where('role', '!=', 'admin')
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+            ->groupByRaw("strftime('%Y-%m', created_at)")
             ->orderBy('month', 'desc')
             ->limit(12)
             ->get();

@@ -29,9 +29,9 @@ class UserAnalyticsController extends Controller
             ->groupBy('country')->orderBy('count', 'desc')->limit(15)->get();
         // Monthly registration trend (12 months)
         $monthlyReg = DB::table('users')->where('role', '!=', 'admin')
-            ->selectRaw("DATE_FORMAT(created_at,'%Y-%m') as month, COUNT(*) as count")
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
-            ->groupByRaw("DATE_FORMAT(created_at,'%Y-%m')")->orderBy('month')->get();
+            ->groupByRaw("strftime('%Y-%m', created_at)")->orderBy('month')->get();
         // Spending patterns
         $spendingByType = DB::table('transactions')
             ->selectRaw("type, COUNT(*) as count, SUM(amount) as volume")

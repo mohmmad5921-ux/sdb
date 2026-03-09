@@ -17,18 +17,18 @@ class ReportController extends Controller
 
         // Monthly breakdown
         $monthly = DB::table('transactions')
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, SUM(amount) as volume")
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count, SUM(amount) as volume")
             ->where('status', 'completed')
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->groupByRaw("strftime('%Y-%m', created_at)")
             ->orderBy('month', 'desc')
             ->limit(12)
             ->get();
 
         // User growth
         $userGrowth = DB::table('users')
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
             ->where('role', '!=', 'admin')
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->groupByRaw("strftime('%Y-%m', created_at)")
             ->orderBy('month', 'desc')
             ->limit(12)
             ->get();

@@ -42,7 +42,7 @@ class AnalyticsController extends Controller
         $peakHours = [];
         try {
             $hourlyData = Transaction::where('created_at', '>=', Carbon::now()->subDays(30))
-                ->selectRaw('HOUR(created_at) as hour, COUNT(*) as count')
+                ->selectRaw('cast(strftime('%H', created_at) as integer) as hour, COUNT(*) as count')
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
