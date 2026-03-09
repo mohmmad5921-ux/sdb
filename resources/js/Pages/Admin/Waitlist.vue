@@ -91,7 +91,7 @@ const sideLinks = [
                     <button @click="switchTab('waitlist')" :class="activeTab === 'waitlist' ? 'wl-tab-active' : 'wl-tab'" class="wl-tab-btn">📩 قائمة الانتظار ({{ stats.waitlist_total }})</button>
                     <button @click="switchTab('prereg')" :class="activeTab === 'prereg' ? 'wl-tab-active-blue' : 'wl-tab'" class="wl-tab-btn">📝 التسجيل المبكر ({{ stats.prereg_total }})</button>
                     <div class="flex-1"></div>
-                    <a :href="route(activeTab === 'waitlist' ? 'export.waitlist' : 'export.preregistrations')" class="wl-export-btn">📥 تصدير CSV</a>
+                    <a :href="route(activeTab === 'waitlist' ? 'admin.export.waitlist' : 'admin.export.preregistrations')" class="wl-export-btn">📥 تصدير CSV</a>
                     <button v-if="selected.length" @click="bulkDelete" class="wl-delete-btn">🗑 حذف ({{ selected.length }})</button>
                 </div>
 
