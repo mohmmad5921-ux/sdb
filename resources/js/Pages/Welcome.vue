@@ -461,13 +461,16 @@ const t = computed(() => isAr.value ? {
   .conv-inp{font-size:18px;padding:10px}
   .conv-res{font-size:18px;padding:10px}
   .conv-cta{font-size:14px;padding:12px}
-  .hero-eml{display:flex;flex-direction:column;gap:10px;max-width:100%}
-  .eml-i{width:100%;font-size:15px;padding:14px 18px;border-radius:14px}
-  .eml-b{width:100%;font-size:14px;padding:14px;border-radius:14px}
-  .trust-row{flex-wrap:wrap;gap:8px;font-size:11px}
-  .cd{gap:12px}
-  .cd-n{font-size:clamp(1.4rem,5vw,2rem)}
-  .cd-l{font-size:10px}
+  .hero-eml{display:flex;flex-direction:column!important;gap:10px;max-width:100%;border:none!important;border-radius:0!important;overflow:visible!important}
+  .eml-i{width:100%!important;font-size:15px!important;padding:14px 18px!important;border-radius:14px!important;border:2px solid #0a0a0a!important;background:#fff}
+  .eml-b{width:100%!important;font-size:14px!important;padding:14px!important;border-radius:14px!important}
+  .hero-trust{flex-wrap:wrap;gap:8px;font-size:11px;justify-content:center}
+  .hero-cd{flex-wrap:wrap;gap:12px;justify-content:center}
+  .cd-n{font-size:clamp(1.6rem,8vw,2.2rem)}
+  .cd-l{font-size:9px}
+  .hero::after{display:none}
+  .hero-h1,.hero-h2{font-size:clamp(1.6rem,7vw,2.4rem)}
+  .hero-p{font-size:14px;margin-bottom:24px}
   .comp-table{margin:0 -8px;border-radius:12px;font-size:13px}
   .serv-c{padding:28px 20px}
   .tiers{grid-template-columns:1fr;gap:12px}
