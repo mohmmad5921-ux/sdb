@@ -226,6 +226,10 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 
     // Risk & Compliance
     Route::get('/risk', [AdminRisk::class, 'index'])->name('risk');
+
+    // CSV Exports
+    Route::get('/export/preregistrations', [\App\Http\Controllers\ExportController::class, 'preregistrations'])->name('export.preregistrations');
+    Route::get('/export/waitlist', [\App\Http\Controllers\ExportController::class, 'waitlist'])->name('export.waitlist');
 });
 
 require __DIR__ . '/auth.php';
