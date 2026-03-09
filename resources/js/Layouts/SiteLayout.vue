@@ -630,4 +630,35 @@ html{scroll-behavior:smooth}
 /* ─── Dark mode for new components ─── */
 .dark .scroll-progress{background:linear-gradient(90deg,#38BDF8,#0EA5E9)}
 .dark .back-top{background:linear-gradient(135deg,#1a1a2e,#0C4A6E);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+
+/* ─── Social Proof Ticker ─── */
+.social-proof{position:fixed;bottom:24px;left:24px;display:flex;align-items:center;gap:8px;padding:10px 18px;background:#fff;border:1px solid rgba(14,165,233,.1);border-radius:50px;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:9997;font-size:13px;font-weight:700;color:#0C4A6E}
+.rtl .social-proof{left:auto;right:24px}
+.sp-dot{width:8px;height:8px;background:#10B981;border-radius:50%;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.sp-text{white-space:nowrap}
+.dark .social-proof{background:#1a1a2e;border-color:rgba(255,255,255,.06);color:#e0e0e0}
+
+/* ─── Exit Intent Popup ─── */
+.exit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px}
+.exit-modal{background:#fff;border-radius:24px;padding:48px 40px;text-align:center;max-width:420px;width:100%;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.2);animation:modalBounce .4s cubic-bezier(.16,1,.3,1)}
+@keyframes modalBounce{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.exit-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;color:rgba(0,0,0,.3);cursor:pointer;padding:4px;line-height:1}
+.rtl .exit-close{right:auto;left:16px}
+.exit-ic{font-size:48px;margin-bottom:16px}
+.exit-title{font-size:24px;font-weight:900;color:#0C4A6E;margin-bottom:12px}
+.exit-desc{font-size:15px;color:rgba(10,10,10,.6);line-height:1.8;margin-bottom:24px}
+.exit-btn{display:block;padding:16px 32px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s;margin-bottom:12px}.exit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.25)}
+.exit-skip{background:none;border:none;color:rgba(10,10,10,.4);font-size:14px;font-weight:600;cursor:pointer;padding:4px 8px;font-family:inherit}
+.dark .exit-modal{background:#1a1a2e}.dark .exit-title{color:#e0e0e0}.dark .exit-desc{color:rgba(255,255,255,.6)}.dark .exit-close{color:rgba(255,255,255,.3)}
+.modal-enter-active,.modal-leave-active{transition:all .3s ease}
+.modal-enter-from,.modal-leave-to{opacity:0}
+.modal-enter-from .exit-modal,.modal-leave-to .exit-modal{transform:scale(.85)}
+
+@media(max-width:600px){
+  .social-proof{bottom:16px;left:12px;right:12px;justify-content:center;font-size:12px;padding:8px 14px}
+  .rtl .social-proof{left:12px;right:12px}
+  .exit-modal{padding:32px 24px;margin:0 16px}
+  .exit-title{font-size:20px}
+}
 </style>

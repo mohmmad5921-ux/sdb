@@ -9,7 +9,15 @@ const launchDate = new Date('2026-03-22T00:00:00');
 const cd = ref({ d:0, h:0, m:0, s:0 });
 let ti;
 function tick(){const x=launchDate-new Date();if(x<=0)return;cd.value={d:Math.floor(x/864e5),h:Math.floor(x%864e5/36e5),m:Math.floor(x%36e5/6e4),s:Math.floor(x%6e4/1e3)}}
-const em = ref('');const done = ref(false);
+const em = ref('');const done = ref(false);const emailErr = ref('');
+function submitEmail() {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!em.value || !regex.test(em.value)) { emailErr.value = isAr.value ? 'أدخل بريد صحيح' : 'Enter a valid email'; return; }
+  emailErr.value = '';
+  done.value = true;
+  /* Confetti burst */
+  for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#0EA5E9','#38BDF8','#0284C7','#7DD3FC','#10B981','#F59E0B'][Math.floor(Math.random()*6)];c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(1.5+Math.random())+'s';document.querySelector('.hero')?.appendChild(c);setTimeout(()=>c.remove(),3000)}
+}
 /* Mini converter */
 const cAmt = ref(1000); const cFrom = ref('EUR'); const cTo = ref('SYP');
 const cRates = {EUR:1,USD:1.08,GBP:0.86,SYP:13500,TRY:34.2,AED:3.97,SAR:4.05,DKK:7.46};
@@ -167,7 +175,7 @@ const t = computed(() => isAr.value ? {
     <h1 class="hero-h an" style="transition-delay:100ms"><span class="hero-h1">{{ t.hd1 }}</span><span class="hero-h2">{{ t.hd2 }}</span></h1>
     <p class="hero-p an" style="transition-delay:200ms">{{ t.sub }}</p>
     <div class="hero-cd an" style="transition-delay:300ms"><div v-for="(lb,k) in {d:t.days,h:t.hrs,m:t.min,s:t.sec}" :key="k" class="cd-b"><div class="cd-n">{{ String(cd[k]).padStart(2,'0') }}</div><div class="cd-l">{{ lb }}</div></div></div>
-    <div class="hero-eml an" style="transition-delay:400ms"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="eml-i" @keyup.enter="done=!!em"/><button @click="done=!!em" class="eml-b">{{ t.notify }}</button></template><div v-else class="eml-ok">{{ t.emailDone }}</div></div>
+    <div class="hero-eml an" style="transition-delay:400ms"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="eml-i" @keyup.enter="submitEmail"/><button @click="submitEmail" class="eml-b">{{ t.notify }}</button></template><div v-else class="eml-ok">✨ {{ t.emailDone }}</div><div v-if="emailErr" class="eml-err">{{ emailErr }}</div></div>
     <div class="hero-trust an" style="transition-delay:500ms"><span v-for="tr in t.trust" :key="tr" class="trust-i">{{ tr }}</span></div>
   </div>
   <!-- Mini Converter -->
@@ -181,7 +189,10 @@ const t = computed(() => isAr.value ? {
       <Link href="/exchange-rates" class="conv-cta">{{ t.convBtn }}</Link>
     </div>
   </div>
-</div></section>
+</div>
+<!-- Animated wave -->
+<svg class="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none"><path d="M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z" fill="#fff"><animate attributeName="d" dur="8s" repeatCount="indefinite" values="M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z;M0,60 C480,0 960,100 1440,40 L1440,100 L0,100 Z;M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"/></path></svg>
+</section>
 
 <!-- ═══ MARQUEE ═══ -->
 <div class="mq"><div class="mq-track"><span v-for="(p,i) in ['SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','Berlin','Istanbul','SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','Berlin','Istanbul']" :key="i" class="mq-i">{{ p }}</span></div></div>
@@ -299,6 +310,12 @@ const t = computed(() => isAr.value ? {
 .rtl .hero::after{right:auto;left:-10%}
 @keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes heroBlob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,10px) scale(.95)}}
+.hero-wave{position:absolute;bottom:-1px;left:0;width:100%;height:80px;pointer-events:none;z-index:0}
+.eml-err{font-size:12px;color:#DC2626;font-weight:700;margin-top:6px;text-align:center}
+.eml-ok{padding:14px;color:#10B981;font-weight:800;font-size:15px;text-align:center;animation:popIn .4s cubic-bezier(.16,1,.3,1)}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;top:50%;animation:confettiFall linear forwards;pointer-events:none;z-index:10}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}100%{opacity:0;transform:translateY(400px) rotate(720deg) scale(0.3)}}
 .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
 .hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:#0EA5E9;margin-bottom:24px;text-transform:uppercase}.rtl .hero-tag{letter-spacing:0}
 .hero-h{margin-bottom:20px;line-height:1.05}
