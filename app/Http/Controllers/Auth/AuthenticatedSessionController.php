@@ -44,6 +44,23 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+        $fromAdmin = str_contains($request->headers->get('referer', ''), 'sdb-admin');
+
+        // Block admin login from customer page
+        if ($user->role === 'admin' && !$fromAdmin) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->withErrors(['email' => 'Admin accounts must use the admin portal.']);
+        }
+
+        // Block customer login from admin page
+        if ($user->role !== 'admin' && $fromAdmin) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->withErrors(['email' => 'هذه البوابة مخصصة للإدارة فقط.']);
+        }
 
         // Log admin login
         if ($user->role === 'admin') {
