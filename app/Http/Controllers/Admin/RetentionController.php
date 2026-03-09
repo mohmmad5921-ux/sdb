@@ -30,7 +30,8 @@ class RetentionController extends Controller
         $withTx = DB::table('users')
             ->where('role', '!=', 'admin')
             ->whereExists(function ($q) {
-                $q->select(DB::raw(1))->from('transactions')->whereColumn('transactions.user_id', 'users.id'); })
+                $q->select(DB::raw(1))->from('transactions')->join('accounts', 'transactions.from_account_id', '=', 'accounts.id')->whereColumn('accounts.user_id', 'users.id');
+            })
             ->count();
 
         // Monthly new registrations
@@ -47,7 +48,8 @@ class RetentionController extends Controller
             ->where('role', '!=', 'admin')
             ->where('created_at', '<', now()->subDays(30))
             ->whereNotExists(function ($q) {
-                $q->select(DB::raw(1))->from('transactions')->whereColumn('transactions.user_id', 'users.id'); })
+                $q->select(DB::raw(1))->from('transactions')->join('accounts', 'transactions.from_account_id', '=', 'accounts.id')->whereColumn('accounts.user_id', 'users.id');
+            })
             ->count();
 
         return Inertia::render('Admin/Retention', [

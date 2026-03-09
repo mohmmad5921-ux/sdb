@@ -20,7 +20,7 @@ class UserAnalyticsController extends Controller
         ];
         // Top users by transaction count
         $topByTx = DB::table('transactions')
-            ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->join('accounts', 'transactions.from_account_id', '=', 'accounts.id')->join('users', 'accounts.user_id', '=', 'users.id')
             ->selectRaw("users.id,users.full_name,users.email,COUNT(*) as tx_count,SUM(transactions.amount) as volume")
             ->groupBy('users.id', 'users.full_name', 'users.email')->orderBy('tx_count', 'desc')->limit(15)->get();
         // Countries

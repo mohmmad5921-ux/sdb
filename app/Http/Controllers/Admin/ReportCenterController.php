@@ -13,8 +13,8 @@ class ReportCenterController extends Controller
         return Inertia::render('Admin/ReportCenter', [
             'reports' => [
                 'profit' => [
-                    'total_fees' => round(DB::table('transactions')->where('status', 'completed')->sum('fee_amount'), 2),
-                    'monthly_fees' => round(DB::table('transactions')->where('status', 'completed')->where('created_at', '>=', $thisMonth)->sum('fee_amount'), 2),
+                    'total_fees' => round(DB::table('transactions')->where('status', 'completed')->sum('fee'), 2),
+                    'monthly_fees' => round(DB::table('transactions')->where('status', 'completed')->where('created_at', '>=', $thisMonth)->sum('fee'), 2),
                 ],
                 'transactions' => [
                     'total' => DB::table('transactions')->count(),
@@ -43,7 +43,7 @@ class ReportCenterController extends Controller
                     'open' => DB::table('support_tickets')->whereIn('status', ['open', 'in_progress'])->count(),
                 ],
                 'fees_by_type' => DB::table('transactions')->where('status', 'completed')
-                    ->selectRaw("type, COUNT(*) as count, SUM(fee_amount) as fees")
+                    ->selectRaw("type, COUNT(*) as count, SUM(fee) as fees")
                     ->groupBy('type')->get(),
             ]
         ]);

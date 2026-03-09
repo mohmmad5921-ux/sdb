@@ -41,7 +41,7 @@ class ReportsController extends Controller
                 'date' => $date->format('m/d'),
                 'count' => (clone $dayTx)->count(),
                 'volume' => round((clone $dayTx)->where('status', 'completed')->sum('amount'), 2),
-                'fees' => round((clone $dayTx)->sum('fee_amount'), 2),
+                'fees' => round((clone $dayTx)->sum('fee'), 2),
             ];
         }
 
@@ -57,7 +57,7 @@ class ReportsController extends Controller
         }
 
         // Revenue from fees
-        $totalFees = Transaction::where('created_at', '>=', $startDate)->sum('fee_amount');
+        $totalFees = Transaction::where('created_at', '>=', $startDate)->sum('fee');
         $totalVolume = Transaction::where('created_at', '>=', $startDate)->where('status', 'completed')->sum('amount');
 
         // Top users by transaction volume

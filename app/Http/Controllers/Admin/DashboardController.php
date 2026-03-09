@@ -31,7 +31,7 @@ class DashboardController extends Controller
 
         // Most active users
         $topActiveUsers = DB::table('transactions')
-            ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->join('accounts', 'transactions.from_account_id', '=', 'accounts.id')->join('users', 'accounts.user_id', '=', 'users.id')
             ->selectRaw("users.id, users.full_name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
             ->groupBy('users.id', 'users.full_name', 'users.email')
             ->orderBy('tx_count', 'desc')->limit(10)->get();
@@ -59,7 +59,7 @@ class DashboardController extends Controller
 
         // Last 10 transactions
         $recentTransactions = DB::table('transactions')
-            ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
+            ->leftJoin('accounts as tx_acc', 'transactions.from_account_id', '=', 'tx_acc.id')->leftJoin('users', 'tx_acc.user_id', '=', 'users.id')
             ->select('transactions.*', 'users.full_name as user_name', 'users.email as user_email')
             ->orderBy('transactions.created_at', 'desc')->limit(10)->get();
 
@@ -68,12 +68,12 @@ class DashboardController extends Controller
         // ══════════════════════════════════════
         $systemProfit = DB::table('transactions')
             ->where('status', 'completed')
-            ->whereNotNull('fee_amount')
-            ->sum('fee_amount');
+            ->whereNotNull('fee')
+            ->sum('fee');
         $feesCollected = DB::table('transactions')
             ->whereDate('created_at', '>=', $thisMonth)
             ->where('status', 'completed')
-            ->sum('fee_amount');
+            ->sum('fee');
 
         // ══════════════════════════════════════
         // 5. CARD METRICS

@@ -24,7 +24,7 @@ class AmlController extends Controller
             'high_risk_users' => DB::table('users')->where('risk_level', 'high')->orWhere('risk_level', 'critical')->count(),
         ];
         $largeTransfers = DB::table('transactions')
-            ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
+            ->leftJoin('accounts as tx_acc', 'transactions.from_account_id', '=', 'tx_acc.id')->leftJoin('users', 'tx_acc.user_id', '=', 'users.id')
             ->where('transactions.amount', '>=', 5000)
             ->select('transactions.*', 'users.full_name as user_name')
             ->orderBy('transactions.created_at', 'desc')->limit(20)->get();

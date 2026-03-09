@@ -25,13 +25,13 @@ class TransactionMonitorController extends Controller
             ->groupByRaw("HOUR(created_at)")->orderBy('hour')->get();
         // By country
         $byCountry = DB::table('transactions')
-            ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
+            ->leftJoin('accounts as tx_acc', 'transactions.from_account_id', '=', 'tx_acc.id')->leftJoin('users', 'tx_acc.user_id', '=', 'users.id')
             ->selectRaw("COALESCE(users.country,'Unknown') as country, COUNT(*) as count, SUM(transactions.amount) as volume")
             ->whereDate('transactions.created_at', '>=', Carbon::now()->subDays(30))
             ->groupBy('country')->orderBy('volume', 'desc')->limit(10)->get();
         // Anomalies: unusually large transactions
         $anomalies = DB::table('transactions')
-            ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
+            ->leftJoin('accounts as tx_acc', 'transactions.from_account_id', '=', 'tx_acc.id')->leftJoin('users', 'tx_acc.user_id', '=', 'users.id')
             ->where('transactions.amount', '>=', 10000)
             ->where('transactions.created_at', '>=', Carbon::now()->subDays(7))
             ->select('transactions.*', 'users.full_name as user_name')

@@ -19,8 +19,8 @@ class FeeController extends Controller
         try {
             $revenue = DB::table('transactions')
                 ->where('created_at', '>=', now()->subDays(30))
-                ->where('fee_amount', '>', 0)
-                ->selectRaw('type, COUNT(*) as tx_count, SUM(fee_amount) as total_fees')
+                ->where('fee', '>', 0)
+                ->selectRaw('type, COUNT(*) as tx_count, SUM(fee) as total_fees')
                 ->groupBy('type')
                 ->get();
         } catch (\Exception $e) {
