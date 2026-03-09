@@ -20,6 +20,7 @@ const sideLinks = [
   { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
+  { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
 ];
 

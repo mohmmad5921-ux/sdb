@@ -238,9 +238,15 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::delete('/waitlist/{type}/{id}', [\App\Http\Controllers\Admin\WaitlistController::class, 'destroy'])->name('waitlist.delete');
     Route::post('/waitlist/bulk-delete', [\App\Http\Controllers\Admin\WaitlistController::class, 'bulkDelete'])->name('waitlist.bulk-delete');
 
+    // Broadcast Notifications
+    Route::get('/broadcast', [AdminUsers::class, 'broadcastForm'])->name('broadcast');
+    Route::post('/broadcast', [AdminUsers::class, 'broadcastSend'])->name('broadcast.send');
+
     // CSV Exports
-    Route::get('/export/preregistrations', [\App\Http\Controllers\ExportController::class, 'preregistrations'])->name('export.preregistrations');
-    Route::get('/export/waitlist', [\App\Http\Controllers\ExportController::class, 'waitlist'])->name('export.waitlist');
+    Route::get('/export/users', [\App\Http\Controllers\Admin\ExportController::class, 'users'])->name('export.users');
+    Route::get('/export/transactions', [\App\Http\Controllers\Admin\ExportController::class, 'transactions'])->name('export.transactions');
+    Route::get('/export/preregistrations', [\App\Http\Controllers\Admin\ExportController::class, 'preregistrations'])->name('export.preregistrations');
+    Route::get('/export/waitlist', [\App\Http\Controllers\Admin\ExportController::class, 'waitlist'])->name('export.waitlist');
 });
 
 require __DIR__ . '/auth.php';

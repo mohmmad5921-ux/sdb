@@ -21,7 +21,10 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
             <h1 class="text-2xl font-bold text-[#0f172a]">إدارة العملاء</h1>
             <p class="text-sm text-[#475569] mt-1">{{ users.total }} عميل مسجل</p>
           </div>
-          <Link :href="route('admin.dashboard')" class="ul-back">← الرئيسية</Link>
+          <div class="flex items-center gap-3">
+            <a :href="route('admin.export.users')" class="ul-export-btn">📥 تصدير CSV</a>
+            <Link :href="route('admin.dashboard')" class="ul-back">← الرئيسية</Link>
+          </div>
         </div>
       </div>
 
@@ -83,6 +86,7 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
 .ul-root{min-height:100vh;background:#f1f5f9;direction:rtl}
 .ul-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
 .ul-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-back:hover{background:#10b981;color:#fff}
+.ul-export-btn{padding:8px 18px;background:#ffffff;color:#10b981;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.ul-export-btn:hover{background:#10b981;color:#fff}
 .ul-search{width:100%;max-width:440px;padding:12px 18px;border:1px solid #e2e8f0;border-radius:14px;background:#ffffff;font-size:14px;color:#0f172a;outline:none;transition:border-color .2s}.ul-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.ul-search::placeholder{color:#64748b}
 .ul-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
 .ul-table{width:100%;border-collapse:collapse;font-size:14px}

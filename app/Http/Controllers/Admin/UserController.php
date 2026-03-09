@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Account;
+use App\Models\AdminActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -94,17 +95,21 @@ class UserController extends Controller
     public function updateStatus(Request $request, User $user)
     {
         $request->validate(['status' => 'required|in:pending,active,suspended,blocked']);
+        $old = $user->status;
         $user->update(['status' => $request->status]);
+        AdminActivityLog::log('user.status_change', 'user', $user->id, ['old' => $old, 'new' => $request->status, 'user_name' => $user->full_name]);
         return back()->with('success', 'تم تحديث حالة المستخدم');
     }
 
     public function updateKycStatus(Request $request, User $user)
     {
         $request->validate(['kyc_status' => 'required|in:pending,submitted,verified,rejected']);
+        $old = $user->kyc_status;
         $user->update(['kyc_status' => $request->kyc_status]);
         if ($request->kyc_status === 'verified' && $user->status === 'pending') {
             $user->update(['status' => 'active']);
         }
+        AdminActivityLog::log('user.kyc_update', 'user', $user->id, ['old' => $old, 'new' => $request->kyc_status, 'user_name' => $user->full_name]);
         return back()->with('success', 'تم تحديث حالة KYC');
     }
 
@@ -113,6 +118,7 @@ class UserController extends Controller
     {
         $newPassword = 'SDB@' . rand(1000, 9999) . '!';
         $user->update(['password' => Hash::make($newPassword)]);
+        AdminActivityLog::log('user.password_reset', 'user', $user->id, ['user_name' => $user->full_name]);
         return back()->with('success', "تم إعادة تعيين كلمة المرور: {$newPassword}");
     }
 
@@ -133,6 +139,7 @@ class UserController extends Controller
             'postal_code' => 'nullable|string|max:20',
         ]);
         $user->update($request->only(['full_name', 'email', 'phone', 'nationality', 'address', 'city', 'country', 'governorate', 'employment', 'date_of_birth', 'postal_code']));
+        AdminActivityLog::log('user.profile_update', 'user', $user->id, ['user_name' => $user->full_name, 'fields' => array_keys($request->except('_method'))]);
         return back()->with('success', 'تم تحديث بيانات العميل');
     }
 
@@ -141,6 +148,7 @@ class UserController extends Controller
     {
         $user->accounts()->update(['status' => 'frozen']);
         $user->cards()->where('status', 'active')->update(['status' => 'frozen']);
+        AdminActivityLog::log('user.freeze_all', 'user', $user->id, ['user_name' => $user->full_name]);
         return back()->with('success', 'تم تجميد جميع حسابات وبطاقات العميل');
     }
 
@@ -149,6 +157,7 @@ class UserController extends Controller
     {
         $user->accounts()->where('status', 'frozen')->update(['status' => 'active']);
         $user->cards()->where('status', 'frozen')->update(['status' => 'active']);
+        AdminActivityLog::log('user.unfreeze_all', 'user', $user->id, ['user_name' => $user->full_name]);
         return back()->with('success', 'تم إلغاء تجميد جميع حسابات وبطاقات العميل');
     }
 
@@ -166,6 +175,58 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
         }
+        AdminActivityLog::log('user.send_note', 'user', $user->id, ['user_name' => $user->full_name, 'note_preview' => mb_substr($request->note, 0, 100)]);
         return back()->with('success', 'تم إرسال الإشعار للعميل');
+    }
+
+    // Broadcast notification page
+    public function broadcastForm()
+    {
+        $stats = [
+            'all' => User::where('role', 'customer')->count(),
+            'active' => User::where('role', 'customer')->where('status', 'active')->count(),
+            'verified' => User::where('role', 'customer')->where('kyc_status', 'verified')->count(),
+        ];
+        return Inertia::render('Admin/BroadcastNotification', ['stats' => $stats]);
+    }
+
+    // Send broadcast notification
+    public function broadcastSend(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string|max:2000',
+            'target' => 'required|in:all,active,verified',
+        ]);
+
+        $query = User::where('role', 'customer');
+        if ($request->target === 'active')
+            $query->where('status', 'active');
+        if ($request->target === 'verified')
+            $query->where('kyc_status', 'verified');
+
+        $users = $query->get();
+        $count = 0;
+
+        foreach ($users as $user) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'title' => $request->title,
+                    'message' => $request->message,
+                    'type' => 'broadcast',
+                ]);
+                $count++;
+            } catch (\Exception $e) {
+            }
+        }
+
+        AdminActivityLog::log('broadcast.notification', null, null, [
+            'title' => $request->title,
+            'target' => $request->target,
+            'sent_count' => $count,
+        ]);
+
+        return back()->with('success', "تم إرسال الإشعار إلى {$count} عميل");
     }
 }

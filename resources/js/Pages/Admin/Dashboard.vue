@@ -3,7 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 
-const props = defineProps({ stats: Object, dailyTransactions: Array, dailyUsers: Array, recentTransactions: Array, recentUsers: Array, currencies: Array, alerts: Array, recentWaitlist: Array, recentPrereg: Array });
+const props = defineProps({ stats: Object, growth: Object, dailyTransactions: Array, dailyUsers: Array, recentTransactions: Array, recentUsers: Array, currencies: Array, alerts: Array, recentWaitlist: Array, recentPrereg: Array, topClients: Array, countryBreakdown: Array });
 
 const fmt = (a, s='€') => Number(a).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' ' + s;
 const fmtM = (a) => {
@@ -23,20 +23,25 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
   <Head title="Admin Dashboard - لوحة التحكم" />
   <AdminLayout title="لوحة التحكم الرئيسية" subtitle="نظرة عامة على أداء النظام والبيانات الحية">
 
-    <!-- System Alerts -->
+    <!-- System Alerts (clickable) -->
     <div v-if="alerts?.length" class="ad-alerts">
-      <div v-for="(a, i) in alerts" :key="i" :class="['ad-alert', 'ad-alert-' + a.type]">
+      <component :is="a.link ? 'a' : 'div'" v-for="(a, i) in alerts" :key="i" :href="a.link ? route(a.link) : undefined" :class="['ad-alert', 'ad-alert-' + a.type, a.link ? 'ad-alert-clickable' : '']">
         <span v-if="a.type==='warning'">⚠️</span><span v-else-if="a.type==='error'">🚨</span><span v-else>ℹ️</span>
         <span>{{ a.msg }}</span>
-      </div>
+        <span v-if="a.link" class="ad-alert-arrow">←</span>
+      </component>
     </div>
 
-    <!-- Core Stats -->
+    <!-- Core Stats with Growth -->
     <div class="ad-stats-grid">
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">👥</span><span class="ad-stat-label">العملاء</span></div>
         <div class="ad-stat-value">{{ stats.total_users }}</div>
         <div class="ad-stat-sub ad-sub-green">+{{ stats.new_users_today }} اليوم</div>
+        <div v-if="growth?.users" :class="['ad-growth', 'ad-growth-' + growth.users.direction]">
+          <span v-if="growth.users.direction === 'up'">↑</span><span v-else-if="growth.users.direction === 'down'">↓</span><span v-else>→</span>
+          {{ growth.users.pct }}% هذا الأسبوع
+        </div>
       </div>
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">🏦</span><span class="ad-stat-label">الحسابات</span></div>
@@ -52,6 +57,10 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
         <div class="ad-stat-header"><span class="ad-stat-icon">💸</span><span class="ad-stat-label">المعاملات</span></div>
         <div class="ad-stat-value">{{ stats.total_transactions }}</div>
         <div class="ad-stat-sub ad-sub-green">+{{ stats.today_transactions }} اليوم</div>
+        <div v-if="growth?.transactions" :class="['ad-growth', 'ad-growth-' + growth.transactions.direction]">
+          <span v-if="growth.transactions.direction === 'up'">↑</span><span v-else-if="growth.transactions.direction === 'down'">↓</span><span v-else>→</span>
+          {{ growth.transactions.pct }}% هذا الأسبوع
+        </div>
       </div>
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">🪪</span><span class="ad-stat-label">طلبات KYC معلّقة</span></div>
@@ -62,6 +71,10 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
         <div class="ad-stat-header"><span class="ad-stat-icon">💰</span><span class="ad-stat-label">حجم المعاملات الكلي</span></div>
         <div class="ad-stat-value" style="color:#10b981">{{ fmtM(stats.total_volume) }}</div>
         <div class="ad-stat-sub ad-sub-green">{{ fmtM(stats.today_volume) }} اليوم</div>
+        <div v-if="growth?.volume" :class="['ad-growth', 'ad-growth-' + growth.volume.direction]">
+          <span v-if="growth.volume.direction === 'up'">↑</span><span v-else-if="growth.volume.direction === 'down'">↓</span><span v-else>→</span>
+          {{ growth.volume.pct }}% هذا الأسبوع
+        </div>
       </div>
       <div class="ad-stat">
         <div class="ad-stat-header"><span class="ad-stat-icon">📩</span><span class="ad-stat-label">قائمة الانتظار</span></div>
@@ -107,7 +120,7 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
       </div>
     </div>
 
-    <!-- Quick Actions + Health + Currencies -->
+    <!-- Quick Actions + Health + Top Clients -->
     <div class="grid grid-cols-3 gap-4">
       <div class="ad-card">
         <h3 class="ad-section-title">⚡ إجراءات سريعة</h3>
@@ -121,10 +134,41 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
           <Link :href="route('admin.merchants')" class="ad-quick-btn"><span>🔌</span>بوابة الدفع</Link>
           <Link :href="route('admin.support')" class="ad-quick-btn"><span>🎧</span>الدعم</Link>
           <Link :href="route('admin.settings')" class="ad-quick-btn"><span>⚙️</span>الإعدادات</Link>
-          <Link :href="route('admin.audit-logs')" class="ad-quick-btn"><span>📋</span>التدقيق</Link>
+          <Link :href="route('admin.audit-logs')" class="ad-quick-btn"><span>📋</span>سجل الأنشطة</Link>
         </div>
       </div>
 
+      <div class="ad-card">
+        <h3 class="ad-section-title">🏆 أعلى العملاء رصيداً</h3>
+        <div class="ad-list" v-if="topClients?.length">
+          <Link v-for="(c, i) in topClients" :key="c.id" :href="route('admin.users.show', c.id)" class="ad-list-row ad-list-link">
+            <div class="flex items-center gap-3">
+              <div class="ad-rank" :class="i === 0 ? 'ad-rank-gold' : i === 1 ? 'ad-rank-silver' : i === 2 ? 'ad-rank-bronze' : ''">{{ i + 1 }}</div>
+              <div><div class="ad-list-primary">{{ c.name }}</div><div class="ad-list-secondary">{{ c.accounts_count }} حسابات</div></div>
+            </div>
+            <span class="ad-list-amount" style="color:#10b981">€{{ Number(c.balance).toLocaleString() }}</span>
+          </Link>
+        </div>
+        <div v-else class="ad-empty">لا يوجد عملاء نشطون</div>
+      </div>
+
+      <div class="ad-card">
+        <h3 class="ad-section-title">🌍 التسجيل حسب الدولة</h3>
+        <div class="ad-list" v-if="countryBreakdown?.length">
+          <div v-for="c in countryBreakdown" :key="c.country" class="ad-list-row">
+            <span class="ad-list-primary">{{ c.country || 'غير محدد' }}</span>
+            <div class="flex items-center gap-2">
+              <div class="ad-country-bar"><div class="ad-country-fill" :style="{width: (c.total / countryBreakdown[0].total) * 100 + '%'}"></div></div>
+              <span class="ad-list-secondary" style="min-width:30px;text-align:left">{{ c.total }}</span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="ad-empty">لا يوجد بيانات</div>
+      </div>
+    </div>
+
+    <!-- System Health + Currencies -->
+    <div class="grid grid-cols-2 gap-4">
       <div class="ad-card">
         <h3 class="ad-section-title">💊 صحة النظام</h3>
         <div class="ad-health-list">
@@ -179,7 +223,7 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
       </div>
 
       <div class="ad-card">
-        <div class="ad-card-header"><h3 class="ad-section-title">📩 آخر تسجيلات الانتظار</h3><a href="/admin/export/waitlist" class="ad-export-btn">📥 تصدير CSV</a></div>
+        <div class="ad-card-header"><h3 class="ad-section-title">📩 آخر تسجيلات الانتظار</h3><a :href="route('admin.export.waitlist')" class="ad-export-btn">📥 تصدير CSV</a></div>
         <div class="ad-list">
           <div v-for="w in recentWaitlist" :key="w.id" class="ad-list-row">
             <div class="flex items-center gap-3">
@@ -192,7 +236,7 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
       </div>
 
       <div class="ad-card">
-        <div class="ad-card-header"><h3 class="ad-section-title">📝 آخر التسجيلات المبكرة</h3><a href="/admin/export/preregistrations" class="ad-export-btn">📥 تصدير CSV</a></div>
+        <div class="ad-card-header"><h3 class="ad-section-title">📝 آخر التسجيلات المبكرة</h3><a :href="route('admin.export.preregistrations')" class="ad-export-btn">📥 تصدير CSV</a></div>
         <div class="ad-list">
           <div v-for="p in recentPrereg" :key="p.id" class="ad-list-row">
             <div class="flex items-center gap-3">
@@ -211,4 +255,20 @@ const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', f
 
 <style>
 @import '../../../css/admin.css';
+/* Growth indicators */
+.ad-growth{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block}
+.ad-growth-up{color:#059669;background:rgba(16,185,129,0.1)}
+.ad-growth-down{color:#dc2626;background:rgba(239,68,68,0.1)}
+.ad-growth-flat{color:#64748b;background:#f1f5f9}
+/* Alert clickable */
+.ad-alert-clickable{cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px}.ad-alert-clickable:hover{opacity:0.85}
+.ad-alert-arrow{margin-right:auto;font-weight:700;opacity:0.5}
+/* Top clients rank */
+.ad-rank{width:28px;height:28px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#334155;flex-shrink:0}
+.ad-rank-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff}
+.ad-rank-silver{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+.ad-rank-bronze{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+/* Country breakdown bar */
+.ad-country-bar{width:80px;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.ad-country-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:4px;transition:width .3s}
 </style>

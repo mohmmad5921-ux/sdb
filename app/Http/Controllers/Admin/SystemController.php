@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Card;
 use App\Models\AuditLog;
+use App\Models\AdminActivityLog;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Services\AccountService;
@@ -28,7 +29,7 @@ class SystemController extends Controller
                 $q->where('iban', 'like', "%{$request->search}%")
                     ->orWhere('account_number', 'like', "%{$request->search}%")
                     ->orWhereHas('user', fn($uq) => $uq->where('full_name', 'like', "%{$request->search}%")
-                ->orWhere('customer_number', 'like', "%{$request->search}%"));
+                        ->orWhere('customer_number', 'like', "%{$request->search}%"));
             });
         }
         if ($request->status)
@@ -63,11 +64,15 @@ class SystemController extends Controller
         $account->update(['status' => $request->status]);
 
         AuditLog::create([
-            'user_id' => auth()->id(), 'action' => 'account_status_change',
-            'entity_type' => 'account', 'entity_id' => $account->id,
-            'old_values' => ['status' => $oldStatus], 'new_values' => ['status' => $request->status],
+            'user_id' => auth()->id(),
+            'action' => 'account_status_change',
+            'entity_type' => 'account',
+            'entity_id' => $account->id,
+            'old_values' => ['status' => $oldStatus],
+            'new_values' => ['status' => $request->status],
             'ip_address' => $request->ip(),
         ]);
+        AdminActivityLog::log('account.status_change', 'account', $account->id, ['old' => $oldStatus, 'new' => $request->status, 'user_name' => $account->user->full_name ?? '']);
 
         return back()->with('success', 'تم تحديث حالة الحساب');
     }
@@ -84,19 +89,21 @@ class SystemController extends Controller
 
         if ($request->type === 'credit') {
             $accountService->credit($account, abs($request->amount));
-        }
-        else {
+        } else {
             if (!$accountService->debit($account, abs($request->amount))) {
                 return back()->withErrors(['amount' => 'رصيد غير كافٍ']);
             }
         }
 
         AuditLog::create([
-            'user_id' => auth()->id(), 'action' => 'admin_balance_adjustment',
-            'entity_type' => 'account', 'entity_id' => $account->id,
+            'user_id' => auth()->id(),
+            'action' => 'admin_balance_adjustment',
+            'entity_type' => 'account',
+            'entity_id' => $account->id,
             'new_values' => ['type' => $request->type, 'amount' => $request->amount, 'reason' => $request->reason],
             'ip_address' => $request->ip(),
         ]);
+        AdminActivityLog::log('account.balance_adjust', 'account', $account->id, ['type' => $request->type, 'amount' => $request->amount, 'reason' => $request->reason, 'user_name' => $account->user->full_name ?? '']);
 
         return back()->with('success', 'تم تعديل الرصيد بنجاح');
     }
@@ -113,7 +120,7 @@ class SystemController extends Controller
                 $q->where('card_number_masked', 'like', "%{$request->search}%")
                     ->orWhere('card_holder_name', 'like', "%{$request->search}%")
                     ->orWhereHas('user', fn($uq) => $uq->where('full_name', 'like', "%{$request->search}%")
-                ->orWhere('customer_number', 'like', "%{$request->search}%"));
+                        ->orWhere('customer_number', 'like', "%{$request->search}%"));
             });
         }
         if ($request->status)
@@ -145,11 +152,15 @@ class SystemController extends Controller
         $card->update(['status' => $request->status]);
 
         AuditLog::create([
-            'user_id' => auth()->id(), 'action' => 'card_status_change',
-            'entity_type' => 'card', 'entity_id' => $card->id,
-            'old_values' => ['status' => $oldStatus], 'new_values' => ['status' => $request->status],
+            'user_id' => auth()->id(),
+            'action' => 'card_status_change',
+            'entity_type' => 'card',
+            'entity_id' => $card->id,
+            'old_values' => ['status' => $oldStatus],
+            'new_values' => ['status' => $request->status],
             'ip_address' => $request->ip(),
         ]);
+        AdminActivityLog::log('card.status_change', 'card', $card->id, ['old' => $oldStatus, 'new' => $request->status, 'user_name' => $card->user->full_name ?? '']);
 
         return back()->with('success', 'تم تحديث حالة البطاقة');
     }
@@ -165,11 +176,14 @@ class SystemController extends Controller
         $card->update($request->only(['daily_limit', 'monthly_limit', 'spending_limit']));
 
         AuditLog::create([
-            'user_id' => auth()->id(), 'action' => 'card_limits_change',
-            'entity_type' => 'card', 'entity_id' => $card->id,
+            'user_id' => auth()->id(),
+            'action' => 'card_limits_change',
+            'entity_type' => 'card',
+            'entity_id' => $card->id,
             'new_values' => $request->only(['daily_limit', 'monthly_limit', 'spending_limit']),
             'ip_address' => $request->ip(),
         ]);
+        AdminActivityLog::log('card.limits_update', 'card', $card->id, ['limits' => $request->only(['daily_limit', 'monthly_limit', 'spending_limit']), 'user_name' => $card->user->full_name ?? '']);
 
         return back()->with('success', 'تم تحديث حدود البطاقة');
     }
@@ -179,20 +193,32 @@ class SystemController extends Controller
      */
     public function auditLogs(Request $request)
     {
-        $query = AuditLog::with('user');
+        $query = AdminActivityLog::with('admin');
 
         if ($request->action)
             $query->where('action', $request->action);
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('action', 'like', "%{$request->search}%")
-                    ->orWhere('entity_type', 'like', "%{$request->search}%");
+                    ->orWhere('target_type', 'like', "%{$request->search}%")
+                    ->orWhere('details', 'like', "%{$request->search}%");
             });
         }
+        if ($request->from) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+        if ($request->to) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
+        $actionLabels = AdminActivityLog::actionLabels();
+        $actions = AdminActivityLog::distinct()->pluck('action')->filter();
 
         return Inertia::render('Admin/AuditLogs', [
             'logs' => $query->orderByDesc('created_at')->paginate(30)->withQueryString(),
-            'filters' => $request->only(['search', 'action']),
+            'filters' => $request->only(['search', 'action', 'from', 'to']),
+            'actionLabels' => $actionLabels,
+            'actions' => $actions,
         ]);
     }
 

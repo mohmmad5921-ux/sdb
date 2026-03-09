@@ -28,7 +28,10 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
             <p class="text-sm text-[#475569] mt-1">{{ transactions.total }} معاملة مسجلة</p>
           </div>
           <div class="flex gap-2">
-            <Link :href="route('admin.dashboard')" class="at-back">← الرئيسية</Link>
+            <div class="flex items-center gap-3">
+              <a :href="route('admin.export.transactions')" class="at-export-btn">📥 تصدير CSV</a>
+              <Link :href="route('admin.dashboard')" class="at-back">← الرئيسية</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +100,7 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
 .at-root{min-height:100vh;background:#f1f5f9;direction:rtl}
 .at-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
 .at-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.at-back:hover{background:#10b981;color:#fff}
+.at-export-btn{padding:8px 18px;background:#ffffff;color:#10b981;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.at-export-btn:hover{background:#10b981;color:#fff}
 .at-search{width:320px;padding:10px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none}.at-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.at-search::placeholder{color:#64748b}
 .at-filter-select{padding:10px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none;cursor:pointer}.at-filter-select:focus{border-color:#10b981}
 .at-summary{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px}
