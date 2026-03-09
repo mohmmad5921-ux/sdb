@@ -44,10 +44,10 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $fromAdmin = str_contains($request->headers->get('referer', ''), 'sdb-admin');
+        $portal = $request->input('portal', 'customer');
 
         // Block admin login from customer page
-        if ($user->role === 'admin' && !$fromAdmin) {
+        if ($user->role === 'admin' && $portal !== 'admin') {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -55,7 +55,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Block customer login from admin page
-        if ($user->role !== 'admin' && $fromAdmin) {
+        if ($user->role !== 'admin' && $portal === 'admin') {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

@@ -7,7 +7,7 @@ defineProps({
     status: { type: String },
 });
 
-const form = useForm({ email: '', password: '', remember: false });
+const form = useForm({ email: '', password: '', remember: false, portal: 'customer' });
 const submit = () => form.post(route('login'), { onFinish: () => form.reset('password') });
 </script>
 

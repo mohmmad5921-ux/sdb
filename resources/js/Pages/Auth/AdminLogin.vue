@@ -4,7 +4,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 
 defineProps({ status: String });
 
-const form = useForm({ email: '', password: '', remember: false });
+const form = useForm({ email: '', password: '', remember: false, portal: 'admin' });
 const submit = () => form.post(route('login'), { onFinish: () => form.reset('password') });
 </script>
 
