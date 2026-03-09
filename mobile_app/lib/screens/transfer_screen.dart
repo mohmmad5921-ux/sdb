@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:local_auth/local_auth.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -60,6 +61,24 @@ class _TransferScreenState extends State<TransferScreen> {
   Future<void> _executeTransfer() async {
     final amount = double.tryParse(_amount.text) ?? 0;
     if (amount <= 0) { setState(() => error = 'المبلغ غير صحيح'); return; }
+
+    // Biometric authentication
+    try {
+      final auth = LocalAuthentication();
+      final canAuth = await auth.canCheckBiometrics || await auth.isDeviceSupported();
+      if (canAuth) {
+        final didAuth = await auth.authenticate(
+          localizedReason: 'تأكيد تحويل ${_amount.text} إلى ${recipient?['name'] ?? ''}',
+          options: const AuthenticationOptions(stickyAuth: true, biometricOnly: false),
+        );
+        if (!didAuth) {
+          setState(() => error = 'فشل التحقق البيومتري — الرجاء المحاولة مجدداً');
+          return;
+        }
+      }
+    } catch (e) {
+      // If biometrics fail/unavailable, continue (device may not support it)
+    }
     setState(() { loading = true; error = null; });
     try {
       final r = await ApiService.post('/banking/transfer/execute', {

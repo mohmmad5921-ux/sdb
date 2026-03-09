@@ -192,11 +192,18 @@ const navItems = [
                                 <div v-for="acc in accounts" :key="acc.id" class="bd-account-card">
                                     <div class="flex justify-between items-start mb-3">
                                         <span class="text-2xl">{{ acc.currency?.symbol }}</span>
-                                        <span :class="acc.status === 'active' ? 'bd-status-green' : acc.status === 'frozen' ? 'bd-status-blue' : 'bd-status-red'" class="bd-status-pill">{{ acc.status === 'active' ? 'نشط' : acc.status === 'frozen' ? 'مجمّد' : 'مغلق' }}</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span v-if="acc.account_type === 'business'" class="bd-status-pill" style="background:rgba(139,92,246,0.1);color:#8b5cf6">🏪 {{ acc.business_code }}</span>
+                                            <span :class="acc.status === 'active' ? 'bd-status-green' : acc.status === 'frozen' ? 'bd-status-blue' : 'bd-status-red'" class="bd-status-pill">{{ acc.status === 'active' ? 'نشط' : acc.status === 'frozen' ? 'مجمّد' : 'مغلق' }}</span>
+                                        </div>
                                     </div>
                                     <div class="text-xl font-black text-white mb-1">{{ fmt(acc.balance, acc.currency?.symbol) }}</div>
+                                    <div class="text-[11px] text-emerald-400 font-mono font-bold mb-0.5">🔢 {{ acc.account_number }}</div>
                                     <div class="text-[10px] text-gray-500 font-mono mb-0.5">{{ acc.iban }}</div>
                                     <div class="text-[10px] text-gray-600">{{ acc.currency?.code }} · {{ acc.currency?.name_ar }}</div>
+                                    <div v-if="acc.qr_data" class="mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.05)">
+                                        <button @click="navigator.clipboard.writeText(acc.qr_data); $event.target.textContent='✓ تم النسخ'" class="text-[10px] text-blue-400 hover:text-blue-300 transition">📋 نسخ بيانات QR</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
