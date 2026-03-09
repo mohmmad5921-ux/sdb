@@ -248,6 +248,13 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/broadcast', [AdminUsers::class, 'broadcastForm'])->name('broadcast');
     Route::post('/broadcast', [AdminUsers::class, 'broadcastSend'])->name('broadcast.send');
 
+    // App Management
+    Route::get('/app-management', [\App\Http\Controllers\Admin\AppManagementController::class, 'index'])->name('app-management');
+    Route::post('/app-management', [\App\Http\Controllers\Admin\AppManagementController::class, 'update'])->name('app-management.update');
+
+    // Analytics
+    Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics');
+
     // CSV Exports
     Route::get('/export/users', [\App\Http\Controllers\Admin\ExportController::class, 'users'])->name('export.users');
     Route::get('/export/transactions', [\App\Http\Controllers\Admin\ExportController::class, 'transactions'])->name('export.transactions');

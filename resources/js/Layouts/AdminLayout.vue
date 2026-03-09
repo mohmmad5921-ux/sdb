@@ -53,6 +53,8 @@ const sideLinks = [
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
+  { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
+  { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
 ];
 

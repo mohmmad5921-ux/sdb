@@ -10,3 +10,9 @@ Artisan::command('inspire', function () {
 
 // Run drip campaign emails daily at 9 AM
 Schedule::command('drip:send')->dailyAt('09:00');
+
+// Send daily admin report at 8 AM
+Schedule::call(function () {
+    \Illuminate\Support\Facades\Mail::to('admin@sdb.sy')
+        ->send(new \App\Mail\DailyAdminReport());
+})->dailyAt('08:00');
