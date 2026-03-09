@@ -131,5 +131,22 @@ const t = computed(() => isAr.value ? {
 .num-i{padding:40px 20px;background:#fff;text-align:center}.num-v{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#0EA5E9;margin-bottom:4px}.num-l{font-size:13px;color:rgba(10,10,10,.5);font-weight:600}
 .cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.2)}
 .an{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
-@media(max-width:768px){.mv-grid,.vals-grid,.team-grid{grid-template-columns:1fr}.nums{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){
+  .hero{padding:130px 0 50px}
+  .t2{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .t2-sub{font-size:14px}
+  .sec{padding:50px 0}.sec-cta{padding:60px 0}
+  .sw{padding:0 16px}
+  .mv-grid{grid-template-columns:1fr}
+  .mv-card{padding:28px 20px}
+  .vals-grid{grid-template-columns:1fr;gap:10px}
+  .val-c{padding:20px 16px}
+  .team-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .team-c{padding:20px 16px}
+  .team-av{width:44px;height:44px;font-size:18px}
+  .nums{grid-template-columns:repeat(2,1fr)}
+  .num-i{padding:28px 12px}
+  .tl{padding-inline-start:24px}
+  .cta-btn{width:100%;text-align:center;padding:16px 24px;display:block}
+}
 </style>

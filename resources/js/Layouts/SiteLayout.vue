@@ -498,8 +498,22 @@ html{scroll-behavior:smooth}
   .sf-brand{grid-column:1/-1}
 }
 @media(max-width:600px){
+  .site{overflow-x:hidden}
+  .sw{padding:0 16px}
   .sf-top{grid-template-columns:1fr}
   .sf-contact-row{flex-direction:column;gap:8px}
+  .sf{padding:48px 0 32px}
+  .sf-btm{flex-direction:column;gap:12px;text-align:center}
+  .cookie-bar{flex-direction:column;gap:12px;padding:16px;text-align:center}
+  .cookie-text{font-size:13px}
+  .cookie-btns{width:100%;display:flex;gap:8px}
+  .cookie-accept,.cookie-decline{flex:1;padding:10px 16px;font-size:13px}
+  .toast-container{right:12px;left:12px;top:76px}
+  .toast-item{min-width:auto}
+  .sn{height:60px}
+  .sn-logo{font-size:24px}
+  .sn-cta{font-size:12px;padding:8px 16px}
+  .sn-lang{font-size:12px;padding:6px 12px}
 }
 
 /* ─── Dark Mode Toggle ─── */

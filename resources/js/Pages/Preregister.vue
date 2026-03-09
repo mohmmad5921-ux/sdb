@@ -214,5 +214,14 @@ const t = computed(() => isAr.value ? {
 .slide-enter-active,.slide-leave-active{transition:all .3s ease;overflow:hidden}
 .slide-enter-from,.slide-leave-to{opacity:0;max-height:0;margin:0}.slide-enter-to,.slide-leave-from{opacity:1;max-height:80px}
 
-@media(max-width:768px){.pr-wrap{flex-direction:column;gap:32px}.pr-left{padding-top:0}.pr-right{max-width:100%;width:100%}}
+@media(max-width:768px){
+  .pr-wrap{flex-direction:column;gap:32px;padding:0 16px}
+  .pr-left{padding-top:0;text-align:center}
+  .pr-right{max-width:100%;width:100%}
+  .pr-hero-h{font-size:clamp(1.8rem,7vw,2.6rem)}
+  .pr-hero-sub{font-size:14px;margin:0 auto 24px}
+  .pr-card{padding:28px 20px}
+  .pr-badge{font-size:12px;margin:0 auto}
+  .pr-feat{font-size:14px;padding:12px 0}
+}
 </style>
