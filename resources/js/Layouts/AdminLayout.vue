@@ -40,6 +40,7 @@ const notifCount = computed(() => pendingKyc.value + newUsersToday.value);
 
 const sideLinks = [
   { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
+  { label: 'KPIs حية', icon: '⚡', route: 'admin.live-kpi' },
   // Core Banking
   { label: 'العملاء', icon: '👥', route: 'admin.users' },
   { label: 'الحسابات', icon: '🏦', route: 'admin.accounts' },
@@ -47,6 +48,7 @@ const sideLinks = [
   { label: 'المعاملات', icon: '💸', route: 'admin.transactions' },
   { label: 'KYC', icon: '🪪', route: 'admin.kyc' },
   { label: 'العملات', icon: '💱', route: 'admin.currencies' },
+  { label: 'تصنيف العملاء', icon: '🏷️', route: 'admin.tags' },
   // Operations
   { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
   { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
@@ -55,10 +57,12 @@ const sideLinks = [
   { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
   { label: 'سجل التواصل', icon: '📧', route: 'admin.communications' },
   { label: 'الحسابات المجمّدة', icon: '🧊', route: 'admin.frozen' },
+  { label: 'طلبات خاصة', icon: '📋', route: 'admin.special-requests' },
+  { label: 'جدولة المهام', icon: '📅', route: 'admin.tasks' },
   // Finance
   { label: 'الرسوم', icon: '💰', route: 'admin.fees' },
   { label: 'أسعار الصرف', icon: '📈', route: 'admin.rates' },
-  { label: 'العروض والكوبونات', icon: '🏷️', route: 'admin.promotions' },
+  { label: 'العروض والكوبونات', icon: '🎁', route: 'admin.promotions' },
   { label: 'حدود الحسابات', icon: '🔒', route: 'admin.limits' },
   // Analytics & Compliance
   { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
@@ -70,11 +74,17 @@ const sideLinks = [
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
   { label: 'المخاطر', icon: '⚠️', route: 'admin.risk' },
+  // Marketing
+  { label: 'الإحالات', icon: '🔗', route: 'admin.referrals' },
+  { label: 'حملات البريد', icon: '📨', route: 'admin.campaigns' },
+  { label: 'قوالب البريد', icon: '✉️', route: 'admin.email-templates' },
   // System
   { label: 'إدارة المحتوى', icon: '📝', route: 'admin.cms' },
   { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
   { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
   { label: 'أمان الأدمن', icon: '🔐', route: 'admin.security' },
+  { label: 'الجلسات النشطة', icon: '🔍', route: 'admin.sessions' },
+  { label: 'IP Whitelist', icon: '🛡️', route: 'admin.ip-whitelist' },
   { label: 'سجل التغييرات', icon: '📜', route: 'admin.changelog' },
   { label: 'التنبيهات الذكية', icon: '🚨', route: 'admin.alerts' },
   { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },

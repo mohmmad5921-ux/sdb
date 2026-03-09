@@ -319,6 +319,37 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::post('/alerts/{id}/resolve', [\App\Http\Controllers\Admin\AlertController::class, 'resolve'])->name('alerts.resolve');
 
     Route::get('/pdf-reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('pdf-reports');
+
+    // Phase 6: Advanced Features
+    Route::get('/email-templates', [\App\Http\Controllers\Admin\EmailTemplateController::class, 'index'])->name('email-templates');
+    Route::post('/email-templates', [\App\Http\Controllers\Admin\EmailTemplateController::class, 'store'])->name('email-templates.store');
+    Route::patch('/email-templates/{id}', [\App\Http\Controllers\Admin\EmailTemplateController::class, 'update'])->name('email-templates.update');
+
+    Route::get('/tasks', [\App\Http\Controllers\Admin\TaskController::class, 'index'])->name('tasks');
+    Route::post('/tasks', [\App\Http\Controllers\Admin\TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/tasks/{id}/status', [\App\Http\Controllers\Admin\TaskController::class, 'updateStatus'])->name('tasks.status');
+
+    Route::get('/customer-tags', [\App\Http\Controllers\Admin\CustomerTagController::class, 'index'])->name('tags');
+    Route::post('/customer-tags', [\App\Http\Controllers\Admin\CustomerTagController::class, 'store'])->name('tags.store');
+    Route::post('/customer-tags/assign', [\App\Http\Controllers\Admin\CustomerTagController::class, 'assignTag'])->name('tags.assign');
+    Route::delete('/customer-tags/{userId}/{tagId}', [\App\Http\Controllers\Admin\CustomerTagController::class, 'removeTag'])->name('tags.remove');
+
+    Route::get('/live-kpi', [\App\Http\Controllers\Admin\LiveKpiController::class, 'index'])->name('live-kpi');
+
+    Route::get('/special-requests', [\App\Http\Controllers\Admin\SpecialRequestController::class, 'index'])->name('special-requests');
+    Route::post('/special-requests/{id}/handle', [\App\Http\Controllers\Admin\SpecialRequestController::class, 'handle'])->name('special-requests.handle');
+
+    Route::get('/sessions', [\App\Http\Controllers\Admin\SessionController::class, 'index'])->name('sessions');
+    Route::delete('/sessions/{id}', [\App\Http\Controllers\Admin\SessionController::class, 'destroy'])->name('sessions.destroy');
+
+    Route::get('/ip-whitelist', [\App\Http\Controllers\Admin\IpWhitelistController::class, 'index'])->name('ip-whitelist');
+    Route::post('/ip-whitelist', [\App\Http\Controllers\Admin\IpWhitelistController::class, 'store'])->name('ip-whitelist.store');
+    Route::delete('/ip-whitelist/{id}', [\App\Http\Controllers\Admin\IpWhitelistController::class, 'destroy'])->name('ip-whitelist.destroy');
+
+    Route::get('/referrals', [\App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals');
+
+    Route::get('/campaigns', [\App\Http\Controllers\Admin\CampaignController::class, 'index'])->name('campaigns');
+    Route::post('/campaigns', [\App\Http\Controllers\Admin\CampaignController::class, 'store'])->name('campaigns.store');
 });
 
 require __DIR__ . '/auth.php';
