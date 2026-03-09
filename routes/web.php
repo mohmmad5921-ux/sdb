@@ -125,6 +125,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/banking/cards/{card}/toggle-freeze', [BankingController::class, 'toggleCardFreeze'])->name('banking.cards.toggle-freeze');
             Route::post('/banking/deposit', [BankingController::class, 'deposit'])->name('banking.deposit');
 
+            // Transfer System (lookup + QR)
+            Route::post('/banking/transfer/lookup', [\App\Http\Controllers\TransferController::class, 'lookup'])->name('banking.transfer.lookup');
+            Route::post('/banking/transfer/qr-lookup', [\App\Http\Controllers\TransferController::class, 'qrLookup'])->name('banking.transfer.qr-lookup');
+            Route::post('/banking/transfer/execute', [\App\Http\Controllers\TransferController::class, 'transfer'])->name('banking.transfer.execute');
+            Route::get('/banking/transfer/my-accounts', [\App\Http\Controllers\TransferController::class, 'myAccounts'])->name('banking.transfer.accounts');
+
             // Beneficiaries
             Route::get('/beneficiaries', [BeneficiaryController::class, 'index'])->name('banking.beneficiaries');
             Route::post('/beneficiaries', [BeneficiaryController::class, 'store'])->name('banking.beneficiaries.store');
