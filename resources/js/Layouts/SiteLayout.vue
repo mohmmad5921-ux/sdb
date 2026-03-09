@@ -28,6 +28,32 @@ let closeTimer = null;
 function openMenu(id) { clearTimeout(closeTimer); activeMenu.value = id; }
 function startClose() { closeTimer = setTimeout(() => { activeMenu.value = null; }, 200); }
 function cancelClose() { clearTimeout(closeTimer); }
+
+/* ─── Social Proof ─── */
+const regCount = ref(847);
+let proofTimer;
+onMounted(() => {
+  proofTimer = setInterval(() => { regCount.value += Math.floor(Math.random()*3)+1; }, 15000);
+});
+onBeforeUnmount(() => { clearInterval(proofTimer); });
+
+/* ─── Notification Bell ─── */
+const showNotif = ref(false);
+const hasNewNotif = ref(true);
+const news = computed(() => isAr.value ? [
+  {ic:'🚀',t:'الإطلاق قريباً!',d:'سجّل الآن لتكون من أوائل المستخدمين.',time:'اليوم'},
+  {ic:'💳',t:'بطاقات ماستركارد',d:'4 مستويات من البطاقات متوفرة.',time:'أمس'},
+  {ic:'🌍',t:'تحويلات لـ 150+ دولة',d:'أسرع طريقة للتحويل.',time:'هذا الاسبوع'},
+] : [
+  {ic:'🚀',t:'Launch coming soon!',d:'Register now to be among the first users.',time:'Today'},
+  {ic:'💳',t:'Mastercard cards',d:'4 tier levels available.',time:'Yesterday'},
+  {ic:'🌍',t:'Transfers to 150+ countries',d:'The fastest way to transfer.',time:'This week'},
+]);
+function toggleNotif() { showNotif.value = !showNotif.value; hasNewNotif.value = false; }
+
+/* ─── Floating Currency Widget ─── */
+const showWidget = ref(false);
+const widgetRate = ref('13,500');
 function closeAll() { activeMenu.value = null; }
 
 /* Close on scroll + sticky header + progress + back-to-top */
@@ -325,6 +351,17 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </div>
       </div>
       <div class="sn-right">
+        <button @click="toggleNotif" class="sn-bell" :title="isAr?'إشعارات':'Notifications'">🔔<span v-if="hasNewNotif" class="bell-dot"></span></button>
+        <Transition name="dd">
+          <div v-if="showNotif" class="notif-dd">
+            <div class="notif-head">{{ isAr ? 'آخر الأخبار' : 'Latest News' }}</div>
+            <div v-for="n in news" :key="n.t" class="notif-item">
+              <span class="notif-ic">{{ n.ic }}</span>
+              <div class="notif-body"><div class="notif-title">{{ n.t }}</div><div class="notif-desc">{{ n.d }}</div></div>
+              <span class="notif-time">{{ n.time }}</span>
+            </div>
+          </div>
+        </Transition>
         <button @click="toggleDark" class="sn-dark" :title="isDark?'Light Mode':'Dark Mode'">{{ isDark?'☀️':'🌙' }}</button>
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
         <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
@@ -427,11 +464,34 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       </div>
 
       <div class="sf-bottom">
+        <div class="sf-badges">
+          <span class="sf-badge">🔒 256-bit SSL</span>
+          <span class="sf-badge">🇩🇰 EU Regulated</span>
+          <span class="sf-badge">🛡️ PCI DSS</span>
+        </div>
+        <div class="sf-share">
+          <span class="sf-share-label">{{ isAr ? 'شارك:' : 'Share:' }}</span>
+          <a :href="'https://wa.me/?text='+encodeURIComponent(isAr?'تعرّف على SDB Bank — أول بنك إلكتروني سوري https://sdb-bank.com':'Check out SDB Bank — the first Syrian digital bank https://sdb-bank.com')" target="_blank" class="sf-share-btn" title="WhatsApp">💬</a>
+          <a :href="'https://twitter.com/intent/tweet?text='+encodeURIComponent(isAr?'تعرّف على SDB Bank — أول بنك إلكتروني سوري https://sdb-bank.com':'Check out SDB Bank — the first Syrian digital bank https://sdb-bank.com')" target="_blank" class="sf-share-btn" title="Twitter">𝕏</a>
+          <a :href="'https://t.me/share/url?url=https://sdb-bank.com&text='+encodeURIComponent(isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — first Syrian digital bank')" target="_blank" class="sf-share-btn" title="Telegram">✈️</a>
+        </div>
         <p class="sf-reg">{{ t.ftReg }}</p>
         <span class="sf-copy">{{ t.ftCopy }}</span>
       </div>
     </div>
   </footer>
+
+  <!-- Floating Currency Widget -->
+  <div class="cur-widget" :class="{open:showWidget}">
+    <button class="cur-trigger" @click="showWidget=!showWidget">💱 <span v-if="!showWidget">{{ widgetRate }} SYP</span><span v-else>×</span></button>
+    <div v-if="showWidget" class="cur-body">
+      <div class="cur-row"><span class="cur-flag">🇪🇺</span><span class="cur-pair">EUR/SYP</span><span class="cur-val">13,500</span></div>
+      <div class="cur-row"><span class="cur-flag">🇺🇸</span><span class="cur-pair">USD/SYP</span><span class="cur-val">12,500</span></div>
+      <div class="cur-row"><span class="cur-flag">🇹🇷</span><span class="cur-pair">TRY/SYP</span><span class="cur-val">395</span></div>
+      <div class="cur-row"><span class="cur-flag">🇦🇪</span><span class="cur-pair">AED/SYP</span><span class="cur-val">3,400</span></div>
+      <Link href="/exchange-rates" class="cur-link" @click="showWidget=false">{{ isAr ? 'كل الأسعار →' : 'All rates →' }}</Link>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -660,5 +720,55 @@ html{scroll-behavior:smooth}
   .rtl .social-proof{left:12px;right:12px}
   .exit-modal{padding:32px 24px;margin:0 16px}
   .exit-title{font-size:20px}
+  .sn-bell{display:none}
+  .cur-widget{bottom:70px;right:12px}
+  .rtl .cur-widget{right:auto;left:12px}
+  .sf-badges{flex-wrap:wrap;justify-content:center}
+  .sf-share{justify-content:center}
 }
+
+/* ─── Notification Bell ─── */
+.sn-bell{background:none;border:none;font-size:18px;cursor:pointer;position:relative;padding:4px 6px;line-height:1}
+.bell-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:#DC2626;border-radius:50%;animation:pulse-dot 2s infinite}
+.notif-dd{position:absolute;top:60px;right:0;width:320px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:9999;overflow:hidden;border:1px solid rgba(14,165,233,.06)}
+.rtl .notif-dd{right:auto;left:0}
+.notif-head{padding:14px 18px;font-size:13px;font-weight:800;color:#0C4A6E;border-bottom:1px solid rgba(14,165,233,.06)}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 18px;border-bottom:1px solid rgba(14,165,233,.03);transition:background .2s}.notif-item:hover{background:rgba(14,165,233,.03)}
+.notif-ic{font-size:20px;flex-shrink:0;margin-top:2px}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13px;font-weight:700;color:#0C4A6E;margin-bottom:2px}
+.notif-desc{font-size:12px;color:rgba(10,10,10,.5);line-height:1.5}
+.notif-time{font-size:11px;color:rgba(10,10,10,.3);white-space:nowrap;flex-shrink:0}
+.dd-enter-active,.dd-leave-active{transition:all .2s ease}
+.dd-enter-from,.dd-leave-to{opacity:0;transform:translateY(-8px)}
+.dark .notif-dd{background:#1a1a2e;border-color:rgba(255,255,255,.06)}
+.dark .notif-head{color:#e0e0e0;border-color:rgba(255,255,255,.06)}
+.dark .notif-title{color:#e0e0e0}.dark .notif-desc{color:rgba(255,255,255,.4)}
+.dark .notif-item:hover{background:rgba(255,255,255,.03)}
+
+/* ─── SSL Badges ─── */
+.sf-badges{display:flex;gap:10px;margin-bottom:16px}
+.sf-badge{padding:6px 14px;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.1);border-radius:50px;font-size:11px;font-weight:700;color:#0C4A6E}
+.dark .sf-badge{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+
+/* ─── Share Buttons ─── */
+.sf-share{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sf-share-label{font-size:12px;color:rgba(255,255,255,.4);font-weight:600}
+.sf-share-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,255,255,.06);border-radius:50%;font-size:16px;text-decoration:none;transition:all .2s;border:1px solid rgba(255,255,255,.08)}.sf-share-btn:hover{background:rgba(14,165,233,.2);transform:translateY(-2px)}
+
+/* ─── Floating Currency Widget ─── */
+.cur-widget{position:fixed;bottom:80px;right:24px;z-index:9996}
+.rtl .cur-widget{right:auto;left:24px}
+.cur-trigger{display:flex;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(14,165,233,.25);transition:all .2s;font-family:'Inter',sans-serif}.cur-trigger:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.3)}
+.cur-body{position:absolute;bottom:52px;right:0;width:240px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);padding:12px;border:1px solid rgba(14,165,233,.06);animation:modalBounce .3s cubic-bezier(.16,1,.3,1)}
+.rtl .cur-body{right:auto;left:0}
+.cur-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;transition:background .2s}.cur-row:hover{background:rgba(14,165,233,.03)}
+.cur-flag{font-size:18px}
+.cur-pair{font-size:12px;font-weight:700;color:#0C4A6E;flex:1}
+.cur-val{font-size:13px;font-weight:800;color:#0EA5E9}
+.cur-link{display:block;text-align:center;padding:8px;font-size:12px;font-weight:700;color:#0EA5E9;text-decoration:none;border-top:1px solid rgba(14,165,233,.06);margin-top:4px}.cur-link:hover{color:#0284C7}
+.dark .cur-body{background:#1a1a2e;border-color:rgba(255,255,255,.06)}
+.dark .cur-pair{color:#e0e0e0}
+.dark .cur-row:hover{background:rgba(255,255,255,.03)}
+.dark .cur-trigger{background:linear-gradient(135deg,#1a1a2e,#0C4A6E)}
 </style>
