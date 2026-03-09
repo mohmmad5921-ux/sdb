@@ -373,13 +373,13 @@ html{scroll-behavior:smooth}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:4px;margin:0 auto}
 .sn-dd{position:relative}
-.sn-link{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:all .2s;letter-spacing:.2px;cursor:pointer;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:4px;user-select:none}
-.sn-link:hover,.sn-active{color:#fff!important;background:rgba(255,255,255,.1)}
-.sn-arr{font-size:9px;opacity:.5;transition:transform .2s}
+.sn-link{font-size:15px;font-weight:600;color:rgba(255,255,255,.9);text-decoration:none;transition:all .2s;letter-spacing:.2px;cursor:pointer;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:4px;user-select:none}
+.sn-link:hover,.sn-active{color:#fff!important;background:rgba(255,255,255,.15)}
+.sn-arr{font-size:10px;opacity:.7;transition:transform .2s}
 .sn-active .sn-arr{transform:rotate(180deg);opacity:.8}
 .sn-right{display:flex;align-items:center;gap:10px}
-.sn-lang{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;backdrop-filter:blur(8px)}.sn-lang:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.4);color:#fff}
-.sn-cta{font-size:13px;font-weight:700;color:#0284C7;background:#fff;padding:9px 22px;border-radius:10px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.sn-cta:hover{background:#F0F9FF;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.sn-lang{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;backdrop-filter:blur(8px)}.sn-lang:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
+.sn-cta{font-size:14px;font-weight:800;color:#0284C7;background:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.sn-cta:hover{background:#F0F9FF;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .sn-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
 .sn-hamburger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .2s}
 
