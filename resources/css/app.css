@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* SDB Syrian Flag Dot — used in logo everywhere */
+.sdb-flag {
+    display: inline-block;
+    width: .45em;
+    height: .45em;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #007a3d 33.33%, #fff 33.33%, #fff 66.66%, #ce1126 66.66%);
+    margin-left: 1px;
+    vertical-align: baseline;
+    position: relative;
+    top: -.05em;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
+    flex-shrink: 0
+}

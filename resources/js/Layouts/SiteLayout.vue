@@ -331,7 +331,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <!-- Nav -->
   <nav class="sn" :class="{scrolled}">
     <div class="sw">
-      <Link href="/" class="sn-logo">SDB<span class="sn-dot">.</span></Link>
+      <Link href="/" class="sn-logo">SDB<span class="sdb-flag"></span></Link>
       <div class="sn-links">
         <div v-for="m in megaNav" :key="m.id" class="sn-dd" @mouseenter="openMenu(m.id)" @mouseleave="startClose">
           <span class="sn-link" :class="{'sn-active':activeMenu===m.id}">{{ m.label }} <span class="sn-arr">▾</span></span>
@@ -424,7 +424,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
     <div class="sw">
       <div class="sf-top">
         <div class="sf-brand">
-          <a href="/" class="sn-logo sn-logo-ft">SDB<span class="sn-dot">.</span></a>
+          <a href="/" class="sn-logo sn-logo-ft">SDB<span class="sdb-flag"></span></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
             <span class="sf-soc-icon">𝕏</span>

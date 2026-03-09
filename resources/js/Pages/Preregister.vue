@@ -106,7 +106,7 @@ const t = computed(() => isAr.value ? {
   <div class="pr-wrap">
     <div class="pr-left">
       <div class="pr-top-row">
-        <a href="/" class="pr-mark">SDB<span class="pr-dot">.</span></a>
+        <a href="/" class="pr-mark">SDB<span class="sdb-flag"></span></a>
         <button @click="lang=lang==='ar'?'en':'ar'" class="pr-lang">{{ isAr?'EN':'عربي' }}</button>
       </div>
       <h1 class="pr-h1">{{ t.h1 }}</h1>

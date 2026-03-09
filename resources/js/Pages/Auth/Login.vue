@@ -25,7 +25,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
     <!-- Left side: branding -->
     <div class="lg-left">
       <div class="lg-brand-wrap">
-        <Link href="/" class="lg-logo">SDB<span>.</span></Link>
+        <Link href="/" class="lg-logo">SDB<span class="sdb-flag"></span></Link>
         <p class="lg-slogan">Banking for a new era</p>
       </div>
       <div class="lg-features">
@@ -52,7 +52,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
     <!-- Right side: login card -->
     <div class="lg-right">
       <div class="lg-card">
-        <div class="lg-card-logo">SDB<span>.</span></div>
+        <div class="lg-card-logo">SDB<span class="sdb-flag"></span></div>
         <h1 class="lg-title">Welcome back</h1>
         <p class="lg-subtitle">Sign in to your account</p>
 
@@ -121,7 +121,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 /* Left */
 .lg-left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 80px;color:#fff}
 .lg-brand-wrap{margin-bottom:48px}
-.lg-logo{font-size:56px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-3px;display:block}.lg-logo span{color:#10b981;font-size:64px;line-height:0}
+.lg-logo{font-size:56px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-3px;display:block;align-items:baseline;display:inline-flex}
 .lg-slogan{font-size:16px;color:rgba(255,255,255,.3);margin-top:8px;font-weight:400;letter-spacing:.5px}
 .lg-features{display:flex;flex-direction:column;gap:16px}
 .lg-feat{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);backdrop-filter:blur(10px);transition:all .3s}
@@ -134,7 +134,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 /* Right */
 .lg-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
 .lg-card{width:100%;max-width:420px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:44px 40px;backdrop-filter:blur(40px);box-shadow:0 32px 64px rgba(0,0,0,.3)}
-.lg-card-logo{font-size:36px;font-weight:900;color:#fff;text-align:center;letter-spacing:-2px;margin-bottom:8px}.lg-card-logo span{color:#10b981;font-size:42px;line-height:0}
+.lg-card-logo{font-size:36px;font-weight:900;color:#fff;text-align:center;letter-spacing:-2px;margin-bottom:8px;display:inline-flex;align-items:baseline;justify-content:center;width:100%}
 .lg-title{font-size:26px;font-weight:800;color:#fff;text-align:center;letter-spacing:-.03em}
 .lg-subtitle{font-size:14px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;margin-bottom:28px}
 .lg-alert{padding:12px 16px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#10b981;font-size:13px;font-weight:600;border-radius:12px;margin-bottom:20px;text-align:center}

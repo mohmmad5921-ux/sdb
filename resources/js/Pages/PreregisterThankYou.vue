@@ -14,7 +14,7 @@ defineProps({
 
 <div class="ty-page">
   <div class="ty-wrap">
-    <a href="/" class="ty-mark">SDB<span class="ty-dot">.</span></a>
+    <a href="/" class="ty-mark">SDB<span class="sdb-flag"></span></a>
 
     <div class="ty-check">✓</div>
     <h1 class="ty-h1">You're in, {{ name }}!</h1>

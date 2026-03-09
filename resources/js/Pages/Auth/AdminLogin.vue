@@ -22,7 +22,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
       <!-- Header -->
       <div class="al-header">
         <div class="al-shield">🛡️</div>
-        <div class="al-logo">SDB<span>.</span></div>
+        <div class="al-logo">SDB<span class="sdb-flag"></span></div>
         <div class="al-badge">ADMIN PANEL</div>
       </div>
 

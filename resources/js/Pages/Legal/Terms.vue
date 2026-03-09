@@ -7,7 +7,7 @@ import { Head, Link } from '@inertiajs/vue3';
     <div class="lg-root">
         <header class="lg-header">
             <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="lg-mark">SDB<span class="lg-dot">.</span></Link>
+                <Link href="/" class="lg-mark">SDB<span class="sdb-flag"></span></Link>
                 <div class="flex gap-3">
                     <Link href="/privacy" class="lg-link">Privacy</Link>
                     <Link href="/about" class="lg-link">About</Link>
