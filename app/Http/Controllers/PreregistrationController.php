@@ -21,7 +21,10 @@ class PreregistrationController extends Controller
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:preregistrations,email',
             'phone' => 'nullable|string|max:20',
-            'country' => 'nullable|string|max:100',
+            'country' => 'required|string|max:10',
+            'governorate' => 'nullable|required_if:country,SY|string|max:100',
+            'employment' => 'nullable|string|max:50',
+            'referral' => 'nullable|string|max:50',
         ]);
 
         $reg = Preregistration::create([

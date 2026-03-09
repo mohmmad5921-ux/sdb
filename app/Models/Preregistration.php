@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Preregistration extends Model
 {
-    protected $fillable = ['full_name', 'email', 'phone', 'country', 'ip_address'];
+    protected $fillable = ['full_name', 'email', 'phone', 'country', 'governorate', 'employment', 'referral', 'ip_address'];
 }
