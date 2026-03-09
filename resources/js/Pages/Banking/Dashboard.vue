@@ -12,7 +12,56 @@ const showExchange = ref(false);
 const showCardIssue = ref(false);
 const showDeposit = ref(false);
 
-// Transfer
+// New Transfer System
+const tStep = ref('lookup'); // lookup → confirm → done
+const tMethod = ref('account'); // account | phone | business | qr
+const tValue = ref('');
+const tAmount = ref('');
+const tNote = ref('');
+const tFromAccount = ref(props.accounts?.[0]?.id || '');
+const tRecipient = ref(null);
+const tError = ref('');
+const tLoading = ref(false);
+const tSuccess = ref(false);
+const tNewBalance = ref(null);
+
+const lookupRecipient = async () => {
+    tError.value = ''; tLoading.value = true; tRecipient.value = null;
+    try {
+        const endpoint = tMethod.value === 'qr' ? '/banking/transfer/qr-lookup' : '/banking/transfer/lookup';
+        const body = tMethod.value === 'qr'
+            ? { qr_data: tValue.value }
+            : { type: tMethod.value, value: tValue.value };
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'Accept': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.found) { tRecipient.value = data.recipient; tStep.value = 'confirm'; }
+        else { tError.value = data.message || 'المستلم غير موجود'; }
+    } catch (e) { tError.value = 'خطأ في الاتصال'; }
+    tLoading.value = false;
+};
+
+const executeTransfer = async () => {
+    tError.value = ''; tLoading.value = true;
+    try {
+        const res = await fetch('/banking/transfer/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'Accept': 'application/json' },
+            body: JSON.stringify({ from_account_id: tFromAccount.value, to_account_id: tRecipient.value.account_id, amount: parseFloat(tAmount.value), note: tNote.value })
+        });
+        const data = await res.json();
+        if (data.success) { tSuccess.value = true; tNewBalance.value = data.new_balance; tStep.value = 'done'; }
+        else { tError.value = data.message || 'فشل التحويل'; }
+    } catch (e) { tError.value = 'خطأ في الاتصال'; }
+    tLoading.value = false;
+};
+
+const resetTransfer = () => { tStep.value = 'lookup'; tMethod.value = 'account'; tValue.value = ''; tAmount.value = ''; tNote.value = ''; tRecipient.value = null; tError.value = ''; tSuccess.value = false; tNewBalance.value = null; showTransfer.value = false; };
+
+// Legacy transfer (keeping form for backward compat)
 const transferForm = useForm({ from_account_id: props.accounts?.[0]?.id || '', to_iban: '', amount: '', description: '' });
 const submitTransfer = () => transferForm.post(route('banking.transfer'), { onSuccess: () => { showTransfer.value = false; transferForm.reset(); } });
 
@@ -256,20 +305,77 @@ const navItems = [
             </div>
         </Teleport>
 
-        <!-- Transfer Modal -->
+        <!-- Transfer Modal (New Multi-Method) -->
         <Teleport to="body">
-            <div v-if="showTransfer" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" @click.self="showTransfer = false">
-                <div class="bg-[#0f1629] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                    <h3 class="text-xl font-bold mb-6 text-white">↗ تحويل أموال</h3>
-                    <form @submit.prevent="submitTransfer" class="space-y-4">
-                        <div><label class="block text-sm text-gray-400 mb-1">من حساب</label><select v-model="transferForm.from_account_id" class="bd-select"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.currency?.code }} — {{ fmt(acc.balance, acc.currency?.symbol) }}</option></select></div>
-                        <div><label class="block text-sm text-gray-400 mb-1">IBAN المستفيد</label><input v-model="transferForm.to_iban" type="text" placeholder="SY..." class="bd-input font-mono" /></div>
-                        <div><label class="block text-sm text-gray-400 mb-1">المبلغ</label><input v-model="transferForm.amount" type="number" step="0.01" class="bd-input" /></div>
-                        <div><label class="block text-sm text-gray-400 mb-1">الوصف</label><input v-model="transferForm.description" type="text" class="bd-input" /></div>
-                        <p v-if="transferForm.errors.to_iban" class="text-red-400 text-xs">{{ transferForm.errors.to_iban }}</p>
-                        <p v-if="transferForm.errors.amount" class="text-red-400 text-xs">{{ transferForm.errors.amount }}</p>
-                        <div class="flex gap-3"><button type="submit" :disabled="transferForm.processing" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold text-white disabled:opacity-50">تحويل</button><button type="button" @click="showTransfer = false" class="flex-1 bg-white/5 hover:bg-white/10 py-3 rounded-xl text-white">إلغاء</button></div>
-                    </form>
+            <div v-if="showTransfer" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" @click.self="resetTransfer">
+                <div class="bg-[#0f1629] border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+
+                    <!-- Step 1: Lookup -->
+                    <div v-if="tStep === 'lookup'">
+                        <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-xl">↗</div><div><h3 class="text-xl font-bold text-white">تحويل أموال</h3><p class="text-gray-400 text-xs">Send Money — اختر طريقة البحث</p></div></div>
+
+                        <!-- Method Tabs -->
+                        <div class="grid grid-cols-4 gap-2 mb-5">
+                            <button @click="tMethod = 'account'" :class="tMethod === 'account' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-white/10 text-gray-500'" class="border rounded-xl p-3 text-center transition text-xs font-bold"><div class="text-lg mb-1">🔢</div>رقم حساب</button>
+                            <button @click="tMethod = 'phone'" :class="tMethod === 'phone' ? 'border-blue-500 bg-blue-500/10 text-blue-400' : 'border-white/10 text-gray-500'" class="border rounded-xl p-3 text-center transition text-xs font-bold"><div class="text-lg mb-1">📱</div>رقم هاتف</button>
+                            <button @click="tMethod = 'business'" :class="tMethod === 'business' ? 'border-purple-500 bg-purple-500/10 text-purple-400' : 'border-white/10 text-gray-500'" class="border rounded-xl p-3 text-center transition text-xs font-bold"><div class="text-lg mb-1">🏪</div>كود تاجر</button>
+                            <button @click="tMethod = 'qr'" :class="tMethod === 'qr' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-white/10 text-gray-500'" class="border rounded-xl p-3 text-center transition text-xs font-bold"><div class="text-lg mb-1">📷</div>QR Code</button>
+                        </div>
+
+                        <!-- Input -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1.5">{{ tMethod === 'account' ? 'رقم الحساب (10 أرقام)' : tMethod === 'phone' ? 'رقم الهاتف' : tMethod === 'business' ? 'كود التاجر (4 أرقام)' : 'بيانات QR' }}</label>
+                                <input v-model="tValue" type="text" :placeholder="tMethod === 'account' ? '30XXXXXXXX' : tMethod === 'phone' ? '+963...' : tMethod === 'business' ? '1234' : 'الصق بيانات QR...'" class="bd-input font-mono text-lg" :maxlength="tMethod === 'business' ? 4 : tMethod === 'account' ? 10 : 50" />
+                            </div>
+                            <div v-if="tError" class="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">{{ tError }}</div>
+                            <div class="flex gap-3">
+                                <button @click="lookupRecipient" :disabled="tLoading || !tValue" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-bold text-sm text-white disabled:opacity-50 transition">{{ tLoading ? '🔍 جاري البحث...' : '🔍 بحث عن المستلم' }}</button>
+                                <button @click="resetTransfer" class="px-6 bg-white/5 hover:bg-white/10 py-3.5 rounded-xl text-sm text-gray-400 transition">إلغاء</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Confirm -->
+                    <div v-if="tStep === 'confirm'">
+                        <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-xl">✓</div><div><h3 class="text-xl font-bold text-white">تأكيد التحويل</h3><p class="text-gray-400 text-xs">Confirm Transfer</p></div></div>
+
+                        <!-- Recipient Card -->
+                        <div class="bg-white/[0.03] border border-emerald-500/20 rounded-2xl p-5 mb-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-lg font-bold">{{ tRecipient?.name?.charAt(0) }}</div>
+                                <div>
+                                    <div class="text-lg font-bold text-white">{{ tRecipient?.name }}</div>
+                                    <div class="text-xs text-gray-500 font-mono">{{ tRecipient?.account_number }} · {{ tRecipient?.currency }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div><label class="block text-sm text-gray-400 mb-1.5">من حساب</label><select v-model="tFromAccount" class="bd-select"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.currency?.code }} — {{ fmt(acc.balance, acc.currency?.symbol) }}</option></select></div>
+                            <div><label class="block text-sm text-gray-400 mb-1.5">المبلغ</label><input v-model="tAmount" type="number" step="0.01" min="0.01" max="100000" placeholder="0.00" class="bd-input text-2xl font-black text-center" /></div>
+                            <div><label class="block text-sm text-gray-400 mb-1.5">ملاحظة (اختياري)</label><input v-model="tNote" type="text" placeholder="تحويل..." class="bd-input" maxlength="255" /></div>
+                            <div v-if="tError" class="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">{{ tError }}</div>
+                            <div class="flex gap-3">
+                                <button @click="executeTransfer" :disabled="tLoading || !tAmount || parseFloat(tAmount) <= 0" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-bold text-sm text-white disabled:opacity-50 transition">{{ tLoading ? 'جاري التحويل...' : '✓ تأكيد ارسال ' + (tAmount || '0') }}</button>
+                                <button @click="tStep = 'lookup'" class="px-6 bg-white/5 hover:bg-white/10 py-3.5 rounded-xl text-sm text-gray-400 transition">← رجوع</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Done -->
+                    <div v-if="tStep === 'done'" class="text-center py-6">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h3 class="text-2xl font-black text-white mb-2">تم التحويل بنجاح!</h3>
+                        <p class="text-gray-400 mb-2">Transfer Successful</p>
+                        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 mb-4 inline-block">
+                            <div class="text-3xl font-black text-emerald-400">{{ tAmount }} {{ accounts.find(a => a.id == tFromAccount)?.currency?.symbol }}</div>
+                            <div class="text-sm text-gray-400 mt-1">→ {{ tRecipient?.name }}</div>
+                        </div>
+                        <div class="text-xs text-gray-500 mb-5">رصيدك الجديد: <span class="text-emerald-400 font-bold">{{ tNewBalance }}</span></div>
+                        <button @click="resetTransfer" class="bg-white/5 hover:bg-white/10 px-8 py-3 rounded-xl text-white font-bold transition">إغلاق</button>
+                    </div>
+
                 </div>
             </div>
         </Teleport>
