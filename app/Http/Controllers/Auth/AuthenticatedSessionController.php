@@ -8,13 +8,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Display the customer login view.
      */
     public function create(): Response
     {
@@ -25,13 +26,45 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Display the admin login view.
+     */
+    public function adminLogin(): Response
+    {
+        return Inertia::render('Auth/AdminLogin', [
+            'status' => session('status'),
+        ]);
+    }
+
+    /**
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // Log admin login
+        if ($user->role === 'admin') {
+            try {
+                DB::table('admin_login_history')->insert([
+                    'user_id' => $user->id,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'device' => $this->parseDevice($request->userAgent()),
+                    'status' => 'success',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $e) {
+            }
+        }
+
+        // Redirect based on role
+        if ($user->role === 'admin') {
+            return redirect()->intended('/sdb-admin/dashboard');
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -41,12 +74,34 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $role = Auth::user()?->role;
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
+        if ($role === 'admin') {
+            return redirect('/sdb-admin');
+        }
+
         return redirect('/');
+    }
+
+    private function parseDevice(?string $ua): string
+    {
+        if (!$ua)
+            return 'Unknown';
+        if (str_contains($ua, 'iPhone'))
+            return 'iPhone';
+        if (str_contains($ua, 'iPad'))
+            return 'iPad';
+        if (str_contains($ua, 'Android'))
+            return 'Android';
+        if (str_contains($ua, 'Mac'))
+            return 'Mac';
+        if (str_contains($ua, 'Windows'))
+            return 'Windows';
+        if (str_contains($ua, 'Linux'))
+            return 'Linux';
+        return 'Unknown';
     }
 }

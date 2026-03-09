@@ -12,15 +12,15 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    // Redirect public register & login to preregister (pre-launch mode)
     Route::get('register', fn() => redirect('/preregister'))
         ->name('register');
 
-    Route::get('login', fn() => redirect('/preregister'))
+    // Customer NetBank login
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    // Secret admin login
-    Route::get('sdb-admin', [AuthenticatedSessionController::class, 'create'])
+    // Secret admin login (separate page)
+    Route::get('sdb-admin', [AuthenticatedSessionController::class, 'adminLogin'])
         ->name('admin.login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
