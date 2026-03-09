@@ -416,19 +416,19 @@ html{scroll-behavior:smooth}
 .sf-top{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(56,189,248,.08)}
 .sf-brand{display:flex;flex-direction:column;gap:12px}
 .sn-logo-ft{font-size:22px;display:inline-block;margin-bottom:4px}
-.sf-desc{font-size:14px;font-weight:400;color:rgba(255,255,255,.45);line-height:1.8;white-space:pre-line;max-width:300px}
+.sf-desc{font-size:15px;font-weight:400;color:rgba(255,255,255,.6);line-height:1.8;white-space:pre-line;max-width:300px}
 .sf-social{display:flex;gap:8px;margin-top:4px}
-.sf-soc-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(56,189,248,.12);border-radius:8px;font-size:11px;font-weight:800;color:rgba(148,210,255,.4);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(56,189,248,.3);color:#38BDF8;background:rgba(56,189,248,.05)}
+.sf-soc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(255,255,255,.5);color:#fff;background:rgba(255,255,255,.1)}
 .sf-col{display:flex;flex-direction:column;gap:10px}
-.sf-col-h{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:8px}
+.sf-col-h{font-size:14px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#fff;margin-bottom:10px}
 .rtl .sf-col-h{letter-spacing:0}
-.sf-link{font-size:14px;font-weight:500;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;line-height:1.6}.sf-link:hover{color:#fff}
+.sf-link{font-size:15px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:color .2s;line-height:1.7}.sf-link:hover{color:#fff}
 .sf-contact{padding:28px 0;border-bottom:1px solid rgba(56,189,248,.08)}
 .sf-contact-row{display:flex;gap:32px;flex-wrap:wrap}
-.sf-contact-item{font-size:14px;font-weight:500;color:rgba(255,255,255,.55)}
+.sf-contact-item{font-size:15px;font-weight:600;color:rgba(255,255,255,.75)}
 .sf-bottom{padding:24px 0;display:flex;flex-direction:column;gap:12px}
-.sf-reg{font-size:12px;font-weight:400;color:rgba(255,255,255,.25);line-height:1.7;max-width:700px}
-.sf-copy{font-size:12px;font-weight:500;color:rgba(255,255,255,.3)}
+.sf-reg{font-size:13px;font-weight:400;color:rgba(255,255,255,.4);line-height:1.7;max-width:700px}
+.sf-copy{font-size:13px;font-weight:600;color:rgba(255,255,255,.5)}
 
 /* ─── Responsive ─── */
 @media(max-width:900px){
