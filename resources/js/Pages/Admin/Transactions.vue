@@ -9,7 +9,7 @@ const apply = () => router.get(route('admin.transactions'), f.value, {preserveSt
 const reset = () => { f.value={search:'',type:'',status:'',from_date:'',to_date:'',min_amount:'',max_amount:''}; apply(); };
 const cancelTx = id => { if(confirm('إلغاء المعاملة؟')) router.post(route('admin.transactions.cancel', id)); };
 const refundTx = id => { if(confirm('استرجاع المبلغ؟')) router.post(route('admin.transactions.refund', id)); };
-const fc = n => '€'+Number(n||0).toLocaleString('en',{minimumFractionDigits:2});
+const fc = (n, sym) => (sym||'')+Number(n||0).toLocaleString('en',{minimumFractionDigits:2});
 const qs = obj => Object.entries(obj||{}).filter(([k,v])=>v).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
 const stColor = s => ({completed:'#10b981',failed:'#ef4444',pending:'#f59e0b',cancelled:'#94a3b8',refunded:'#8b5cf6'}[s]||'#64748b');
 const stLabel = s => ({completed:'ناجح',failed:'فشل',pending:'معلّق',cancelled:'ملغي',refunded:'مسترجع'}[s]||s);
@@ -48,13 +48,14 @@ const stLabel = s => ({completed:'ناجح',failed:'فشل',pending:'معلّق'
 
   <!-- Table -->
   <div class="tx-tbl-wrap">
-  <table class="tx-tbl"><thead><tr><th>#</th><th>المرسل</th><th>المستلم</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+  <table class="tx-tbl"><thead><tr><th>#</th><th>المرسل</th><th>المستلم</th><th>النوع</th><th>العملة</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
     <tbody><tr v-for="t in p.transactions.data" :key="t.id">
       <td class="tx-ref">{{ t.reference_number||t.id }}</td>
       <td>{{ t.from_account?.user?.full_name||'—' }}</td>
       <td>{{ t.to_account?.user?.full_name||'—' }}</td>
       <td><span class="tx-tag">{{ t.type }}</span></td>
-      <td class="tx-bold">{{ fc(t.amount) }}</td>
+      <td><span class="tx-tag">{{ t.currency?.code||t.from_account?.currency?.code||'SYP' }}</span></td>
+      <td class="tx-bold">{{ fc(t.amount, t.currency?.symbol||t.from_account?.currency?.symbol||'ل.س') }}</td>
       <td><span class="tx-st" :style="{color:stColor(t.status)}">{{ stLabel(t.status) }}</span></td>
       <td class="tx-date">{{ new Date(t.created_at).toLocaleString('ar') }}</td>
       <td class="tx-acts">
