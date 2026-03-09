@@ -7,6 +7,10 @@
     <meta name="description"
         content="SDB Bank — أول بنك إلكتروني سوري. حسابات متعددة العملات، بطاقات ماستركارد، تحويلات دولية، عملات رقمية. مرخّص بالدنمارك.">
     <meta name="theme-color" content="#0EA5E9">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SDB Bank">
 
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website">
@@ -25,9 +29,19 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
+    <!-- Fonts (preload for performance) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Multi-language SEO -->
+    <link rel="alternate" hreflang="ar" href="https://sdb-bank.com/">
+    <link rel="alternate" hreflang="en" href="https://sdb-bank.com/">
+    <link rel="alternate" hreflang="x-default" href="https://sdb-bank.com/">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://sdb-bank.com/">
 
     <!-- Scripts -->
     @routes
@@ -37,6 +51,14 @@
 
 <body class="font-sans antialiased">
     @inertia
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => { }); }
+    </script>
+
+    <!-- Analytics (Plausible — privacy-friendly, no cookies) -->
+    <script defer data-domain="sdb-bank.com" src="https://plausible.io/js/script.js"></script>
 </body>
 
 </html>

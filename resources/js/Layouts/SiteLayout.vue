@@ -30,9 +30,18 @@ function startClose() { closeTimer = setTimeout(() => { activeMenu.value = null;
 function cancelClose() { clearTimeout(closeTimer); }
 function closeAll() { activeMenu.value = null; }
 
-/* Close on scroll + sticky header */
+/* Close on scroll + sticky header + progress + back-to-top */
 const scrolled = ref(false);
-function onScroll() { activeMenu.value = null; scrolled.value = window.scrollY > 20; }
+const scrollProgress = ref(0);
+const showTop = ref(false);
+function onScroll() {
+  activeMenu.value = null;
+  scrolled.value = window.scrollY > 20;
+  showTop.value = window.scrollY > 400;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  scrollProgress.value = h > 0 ? Math.min((window.scrollY / h) * 100, 100) : 0;
+}
+function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
 /* Toast Notification System */
 const toasts = ref([]);
@@ -290,6 +299,9 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
 <div class="site" :class="{ rtl: isAr, dark: isDark }" :dir="isAr ? 'rtl' : 'ltr'">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress" :style="{width: scrollProgress+'%'}"></div>
+
   <!-- Nav -->
   <nav class="sn" :class="{scrolled}">
     <div class="sw">
@@ -353,6 +365,11 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       <div v-for="t in toasts" :key="t.id" class="toast-item" :class="'toast-'+t.type">{{ t.msg }}</div>
     </TransitionGroup>
   </div>
+
+  <!-- Back to Top -->
+  <Transition name="btt">
+    <button v-if="showTop" class="back-top" @click="scrollToTop" :title="isAr?'العودة للأعلى':'Back to top'">↑</button>
+  </Transition>
 
   <!-- Cookie Consent -->
   <Transition name="cookie">
@@ -591,4 +608,26 @@ html{scroll-behavior:smooth}
 .dark :deep(.mq-i){color:rgba(255,255,255,.06)}
 .dark :deep(.cta-btn2){color:#e0e0e0;border-color:rgba(255,255,255,.15)}
 .dark :deep(.link-btn){color:#38BDF8}
+
+/* ─── Scroll Progress Bar ─── */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#0EA5E9,#38BDF8);z-index:10001;transition:width .1s linear;pointer-events:none;border-radius:0 2px 2px 0}
+
+/* ─── Back to Top ─── */
+.back-top{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;border:none;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(14,165,233,.3);z-index:9998;transition:all .2s;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif}
+.back-top:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,165,233,.4)}
+.back-top:active{transform:scale(.92)}
+.rtl .back-top{right:auto;left:24px}
+.btt-enter-active,.btt-leave-active{transition:all .3s cubic-bezier(.16,1,.3,1)}
+.btt-enter-from,.btt-leave-to{opacity:0;transform:translateY(16px) scale(.8)}
+
+/* ─── Touch Active States ─── */
+@media(hover:none){
+  .sn-cta:active,.cta-btn:active,.eml-b:active,.conv-cta:active,.cookie-accept:active,.back-top:active{transform:scale(.95)!important;opacity:.85}
+  .sn-mob-link:active,.mob-sec-btn:active{background:rgba(255,255,255,.1)}
+  .mm-item:active{background:rgba(14,165,233,.08)}
+}
+
+/* ─── Dark mode for new components ─── */
+.dark .scroll-progress{background:linear-gradient(90deg,#38BDF8,#0EA5E9)}
+.dark .back-top{background:linear-gradient(135deg,#1a1a2e,#0C4A6E);box-shadow:0 4px 16px rgba(0,0,0,.4)}
 </style>
