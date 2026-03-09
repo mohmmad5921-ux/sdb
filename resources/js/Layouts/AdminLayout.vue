@@ -66,11 +66,18 @@ const sideLinks = [
   { label: 'حدود الحسابات', icon: '🔒', route: 'admin.limits' },
   // Analytics & Compliance
   { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
-  { label: 'التقارير', icon: '📑', route: 'admin.reports' },
   { label: 'تقارير PDF', icon: '📄', route: 'admin.pdf-reports' },
+  { label: 'مركز التقارير', icon: '📑', route: 'admin.report-center' },
   { label: 'تحليل الإيرادات', icon: '💹', route: 'admin.revenue' },
+  { label: 'تحليل المستخدمين', icon: '🧑‍💻', route: 'admin.user-analytics' },
   { label: 'الاحتفاظ بالعملاء', icon: '🔄', route: 'admin.retention' },
   { label: 'خريطة العملاء', icon: '🗺️', route: 'admin.customer-map' },
+  // Security & Compliance
+  { label: 'كشف الاحتيال AI', icon: '🛡️', route: 'admin.fraud' },
+  { label: 'مكافحة غسيل الأموال', icon: '🏛️', route: 'admin.aml' },
+  { label: 'مراقبة المعاملات', icon: '📡', route: 'admin.transaction-monitor' },
+  { label: 'إدارة المخاطر', icon: '⚠️', route: 'admin.risk-dashboard' },
+  { label: 'سجل التحقق', icon: '🔐', route: 'admin.verification-logs' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
   { label: 'المخاطر', icon: '⚠️', route: 'admin.risk' },
@@ -78,10 +85,12 @@ const sideLinks = [
   { label: 'الإحالات', icon: '🔗', route: 'admin.referrals' },
   { label: 'حملات البريد', icon: '📨', route: 'admin.campaigns' },
   { label: 'قوالب البريد', icon: '✉️', route: 'admin.email-templates' },
-  // System
+  // System & Data
   { label: 'إدارة المحتوى', icon: '📝', route: 'admin.cms' },
   { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
   { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
+  { label: 'التكاملات الخارجية', icon: '🔌', route: 'admin.integrations' },
+  { label: 'إدارة البيانات', icon: '🗄️', route: 'admin.data-management' },
   { label: 'أمان الأدمن', icon: '🔐', route: 'admin.security' },
   { label: 'الجلسات النشطة', icon: '🔍', route: 'admin.sessions' },
   { label: 'IP Whitelist', icon: '🛡️', route: 'admin.ip-whitelist' },

@@ -354,6 +354,33 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 
     Route::get('/campaigns', [\App\Http\Controllers\Admin\CampaignController::class, 'index'])->name('campaigns');
     Route::post('/campaigns', [\App\Http\Controllers\Admin\CampaignController::class, 'store'])->name('campaigns.store');
+
+    // Phase 7: Security, Fraud, AML & Advanced Systems
+    Route::get('/fraud', [\App\Http\Controllers\Admin\FraudController::class, 'index'])->name('fraud');
+    Route::post('/fraud/rules', [\App\Http\Controllers\Admin\FraudController::class, 'storeRule'])->name('fraud.rules.store');
+    Route::post('/fraud/rules/{id}/toggle', [\App\Http\Controllers\Admin\FraudController::class, 'toggleRule'])->name('fraud.rules.toggle');
+    Route::patch('/fraud/incidents/{id}', [\App\Http\Controllers\Admin\FraudController::class, 'updateIncident'])->name('fraud.incidents.update');
+
+    Route::get('/aml', [\App\Http\Controllers\Admin\AmlController::class, 'index'])->name('aml');
+    Route::patch('/aml/{id}/review', [\App\Http\Controllers\Admin\AmlController::class, 'review'])->name('aml.review');
+    Route::post('/aml/report', [\App\Http\Controllers\Admin\AmlController::class, 'createReport'])->name('aml.report');
+
+    Route::get('/transaction-monitor', [\App\Http\Controllers\Admin\TransactionMonitorController::class, 'index'])->name('transaction-monitor');
+    Route::get('/user-analytics', [\App\Http\Controllers\Admin\UserAnalyticsController::class, 'index'])->name('user-analytics');
+
+    Route::get('/risk-dashboard', [\App\Http\Controllers\Admin\RiskDashboardController::class, 'index'])->name('risk-dashboard');
+    Route::patch('/risk/{userId}', [\App\Http\Controllers\Admin\RiskDashboardController::class, 'updateRisk'])->name('risk.update');
+
+    Route::get('/verification-logs', [\App\Http\Controllers\Admin\VerificationLogController::class, 'index'])->name('verification-logs');
+
+    Route::get('/integrations', [\App\Http\Controllers\Admin\IntegrationController::class, 'index'])->name('integrations');
+    Route::patch('/integrations/{id}', [\App\Http\Controllers\Admin\IntegrationController::class, 'update'])->name('integrations.update');
+
+    Route::get('/data-management', [\App\Http\Controllers\Admin\DataManagementController::class, 'index'])->name('data-management');
+    Route::post('/data-management/reports', [\App\Http\Controllers\Admin\DataManagementController::class, 'storeReport'])->name('data.reports.store');
+    Route::post('/data-management/reports/{id}/toggle', [\App\Http\Controllers\Admin\DataManagementController::class, 'toggleReport'])->name('data.reports.toggle');
+
+    Route::get('/report-center', [\App\Http\Controllers\Admin\ReportCenterController::class, 'index'])->name('report-center');
 });
 
 require __DIR__ . '/auth.php';
