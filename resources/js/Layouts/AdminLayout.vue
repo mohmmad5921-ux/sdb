@@ -226,13 +226,13 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
 .adl-logo-text { font-size: 17px; font-weight: 800; color: #0f172a; }
 
 .adl-nav {
-  padding: 14px 10px; display: flex; flex-direction: column; gap: 3px;
+  padding: 8px 8px; display: flex; flex-direction: column; gap: 1px;
   flex: 1; overflow-y: auto;
 }
 .adl-nav-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 12px 16px; border-radius: 12px;
-  font-size: 15px; color: #64748b;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12.5px; color: #64748b;
   text-decoration: none; font-weight: 600;
   transition: all .15s; border: none; background: none;
   cursor: pointer; width: 100%; text-align: right;
@@ -242,7 +242,7 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
   background: #10b981 !important;
   color: #fff !important; font-weight: 700;
 }
-.adl-nav-icon { font-size: 20px; width: 26px; text-align: center; flex-shrink: 0; }
+.adl-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
 .adl-nav-label { white-space: nowrap; }
 .adl-nav-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: auto; }
 .adl-nav-bottom { padding: 10px; border-top: 1px solid #e2e8f0; }
