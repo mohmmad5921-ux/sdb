@@ -1,120 +1,86 @@
 <script setup>
-import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ref, computed } from 'vue';
-
-const props = defineProps({ transactions: Object, filters: Object });
-const search = ref(props.filters?.search || '');
-const typeFilter = ref(props.filters?.type || '');
-const statusFilter = ref(props.filters?.status || '');
-const applyFilter = () => router.get(route('admin.transactions'), { search: search.value, type: typeFilter.value, status: statusFilter.value }, { preserveState: true });
-
-const statusBadge = { completed: 'at-badge-green', pending: 'at-badge-yellow', failed: 'at-badge-red', reversed: 'at-badge-orange' };
-const typeLabels = { transfer: 'تحويل', deposit: 'إيداع', withdrawal: 'سحب', exchange: 'صرف عملات', card_payment: 'دفع بطاقة', card_topup: 'شحن بطاقة', fee: 'رسوم', refund: 'استرداد' };
-const typeIcons = { transfer: '↗️', deposit: '💰', withdrawal: '📤', exchange: '💱', card_payment: '💳', fee: '📋', refund: '↩️' };
-const fmt = (a, s = '€') => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + s;
-
-const totalCompleted = computed(() => (props.transactions?.data || []).filter(t => t.status === 'completed').reduce((s, t) => s + parseFloat(t.amount || 0), 0));
+import { Head, router, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+defineOptions({ layout: AdminLayout });
+const p = defineProps({ transactions: Object, filters: Object, stats: Object });
+const f = ref({...p.filters});
+const apply = () => router.get(route('admin.transactions'), f.value, {preserveState:true});
+const reset = () => { f.value={search:'',type:'',status:'',from_date:'',to_date:'',min_amount:'',max_amount:''}; apply(); };
+const cancelTx = id => { if(confirm('إلغاء المعاملة؟')) router.post(route('admin.transactions.cancel', id)); };
+const refundTx = id => { if(confirm('استرجاع المبلغ؟')) router.post(route('admin.transactions.refund', id)); };
+const fc = n => '€'+Number(n||0).toLocaleString('en',{minimumFractionDigits:2});
+const stColor = s => ({completed:'#10b981',failed:'#ef4444',pending:'#f59e0b',cancelled:'#94a3b8',refunded:'#8b5cf6'}[s]||'#64748b');
+const stLabel = s => ({completed:'ناجح',failed:'فشل',pending:'معلّق',cancelled:'ملغي',refunded:'مسترجع'}[s]||s);
 </script>
-
 <template>
-  <Head title="Transactions - المعاملات" />
-  <AdminLayout title="💸 إدارة المعاملات">
-    <div class="at-root">
-      <div class="at-header">
-        <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-[#0f172a]">المعاملات المالية</h1>
-            <p class="text-sm text-[#475569] mt-1">{{ transactions.total }} معاملة مسجلة</p>
-          </div>
-          <div class="flex gap-2">
-            <div class="flex items-center gap-3">
-              <a :href="route('admin.export.transactions')" class="at-export-btn">📥 تصدير CSV</a>
-              <Link :href="route('admin.dashboard')" class="at-back">← الرئيسية</Link>
-            </div>
-          </div>
-        </div>
-      </div>
+<Head title="المعاملات" />
+<div class="tx">
+  <h1 class="tx-h">💸 إدارة المعاملات</h1>
 
-      <div class="max-w-7xl mx-auto px-6 py-6">
-        <!-- Filters -->
-        <div class="flex flex-wrap gap-3 mb-6">
-          <input v-model="search" @keyup.enter="applyFilter" type="text" placeholder="بحث بالمرجع..." class="at-search" />
-          <select v-model="typeFilter" @change="applyFilter" class="at-filter-select">
-            <option value="">كل الأنواع</option>
-            <option v-for="(label, key) in typeLabels" :key="key" :value="key">{{ label }}</option>
-          </select>
-          <select v-model="statusFilter" @change="applyFilter" class="at-filter-select">
-            <option value="">كل الحالات</option>
-            <option value="completed">مكتملة</option>
-            <option value="pending">معلّقة</option>
-            <option value="failed">فاشلة</option>
-          </select>
-        </div>
+  <!-- Stats -->
+  <div class="tx-stats">
+    <div class="tx-s"><strong>{{ p.stats.total }}</strong> إجمالي</div>
+    <div class="tx-s" style="color:#10b981"><strong>{{ p.stats.completed }}</strong> ناجحة</div>
+    <div class="tx-s" style="color:#f59e0b"><strong>{{ p.stats.pending }}</strong> معلقة</div>
+    <div class="tx-s" style="color:#ef4444"><strong>{{ p.stats.failed }}</strong> فاشلة</div>
+    <div class="tx-s" style="color:#94a3b8"><strong>{{ p.stats.cancelled }}</strong> ملغية</div>
+    <div class="tx-s" style="color:#059669"><strong>{{ fc(p.stats.totalVolume) }}</strong> الحجم الكلي</div>
+    <div class="tx-s" style="color:#2563eb"><strong>{{ fc(p.stats.todayVolume) }}</strong> حجم اليوم</div>
+  </div>
 
-        <!-- Summary -->
-        <div class="grid grid-cols-3 gap-4 mb-6">
-          <div class="at-summary"><div class="text-xs text-[#475569]">إجمالي المعاملات</div><div class="text-2xl font-black text-[#0f172a]">{{ transactions.total }}</div></div>
-          <div class="at-summary"><div class="text-xs text-[#475569]">المعروضة حالياً</div><div class="text-2xl font-black text-[#1E5EFF]">{{ (transactions.data || []).length }}</div></div>
-          <div class="at-summary"><div class="text-xs text-[#475569]">إجمالي المكتملة (هذه الصفحة)</div><div class="text-2xl font-black text-emerald-600">{{ fmt(totalCompleted) }}</div></div>
-        </div>
+  <!-- Filters -->
+  <div class="tx-filters">
+    <input v-model="f.search" placeholder="🔍 بحث بالرقم المرجعي أو الوصف" class="tx-inp" style="flex:2"/>
+    <select v-model="f.type" class="tx-inp"><option value="">كل الأنواع</option><option value="transfer">تحويل</option><option value="deposit">إيداع</option><option value="withdrawal">سحب</option><option value="internal">داخلي</option><option value="international">دولي</option><option value="exchange">صرف</option></select>
+    <select v-model="f.status" class="tx-inp"><option value="">كل الحالات</option><option value="completed">ناجح</option><option value="pending">معلّق</option><option value="failed">فشل</option><option value="cancelled">ملغي</option><option value="refunded">مسترجع</option></select>
+    <input v-model="f.from_date" type="date" class="tx-inp" placeholder="من"/>
+    <input v-model="f.to_date" type="date" class="tx-inp" placeholder="إلى"/>
+    <button @click="apply" class="tx-btn-f">بحث</button>
+    <button @click="reset" class="tx-btn-r">مسح</button>
+  </div>
 
-        <!-- Table -->
-        <div class="at-card overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="at-table">
-              <thead>
-                <tr>
-                  <th>المرجع</th><th>النوع</th><th>من</th><th>إلى</th><th>المبلغ</th><th class="text-center">الحالة</th><th>التاريخ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="t in transactions.data" :key="t.id">
-                  <td><span class="font-mono text-[#1E5EFF] text-xs">{{ t.reference_number }}</span></td>
-                  <td><span class="at-type">{{ typeIcons[t.type] || '📄' }} {{ typeLabels[t.type] || t.type }}</span></td>
-                  <td class="text-[#334155]">{{ t.from_account?.user?.full_name || '—' }}</td>
-                  <td class="text-[#334155]">{{ t.to_account?.user?.full_name || '—' }}</td>
-                  <td class="font-bold text-[#0f172a]">{{ fmt(t.amount, t.currency?.symbol) }}</td>
-                  <td class="text-center"><span :class="statusBadge[t.status]" class="at-badge">{{ t.status }}</span></td>
-                  <td class="text-[#475569] text-xs">{{ new Date(t.created_at).toLocaleString('en-GB') }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-if="!(transactions.data || []).length" class="py-12 text-center text-[#475569]">لا توجد معاملات</div>
-          </div>
-        </div>
+  <!-- Exports -->
+  <div class="tx-exports">
+    <a :href="route('admin.export.transactions')+'?'+new URLSearchParams(f).toString()" class="tx-exp">📥 Excel</a>
+  </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-center gap-2 mt-6" v-if="transactions.last_page > 1">
-          <Link v-for="link in transactions.links" :key="link.label" :href="link.url || '#'"
-            :class="['at-page', link.active ? 'at-page-active' : '']" v-html="link.label" />
-        </div>
-      </div>
-    </div>
-  </AdminLayout>
+  <!-- Table -->
+  <div class="tx-tbl-wrap">
+  <table class="tx-tbl"><thead><tr><th>#</th><th>المرسل</th><th>المستلم</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+    <tbody><tr v-for="t in p.transactions.data" :key="t.id">
+      <td class="tx-ref">{{ t.reference_number||t.id }}</td>
+      <td>{{ t.from_account?.user?.name||'—' }}</td>
+      <td>{{ t.to_account?.user?.name||'—' }}</td>
+      <td><span class="tx-tag">{{ t.type }}</span></td>
+      <td class="tx-bold">{{ fc(t.amount) }}</td>
+      <td><span class="tx-st" :style="{color:stColor(t.status)}">{{ stLabel(t.status) }}</span></td>
+      <td class="tx-date">{{ new Date(t.created_at).toLocaleString('ar') }}</td>
+      <td class="tx-acts">
+        <button v-if="t.status==='pending'" @click="cancelTx(t.id)" class="tx-act tx-act-r" title="إلغاء">✗</button>
+        <button v-if="t.status==='completed'" @click="refundTx(t.id)" class="tx-act tx-act-p" title="استرجاع">↩</button>
+      </td>
+    </tr><tr v-if="!p.transactions.data?.length"><td colspan="8" class="tx-empty">لا توجد معاملات</td></tr></tbody>
+  </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="tx-pag" v-if="p.transactions.last_page>1">
+    <Link v-for="link in p.transactions.links" :key="link.label" :href="link.url||''" class="tx-pag-l" :class="{active:link.active}" v-html="link.label" :preserveState="true"/>
+  </div>
+</div>
 </template>
-
-<style>
-@import '../../../css/admin.css';
-@import '../../../css/admin.css';
-.at-root{min-height:100vh;background:#f1f5f9;direction:rtl}
-.at-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
-.at-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.at-back:hover{background:#10b981;color:#fff}
-.at-export-btn{padding:8px 18px;background:#ffffff;color:#10b981;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2);transition:all .2s}.at-export-btn:hover{background:#10b981;color:#fff}
-.at-search{width:320px;padding:10px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none}.at-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.at-search::placeholder{color:#64748b}
-.at-filter-select{padding:10px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;font-size:13px;color:#0f172a;outline:none;cursor:pointer}.at-filter-select:focus{border-color:#10b981}
-.at-summary{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px}
-.at-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
-.at-table{width:100%;border-collapse:collapse;font-size:13px}
-.at-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
-.at-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
-.at-table tr:hover td{background:#ffffff}
-.at-type{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#334155}
-.at-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
-.at-badge-green{background:rgba(16,185,129,0.1);color:#059669}
-.at-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}
-.at-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
-.at-badge-orange{background:rgba(249,115,22,0.1);color:#ea580c}
-.at-page{padding:6px 14px;border-radius:8px;font-size:13px;background:#ffffff;color:#334155;border:1px solid #e2e8f0;text-decoration:none}.at-page:hover{border-color:#10b981;color:#3b82f6}
-.at-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
+<style scoped>
+.tx{padding:24px;direction:rtl}.tx-h{font-size:22px;font-weight:800;color:#1e293b;margin-bottom:16px}
+.tx-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.tx-s{padding:8px 14px;background:#fff;border-radius:10px;border:1px solid #f1f5f9;font-size:12px;color:#64748b}.tx-s strong{font-size:16px;margin-left:4px}
+.tx-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tx-inp{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;outline:none;flex:1;min-width:100px}
+.tx-btn-f{padding:9px 16px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:12px}.tx-btn-r{padding:9px 16px;background:#f1f5f9;color:#64748b;border:none;border-radius:10px;cursor:pointer;font-size:12px}
+.tx-exports{margin-bottom:12px}.tx-exp{padding:6px 14px;background:#ecfdf5;color:#059669;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none}
+.tx-tbl-wrap{overflow-x:auto}.tx-tbl{width:100%;background:#fff;border-radius:16px;border-collapse:collapse;min-width:800px}
+.tx-tbl th{font-size:11px;font-weight:700;color:#94a3b8;text-align:right;padding:12px 12px;border-bottom:1px solid #f1f5f9}
+.tx-tbl td{font-size:12px;color:#334155;padding:10px 12px;border-bottom:1px solid #f8fafc}.tx-bold{font-weight:700;color:#0f172a}.tx-ref{font-family:monospace;font-size:10px;color:#64748b}
+.tx-tag{font-size:10px;background:#f1f5f9;padding:2px 6px;border-radius:4px;color:#64748b}.tx-st{font-size:11px;font-weight:700}.tx-date{font-size:10px;color:#94a3b8}
+.tx-acts{display:flex;gap:4px}.tx-act{width:28px;height:28px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}.tx-act-r{color:#ef4444;border-color:#fecaca}.tx-act-p{color:#8b5cf6;border-color:#c4b5fd}
+.tx-empty{text-align:center;color:#cbd5e1;font-style:italic;padding:30px}
+.tx-pag{display:flex;gap:4px;margin-top:16px;justify-content:center}.tx-pag-l{padding:6px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#64748b;text-decoration:none}.tx-pag-l.active{background:#2563eb;color:#fff;border-color:#2563eb}
 </style>

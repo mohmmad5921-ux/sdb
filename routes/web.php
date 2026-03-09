@@ -195,6 +195,10 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::patch('/notes/{note}/pin', [AdminUsers::class, 'togglePinNote'])->name('notes.pin');
 
     Route::get('/transactions', [AdminTransactions::class, 'index'])->name('transactions');
+    Route::get('/transactions/{id}', [AdminTransactions::class, 'show'])->name('transactions.show');
+    Route::post('/transactions/{id}/cancel', [AdminTransactions::class, 'cancel'])->name('transactions.cancel');
+    Route::post('/transactions/{id}/refund', [AdminTransactions::class, 'refund'])->name('transactions.refund');
+    Route::patch('/transactions/{id}/status', [AdminTransactions::class, 'updateStatus'])->name('transactions.status');
 
     Route::get('/merchants', [AdminMerchants::class, 'index'])->name('merchants');
     Route::post('/merchants', [AdminMerchants::class, 'store'])->name('merchants.store');

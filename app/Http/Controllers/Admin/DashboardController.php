@@ -3,14 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account;
-use App\Models\Card;
-use App\Models\Currency;
-use App\Models\Transaction;
-use App\Models\User;
-use App\Models\WaitlistEmail;
-use App\Models\Preregistration;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
@@ -19,163 +12,152 @@ class DashboardController extends Controller
     public function index()
     {
         $today = Carbon::today();
-        $thisWeek = Carbon::now()->startOfWeek();
-        $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
-        $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
         $thisMonth = Carbon::now()->startOfMonth();
+        $thisYear = Carbon::now()->startOfYear();
+        $lastMonth = Carbon::now()->subMonth()->startOfMonth();
 
-        // Core stats
-        $stats = [
-            'total_users' => User::where('role', 'customer')->count(),
-            'active_users' => User::where('role', 'customer')->where('status', 'active')->count(),
-            'suspended_users' => User::where('role', 'customer')->where('status', 'suspended')->count(),
-            'pending_kyc' => User::where('kyc_status', 'submitted')->count(),
-            'total_accounts' => Account::count(),
-            'active_accounts' => Account::where('status', 'active')->count(),
-            'frozen_accounts' => Account::where('status', 'frozen')->count(),
-            'total_cards' => Card::count(),
-            'active_cards' => Card::where('status', 'active')->count(),
-            'frozen_cards' => Card::where('status', 'frozen')->count(),
-            'total_transactions' => Transaction::count(),
-            'today_transactions' => Transaction::whereDate('created_at', $today)->count(),
-            'week_transactions' => Transaction::where('created_at', '>=', $thisWeek)->count(),
-            'month_transactions' => Transaction::where('created_at', '>=', $thisMonth)->count(),
-            'total_volume' => Transaction::where('status', 'completed')->sum('amount'),
-            'today_volume' => Transaction::where('status', 'completed')->whereDate('created_at', $today)->sum('amount'),
-            'week_volume' => Transaction::where('status', 'completed')->where('created_at', '>=', $thisWeek)->sum('amount'),
-            'month_volume' => Transaction::where('status', 'completed')->where('created_at', '>=', $thisMonth)->sum('amount'),
-            'pending_transactions' => Transaction::where('status', 'pending')->count(),
-            'failed_transactions' => Transaction::where('status', 'failed')->count(),
-            'new_users_today' => User::where('role', 'customer')->whereDate('created_at', $today)->count(),
-            'new_users_week' => User::where('role', 'customer')->where('created_at', '>=', $thisWeek)->count(),
-            'new_users_month' => User::where('role', 'customer')->where('created_at', '>=', $thisMonth)->count(),
-            'total_waitlist' => WaitlistEmail::count(),
-            'waitlist_today' => WaitlistEmail::whereDate('created_at', $today)->count(),
-            'waitlist_week' => WaitlistEmail::where('created_at', '>=', $thisWeek)->count(),
-            'total_preregistrations' => Preregistration::count(),
-            'prereg_today' => Preregistration::whereDate('created_at', $today)->count(),
-            'prereg_week' => Preregistration::where('created_at', '>=', $thisWeek)->count(),
-        ];
+        // ══════════════════════════════════════
+        // 1. USER METRICS
+        // ══════════════════════════════════════
+        $totalUsers = DB::table('users')->where('role', '!=', 'admin')->count();
+        $newToday = DB::table('users')->where('role', '!=', 'admin')->whereDate('created_at', $today)->count();
+        $activeUsers = DB::table('users')->where('role', '!=', 'admin')
+            ->where('last_login_at', '>=', Carbon::now()->subDays(30))->count();
 
-        // Weekly growth comparisons
-        $lastWeekUsers = User::where('role', 'customer')
-            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
-        $lastWeekTxCount = Transaction::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
-        $lastWeekVolume = Transaction::where('status', 'completed')
-            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->sum('amount');
+        // Users by country
+        $usersByCountry = DB::table('users')->where('role', '!=', 'admin')
+            ->selectRaw("COALESCE(country, 'Unknown') as country, COUNT(*) as count")
+            ->groupBy('country')->orderBy('count', 'desc')->limit(10)->get();
 
-        $growth = [
-            'users' => $this->calcGrowth($stats['new_users_week'], $lastWeekUsers),
-            'transactions' => $this->calcGrowth($stats['week_transactions'], $lastWeekTxCount),
-            'volume' => $this->calcGrowth($stats['week_volume'], $lastWeekVolume),
-        ];
+        // Most active users
+        $topActiveUsers = DB::table('transactions')
+            ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->selectRaw("users.id, users.name, users.email, COUNT(*) as tx_count, SUM(transactions.amount) as total_volume")
+            ->groupBy('users.id', 'users.name', 'users.email')
+            ->orderBy('tx_count', 'desc')->limit(10)->get();
 
-        // Last 7 days transaction growth
-        $dailyTransactions = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $dailyTransactions[] = [
-                'date' => $date->format('m/d'),
-                'day' => $date->locale('ar')->dayName,
-                'count' => Transaction::whereDate('created_at', $date)->count(),
-                'volume' => round(Transaction::where('status', 'completed')->whereDate('created_at', $date)->sum('amount'), 2),
-            ];
-        }
+        // ══════════════════════════════════════
+        // 2. ACCOUNT METRICS
+        // ══════════════════════════════════════
+        $activeAccounts = DB::table('accounts')->where('status', 'active')->count();
+        $frozenAccounts = DB::table('accounts')->where('status', 'frozen')->count();
+        $totalBalance = DB::table('accounts')->where('status', 'active')->sum('balance');
 
-        // Last 7 days user growth
-        $dailyUsers = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $dailyUsers[] = [
-                'date' => $date->format('m/d'),
-                'count' => User::where('role', 'customer')->whereDate('created_at', $date)->count(),
-            ];
-        }
+        // ══════════════════════════════════════
+        // 3. TRANSACTION METRICS
+        // ══════════════════════════════════════
+        $dailyVolume = DB::table('transactions')->whereDate('created_at', $today)->where('status', 'completed')->sum('amount');
+        $monthlyVolume = DB::table('transactions')->where('created_at', '>=', $thisMonth)->where('status', 'completed')->sum('amount');
+        $yearlyVolume = DB::table('transactions')->where('created_at', '>=', $thisYear)->where('status', 'completed')->sum('amount');
 
-        $recentTransactions = Transaction::with(['fromAccount.user', 'toAccount.user', 'currency'])
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
+        $successTx = DB::table('transactions')->where('status', 'completed')->count();
+        $failedTx = DB::table('transactions')->where('status', 'failed')->count();
+        $pendingTx = DB::table('transactions')->where('status', 'pending')->count();
 
-        $recentUsers = User::where('role', 'customer')
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
+        $internationalTx = DB::table('transactions')->where('type', 'international')->count();
+        $localTx = DB::table('transactions')->whereIn('type', ['internal', 'transfer', 'local'])->count();
 
-        $currencies = Currency::where('is_active', true)->get();
+        // Last 10 transactions
+        $recentTransactions = DB::table('transactions')
+            ->leftJoin('users', 'transactions.user_id', '=', 'users.id')
+            ->select('transactions.*', 'users.name as user_name', 'users.email as user_email')
+            ->orderBy('transactions.created_at', 'desc')->limit(10)->get();
 
-        $recentWaitlist = WaitlistEmail::orderByDesc('created_at')->limit(5)->get();
-        $recentPrereg = Preregistration::orderByDesc('created_at')->limit(5)->get();
+        // ══════════════════════════════════════
+        // 4. REVENUE METRICS
+        // ══════════════════════════════════════
+        $systemProfit = DB::table('transactions')
+            ->where('status', 'completed')
+            ->whereNotNull('fee_amount')
+            ->sum('fee_amount');
+        $feesCollected = DB::table('transactions')
+            ->whereDate('created_at', '>=', $thisMonth)
+            ->where('status', 'completed')
+            ->sum('fee_amount');
 
-        // Top clients by balance
-        $topClients = User::where('role', 'customer')
-            ->where('status', 'active')
-            ->withCount('accounts')
-            ->with('accounts.currency')
-            ->get()
-            ->map(function ($user) {
-                $totalEur = $user->accounts->sum(fn($a) => $a->balance * ($a->currency->exchange_rate_to_eur ?? 1));
-                return ['id' => $user->id, 'name' => $user->full_name, 'balance' => round($totalEur, 2), 'accounts_count' => $user->accounts_count];
-            })
-            ->sortByDesc('balance')
-            ->take(5)
-            ->values();
+        // ══════════════════════════════════════
+        // 5. CARD METRICS
+        // ══════════════════════════════════════
+        $totalCards = DB::table('cards')->count();
+        $activeCards = DB::table('cards')->where('status', 'active')->count();
+        $frozenCards = DB::table('cards')->where('status', 'frozen')->count();
 
-        // Country breakdown for preregistrations
-        $countryBreakdown = Preregistration::selectRaw('country, COUNT(*) as total')
-            ->groupBy('country')
-            ->orderByDesc('total')
-            ->limit(8)
-            ->get();
+        // ══════════════════════════════════════
+        // 6. SECURITY METRICS
+        // ══════════════════════════════════════
+        $securityAlerts = DB::table('smart_alerts')->where('read', false)->count();
+        $suspiciousTx = DB::table('smart_alerts')
+            ->where('type', 'suspicious')->where('read', false)->count();
 
-        // System alerts (smart)
-        $alerts = [];
-        $kyc48h = User::where('kyc_status', 'submitted')
-            ->where('updated_at', '<', Carbon::now()->subHours(48))->count();
-        if ($kyc48h > 0)
-            $alerts[] = ['type' => 'error', 'msg' => "🚨 {$kyc48h} طلب KYC معلّق منذ أكثر من 48 ساعة!", 'link' => 'admin.kyc'];
-        elseif ($stats['pending_kyc'] > 0)
-            $alerts[] = ['type' => 'warning', 'msg' => $stats['pending_kyc'] . ' طلب KYC بانتظار المراجعة', 'link' => 'admin.kyc'];
+        // ══════════════════════════════════════
+        // 7. PENDING ITEMS
+        // ══════════════════════════════════════
+        $pendingKyc = DB::table('kyc_documents')->where('status', 'pending')->count();
+        $pendingApprovals = DB::table('pending_approvals')->where('status', 'pending')->count();
+        $openTickets = DB::table('support_tickets')->whereIn('status', ['open', 'in_progress'])->count();
 
-        $largeTx = Transaction::where('status', 'completed')
-            ->whereDate('created_at', $today)
-            ->where('amount', '>', 1000)->count();
-        if ($largeTx > 0)
-            $alerts[] = ['type' => 'info', 'msg' => "💰 {$largeTx} معاملة كبيرة (> €1,000) اليوم", 'link' => 'admin.transactions'];
+        // ══════════════════════════════════════
+        // 8. CHARTS — Monthly Trend (12 months)
+        // ══════════════════════════════════════
+        $monthlyTrend = DB::table('transactions')
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, COALESCE(SUM(amount),0) as volume")
+            ->where('status', 'completed')
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->orderBy('month')->get();
 
-        if ($stats['pending_transactions'] > 0)
-            $alerts[] = ['type' => 'info', 'msg' => $stats['pending_transactions'] . ' معاملة معلّقة', 'link' => 'admin.transactions'];
-        if ($stats['failed_transactions'] > 0)
-            $alerts[] = ['type' => 'error', 'msg' => $stats['failed_transactions'] . ' معاملة فاشلة', 'link' => 'admin.transactions'];
-        if ($stats['frozen_accounts'] > 0)
-            $alerts[] = ['type' => 'warning', 'msg' => $stats['frozen_accounts'] . ' حساب مجمّد', 'link' => 'admin.accounts'];
-        if ($stats['suspended_users'] > 0)
-            $alerts[] = ['type' => 'error', 'msg' => $stats['suspended_users'] . ' مستخدم موقوف', 'link' => 'admin.users'];
-        if ($stats['waitlist_today'] > 0)
-            $alerts[] = ['type' => 'info', 'msg' => $stats['waitlist_today'] . ' تسجيل جديد بقائمة الانتظار اليوم', 'link' => 'admin.waitlist'];
+        $userGrowth = DB::table('users')->where('role', '!=', 'admin')
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->orderBy('month')->get();
 
         return Inertia::render('Admin/Dashboard', [
-            'stats' => $stats,
-            'growth' => $growth,
-            'dailyTransactions' => $dailyTransactions,
-            'dailyUsers' => $dailyUsers,
+            'stats' => [
+                // Users
+                'totalUsers' => $totalUsers,
+                'newToday' => $newToday,
+                'activeUsers' => $activeUsers,
+                // Accounts
+                'activeAccounts' => $activeAccounts,
+                'frozenAccounts' => $frozenAccounts,
+                'totalBalance' => round($totalBalance, 2),
+                // Transactions
+                'dailyVolume' => round($dailyVolume, 2),
+                'monthlyVolume' => round($monthlyVolume, 2),
+                'yearlyVolume' => round($yearlyVolume, 2),
+                'successTx' => $successTx,
+                'failedTx' => $failedTx,
+                'pendingTx' => $pendingTx,
+                'internationalTx' => $internationalTx,
+                'localTx' => $localTx,
+                // Revenue
+                'systemProfit' => round($systemProfit, 2),
+                'feesCollected' => round($feesCollected, 2),
+                // Cards
+                'totalCards' => $totalCards,
+                'activeCards' => $activeCards,
+                'frozenCards' => $frozenCards,
+                // Security
+                'securityAlerts' => $securityAlerts,
+                'suspiciousTx' => $suspiciousTx,
+                // Pending
+                'pendingKyc' => $pendingKyc,
+                'pendingApprovals' => $pendingApprovals,
+                'openTickets' => $openTickets,
+            ],
+            'usersByCountry' => $usersByCountry,
+            'topActiveUsers' => $topActiveUsers,
             'recentTransactions' => $recentTransactions,
-            'recentUsers' => $recentUsers,
-            'currencies' => $currencies,
-            'alerts' => $alerts,
-            'recentWaitlist' => $recentWaitlist,
-            'recentPrereg' => $recentPrereg,
-            'topClients' => $topClients,
-            'countryBreakdown' => $countryBreakdown,
+            'monthlyTrend' => $monthlyTrend,
+            'userGrowth' => $userGrowth,
         ]);
     }
 
-    private function calcGrowth($current, $previous): array
+    private function calcGrowth($current, $previous)
     {
-        if ($previous == 0) {
-            return ['pct' => $current > 0 ? 100 : 0, 'direction' => $current > 0 ? 'up' : 'flat'];
-        }
-        $pct = round((($current - $previous) / $previous) * 100, 1);
-        return ['pct' => abs($pct), 'direction' => $pct > 0 ? 'up' : ($pct < 0 ? 'down' : 'flat')];
+        if ($previous == 0)
+            return $current > 0 ? 100 : 0;
+        return round(($current - $previous) / $previous * 100, 1);
     }
 }
