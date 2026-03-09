@@ -24,7 +24,7 @@ class AnalyticsController extends Controller
                 'label' => $start->translatedFormat('M Y'),
                 'users' => User::where('role', 'customer')->whereBetween('created_at', [$start, $end])->count(),
                 'transactions' => Transaction::whereBetween('created_at', [$start, $end])->count(),
-                'volume' => Transaction::where('status', 'completed')->whereBetween('created_at', [$start, $end])->sum('amount_in_eur'),
+                'volume' => Transaction::where('status', 'completed')->whereBetween('created_at', [$start, $end])->sum('amount'),
             ];
         }
 
@@ -42,7 +42,7 @@ class AnalyticsController extends Controller
         $peakHours = [];
         try {
             $hourlyData = Transaction::where('created_at', '>=', Carbon::now()->subDays(30))
-                ->selectRaw('cast(strftime('%H', created_at) as integer) as hour, COUNT(*) as count')
+                ->selectRaw("cast(strftime('%H', created_at) as integer) as hour, COUNT(*) as count")
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
@@ -60,7 +60,7 @@ class AnalyticsController extends Controller
         $typeBreakdown = [];
         try {
             $typeBreakdown = Transaction::where('created_at', '>=', Carbon::now()->subDays(30))
-                ->selectRaw('type, COUNT(*) as count, SUM(amount_in_eur) as volume')
+                ->selectRaw('type, COUNT(*) as count, SUM(amount) as volume')
                 ->groupBy('type')
                 ->orderByDesc('count')
                 ->get();

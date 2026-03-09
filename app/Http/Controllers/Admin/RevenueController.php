@@ -36,8 +36,8 @@ class RevenueController extends Controller
         $dailyVolume = DB::table('transactions')
             ->where('status', 'completed')
             ->where('created_at', '>=', now()->subDays(30))
-            ->selectRaw("DATE(created_at) as day, COUNT(*) as count, SUM(amount) as volume")
-            ->groupByRaw("DATE(created_at)")
+            ->selectRaw("date(created_at) as day, COUNT(*) as count, SUM(amount) as volume")
+            ->groupByRaw("date(created_at)")
             ->orderBy('day')
             ->get();
 
