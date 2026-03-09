@@ -8,7 +8,7 @@ const t = computed(() => isAr.value ? {
   title:'بطاقة Premium — SDB Bank',tag:'Premium · الأكثر طلباً',
   heroH:'بطاقة Premium.',heroEm:'بلا حدود.',
   heroP:'بطاقة ماستركارد معدنية فاخرة. صالات مطار، تأمين سفر شامل، صرف عملات بلا حدود، 0.5% cashback — تجربة بنكية استثنائية.',
-  price:'€7.99',priceNote:'/شهر',
+  price:'1,200',priceNote:' ل.س/شهر',
   heroBtn:'احصل على Premium ←',
   inclTitle:'كل شيء في Plus + أكثر بكثير',
   incl:['بطاقة معدنية فاخرة بتصميم حصري','حتى 4 بطاقات (فعلية + افتراضية)','صرف عملات غير محدود بسعر السوق','سحب €5,000/يوم من ATM مجاناً','تحويل شهري حتى €50,000','SWIFT دولي بـ 0.1% فقط','حماية مشتريات حتى €5,000','تأمين سفر شامل','تأمين تأخير رحلة','4 دخلات صالات مطار LoungeKey/سنة','3GB بيانات eSIM شهرياً','0.5% cashback على كل المشتريات','تحويلات جملة','تحليلات متقدمة','كل مميزات Plus'],
@@ -26,7 +26,7 @@ const t = computed(() => isAr.value ? {
   upgradeTitle:'تبي القمة؟',upgradeFade:'اكتشف Elite',
   upgradeDesc:'مدير حساب شخصي، صالات VIP بلا حدود، 1% cashback، تأمين صحي شامل، €200,000 تحويل/شهر.',
   upgradeBtn:'اكتشف Elite ←',upgradeBtnAll:'قارن كل الباقات',
-  ctaTitle:'ارتقِ لـ Premium',ctaSub:'بطاقة معدنية + صالات مطار + تأمين — بـ €7.99/شهر.',ctaBtn:'احصل على Premium ←',
+  ctaTitle:'ارتقِ لـ Premium',ctaSub:'بطاقة معدنية + صالات مطار + تأمين — بـ 1,200 ل.س/شهر.',ctaBtn:'احصل على Premium ←',
 } : {
   title:'Premium Card — SDB Bank',tag:'Premium · Most Popular',
   heroH:'Premium Card.',heroEm:'Without limits.',

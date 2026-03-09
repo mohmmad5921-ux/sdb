@@ -8,7 +8,7 @@ const t = computed(() => isAr.value ? {
   title:'بطاقة Plus — SDB Bank',tag:'Plus',
   heroH:'بطاقة Plus.',heroEm:'ذكية ومرنة.',
   heroP:'كل مميزات Standard بالإضافة لبطاقة فعلية مجانية، CVV ديناميكي، حدود أعلى، وحماية مشتريات حتى €1,000.',
-  price:'€3.99',priceNote:'/شهر',
+  price:'600',priceNote:' ل.س/شهر',
   heroBtn:'احصل على Plus ←',
   inclTitle:'كل شيء في Standard + أكثر',
   incl:['بطاقة فعلية مجانية','بطاقة افتراضية إضافية — المجموع 2','CVV ديناميكي يتغير كل ساعة','حماية مشتريات حتى €1,000','سحب €2,000/يوم من ATM مجاناً','صرف €5,000/شهر بسعر السوق','تحويل شهري حتى €20,000','SWIFT دولي بـ 0.3% فقط','تنبيهات أسعار الصرف','أولوية الدعم الفني','كل مميزات Standard'],
@@ -24,7 +24,7 @@ const t = computed(() => isAr.value ? {
   upgradeTitle:'تبي الفخامة؟',upgradeFade:'اكتشف Premium',
   upgradeDesc:'بطاقة معدنية، صالات مطار، تأمين سفر شامل، صرف بلا حدود، 0.5% cashback — بـ €7.99/شهر.',
   upgradeBtn:'اكتشف Premium ←',upgradeBtnAll:'قارن كل الباقات',
-  ctaTitle:'ارتقِ لـ Plus',ctaSub:'بطاقة فعلية + CVV ديناميكي + حماية — بـ €3.99/شهر فقط.',ctaBtn:'احصل على Plus ←',
+  ctaTitle:'ارتقِ لـ Plus',ctaSub:'بطاقة فعلية + CVV ديناميكي + حماية — بـ 600 ل.س/شهر فقط.',ctaBtn:'احصل على Plus ←',
 } : {
   title:'Plus Card — SDB Bank',tag:'Plus',
   heroH:'Plus Card.',heroEm:'Smart & flexible.',
