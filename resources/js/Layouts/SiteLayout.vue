@@ -321,25 +321,26 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </button>
       </div>
     </div>
-    <!-- Mobile mega menu -->
-    <Transition name="mob-slide">
-    <div v-if="mobileOpen" class="sn-mobile">
-      <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
-      <div v-for="m in megaNav" :key="m.id" class="mob-sec">
-        <button class="mob-sec-btn" @click="toggleMobileSection(m.id)">
-          {{ m.label }} <span class="mob-arr" :class="{'mob-arr-open':mobileActiveSection===m.id}">▸</span>
-        </button>
-        <div v-if="mobileActiveSection===m.id" class="mob-sec-body">
-          <template v-for="col in m.cols" :key="col.title">
-            <div class="mob-col-h">{{ col.title }}</div>
-            <Link v-for="lnk in col.links" :key="lnk.h" :href="lnk.h" class="sn-mob-link mob-sub" @click="mobileOpen=false">{{ lnk.l }}</Link>
-          </template>
-        </div>
-      </div>
-      <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
-    </div>
-    </Transition>
   </nav>
+
+  <!-- Mobile mega menu (outside nav to avoid clipping) -->
+  <Transition name="mob-slide">
+  <div v-if="mobileOpen" class="sn-mobile">
+    <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
+    <div v-for="m in megaNav" :key="m.id" class="mob-sec">
+      <button class="mob-sec-btn" @click="toggleMobileSection(m.id)">
+        {{ m.label }} <span class="mob-arr" :class="{'mob-arr-open':mobileActiveSection===m.id}">▸</span>
+      </button>
+      <div v-if="mobileActiveSection===m.id" class="mob-sec-body">
+        <template v-for="col in m.cols" :key="col.title">
+          <div class="mob-col-h">{{ col.title }}</div>
+          <Link v-for="lnk in col.links" :key="lnk.h" :href="lnk.h" class="sn-mob-link mob-sub" @click="mobileOpen=false">{{ lnk.l }}</Link>
+        </template>
+      </div>
+    </div>
+    <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
+  </div>
+  </Transition>
 
   <!-- Page Content -->
   <main>
