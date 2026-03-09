@@ -456,6 +456,14 @@ const t = computed(() => isAr.value ? {
   .email-row input{width:100%}
   .email-row button{width:100%}
   .conv-box{margin:0 -8px;border-radius:16px}
+  .conv-mini{padding:20px;border-radius:18px}
+  .conv-sel{min-width:70px;font-size:14px;padding:10px}
+  .conv-inp{font-size:18px;padding:10px}
+  .conv-res{font-size:18px;padding:10px}
+  .conv-cta{font-size:14px;padding:12px}
+  .hero-eml{display:flex;flex-direction:column;gap:10px;max-width:100%}
+  .eml-i{width:100%;font-size:15px;padding:14px 18px;border-radius:14px}
+  .eml-b{width:100%;font-size:14px;padding:14px;border-radius:14px}
   .trust-row{flex-wrap:wrap;gap:8px;font-size:11px}
   .cd{gap:12px}
   .cd-n{font-size:clamp(1.4rem,5vw,2rem)}

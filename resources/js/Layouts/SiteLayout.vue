@@ -322,6 +322,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       </div>
     </div>
     <!-- Mobile mega menu -->
+    <Transition name="mob-slide">
     <div v-if="mobileOpen" class="sn-mobile">
       <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
       <div v-for="m in megaNav" :key="m.id" class="mob-sec">
@@ -337,6 +338,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       </div>
       <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
     </div>
+    </Transition>
   </nav>
 
   <!-- Page Content -->
@@ -460,16 +462,18 @@ html{scroll-behavior:smooth}
 @keyframes mmIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* Mobile nav */
-.sn-mobile{position:fixed;top:68px;left:0;right:0;bottom:0;background:linear-gradient(180deg,#0284C7,#0369A1);padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(255,255,255,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.2);overflow-y:auto}
-.sn-mob-link{font-size:15px;color:rgba(255,255,255,.8);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:500}
-.sn-mob-cta{text-align:center;margin-top:12px}
+.sn-mobile{position:fixed;top:68px;left:0;right:0;bottom:0;background:linear-gradient(180deg,#0284C7 0%,#0369A1 100%);padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(255,255,255,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.2);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mob-slide-enter-active,.mob-slide-leave-active{transition:all .3s cubic-bezier(.16,1,.3,1)}
+.mob-slide-enter-from,.mob-slide-leave-to{opacity:0;transform:translateY(-12px)}
+.sn-mob-link{font-size:16px;color:rgba(255,255,255,.9);text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600}
+.sn-mob-cta{text-align:center;margin-top:16px;display:block;font-size:16px}
 .mob-sec{border-bottom:1px solid rgba(255,255,255,.08)}
-.mob-sec-btn{width:100%;text-align:start;padding:12px 0;background:none;border:none;font-size:15px;font-weight:600;color:rgba(255,255,255,.8);cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center}
+.mob-sec-btn{width:100%;text-align:start;padding:14px 0;background:none;border:none;font-size:16px;font-weight:700;color:rgba(255,255,255,.9);cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center}
 .rtl .mob-sec-btn{text-align:right}
-.mob-arr{font-size:12px;transition:transform .2s;color:rgba(255,255,255,.4)}.mob-arr-open{transform:rotate(90deg)}
-.mob-sec-body{padding-bottom:8px}
-.mob-col-h{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);padding:6px 12px 4px}
-.mob-sub{padding:8px 16px;font-size:13px;color:rgba(255,255,255,.6);border:none}
+.mob-arr{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.4)}.mob-arr-open{transform:rotate(90deg);color:#fff}
+.mob-sec-body{padding-bottom:12px}
+.mob-col-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);padding:8px 12px 4px}
+.mob-sub{padding:10px 16px;font-size:14px;color:rgba(255,255,255,.65);border:none}
 
 /* ─── Mega Footer — Deep Navy Blue ─── */
 .sf{background:linear-gradient(180deg,#0C1B2E 0%,#0A1628 100%);padding:80px 0 0;color:#fff;margin-top:auto}
@@ -511,9 +515,11 @@ html{scroll-behavior:smooth}
   .toast-container{right:12px;left:12px;top:76px}
   .toast-item{min-width:auto}
   .sn{height:60px}
+  .sn-mobile{top:60px}
   .sn-logo{font-size:24px}
   .sn-cta{font-size:12px;padding:8px 16px}
   .sn-lang{font-size:12px;padding:6px 12px}
+  .sn-dark{font-size:12px;padding:4px 8px}
 }
 
 /* ─── Dark Mode Toggle ─── */
