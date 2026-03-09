@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Transaction;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -174,6 +175,24 @@ class TransferController extends Controller
 
             $toAccount->load('user');
             $fromAccount->load('user', 'currency');
+
+            // Notify recipient
+            Notification::create([
+                'user_id' => $toAccount->user_id,
+                'title' => '💰 استلمت تحويل!',
+                'body' => 'استلمت ' . number_format($request->amount, 2) . ' ' . $fromAccount->currency->code . ' من ' . $fromAccount->user->full_name,
+                'type' => 'transfer_received',
+                'data' => ['reference' => $reference, 'amount' => $request->amount, 'currency' => $fromAccount->currency->code, 'from' => $fromAccount->user->full_name],
+            ]);
+
+            // Notify sender
+            Notification::create([
+                'user_id' => $fromAccount->user_id,
+                'title' => '✓ تم التحويل',
+                'body' => 'تم تحويل ' . number_format($request->amount, 2) . ' ' . $fromAccount->currency->code . ' إلى ' . $toAccount->user->full_name . ' · ' . $reference,
+                'type' => 'transfer_sent',
+                'data' => ['reference' => $reference, 'amount' => $request->amount, 'currency' => $fromAccount->currency->code, 'to' => $toAccount->user->full_name],
+            ]);
 
             return response()->json([
                 'success' => true,

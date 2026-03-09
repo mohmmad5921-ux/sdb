@@ -23,6 +23,7 @@ const totalTxAmount = computed(() => Object.values(props.txByType || {}).reduce(
 const sideLinks = [
   { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
   { label: 'التقارير', icon: '📈', route: 'admin.reports', active: true },
+  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
   { label: 'المخاطر', icon: '🛡️', route: 'admin.risk' },
   { label: 'العملاء', icon: '👥', route: 'admin.users' },
   { label: 'الحسابات', icon: '🏦', route: 'admin.accounts' },
@@ -97,10 +98,11 @@ const sideLinks = [
             <div class="rp-chart-card">
               <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">👥 نمو المستخدمين اليومي</h3>
               <div class="rp-bar-chart">
-                <div v-for="d in dailyUsers" :key="d.date" class="rp-bar-col">
+                <div v-for="d in dailyUsers" :key="d.date" class="rp-bar-col" :title="'جديد: ' + d.count + ' · إجمالي: ' + d.cumulative">
                   <div class="rp-bar-wrapper"><div class="rp-bar rp-bar-purple" :style="{height: Math.max((d.count / Math.max(maxUsers, 1)) * 100, 3) + '%'}"></div></div>
                   <div class="text-[9px] text-[#8896AB] mt-1">{{ d.date }}</div>
                   <div class="text-[8px] text-purple-600 font-bold">+{{ d.count }}</div>
+                  <div class="text-[7px] text-[#8896AB]">Σ{{ d.cumulative }}</div>
                 </div>
               </div>
             </div>
@@ -193,7 +195,7 @@ const sideLinks = [
 .rp-sum-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .rp-chart-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:20px}
 .rp-bar-chart{display:flex;align-items:flex-end;gap:4px;height:110px}
-.rp-bar-col{flex:1;display:flex;flex-direction:column;align-items:center}
+.rp-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .2s}.rp-bar-col:hover{transform:translateY(-2px)}.rp-bar-col:hover .rp-bar{filter:brightness(1.2)}
 .rp-bar-wrapper{height:90px;width:100%;display:flex;align-items:flex-end;justify-content:center}
 .rp-bar{width:65%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#1E5EFF,#3B82F6);min-height:2px;transition:height .4s}
 .rp-bar-green{background:linear-gradient(180deg,#10b981,#34d399)}.rp-bar-purple{background:linear-gradient(180deg,#8b5cf6,#a78bfa)}.rp-bar-amber{background:linear-gradient(180deg,#f59e0b,#fbbf24)}
