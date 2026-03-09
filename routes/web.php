@@ -71,6 +71,8 @@ Route::get('/blog', fn() => Inertia::render('Legal/Blog'))->name('blog');
 Route::get('/partners', fn() => Inertia::render('Legal/Partners'))->name('partners');
 Route::get('/press', fn() => Inertia::render('Legal/Press'))->name('press');
 Route::get('/report-fraud', fn() => Inertia::render('Legal/ReportFraud'))->name('report-fraud');
+Route::get('/syrian-lira', fn() => Inertia::render('Legal/SyrianLira'))->name('syrian-lira');
+Route::get('/crypto', fn() => Inertia::render('Legal/CryptoInfo'))->name('crypto-info');
 
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');

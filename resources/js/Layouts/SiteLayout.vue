@@ -57,6 +57,8 @@ const megaNav = computed(() => isAr.value ? [
     { title:'خدمات مالية', links:[
       {l:'التحويلات',h:'/transfers-info',d:'محلي، SEPA، SWIFT'},
       {l:'العملات',h:'/currencies',d:'30+ عملة'},
+      {l:'الليرة السورية 🇸🇾',h:'/syrian-lira',d:'أسعار صرف حية'},
+      {l:'العملات الرقمية 🪙',h:'/crypto',d:'BTC، ETH، USDT + 9'},
       {l:'أسعار الصرف',h:'/exchange-rates',d:'حاسبة تفاعلية'},
       {l:'دفع الفواتير',h:'/bills',d:'كهرباء، ماء، إنترنت (قريباً)'},
     ]},
@@ -118,6 +120,8 @@ const megaNav = computed(() => isAr.value ? [
     { title:'Financial Services', links:[
       {l:'Transfers',h:'/transfers-info',d:'Local, SEPA, SWIFT'},
       {l:'Currencies',h:'/currencies',d:'30+ currencies'},
+      {l:'Syrian Lira 🇸🇾',h:'/syrian-lira',d:'Live SYP exchange rates'},
+      {l:'Crypto 🪙',h:'/crypto',d:'BTC, ETH, USDT + 9'},
       {l:'Exchange Rates',h:'/exchange-rates',d:'Interactive calculator'},
       {l:'Bill Payments',h:'/bills',d:'Electricity, water, internet (Soon)'},
     ]},
