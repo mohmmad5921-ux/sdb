@@ -294,9 +294,11 @@ const t = computed(() => isAr.value ? {
 
 <style scoped>
 /* ═══ HERO ═══ */
-.hero{padding:160px 0 80px;background:linear-gradient(180deg,#F0F9FF 0%,#fff 50%);position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;top:-20%;right:-10%;width:50%;height:140%;background:radial-gradient(ellipse,rgba(14,165,233,.05) 0%,transparent 65%);pointer-events:none}
+.hero{padding:160px 0 80px;background:linear-gradient(-45deg,#F0F9FF,#E0F2FE,#BAE6FD,#F0F9FF);background-size:400% 400%;animation:heroGrad 15s ease infinite;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-20%;right:-10%;width:50%;height:140%;background:radial-gradient(ellipse,rgba(14,165,233,.08) 0%,transparent 65%);pointer-events:none;animation:heroBlob 8s ease-in-out infinite}
 .rtl .hero::after{right:auto;left:-10%}
+@keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes heroBlob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,10px) scale(.95)}}
 .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
 .hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:#0EA5E9;margin-bottom:24px;text-transform:uppercase}.rtl .hero-tag{letter-spacing:0}
 .hero-h{margin-bottom:20px;line-height:1.05}

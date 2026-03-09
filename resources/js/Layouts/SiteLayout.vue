@@ -11,6 +11,14 @@ function toggleLang() { lang.value = lang.value === 'ar' ? 'en' : 'ar'; }
 provide('lang', lang);
 provide('isAr', isAr);
 
+/* ─── Dark Mode ─── */
+const isDark = ref(false);
+function toggleDark() { isDark.value = !isDark.value; localStorage.setItem('sdb-dark', isDark.value ? '1' : '0'); }
+provide('isDark', isDark);
+
+/* ─── Cookie Consent ─── */
+const cookieAccepted = ref(true);
+
 /* ─── Mobile Menu ─── */
 const mobileOpen = ref(false);
 
@@ -24,8 +32,22 @@ function closeAll() { activeMenu.value = null; }
 
 /* Close on scroll */
 function onScroll() { activeMenu.value = null; }
-onMounted(() => window.addEventListener('scroll', onScroll));
+onMounted(() => {
+  window.addEventListener('scroll', onScroll);
+  /* Restore dark mode */
+  if(localStorage.getItem('sdb-dark')==='1') isDark.value = true;
+  /* Cookie consent */
+  if(!localStorage.getItem('sdb-cookie')) cookieAccepted.value = false;
+  /* Tawk.to Live Chat */
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://embed.tawk.to/placeholder/default';
+  s.charset = 'UTF-8';
+  s.setAttribute('crossorigin','*');
+  document.head.appendChild(s);
+});
 onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
+function acceptCookies() { cookieAccepted.value = true; localStorage.setItem('sdb-cookie','1'); }
 
 /* ─── Mega Nav Structure ─── */
 const megaNav = computed(() => isAr.value ? [
@@ -251,7 +273,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
 </script>
 
 <template>
-<div class="site" :class="{ rtl: isAr }" :dir="isAr ? 'rtl' : 'ltr'">
+<div class="site" :class="{ rtl: isAr, dark: isDark }" :dir="isAr ? 'rtl' : 'ltr'">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <!-- Nav -->
@@ -277,6 +299,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </div>
       </div>
       <div class="sn-right">
+        <button @click="toggleDark" class="sn-dark" :title="isDark?'Light Mode':'Dark Mode'">{{ isDark?'☀️':'🌙' }}</button>
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
         <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
         <button @click="mobileOpen=!mobileOpen" class="sn-hamburger">
@@ -306,6 +329,17 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <main>
     <slot />
   </main>
+
+  <!-- Cookie Consent -->
+  <Transition name="cookie">
+  <div v-if="!cookieAccepted" class="cookie-bar">
+    <p class="cookie-text">{{ isAr?'نستخدم ملفات تعريف الارتباط لتحسين تجربتك. بالمتابعة أنت توافق على':'We use cookies to improve your experience. By continuing you agree to our' }} <Link :href="'/privacy'" class="cookie-link">{{ isAr?'سياسة الخصوصية':'Privacy Policy' }}</Link></p>
+    <div class="cookie-btns">
+      <button @click="acceptCookies" class="cookie-accept">{{ isAr?'موافق':'Accept' }}</button>
+      <button @click="acceptCookies" class="cookie-decline">{{ isAr?'الضروري فقط':'Essential only' }}</button>
+    </div>
+  </div>
+  </Transition>
 
   <!-- Mega Footer -->
   <footer class="sf">
@@ -445,4 +479,63 @@ html{scroll-behavior:smooth}
   .sf-top{grid-template-columns:1fr}
   .sf-contact-row{flex-direction:column;gap:8px}
 }
+
+/* ─── Dark Mode Toggle ─── */
+.sn-dark{background:none;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:all .2s;line-height:1}.sn-dark:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.06)}
+
+/* ─── Cookie Consent ─── */
+.cookie-bar{position:fixed;bottom:0;left:0;right:0;background:#0C4A6E;color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:9999;box-shadow:0 -4px 24px rgba(0,0,0,.15);flex-wrap:wrap}
+.cookie-text{font-size:14px;color:rgba(255,255,255,.8);max-width:600px;line-height:1.6}
+.cookie-link{color:#7DD3FC;text-decoration:underline;font-weight:600}
+.cookie-btns{display:flex;gap:8px}
+.cookie-accept{padding:10px 24px;background:#0EA5E9;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}.cookie-accept:hover{background:#0284C7}
+.cookie-decline{padding:10px 24px;background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}.cookie-decline:hover{border-color:rgba(255,255,255,.5)}
+.cookie-enter-active,.cookie-leave-active{transition:all .4s ease}.cookie-enter-from,.cookie-leave-to{transform:translateY(100%);opacity:0}
+
+/* ─── Dark Mode ─── */
+.dark{background:#0a0a0a;color:#e0e0e0}
+.dark .sn{background:linear-gradient(135deg,#111 0%,#1a1a2e 100%);border-bottom:1px solid rgba(255,255,255,.06)}
+.dark .mm{background:#1a1a2e;border-color:rgba(255,255,255,.08)}
+.dark .mm-inner{background:#1a1a2e}
+.dark .mm-col-h{color:rgba(255,255,255,.5)}
+.dark .mm-item:hover{background:rgba(255,255,255,.04)}
+.dark .mm-item-l{color:rgba(255,255,255,.85)}
+.dark .mm-item-d{color:rgba(255,255,255,.35)}
+.dark .sf{background:linear-gradient(180deg,#111 0%,#0a0a0a 100%)}
+.dark main{background:#0a0a0a}
+/* These dark overrides work with page content via CSS cascade */
+.dark :deep(.sec){background:#0a0a0a;}
+.dark :deep(.sec-alt){background:#111}
+.dark :deep(.sec-cta){background:linear-gradient(135deg,#111,#1a1a2e)}
+.dark :deep(.hero){background:linear-gradient(180deg,#111 0%,#0a0a0a 50%)}
+.dark :deep(.t2){color:#e0e0e0}
+.dark :deep(.t2-sub){color:rgba(255,255,255,.55)}
+.dark :deep(.hero-h1){color:#e0e0e0}
+.dark :deep(.hero-p){color:rgba(255,255,255,.55)}
+.dark :deep(.cd-n){color:#e0e0e0}
+.dark :deep(.cd-l){color:rgba(255,255,255,.35)}
+.dark :deep(.trust-i){color:rgba(255,255,255,.4)}
+.dark :deep(.conv-mini){background:#1a1a2e;border-color:rgba(255,255,255,.08)}
+.dark :deep(.conv-sel){background:#222;border-color:rgba(255,255,255,.08);color:#e0e0e0}
+.dark :deep(.conv-inp){background:#222;border-color:rgba(255,255,255,.08);color:#e0e0e0}
+.dark :deep(.eml-i){color:#e0e0e0}
+.dark :deep(.hero-eml){border-color:rgba(255,255,255,.2)}
+.dark :deep(.comp-table){background:#1a1a2e;border-color:rgba(255,255,255,.06)}
+.dark :deep(.comp-header){background:#222}
+.dark :deep(.comp-header .comp-f),.dark :deep(.comp-header .comp-v){color:#e0e0e0}
+.dark :deep(.comp-f){color:#e0e0e0}
+.dark :deep(.comp-row){border-color:rgba(255,255,255,.04)}
+.dark :deep(.serv-c),.dark :deep(.tier-c),.dark :deep(.test-c),.dark :deep(.more-c),.dark :deep(.feat-phone){background:#1a1a2e;border-color:rgba(255,255,255,.06)}
+.dark :deep(.serv-t),.dark :deep(.tier-n),.dark :deep(.test-q){color:#e0e0e0}
+.dark :deep(.serv-d),.dark :deep(.tier-feat),.dark :deep(.test-loc){color:rgba(255,255,255,.45)}
+.dark :deep(.counters){background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.04)}
+.dark :deep(.ctr-i){background:#1a1a2e}
+.dark :deep(.ctr-l){color:rgba(255,255,255,.4)}
+.dark :deep(.feat-points li){background:rgba(255,255,255,.04);color:#e0e0e0}
+.dark :deep(.fp-balance){background:#222}
+.dark :deep(.fp-bv){color:#e0e0e0}
+.dark :deep(.mq){background:#111;border-color:rgba(255,255,255,.03)}
+.dark :deep(.mq-i){color:rgba(255,255,255,.06)}
+.dark :deep(.cta-btn2){color:#e0e0e0;border-color:rgba(255,255,255,.15)}
+.dark :deep(.link-btn){color:#38BDF8}
 </style>
