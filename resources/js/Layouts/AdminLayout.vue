@@ -40,24 +40,34 @@ const notifCount = computed(() => pendingKyc.value + newUsersToday.value);
 
 const sideLinks = [
   { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
-  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
-  { label: 'التقارير', icon: '📈', route: 'admin.reports' },
-  { label: 'المخاطر', icon: '🛡️', route: 'admin.risk' },
+  // Core Banking
   { label: 'العملاء', icon: '👥', route: 'admin.users' },
   { label: 'الحسابات', icon: '🏦', route: 'admin.accounts' },
   { label: 'البطاقات', icon: '💳', route: 'admin.cards' },
   { label: 'المعاملات', icon: '💸', route: 'admin.transactions' },
   { label: 'KYC', icon: '🪪', route: 'admin.kyc' },
   { label: 'العملات', icon: '💱', route: 'admin.currencies' },
+  // Operations
   { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
-  { label: 'الدعم', icon: '🎧', route: 'admin.support' },
-  { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
+  { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
   { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
+  { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
-  { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
+  { label: 'سجل التواصل', icon: '📧', route: 'admin.communications' },
+  // Finance
+  { label: 'الرسوم', icon: '💰', route: 'admin.fees' },
+  { label: 'أسعار الصرف', icon: '📈', route: 'admin.rates' },
+  // Analytics & Compliance
   { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
-  { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
+  { label: 'التقارير', icon: '📑', route: 'admin.reports' },
+  { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
+  { label: 'المخاطر', icon: '⚠️', route: 'admin.risk' },
+  // System
+  { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
+  { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
+  { label: 'أمان الأدمن', icon: '🔐', route: 'admin.security' },
+  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
 ];
 

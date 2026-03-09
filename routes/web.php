@@ -268,6 +268,24 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     // Compliance
     Route::get('/compliance', [\App\Http\Controllers\Admin\ComplianceController::class, 'index'])->name('compliance');
 
+    // Fee Management
+    Route::get('/fees', [\App\Http\Controllers\Admin\FeeController::class, 'index'])->name('fees');
+    Route::post('/fees', [\App\Http\Controllers\Admin\FeeController::class, 'update'])->name('fees.update');
+
+    // Approvals
+    Route::get('/approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals');
+    Route::post('/approvals/{id}/review', [\App\Http\Controllers\Admin\ApprovalController::class, 'review'])->name('approvals.review');
+
+    // Communications
+    Route::get('/communications', [\App\Http\Controllers\Admin\CommunicationController::class, 'index'])->name('communications');
+
+    // Admin Security
+    Route::get('/security', [\App\Http\Controllers\Admin\AdminSecurityController::class, 'index'])->name('security');
+
+    // Rate Management
+    Route::get('/rates', [\App\Http\Controllers\Admin\RateController::class, 'index'])->name('rates');
+    Route::post('/rates/spread', [\App\Http\Controllers\Admin\RateController::class, 'updateSpread'])->name('rates.spread');
+
     // CSV Exports
     Route::get('/export/users', [\App\Http\Controllers\Admin\ExportController::class, 'users'])->name('export.users');
     Route::get('/export/transactions', [\App\Http\Controllers\Admin\ExportController::class, 'transactions'])->name('export.transactions');
