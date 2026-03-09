@@ -38,13 +38,14 @@ onMounted(() => {
   if(localStorage.getItem('sdb-dark')==='1') isDark.value = true;
   /* Cookie consent */
   if(!localStorage.getItem('sdb-cookie')) cookieAccepted.value = false;
-  /* Tawk.to Live Chat */
+  /* Tawk.to Live Chat — replace with your Tawk.to property ID when ready
   const s = document.createElement('script');
   s.async = true;
-  s.src = 'https://embed.tawk.to/placeholder/default';
+  s.src = 'https://embed.tawk.to/YOUR_PROPERTY_ID/default';
   s.charset = 'UTF-8';
   s.setAttribute('crossorigin','*');
   document.head.appendChild(s);
+  */
 });
 onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
 function acceptCookies() { cookieAccepted.value = true; localStorage.setItem('sdb-cookie','1'); }
