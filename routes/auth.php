@@ -15,12 +15,12 @@ Route::middleware('guest')->group(function () {
     Route::get('register', fn() => redirect('/preregister'))
         ->name('register');
 
-    // Customer NetBank login
+    // Single login page for everyone (admin + customer)
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    // Secret admin login (separate page)
-    Route::get('sdb-admin', [AuthenticatedSessionController::class, 'adminLogin'])
+    // Admin shortcut — goes to same login page
+    Route::get('sdb-admin', [AuthenticatedSessionController::class, 'create'])
         ->name('admin.login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
