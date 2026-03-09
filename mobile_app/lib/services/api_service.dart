@@ -172,5 +172,11 @@ class ApiService {
     return null;
   }
 
+  // Generic POST (for new transfer lookup/execute endpoints)
+  static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> data) async {
+    final r = await http.post(Uri.parse('$baseUrl$path'), headers: await _headers(), body: jsonEncode(data));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }
