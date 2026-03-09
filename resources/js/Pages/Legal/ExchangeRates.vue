@@ -244,9 +244,9 @@ const t = computed(() => isAr.value ? {
 
 /* ─── Hero ─── */
 .hero{padding:140px 0 40px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
-.hero-tag{font-size:12px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-bottom:20px}
-.hero-h{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:14px}.hero-em{color:#7DD3FC}
-.hero-p{font-size:16px;color:rgba(255,255,255,.5);max-width:520px;margin:0 auto;line-height:1.8}
+.hero-tag{font-size:12px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.85);text-transform:uppercase;margin-bottom:20px}
+.hero-h{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:14px;color:#fff}.hero-em{color:#E0F2FE}
+.hero-p{font-size:16px;color:rgba(255,255,255,.75);max-width:520px;margin:0 auto;line-height:1.8}
 
 /* ─── Converter Card ─── */
 .sec-conv{margin-top:-40px;padding-bottom:40px;position:relative;z-index:10}
