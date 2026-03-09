@@ -1,16 +1,37 @@
 @import "tailwindcss";
 
-/* SDB Syrian Flag Dot — used in logo everywhere */
+/* SDB Syrian Independence Flag — green / white+3 red stars / black */
 .sdb-flag {
     display: inline-block;
-    width: .45em;
-    height: .45em;
+    width: .42em;
+    height: .42em;
     border-radius: 50%;
-    background: linear-gradient(to bottom, #007a3d 33.33%, #fff 33.33%, #fff 66.66%, #ce1126 66.66%);
-    margin-left: 1px;
-    vertical-align: baseline;
     position: relative;
-    top: -.05em;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
-    flex-shrink: 0
+    overflow: hidden;
+    margin-left: 2px;
+    vertical-align: baseline;
+    top: -.02em;
+    box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .12);
+    flex-shrink: 0;
+    direction: ltr
+}
+
+.sdb-flag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #007a3d 0%, #007a3d 33.33%, #fff 33.33%, #fff 66.66%, #000 66.66%, #000 100%)
+}
+
+.sdb-flag::after {
+    content: '★★★';
+    position: absolute;
+    top: 22%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: .12em;
+    color: #ce1126;
+    line-height: 1;
+    letter-spacing: .005em
 }
