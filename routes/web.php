@@ -51,6 +51,14 @@ Route::get('/transfers-info', fn() => Inertia::render('Legal/TransfersInfo'))->n
 Route::get('/salary', fn() => Inertia::render('Legal/Salary'))->name('salary');
 Route::get('/digital-id', fn() => Inertia::render('Legal/DigitalID'))->name('digital-id');
 Route::get('/wallet-guide', fn() => Inertia::render('Legal/WalletGuide'))->name('wallet-guide');
+Route::get('/personal', fn() => Inertia::render('Legal/Personal'))->name('personal');
+Route::get('/business', fn() => Inertia::render('Legal/Business'))->name('business');
+Route::get('/plans', fn() => Inertia::render('Legal/Plans'))->name('plans');
+Route::get('/security', fn() => Inertia::render('Legal/Security'))->name('security');
+Route::get('/app', fn() => Inertia::render('Legal/AppDownload'))->name('app');
+Route::get('/exchange-rates', fn() => Inertia::render('Legal/ExchangeRates'))->name('exchange-rates');
+Route::get('/compliance', fn() => Inertia::render('Legal/Compliance'))->name('compliance');
+Route::get('/bills', fn() => Inertia::render('Legal/Bills'))->name('bills');
 
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');
