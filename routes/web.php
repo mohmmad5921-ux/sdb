@@ -77,6 +77,9 @@ Route::get('/invite', fn() => Inertia::render('Legal/Referral'))->name('referral
 Route::get('/referral', fn() => Inertia::render('Legal/Referral'))->name('referral');
 Route::get('/compare', fn() => Inertia::render('Legal/Compare'))->name('compare');
 
+// Waitlist (hero email form)
+Route::post('/waitlist', [\App\Http\Controllers\WaitlistController::class, 'store'])->middleware('throttle:10,1');
+
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');
 Route::post('/preregister', [PreregistrationController::class, 'store'])->middleware('throttle:5,1');

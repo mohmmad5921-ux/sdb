@@ -9,14 +9,30 @@ const launchDate = new Date('2026-03-22T00:00:00');
 const cd = ref({ d:0, h:0, m:0, s:0 });
 let ti;
 function tick(){const x=launchDate-new Date();if(x<=0)return;cd.value={d:Math.floor(x/864e5),h:Math.floor(x%864e5/36e5),m:Math.floor(x%36e5/6e4),s:Math.floor(x%6e4/1e3)}}
-const em = ref('');const done = ref(false);const emailErr = ref('');
-function submitEmail() {
+const em = ref('');const done = ref(false);const emailErr = ref('');const submitting = ref(false);
+async function submitEmail() {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!em.value || !regex.test(em.value)) { emailErr.value = isAr.value ? 'أدخل بريد صحيح' : 'Enter a valid email'; return; }
   emailErr.value = '';
-  done.value = true;
-  /* Confetti burst */
-  for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#0EA5E9','#38BDF8','#0284C7','#7DD3FC','#10B981','#F59E0B'][Math.floor(Math.random()*6)];c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(1.5+Math.random())+'s';document.querySelector('.hero')?.appendChild(c);setTimeout(()=>c.remove(),3000)}
+  submitting.value = true;
+  try {
+    const res = await fetch('/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+      body: JSON.stringify({ email: em.value, source: 'hero' })
+    });
+    const data = await res.json();
+    if(res.ok && data.success) {
+      done.value = true;
+      /* Confetti burst */
+      for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#0EA5E9','#38BDF8','#0284C7','#7DD3FC','#10B981','#F59E0B'][Math.floor(Math.random()*6)];c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(1.5+Math.random())+'s';document.querySelector('.hero')?.appendChild(c);setTimeout(()=>c.remove(),3000)}
+    } else {
+      emailErr.value = isAr.value ? 'حدث خطأ، حاول مرة ثانية' : 'Something went wrong, try again';
+    }
+  } catch(e) {
+    emailErr.value = isAr.value ? 'خطأ بالاتصال' : 'Connection error';
+  }
+  submitting.value = false;
 }
 /* Mini converter */
 const cAmt = ref(1000); const cFrom = ref('EUR'); const cTo = ref('SYP');
