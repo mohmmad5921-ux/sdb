@@ -77,7 +77,7 @@ Route::get('/invite', fn() => Inertia::render('Legal/Referral'))->name('referral
 
 // Pre-registration
 Route::get('/preregister', [PreregistrationController::class, 'show'])->name('preregister');
-Route::post('/preregister', [PreregistrationController::class, 'store']);
+Route::post('/preregister', [PreregistrationController::class, 'store'])->middleware('throttle:5,1');
 // Payment Gateway Checkout
 Route::get('/checkout/{sessionId}', [CheckoutController::class, 'show'])->name('checkout.pay');
 Route::post('/checkout/{sessionId}/pay', [CheckoutController::class, 'pay'])->name('checkout.process')->middleware('auth');

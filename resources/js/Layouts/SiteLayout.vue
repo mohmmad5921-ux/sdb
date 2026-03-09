@@ -30,10 +30,23 @@ function startClose() { closeTimer = setTimeout(() => { activeMenu.value = null;
 function cancelClose() { clearTimeout(closeTimer); }
 function closeAll() { activeMenu.value = null; }
 
-/* Close on scroll */
-function onScroll() { activeMenu.value = null; }
+/* Close on scroll + sticky header */
+const scrolled = ref(false);
+function onScroll() { activeMenu.value = null; scrolled.value = window.scrollY > 20; }
+
+/* Toast Notification System */
+const toasts = ref([]);
+let toastId = 0;
+function showToast(msg, type='success') {
+  const id = ++toastId;
+  toasts.value.push({id, msg, type});
+  setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 4000);
+}
+provide('showToast', showToast);
+
 onMounted(() => {
   window.addEventListener('scroll', onScroll);
+  onScroll(); /* set initial state */
   /* Restore dark mode */
   if(localStorage.getItem('sdb-dark')==='1') isDark.value = true;
   /* Cookie consent */
@@ -278,7 +291,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <!-- Nav -->
-  <nav class="sn">
+  <nav class="sn" :class="{scrolled}">
     <div class="sw">
       <Link href="/" class="sn-logo">SDB<span class="sn-dot">.</span></Link>
       <div class="sn-links">
@@ -330,6 +343,13 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <main>
     <slot />
   </main>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container">
+    <TransitionGroup name="toast">
+      <div v-for="t in toasts" :key="t.id" class="toast-item" :class="'toast-'+t.type">{{ t.msg }}</div>
+    </TransitionGroup>
+  </div>
 
   <!-- Cookie Consent -->
   <Transition name="cookie">
@@ -406,7 +426,8 @@ html{scroll-behavior:smooth}
 .rtl .text-center{text-align:center}
 
 /* ─── Nav — Vibrant Sky Blue ─── */
-.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 50%,#38BDF8 100%);backdrop-filter:blur(20px);box-shadow:0 4px 20px rgba(2,132,199,.25)}
+.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:linear-gradient(135deg,rgba(2,132,199,.85) 0%,rgba(14,165,233,.85) 50%,rgba(56,189,248,.85) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.sn.scrolled{background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 50%,#38BDF8 100%);box-shadow:0 4px 20px rgba(2,132,199,.25)}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
 .sn-logo{font-size:28px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-1.5px;flex-shrink:0;text-shadow:0 2px 8px rgba(0,0,0,.15)}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
@@ -493,9 +514,19 @@ html{scroll-behavior:smooth}
 .cookie-decline{padding:10px 24px;background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}.cookie-decline:hover{border-color:rgba(255,255,255,.5)}
 .cookie-enter-active,.cookie-leave-active{transition:all .4s ease}.cookie-enter-from,.cookie-leave-to{transform:translateY(100%);opacity:0}
 
+/* ─── Toast Notifications ─── */
+.toast-container{position:fixed;top:80px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px}
+.toast-item{padding:14px 24px;border-radius:12px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:280px;animation:toastIn .3s ease}
+.toast-success{background:#059669;color:#fff}
+.toast-error{background:#DC2626;color:#fff}
+.toast-info{background:#0EA5E9;color:#fff}
+.toast-enter-active{transition:all .3s ease}.toast-leave-active{transition:all .3s ease}
+.toast-enter-from{opacity:0;transform:translateX(40px)}.toast-leave-to{opacity:0;transform:translateX(40px)}
+
 /* ─── Dark Mode ─── */
 .dark{background:#0a0a0a;color:#e0e0e0}
-.dark .sn{background:linear-gradient(135deg,#111 0%,#1a1a2e 100%);border-bottom:1px solid rgba(255,255,255,.06)}
+.dark .sn{background:linear-gradient(135deg,rgba(17,17,17,.85) 0%,rgba(26,26,46,.85) 100%);border-bottom:1px solid rgba(255,255,255,.06)}
+.dark .sn.scrolled{background:linear-gradient(135deg,#111 0%,#1a1a2e 100%);box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .dark .mm{background:#1a1a2e;border-color:rgba(255,255,255,.08)}
 .dark .mm-inner{background:#1a1a2e}
 .dark .mm-col-h{color:rgba(255,255,255,.5)}

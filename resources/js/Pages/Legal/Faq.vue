@@ -1,121 +1,162 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { inject, ref, computed, onMounted } from 'vue';
+import SiteLayout from '@/Layouts/SiteLayout.vue';
+defineOptions({ layout: SiteLayout });
+const isAr = inject('isAr', computed(() => true));
+let obs;
+onMounted(()=>{obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vi')}),{threshold:.08});document.querySelectorAll('.an').forEach(el=>obs.observe(el))});
 
 const openFaq = ref(null);
+const search = ref('');
 const toggle = (i) => openFaq.value = openFaq.value === i ? null : i;
 
-const faqs = [
-  { cat: '🏦 Account', items: [
-    { q: 'How do I open an account with SDB?', a: 'You can open an account in minutes by registering on the website or app. You\'ll need to provide your personal details and a valid ID, then complete identity verification (KYC).' },
-    { q: 'What documents are required to open an account?', a: 'You need a valid passport or national ID, plus a recent proof of address (bank statement, utility bill, or rental contract issued within the last 3 months).' },
-    { q: 'Can I open more than one account?', a: 'Yes! You can open accounts in different currencies. Each account gets a unique IBAN and a 10-digit internal account number.' },
-    { q: 'What is the customer number?', a: 'Your customer number is a 10-digit number assigned when you open your account. It\'s your unique identifier in our system and can be used to identify yourself when contacting support.' },
-  ]},
-  { cat: '💳 Cards', items: [
-    { q: 'How do I get an SDB Mastercard?', a: 'You can issue a virtual card instantly from the dashboard. The virtual card works for online purchases and payments via Apple Pay & Google Pay. Physical cards are shipped to your address within 5-7 business days.' },
-    { q: 'What is the difference between virtual and physical cards?', a: 'Virtual cards are issued instantly and used for online purchases only. Physical cards arrive at your address and can be used in stores, ATMs, and online.' },
-    { q: 'How do I freeze my card?', a: 'You can freeze your card instantly from the app with one tap. Freezing prevents all transactions and you can unfreeze just as easily at any time.' },
-    { q: 'What are the card limits?', a: 'Limits vary by plan. The basic daily limit is €5,000 and monthly €25,000. You can adjust limits from the card management page or contact support for higher limits.' },
-  ]},
-  { cat: '💸 Transfers', items: [
-    { q: 'How long do transfers take?', a: 'Internal transfers between SDB accounts are instant and free. External (SWIFT) transfers take 1-3 business days depending on the recipient\'s bank.' },
-    { q: 'Are there fees on transfers?', a: 'Internal transfers are completely free. External transfers are subject to fees starting from €2 depending on the destination and currency.' },
-    { q: 'How do I exchange currencies?', a: 'From the dashboard, select "Exchange", choose the source and target account (in a different currency), enter the amount and the exchange will be executed at live market rates with a competitive spread.' },
-  ]},
-  { cat: '💰 Deposits', items: [
-    { q: 'How do I deposit money into my account?', a: 'You can deposit via: an external Visa/Mastercard, Apple Pay, or Google Pay. The maximum single deposit is €50,000.' },
-    { q: 'What are the deposit fees?', a: 'Deposit fees are 1.5% of the amount + €0.50 fixed fee. For example: depositing €100 = €2 in fees, €98 credited to your account.' },
-    { q: 'When does the deposit appear in my account?', a: 'Card and Apple Pay / Google Pay deposits are instant. The amount appears in your account within seconds of payment confirmation.' },
-  ]},
-  { cat: '🔒 Security', items: [
-    { q: 'How does SDB protect my money?', a: 'We use TLS 256-bit encryption, two-factor authentication (2FA), 24/7 security monitoring, and AI-powered fraud detection. Your account is protected by the highest banking security standards.' },
-    { q: 'What should I do if I lose my phone?', a: 'Contact support immediately 24/7 to freeze your account and cards. You can also log in from another device and freeze your cards yourself.' },
-    { q: 'What is KYC and why is it required?', a: 'KYC (Know Your Customer) is a mandatory regulatory process to verify customer identity. It involves providing an ID document and proof of address. This protects your account and helps combat money laundering and fraud.' },
-  ]},
-  { cat: '🎧 Support', items: [
-    { q: 'How do I contact customer support?', a: 'You can reach us via: in-app live support (24/7), email at support@sdb-bank.com, or phone at +45 42 80 55 94. Our team is always available to help.' },
-    { q: 'How long does it take to process support tickets?', a: 'We aim to respond to all tickets within 4 hours maximum. Urgent matters (such as fraud) are processed immediately.' },
-  ]},
-];
+const t = computed(() => isAr.value ? {
+  title:'الأسئلة الشائعة — SDB Bank',tag:'الأسئلة الشائعة',heroH:'كيف نقدر نساعدك؟',heroP:'ابحث عن سؤالك أو تصفّح الأقسام.',searchPh:'ابحث عن سؤالك...',noResult:'ما لقينا نتائج. جرّب كلمات ثانية.',
+  ctaH:'ما لقيت جوابك؟',ctaP:'فريق الدعم متاح 24/7',ctaBtn1:'📧 راسلنا',ctaBtn2:'🎧 دعم مباشر',
+  faqs:[
+    {cat:'🏦 الحسابات',items:[
+      {q:'كيف أفتح حساب مع SDB؟',a:'يمكنك فتح حساب خلال دقائق بالتسجيل على الموقع أو التطبيق. تحتاج لبياناتك الشخصية وهوية سارية، ثم التحقق من الهوية (KYC).'},
+      {q:'ما المستندات المطلوبة لفتح حساب؟',a:'تحتاج جواز سفر أو هوية وطنية سارية، + إثبات عنوان حديث (كشف حساب بنكي، فاتورة خدمات، أو عقد إيجار خلال آخر 3 أشهر).'},
+      {q:'هل يمكن فتح أكثر من حساب؟',a:'نعم! يمكنك فتح حسابات بعملات مختلفة. كل حساب يحصل على IBAN فريد ورقم حساب داخلي مكوّن من 10 أرقام.'},
+    ]},
+    {cat:'💳 البطاقات',items:[
+      {q:'كيف أحصل على بطاقة ماستركارد SDB؟',a:'يمكنك إصدار بطاقة افتراضية فوراً من لوحة التحكم. البطاقة الافتراضية تعمل للشراء عبر الإنترنت و Apple Pay / Google Pay. البطاقات الفعلية تُشحن خلال 5-7 أيام عمل.'},
+      {q:'كيف أجمّد بطاقتي؟',a:'يمكنك تجميد بطاقتك فوراً من التطبيق بنقرة واحدة. التجميد يمنع جميع المعاملات ويمكنك إلغاء التجميد بسهولة.'},
+      {q:'ما حدود البطاقة؟',a:'الحدود تختلف حسب الخطة. الحد اليومي الأساسي €5,000 والشهري €25,000. يمكنك تعديل الحدود من صفحة إدارة البطاقات.'},
+    ]},
+    {cat:'💸 التحويلات',items:[
+      {q:'كم تستغرق التحويلات؟',a:'التحويلات الداخلية بين حسابات SDB فورية ومجانية. التحويلات الخارجية (SWIFT) تستغرق 1-3 أيام عمل.'},
+      {q:'هل التحويلات مجانية؟',a:'التحويلات الداخلية مجانية تماماً. التحويلات الخارجية تبدأ من €2 حسب الوجهة والعملة.'},
+      {q:'كيف أحوّل عملات؟',a:'من لوحة التحكم، اختر "صرف"، حدد الحساب المصدر والهدف (بعملة مختلفة)، أدخل المبلغ وسيتم التنفيذ بأسعار السوق الحقيقية.'},
+    ]},
+    {cat:'💰 الإيداعات',items:[
+      {q:'كيف أودع المال في حسابي؟',a:'يمكنك الإيداع عبر: بطاقة فيزا/ماستركارد خارجية، Apple Pay، أو Google Pay. الحد الأقصى للإيداع الواحد €50,000.'},
+      {q:'ما رسوم الإيداع؟',a:'رسوم الإيداع 1.5% من المبلغ + €0.50 رسم ثابت. مثال: إيداع €100 = €2 رسوم، €98 يُضاف لحسابك.'},
+    ]},
+    {cat:'🔒 الأمان',items:[
+      {q:'كيف يحمي SDB أموالي؟',a:'نستخدم تشفير TLS 256-بت، مصادقة ثنائية (2FA)، مراقبة أمنية 24/7، وكشف احتيال بالذكاء الاصطناعي.'},
+      {q:'ماذا أفعل إذا فقدت هاتفي؟',a:'تواصل مع الدعم فوراً 24/7 لتجميد حسابك وبطاقاتك. يمكنك أيضاً تسجيل الدخول من جهاز آخر وتجميد بطاقاتك بنفسك.'},
+      {q:'ما هو KYC ولماذا مطلوب؟',a:'KYC (اعرف عميلك) هو إجراء تنظيمي إلزامي للتحقق من هوية العميل. يتضمن تقديم هوية وإثبات عنوان. هذا يحمي حسابك ويساعد في مكافحة غسيل الأموال.'},
+    ]},
+    {cat:'🎧 الدعم',items:[
+      {q:'كيف أتواصل مع الدعم؟',a:'يمكنك الوصول إلينا عبر: دعم مباشر داخل التطبيق (24/7)، إيميل support@sdb-bank.com، أو هاتف +45 42 80 55 94.'},
+      {q:'كم يستغرق الرد على التذاكر؟',a:'نهدف للرد خلال 4 ساعات كحد أقصى. الأمور العاجلة (مثل الاحتيال) تُعالج فوراً.'},
+    ]},
+  ],
+} : {
+  title:'FAQ — SDB Bank',tag:'FAQ',heroH:'How can we help you?',heroP:'Search your question or browse categories.',searchPh:'Search your question...',noResult:'No results found. Try different keywords.',
+  ctaH:'Didn\'t find your answer?',ctaP:'Our support team is available 24/7',ctaBtn1:'📧 Email us',ctaBtn2:'🎧 Live Support',
+  faqs:[
+    {cat:'🏦 Accounts',items:[
+      {q:'How do I open an account with SDB?',a:'You can open an account in minutes by registering on the website or app. You\'ll need your personal details and a valid ID, then complete identity verification (KYC).'},
+      {q:'What documents are required?',a:'A valid passport or national ID, plus a recent proof of address (bank statement, utility bill, or rental contract within the last 3 months).'},
+      {q:'Can I open more than one account?',a:'Yes! You can open accounts in different currencies. Each account gets a unique IBAN and 10-digit internal account number.'},
+    ]},
+    {cat:'💳 Cards',items:[
+      {q:'How do I get an SDB Mastercard?',a:'Issue a virtual card instantly from the dashboard. Physical cards ship in 5-7 business days.'},
+      {q:'How do I freeze my card?',a:'Freeze instantly from the app with one tap. Freezing prevents all transactions and you can unfreeze just as easily.'},
+      {q:'What are the card limits?',a:'Limits vary by plan. Basic daily limit is €5,000 and monthly €25,000. Adjustable from card management.'},
+    ]},
+    {cat:'💸 Transfers',items:[
+      {q:'How long do transfers take?',a:'Internal SDB transfers are instant and free. External (SWIFT) transfers take 1-3 business days.'},
+      {q:'Are there fees?',a:'Internal transfers are free. External transfers start from €2 depending on destination and currency.'},
+      {q:'How do I exchange currencies?',a:'From the dashboard, select "Exchange", choose source and target accounts, enter the amount — executed at live market rates.'},
+    ]},
+    {cat:'💰 Deposits',items:[
+      {q:'How do I deposit money?',a:'Via external Visa/Mastercard, Apple Pay, or Google Pay. Maximum single deposit is €50,000.'},
+      {q:'What are the deposit fees?',a:'1.5% of the amount + €0.50 fixed fee. Example: depositing €100 = €2 in fees, €98 credited.'},
+    ]},
+    {cat:'🔒 Security',items:[
+      {q:'How does SDB protect my money?',a:'TLS 256-bit encryption, 2FA, 24/7 security monitoring, and AI-powered fraud detection.'},
+      {q:'What if I lose my phone?',a:'Contact support 24/7 immediately to freeze your account and cards. You can also log in from another device.'},
+      {q:'What is KYC?',a:'KYC (Know Your Customer) is mandatory identity verification. It involves providing an ID and proof of address. Protects against fraud.'},
+    ]},
+    {cat:'🎧 Support',items:[
+      {q:'How do I contact support?',a:'In-app live support (24/7), email support@sdb-bank.com, or phone +45 42 80 55 94.'},
+      {q:'How long for ticket responses?',a:'We aim to respond within 4 hours maximum. Urgent matters are processed immediately.'},
+    ]},
+  ],
+});
 
 let faqIndex = 0;
-const indexedFaqs = faqs.map(cat => ({ ...cat, items: cat.items.map(item => ({ ...item, index: faqIndex++ })) }));
+const indexedFaqs = computed(() => {
+  let idx = 0;
+  return t.value.faqs.map(cat => ({...cat, items: cat.items.map(item => ({...item, index: idx++}))}));
+});
+
+const filteredFaqs = computed(() => {
+  if(!search.value.trim()) return indexedFaqs.value;
+  const q = search.value.toLowerCase();
+  return indexedFaqs.value.map(cat => ({
+    ...cat,
+    items: cat.items.filter(i => i.q.toLowerCase().includes(q) || i.a.toLowerCase().includes(q))
+  })).filter(cat => cat.items.length > 0);
+});
 </script>
-
 <template>
-    <Head title="FAQ — SDB Bank" />
-    <div class="lg-root">
-        <header class="lg-header">
-            <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-                <Link href="/" class="lg-mark">SDB<span class="lg-dot">.</span></Link>
-                <div class="flex gap-3">
-                    <Link href="/terms" class="lg-link">Terms</Link>
-                    <Link href="/privacy" class="lg-link">Privacy</Link>
-                    <Link href="/about" class="lg-link">About</Link>
-                    <Link href="/support" class="lg-link">Support</Link>
-                </div>
-            </div>
-        </header>
+<Head :title="t.title"/>
+<section class="hero"><div class="sw tc">
+  <div class="hero-tag an">{{ t.tag }}</div>
+  <h1 class="hero-h an">{{ t.heroH }}</h1>
+  <p class="hero-p an">{{ t.heroP }}</p>
+  <div class="search-wrap an"><input v-model="search" :placeholder="t.searchPh" class="search-input" /><span class="search-ic">🔍</span></div>
+</div></section>
 
-        <main class="max-w-4xl mx-auto px-6 py-12">
-            <div class="text-center mb-10">
-                <h1 class="text-3xl font-black text-[#0B1F3A] mb-2">Frequently Asked Questions</h1>
-                <p class="text-sm text-gray-400">Comprehensive answers to the most common questions about our services</p>
-            </div>
-
-            <div class="space-y-8">
-                <div v-for="cat in indexedFaqs" :key="cat.cat">
-                    <h2 class="text-lg font-bold text-[#0B1F3A] mb-3">{{ cat.cat }}</h2>
-                    <div class="space-y-2">
-                        <div v-for="item in cat.items" :key="item.index" class="fq-card" :class="openFaq === item.index ? 'fq-card-open' : ''">
-                            <button class="fq-q" @click="toggle(item.index)">
-                                <span>{{ item.q }}</span>
-                                <span class="fq-arrow" :class="openFaq === item.index ? 'fq-arrow-open' : ''">›</span>
-                            </button>
-                            <div v-if="openFaq === item.index" class="fq-a">{{ item.a }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="fq-cta">
-                <div class="text-2xl mb-2">🤔</div>
-                <h3 class="font-bold text-[#0B1F3A] text-lg mb-1">Didn't find your answer?</h3>
-                <p class="text-sm text-gray-400 mb-4">Our support team is available 24/7 to help you</p>
-                <div class="flex gap-3 justify-center">
-                    <a href="mailto:support@sdb-bank.com" class="fq-btn">📧 Email us</a>
-                    <Link href="/support" class="fq-btn fq-btn-blue">🎧 Live Support</Link>
-                </div>
-            </div>
-        </main>
-
-        <footer class="lg-footer">
-            <div class="max-w-4xl mx-auto px-6 flex justify-between items-center">
-                <span class="text-sm text-[#0B1F3A]/40">© 2026 SDB Bank ApS. All rights reserved.</span>
-                <div class="flex gap-4"><Link href="/terms" class="lg-flink">Terms</Link><Link href="/privacy" class="lg-flink">Privacy</Link><Link href="/support" class="lg-flink">Support</Link><Link href="/" class="lg-flink">Home</Link></div>
-            </div>
-        </footer>
+<section class="sec"><div class="sw">
+  <div v-if="filteredFaqs.length === 0" class="no-result an">{{ t.noResult }}</div>
+  <div v-for="cat in filteredFaqs" :key="cat.cat" class="faq-cat an">
+    <h2 class="cat-h">{{ cat.cat }}</h2>
+    <div class="faq-list">
+      <div v-for="item in cat.items" :key="item.index" class="faq-card" :class="{'faq-open':openFaq===item.index}">
+        <button class="faq-q" @click="toggle(item.index)">
+          <span>{{ item.q }}</span>
+          <span class="faq-arrow" :class="{'faq-arrow-open':openFaq===item.index}">+</span>
+        </button>
+        <Transition name="faq-slide">
+          <div v-if="openFaq===item.index" class="faq-a">{{ item.a }}</div>
+        </Transition>
+      </div>
     </div>
-</template>
+  </div>
 
+  <div class="cta-box an tc">
+    <h3 class="cta-h">{{ t.ctaH }}</h3>
+    <p class="cta-p">{{ t.ctaP }}</p>
+    <div class="cta-btns"><a href="mailto:support@sdb-bank.com" class="cta-btn">{{ t.ctaBtn1 }}</a><Link href="/support" class="cta-btn cta-btn-primary">{{ t.ctaBtn2 }}</Link></div>
+  </div>
+</div></section>
+</template>
 <style scoped>
-.lg-root{min-height:100vh;background:#fff;font-family:'Inter',system-ui,sans-serif}
-.lg-header{padding:16px 0;border-bottom:1px solid rgba(11,31,58,0.06);position:sticky;top:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);z-index:10}
-.lg-mark{font-size:24px;font-weight:900;color:#0a0a0a;text-decoration:none;letter-spacing:-1.5px}
-.lg-dot{color:#2563EB;font-size:28px;line-height:0}
-.lg-link{font-size:13px;color:rgba(11,31,58,0.5);text-decoration:none;font-weight:500}.lg-link:hover{color:#2563EB}
-.fq-card{background:#fff;border:1.5px solid rgba(11,31,58,0.06);border-radius:12px;overflow:hidden;transition:all .3s}
-.fq-card:hover{border-color:rgba(37,99,235,0.15)}
-.fq-card-open{border-color:rgba(37,99,235,0.2);background:rgba(37,99,235,0.01)}
-.fq-q{width:100%;text-align:left;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:#0B1F3A;background:none;border:none}
-.fq-arrow{font-size:20px;color:rgba(37,99,235,0.5);transition:transform .2s;font-weight:300}
-.fq-arrow-open{transform:rotate(90deg);color:#2563EB}
-.fq-a{padding:0 18px 16px;font-size:13px;line-height:1.9;color:rgba(11,31,58,0.55);border-top:1px solid rgba(11,31,58,0.05);padding-top:12px;margin:0 18px;animation:fadeIn .2s}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-.fq-cta{text-align:center;padding:40px;background:linear-gradient(135deg,rgba(37,99,235,0.03),rgba(0,194,255,0.03));border:1.5px solid rgba(37,99,235,0.1);border-radius:20px;margin-top:40px}
-.fq-btn{display:inline-flex;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;color:rgba(11,31,58,0.5);border:1.5px solid rgba(11,31,58,0.1);text-decoration:none;transition:all .3s;background:#fff}.fq-btn:hover{border-color:#2563EB;color:#2563EB}
-.fq-btn-blue{background:linear-gradient(135deg,#2563EB,#3B82F6)!important;color:#fff!important;border-color:#2563EB!important;box-shadow:0 4px 12px rgba(37,99,235,0.2)}.fq-btn-blue:hover{box-shadow:0 6px 20px rgba(37,99,235,0.3)}
-.lg-footer{padding:24px 0;border-top:1px solid rgba(11,31,58,0.06);background:#FAFBFC}
-.lg-flink{font-size:12px;color:rgba(11,31,58,0.4);text-decoration:none}.lg-flink:hover{color:#2563EB}
+.hero{padding:160px 0 60px;background:linear-gradient(135deg,#0C4A6E,#0369A1,#0EA5E9);color:#fff}
+.hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:24px}
+.hero-h{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:12px}
+.hero-p{font-size:16px;color:rgba(255,255,255,.5);margin-bottom:32px}
+.search-wrap{position:relative;max-width:520px;margin:0 auto}
+.search-input{width:100%;padding:18px 24px 18px 50px;border:none;border-radius:16px;font-size:15px;font-family:inherit;outline:none;background:rgba(255,255,255,.95);color:#0C4A6E;box-shadow:0 8px 32px rgba(0,0,0,.15)}.search-input::placeholder{color:#BAE6FD}
+.search-ic{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:18px}
+.rtl .search-ic{left:auto;right:18px}
+.rtl .search-input{padding:18px 50px 18px 24px}
+.sec{padding:60px 0}
+.sw{max-width:800px;margin:0 auto;padding:0 24px}.tc{text-align:center}
+.faq-cat{margin-bottom:40px}
+.cat-h{font-size:18px;font-weight:800;color:#0C4A6E;margin-bottom:16px}
+.faq-list{display:flex;flex-direction:column;gap:8px}
+.faq-card{background:#fff;border:1.5px solid rgba(14,165,233,.08);border-radius:14px;overflow:hidden;transition:all .3s}
+.faq-card:hover{border-color:rgba(14,165,233,.2)}
+.faq-open{border-color:#0EA5E9;background:rgba(14,165,233,.02)}
+.faq-q{width:100%;text-align:inherit;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;font-weight:700;color:#0C4A6E;background:none;border:none;font-family:inherit;gap:12px}
+.faq-arrow{font-size:22px;color:#0EA5E9;transition:transform .3s;font-weight:300;flex-shrink:0}
+.faq-arrow-open{transform:rotate(45deg)}
+.faq-a{padding:0 20px 18px;font-size:14px;line-height:1.9;color:rgba(12,74,110,.55);border-top:1px solid rgba(14,165,233,.06);padding-top:14px;margin:0 20px}
+.faq-slide-enter-active,.faq-slide-leave-active{transition:all .25s ease;overflow:hidden}
+.faq-slide-enter-from,.faq-slide-leave-to{opacity:0;max-height:0}.faq-slide-enter-to,.faq-slide-leave-from{opacity:1;max-height:300px}
+.no-result{text-align:center;padding:60px;color:rgba(12,74,110,.4);font-size:15px}
+.cta-box{padding:48px;background:linear-gradient(135deg,rgba(14,165,233,.03),rgba(5,150,105,.03));border:1.5px solid rgba(14,165,233,.08);border-radius:24px;margin-top:40px}
+.cta-h{font-size:22px;font-weight:900;color:#0C4A6E;margin-bottom:8px}
+.cta-p{font-size:14px;color:rgba(12,74,110,.4);margin-bottom:24px}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-btn{padding:12px 24px;border:1.5px solid rgba(14,165,233,.15);border-radius:12px;font-size:14px;font-weight:700;color:#0C4A6E;text-decoration:none;background:#fff;transition:all .2s;font-family:inherit}.cta-btn:hover{border-color:#0EA5E9;color:#0EA5E9}
+.cta-btn-primary{background:linear-gradient(135deg,#0284C7,#0EA5E9)!important;color:#fff!important;border-color:#0EA5E9!important}
+.an{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
 </style>

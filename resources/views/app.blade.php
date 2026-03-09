@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="SDB Bank — أول بنك إلكتروني سوري. حسابات متعددة العملات، بطاقات ماستركارد، تحويلات دولية، عملات رقمية. مرخّص بالدنمارك.">
+    <meta name="theme-color" content="#0EA5E9">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sdb-bank.com/">
+    <meta property="og:title" content="SDB Bank — أول بنك إلكتروني سوري">
+    <meta property="og:description"
+        content="حوّل، ادفع، ووفّر بدون رسوم مخفية. حسابات متعددة العملات، بطاقات ماستركارد فورية، تحويلات لـ 150+ دولة.">
+    <meta property="og:image" content="https://sdb-bank.com/images/og-cover.png">
+    <meta property="og:locale" content="ar_SY">
 
-        <!-- Scripts -->
-        @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
-        @inertiaHead
-    </head>
-    <body class="font-sans antialiased">
-        @inertia
-    </body>
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SDB Bank — أول بنك إلكتروني سوري">
+    <meta name="twitter:description" content="حوّل، ادفع، ووفّر بدون رسوم مخفية. مرخّص بالدنمارك 🇩🇰">
+    <meta name="twitter:image" content="https://sdb-bank.com/images/og-cover.png">
+
+    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    @routes
+    @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+    @inertiaHead
+</head>
+
+<body class="font-sans antialiased">
+    @inertia
+</body>
+
 </html>
