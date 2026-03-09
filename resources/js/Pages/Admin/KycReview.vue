@@ -140,11 +140,11 @@ const analyzeDocument = (doc) => {
       <!-- Rejection Modal -->
       <Teleport to="body">
         <div v-if="reviewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="reviewDoc = null">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-lg font-bold text-[#0f172a] mb-1">رفض مستند</h3>
             <p class="text-[#475569] text-sm mb-4">{{ reviewDoc.user?.full_name }} — {{ docTypeLabels[reviewDoc.document_type] }}</p>
             <textarea v-model="rejectionReason" placeholder="سبب الرفض..." rows="3"
-              class="w-full border border-[#334155] rounded-xl px-4 py-3 text-[#0f172a] outline-none focus:border-red-400 text-sm resize-none"></textarea>
+              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0f172a] outline-none focus:border-red-400 text-sm resize-none"></textarea>
             <div class="flex gap-3 mt-4">
               <button @click="reject(reviewDoc)" :disabled="!rejectionReason.trim()" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm disabled:opacity-50">✗ رفض</button>
               <button @click="reviewDoc = null" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm">إلغاء</button>
@@ -156,7 +156,7 @@ const analyzeDocument = (doc) => {
       <!-- Document Analysis Modal -->
       <Teleport to="body">
         <div v-if="previewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="previewDoc = null">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-lg font-bold text-[#0f172a] mb-1">🔍 تقرير فحص أصالة المستند</h3>
             <p class="text-[#475569] text-sm mb-4">{{ previewDoc.user?.full_name }} — {{ docTypeLabels[previewDoc.document_type] }}</p>
 

@@ -64,7 +64,7 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
           <div class="md-card">
             <div class="md-card-header flex justify-between items-center"><h3 class="font-bold text-[#0f172a]">🔑 مفاتيح API</h3><button @click="generateKey" class="text-xs px-3 py-1.5 bg-[#1E5EFF] text-white rounded-lg">+ مفتاح جديد</button></div>
             <div class="p-5 space-y-3">
-              <div v-for="key in apiKeys" :key="key.id" class="bg-[#1e293b] border border-[#334155] rounded-xl p-4">
+              <div v-for="key in apiKeys" :key="key.id" class="bg-white border border-gray-200 rounded-xl p-4">
                 <div class="flex justify-between items-start mb-2"><span class="text-sm font-semibold text-[#0f172a]">{{ key.name }}</span><span :class="key.is_active ? 'md-badge-green' : 'md-badge-red'" class="md-badge">{{ key.is_active ? 'نشط' : 'ملغي' }}</span></div>
                 <div class="text-xs font-mono text-[#475569] mb-1">PK: {{ key.public_key }}</div>
                 <div class="text-xs font-mono text-[#475569] mb-2">SK: {{ key.secret_key_prefix }}•••</div>

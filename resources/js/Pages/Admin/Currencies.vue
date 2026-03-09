@@ -44,7 +44,7 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
           </div>
         </div>
         <div class="cu-card overflow-hidden">
-          <div class="px-6 py-4 border-b border-[#334155]"><h3 class="font-bold text-[#0f172a]">أسعار الصرف</h3></div>
+          <div class="px-6 py-4 border-b border-gray-200"><h3 class="font-bold text-[#0f172a]">أسعار الصرف</h3></div>
           <table class="cu-table">
             <thead><tr><th>من</th><th>إلى</th><th>السعر</th><th>شراء</th><th>بيع</th><th>هامش</th></tr></thead>
             <tbody>
@@ -64,7 +64,7 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
       <!-- Add Currency Modal -->
       <Teleport to="body">
         <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showAddModal = false">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-5">إضافة عملة جديدة</h3>
             <form @submit.prevent="addCurrency" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
@@ -88,7 +88,7 @@ const toggleActive = (c) => router.patch(route('admin.currencies.update', c.id),
       <!-- Rate Modal -->
       <Teleport to="body">
         <div v-if="showRateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showRateModal = false">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-5">تحديث سعر الصرف</h3>
             <form @submit.prevent="updateRate" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">

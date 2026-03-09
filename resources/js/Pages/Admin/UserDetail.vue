@@ -118,7 +118,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
               <div class="space-y-3">
                 <div><label class="text-xs text-[#475569] font-medium block mb-1">حالة الحساب</label><div class="flex gap-2"><select v-model="statusForm.status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="active">نشط</option><option value="suspended">موقوف</option><option value="blocked">محظور</option></select><button @click="updateStatus" :disabled="statusForm.processing" class="ud-btn-blue">حفظ</button></div></div>
                 <div><label class="text-xs text-[#475569] font-medium block mb-1">حالة KYC</label><div class="flex gap-2"><select v-model="kycForm.kyc_status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="submitted">مقدّم</option><option value="verified">مُوثّق</option><option value="rejected">مرفوض</option></select><button @click="updateKyc" :disabled="kycForm.processing" class="ud-btn-green">حفظ</button></div></div>
-                <hr class="border-[#334155]">
+                <hr class="border-gray-200">
                 <button @click="showEditProfile = true" class="ud-action-btn w-full">✏️ تعديل بيانات العميل</button>
                 <button @click="resetPassword" class="ud-action-btn ud-action-warn w-full">🔑 إعادة تعيين كلمة المرور</button>
                 <button @click="showSendNote = true" class="ud-action-btn ud-action-info w-full">📩 إرسال إشعار للعميل</button>
@@ -204,7 +204,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             <div class="ud-card"><h3 class="ud-card-title mb-4">حالة التحقق</h3><div class="space-y-3"><div class="ud-info-row"><span>الحالة</span><span :class="statusBadge[user.kyc_status]" class="ud-badge">{{ user.kyc_status }}</span></div><div class="ud-info-row"><span>الجنسية</span><span>{{ user.nationality || 'غير محدد' }}</span></div><div class="ud-info-row"><span>الدولة</span><span>{{ user.country || 'غير محدد' }}</span></div><div class="ud-info-row"><span>تاريخ التسجيل</span><span>{{ fmtShort(user.created_at) }}</span></div></div></div>
             <div class="ud-card"><h3 class="ud-card-title mb-4">المستندات</h3>
               <div v-if="kycDocuments && kycDocuments.length" class="space-y-3">
-                <div v-for="doc in kycDocuments" :key="doc.id" class="flex items-center justify-between p-3 bg-[#1e293b] rounded-xl border border-[#334155]">
+                <div v-for="doc in kycDocuments" :key="doc.id" class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200">
                   <div class="flex items-center gap-3"><span class="text-xl">📄</span><div><div class="text-sm font-semibold text-[#0f172a]">{{ doc.document_type }}</div><div class="text-xs text-[#475569]">{{ fmtShort(doc.created_at) }}</div></div></div>
                   <div class="flex items-center gap-2"><span :class="statusBadge[doc.status]" class="ud-badge">{{ doc.status }}</span><a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ud-btn-sm">عرض</a></div>
                 </div>
@@ -226,7 +226,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             </div>
             <div class="ud-card"><h3 class="ud-card-title mb-4">📋 سجل تسجيل الدخول</h3>
               <div v-if="loginHistory && loginHistory.length" class="space-y-2">
-                <div v-for="log in loginHistory" :key="log.id" class="flex items-center justify-between p-2 bg-[#1e293b] rounded-lg border border-[#334155] text-xs">
+                <div v-for="log in loginHistory" :key="log.id" class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-200 text-xs">
                   <div><span class="font-mono text-[#1E5EFF]">{{ log.ip_address }}</span><span class="text-[#475569] mx-2">·</span><span class="text-[#475569]">{{ log.user_agent?.substring(0, 40) }}...</span></div>
                   <span class="text-[#475569]">{{ fmtDate(log.created_at) }}</span>
                 </div>
@@ -272,7 +272,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
       <!-- Edit Profile Modal -->
       <Teleport to="body">
         <div v-if="showEditProfile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showEditProfile = false">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-5">✏️ تعديل بيانات العميل</h3>
             <form @submit.prevent="saveProfile" class="space-y-4">
               <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#475569] mb-1">الاسم الكامل</label><input v-model="profileForm.full_name" class="ud-modal-input" required /></div><div><label class="block text-xs text-[#475569] mb-1">البريد</label><input v-model="profileForm.email" type="email" class="ud-modal-input" required /></div></div>
@@ -289,11 +289,11 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
       <!-- Send Notification Modal -->
       <Teleport to="body">
         <div v-if="showSendNote" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showSendNote = false">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-1">📩 إرسال إشعار</h3>
             <p class="text-[#475569] text-sm mb-4">إلى: {{ user.full_name }}</p>
             <form @submit.prevent="sendNote" class="space-y-4">
-              <textarea v-model="noteForm.note" placeholder="اكتب رسالة الإشعار..." rows="4" class="w-full border border-[#334155] rounded-xl px-4 py-3 text-[#0f172a] outline-none focus:border-[#1E5EFF] text-sm resize-none" required></textarea>
+              <textarea v-model="noteForm.note" placeholder="اكتب رسالة الإشعار..." rows="4" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0f172a] outline-none focus:border-[#1E5EFF] text-sm resize-none" required></textarea>
               <div class="flex gap-3"><button type="submit" :disabled="noteForm.processing || !noteForm.note" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">إرسال</button><button type="button" @click="showSendNote = false" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>

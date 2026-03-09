@@ -95,7 +95,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
                   <!-- Expanded Detail Row -->
                   <tr v-if="expandedId === a.id" class="aa-expanded-row">
                     <td colspan="7">
-                      <div class="p-4 bg-[#1e293b] rounded-xl border border-[#334155] mx-2 my-1">
+                      <div class="p-4 bg-white rounded-xl border border-gray-200 mx-2 my-1">
                         <div class="grid grid-cols-4 gap-4 text-sm">
                           <div><span class="text-[#475569] block text-xs mb-1">رقم الحساب</span><span class="font-mono font-bold text-[#0f172a]">{{ a.account_number }}</span></div>
                           <div><span class="text-[#475569] block text-xs mb-1">IBAN</span><span class="font-mono text-[#0f172a] text-xs">{{ a.iban }}</span></div>
@@ -123,7 +123,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
       <!-- Adjust Modal -->
       <Teleport to="body">
         <div v-if="adjustingAccount" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="adjustingAccount = null">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-1">💰 تعديل رصيد</h3>
             <p class="text-[#475569] text-sm mb-2">{{ adjustingAccount.user?.full_name }} — {{ adjustingAccount.currency?.code }}</p>
             <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm"><span class="text-[#475569]">الرصيد الحالي: </span><span class="font-bold text-[#1E5EFF]">{{ fmt(adjustingAccount.balance, adjustingAccount.currency?.symbol) }}</span></div>

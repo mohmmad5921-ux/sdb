@@ -137,7 +137,7 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
       <!-- Limits Modal -->
       <Teleport to="body">
         <div v-if="editingCard" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="editingCard = null">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-1">📝 تعديل حدود البطاقة</h3>
             <p class="text-[#475569] text-sm mb-2">{{ editingCard.user?.full_name }} — {{ editingCard.card_number_masked }}</p>
             <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm grid grid-cols-3 gap-2">

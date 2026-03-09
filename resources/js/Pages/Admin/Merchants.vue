@@ -57,7 +57,7 @@ const categoryLabels = { ecommerce: 'تجارة إلكترونية', retail: 'ت
 
       <Teleport to="body">
         <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showCreateModal = false">
-          <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155] max-h-[80vh] overflow-y-auto" style="direction:rtl">
+          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-gray-200 max-h-[80vh] overflow-y-auto" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-5">إضافة تاجر جديد</h3>
             <form @submit.prevent="submit" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
