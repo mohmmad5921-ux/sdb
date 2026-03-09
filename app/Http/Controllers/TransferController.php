@@ -145,8 +145,10 @@ class TransferController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($fromAccount, $toAccount, $request) {
+            $reference = null;
+            DB::transaction(function () use ($fromAccount, $toAccount, $request, &$reference) {
                 $amount = $request->amount;
+                $reference = 'TRF-' . strtoupper(substr(md5(uniqid()), 0, 10));
 
                 // Debit sender
                 $fromAccount->decrement('balance', $amount);
@@ -166,14 +168,28 @@ class TransferController extends Controller
                     'fee' => 0,
                     'status' => 'completed',
                     'description' => $request->note ?? 'تحويل داخلي',
-                    'reference' => 'TRF-' . strtoupper(substr(md5(uniqid()), 0, 10)),
+                    'reference' => $reference,
                 ]);
             });
+
+            $toAccount->load('user');
+            $fromAccount->load('user', 'currency');
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم التحويل بنجاح',
                 'new_balance' => $fromAccount->fresh()->available_balance,
+                'receipt' => [
+                    'reference' => $reference,
+                    'amount' => $request->amount,
+                    'currency' => $fromAccount->currency->code,
+                    'symbol' => $fromAccount->currency->symbol,
+                    'sender' => $fromAccount->user->full_name,
+                    'recipient' => $toAccount->user->full_name,
+                    'date' => now()->format('Y-m-d H:i'),
+                    'note' => $request->note ?? '',
+                    'status' => 'completed',
+                ],
             ]);
         } catch (\Exception $e) {
             \Log::error('Transfer failed: ' . $e->getMessage());

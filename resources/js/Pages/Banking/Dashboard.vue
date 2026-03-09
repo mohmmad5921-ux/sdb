@@ -24,6 +24,7 @@ const tError = ref('');
 const tLoading = ref(false);
 const tSuccess = ref(false);
 const tNewBalance = ref(null);
+const tReceipt = ref(null);
 
 const lookupRecipient = async () => {
     tError.value = ''; tLoading.value = true; tRecipient.value = null;
@@ -53,13 +54,13 @@ const executeTransfer = async () => {
             body: JSON.stringify({ from_account_id: tFromAccount.value, to_account_id: tRecipient.value.account_id, amount: parseFloat(tAmount.value), note: tNote.value })
         });
         const data = await res.json();
-        if (data.success) { tSuccess.value = true; tNewBalance.value = data.new_balance; tStep.value = 'done'; }
+        if (data.success) { tSuccess.value = true; tNewBalance.value = data.new_balance; tReceipt.value = data.receipt; tStep.value = 'done'; }
         else { tError.value = data.message || 'فشل التحويل'; }
     } catch (e) { tError.value = 'خطأ في الاتصال'; }
     tLoading.value = false;
 };
 
-const resetTransfer = () => { tStep.value = 'lookup'; tMethod.value = 'account'; tValue.value = ''; tAmount.value = ''; tNote.value = ''; tRecipient.value = null; tError.value = ''; tSuccess.value = false; tNewBalance.value = null; showTransfer.value = false; };
+const resetTransfer = () => { tStep.value = 'lookup'; tMethod.value = 'account'; tValue.value = ''; tAmount.value = ''; tNote.value = ''; tRecipient.value = null; tError.value = ''; tSuccess.value = false; tNewBalance.value = null; tReceipt.value = null; showTransfer.value = false; };
 
 // Legacy transfer (keeping form for backward compat)
 const transferForm = useForm({ from_account_id: props.accounts?.[0]?.id || '', to_iban: '', amount: '', description: '' });
@@ -367,13 +368,33 @@ const navItems = [
                     <div v-if="tStep === 'done'" class="text-center py-6">
                         <div class="text-6xl mb-4">🎉</div>
                         <h3 class="text-2xl font-black text-white mb-2">تم التحويل بنجاح!</h3>
-                        <p class="text-gray-400 mb-2">Transfer Successful</p>
-                        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 mb-4 inline-block">
-                            <div class="text-3xl font-black text-emerald-400">{{ tAmount }} {{ accounts.find(a => a.id == tFromAccount)?.currency?.symbol }}</div>
-                            <div class="text-sm text-gray-400 mt-1">→ {{ tRecipient?.name }}</div>
+                        <p class="text-gray-400 mb-4">Transfer Successful</p>
+
+                        <!-- Receipt Card (screenshot-friendly) -->
+                        <div class="receipt-card text-right" dir="rtl">
+                            <div class="flex justify-between items-center mb-4 pb-3" style="border-bottom:1px dashed rgba(255,255,255,0.1)">
+                                <div class="text-lg font-black text-emerald-400">SDB Bank</div>
+                                <div class="text-[10px] text-gray-500">إيصال تحويل</div>
+                            </div>
+                            <div class="text-center mb-4">
+                                <div class="text-4xl font-black text-emerald-400">{{ tReceipt?.amount }} {{ tReceipt?.symbol }}</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ tReceipt?.currency }}</div>
+                            </div>
+                            <div class="space-y-3 mb-4 text-sm">
+                                <div class="flex justify-between"><span class="text-gray-500">المرسل</span><span class="text-white font-semibold">{{ tReceipt?.sender }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">المستلم</span><span class="text-white font-semibold">{{ tReceipt?.recipient }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">رقم المرجع</span><span class="text-emerald-400 font-mono text-xs">{{ tReceipt?.reference }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">التاريخ</span><span class="text-white">{{ tReceipt?.date }}</span></div>
+                                <div v-if="tReceipt?.note" class="flex justify-between"><span class="text-gray-500">ملاحظة</span><span class="text-white">{{ tReceipt.note }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">الحالة</span><span class="text-emerald-400 font-bold">✓ مكتمل</span></div>
+                            </div>
+                            <div class="pt-3 text-center" style="border-top:1px dashed rgba(255,255,255,0.1)">
+                                <div class="text-[10px] text-gray-600">رصيدك الجديد</div>
+                                <div class="text-lg font-bold text-white">{{ tNewBalance }} {{ tReceipt?.symbol }}</div>
+                            </div>
                         </div>
-                        <div class="text-xs text-gray-500 mb-5">رصيدك الجديد: <span class="text-emerald-400 font-bold">{{ tNewBalance }}</span></div>
-                        <button @click="resetTransfer" class="bg-white/5 hover:bg-white/10 px-8 py-3 rounded-xl text-white font-bold transition">إغلاق</button>
+
+                        <button @click="resetTransfer" class="bg-white/5 hover:bg-white/10 px-8 py-3 rounded-xl text-white font-bold transition mt-4">إغلاق</button>
                     </div>
 
                 </div>
@@ -443,4 +464,5 @@ const navItems = [
 .bd-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)}
 .bd-select{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;color:#fff;outline:none;font-size:13px}.bd-select:focus{border-color:#10b981}
 .bd-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;color:#fff;outline:none;font-size:13px}.bd-input:focus{border-color:#10b981}.bd-input::placeholder{color:rgba(255,255,255,0.2)}
+.receipt-card{background:linear-gradient(135deg,#0a1628,#0f1f3a);border:1px solid rgba(16,185,129,0.15);border-radius:20px;padding:24px;max-width:380px;margin:0 auto;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
 </style>

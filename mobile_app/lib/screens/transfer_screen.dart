@@ -24,6 +24,7 @@ class _TransferScreenState extends State<TransferScreen> {
   bool loading = false;
   String? error, success;
   String? newBalance;
+  Map<String, dynamic>? receipt;
 
   @override
   void initState() { super.initState(); _loadAccounts(); }
@@ -68,7 +69,7 @@ class _TransferScreenState extends State<TransferScreen> {
         'note': _note.text,
       });
       if (r['success'] == true && r['data']?['success'] == true) {
-        setState(() { step = 'done'; success = 'تم التحويل بنجاح!'; newBalance = '${r['data']?['new_balance']}'; });
+        setState(() { step = 'done'; success = 'تم التحويل بنجاح!'; newBalance = '${r['data']?['new_balance']}'; receipt = r['data']?['receipt'] as Map<String, dynamic>?; });
       } else {
         setState(() => error = r['data']?['message'] ?? 'فشل التحويل');
       }
@@ -79,7 +80,7 @@ class _TransferScreenState extends State<TransferScreen> {
   }
 
   void _reset() {
-    setState(() { step = 'lookup'; method = 'account'; _value.clear(); _amount.clear(); _note.clear(); recipient = null; error = null; success = null; newBalance = null; });
+    setState(() { step = 'lookup'; method = 'account'; _value.clear(); _amount.clear(); _note.clear(); recipient = null; error = null; success = null; newBalance = null; receipt = null; });
   }
 
   @override
@@ -253,24 +254,43 @@ class _TransferScreenState extends State<TransferScreen> {
       const SizedBox(height: 4),
       Text('Transfer Successful', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
       const SizedBox(height: 24),
+
+      // Receipt Card (screenshot-friendly)
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+        width: double.infinity,
+        padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
-          color: const Color(0xFF10b981).withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.2)),
+          gradient: const LinearGradient(colors: [Color(0xFF0a1628), Color(0xFF0f1f3a)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 24, offset: const Offset(0, 8))],
         ),
-        child: Column(children: [
-          Text('${_amount.text} ${selectedAccount?['currency']?['symbol'] ?? '€'}',
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF10b981))),
-          const SizedBox(height: 6),
-          Text('→ ${recipient?['name']}', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          // Header
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('SDB Bank', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF10b981))),
+            Text('إيصال تحويل', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+          ]),
+          Divider(color: Colors.white.withValues(alpha: 0.08), height: 28),
+          // Amount
+          Text('${receipt?['amount'] ?? _amount.text} ${receipt?['symbol'] ?? '€'}',
+            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF10b981))),
+          Text(receipt?['currency'] ?? '', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+          const SizedBox(height: 20),
+          // Details
+          _receiptRow('المرسل', receipt?['sender'] ?? ''),
+          _receiptRow('المستلم', receipt?['recipient'] ?? recipient?['name'] ?? ''),
+          _receiptRow('رقم المرجع', receipt?['reference'] ?? ''),
+          _receiptRow('التاريخ', receipt?['date'] ?? ''),
+          if (receipt?['note'] != null && receipt!['note'].toString().isNotEmpty) _receiptRow('ملاحظة', receipt!['note']),
+          _receiptRow('الحالة', '✓ مكتمل'),
+          Divider(color: Colors.white.withValues(alpha: 0.08), height: 28),
+          Text('رصيدك الجديد', style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+          const SizedBox(height: 4),
+          Text('$newBalance ${receipt?['symbol'] ?? '€'}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
         ]),
       ),
-      const SizedBox(height: 16),
-      if (newBalance != null) Text('رصيدك الجديد: $newBalance',
-        style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
-      const SizedBox(height: 30),
+      const SizedBox(height: 24),
       Row(children: [
         Expanded(child: _submitBtn('تحويل جديد', Icons.replay_rounded, false, _reset,
           const [Color(0xFF1E5EFF), Color(0xFF3B82F6)])),
@@ -297,6 +317,11 @@ class _TransferScreenState extends State<TransferScreen> {
     decoration: _boxDeco(),
     child: TextField(controller: c, keyboardType: type, textDirection: direction, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
       decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: AppTheme.textMuted), prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16))));
+  Widget _receiptRow(String label, String value) => Padding(padding: const EdgeInsets.only(bottom: 10),
+    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Text(label, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+      Flexible(child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white), textAlign: TextAlign.left)),
+    ]));
   Widget _msg(String t, Color c) => Container(padding: const EdgeInsets.all(14), margin: const EdgeInsets.only(bottom: 8),
     decoration: BoxDecoration(color: c.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(14), border: Border.all(color: c.withValues(alpha: 0.15))),
     child: Text(t, style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.w600)));
