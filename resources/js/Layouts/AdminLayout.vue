@@ -52,9 +52,12 @@ const sideLinks = [
   { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
+  { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
   { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
   { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
   { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
+  { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
+  { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
 ];
 

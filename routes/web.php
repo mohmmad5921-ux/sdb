@@ -255,6 +255,19 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     // Analytics
     Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics');
 
+    // Support Tickets
+    Route::get('/tickets', [\App\Http\Controllers\Admin\TicketController::class, 'index'])->name('tickets');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\Admin\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Admin\TicketController::class, 'reply'])->name('tickets.reply');
+    Route::patch('/tickets/{ticket}/status', [\App\Http\Controllers\Admin\TicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::patch('/tickets/{ticket}/priority', [\App\Http\Controllers\Admin\TicketController::class, 'updatePriority'])->name('tickets.priority');
+
+    // API Dashboard
+    Route::get('/api-status', [\App\Http\Controllers\Admin\ApiDashboardController::class, 'index'])->name('api-status');
+
+    // Compliance
+    Route::get('/compliance', [\App\Http\Controllers\Admin\ComplianceController::class, 'index'])->name('compliance');
+
     // CSV Exports
     Route::get('/export/users', [\App\Http\Controllers\Admin\ExportController::class, 'users'])->name('export.users');
     Route::get('/export/transactions', [\App\Http\Controllers\Admin\ExportController::class, 'transactions'])->name('export.transactions');

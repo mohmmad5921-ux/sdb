@@ -3,213 +3,303 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 
-const props = defineProps({ documents: Object, filters: Object, stats: Object });
+const props = defineProps({ documents: Object, filters: Object, stats: Object, userQueue: Array });
 const flash = computed(() => usePage().props.flash || {});
 const filter = ref(props.filters?.status || 'pending');
+
 const applyFilter = (status) => { filter.value = status; router.get(route('admin.kyc'), { status }, { preserveState: true }); };
 
 const reviewDoc = ref(null);
 const rejectionReason = ref('');
 const previewDoc = ref(null);
+const zoomLevel = ref(1);
 
-const approve = (doc) => router.post(route('admin.kyc.review', doc.id), { action: 'approve' });
+const approve = (doc) => router.post(route('admin.kyc.review', doc.id), { action: 'approve' }, { preserveScroll: true });
 const reject = (doc) => {
-  if (!rejectionReason.value.trim()) return;
-  router.post(route('admin.kyc.review', doc.id), { action: 'reject', rejection_reason: rejectionReason.value });
-  reviewDoc.value = null; rejectionReason.value = '';
+  if (!rejectionReason.value) return;
+  router.post(route('admin.kyc.review', doc.id), { action: 'reject', rejection_reason: rejectionReason.value }, {
+    preserveScroll: true, onSuccess: () => { reviewDoc.value = null; rejectionReason.value = ''; }
+  });
 };
 
-const docTypeLabels = { id_front: 'هوية - أمام', id_back: 'هوية - خلف', selfie: 'صورة شخصية', proof_of_address: 'إثبات عنوان', passport: 'جواز سفر' };
+const docTypeLabels = { id_front: 'هوية — أمام', id_back: 'هوية — خلف', selfie: 'صورة شخصية', proof_of_address: 'إثبات عنوان', passport: 'جواز سفر' };
 const statusBadge = { pending: 'ky-badge-yellow', approved: 'ky-badge-green', rejected: 'ky-badge-red' };
 
-// Document authenticity analysis (simulated AI-based verification)
-const analyzeDocument = (doc) => {
-  const checks = [];
-  // Check file metadata indicators
-  if (doc.mime_type && doc.mime_type.includes('image')) {
-    checks.push({ label: 'نوع الملف', status: 'pass', detail: doc.mime_type });
-  }
-  if (doc.file_size) {
-    const sizeKB = doc.file_size / 1024;
-    if (sizeKB < 50) {
-      checks.push({ label: 'حجم الملف', status: 'warning', detail: `${sizeKB.toFixed(0)}KB — صغير جداً (قد يكون سكرين شوت)` });
-    } else if (sizeKB > 200) {
-      checks.push({ label: 'حجم الملف', status: 'pass', detail: `${sizeKB.toFixed(0)}KB — حجم طبيعي لمستند أصلي` });
-    } else {
-      checks.push({ label: 'حجم الملف', status: 'info', detail: `${sizeKB.toFixed(0)}KB` });
-    }
-  }
-  // Check image dimensions if available
-  if (doc.image_width && doc.image_height) {
-    const ratio = doc.image_width / doc.image_height;
-    const isScreenRatio = (ratio > 0.5 && ratio < 0.7) || (ratio > 1.7 && ratio < 2.0); // Phone screenshot ratios
-    checks.push({ label: 'أبعاد الصورة', status: isScreenRatio ? 'warning' : 'pass', detail: `${doc.image_width}×${doc.image_height} ${isScreenRatio ? '(أبعاد مشابهة لسكرين شوت)' : '(أبعاد طبيعية)'}` });
-  }
-  // Check original filename
-  if (doc.original_filename) {
-    const isScreenshot = /screenshot|screen|IMG_\d{4}/i.test(doc.original_filename);
-    const isCameraPhoto = /^(IMG|DSC|DCIM|photo|P_)\d/i.test(doc.original_filename);
-    checks.push({ label: 'اسم الملف', status: isScreenshot ? 'fail' : (isCameraPhoto ? 'pass' : 'info'), detail: `"${doc.original_filename}" ${isScreenshot ? '⚠️ يبدو سكرين شوت!' : isCameraPhoto ? '✅ صورة كاميرا' : ''}` });
-  }
-  // Overall scoring
-  const fails = checks.filter(c => c.status === 'fail').length;
-  const warnings = checks.filter(c => c.status === 'warning').length;
-  const score = Math.max(0, 100 - (fails * 40) - (warnings * 15));
-  return { checks, score, verdict: fails > 0 ? 'مشبوه' : warnings > 1 ? 'يحتاج مراجعة' : 'يبدو أصلي' };
+const rejectionReasons = [
+  'صورة غير واضحة أو مقصوصة',
+  'المستند منتهي الصلاحية',
+  'الاسم لا يتطابق مع بيانات الحساب',
+  'المستند ليس بالنوع المطلوب',
+  'صورة السيلفي لا تتطابق مع الهوية',
+  'المستند مزور أو معدّل',
+  'سبب آخر',
+];
+
+const zoomIn = () => { zoomLevel.value = Math.min(zoomLevel.value + 0.25, 3); };
+const zoomOut = () => { zoomLevel.value = Math.max(zoomLevel.value - 0.25, 0.5); };
+const resetZoom = () => { zoomLevel.value = 1; };
+
+// Find matching docs for side-by-side
+const getSideBySide = (doc) => {
+  if (!doc?.user_id) return { id: null, selfie: null };
+  const allDocs = props.documents?.data || [];
+  const userDocs = allDocs.filter(d => d.user_id === doc.user_id);
+  return {
+    id: userDocs.find(d => d.document_type === 'id_front' || d.document_type === 'passport'),
+    selfie: userDocs.find(d => d.document_type === 'selfie'),
+  };
 };
 </script>
 
 <template>
   <Head title="KYC Review - مراجعة وثائق الهوية" />
-  <AdminLayout title="🪪 مراجعة KYC">
+  <AdminLayout title="🪪 مراجعة KYC" subtitle="فحص واعتماد وثائق الهوية">
     <div class="ky-root">
-      <div class="ky-header">
-        <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div><h1 class="text-2xl font-bold text-[#0f172a]">مراجعة وثائق الهوية — KYC</h1><p class="text-sm text-[#475569] mt-1">فحص والتحقق من أصالة المستندات</p></div>
-          <Link :href="route('admin.dashboard')" class="ky-back">← الرئيسية</Link>
+
+      <div v-if="flash.success" class="ky-success">✓ {{ flash.success }}</div>
+
+      <!-- Stats -->
+      <div class="ky-stats-row">
+        <button @click="applyFilter('pending')" :class="['ky-stat-card', filter === 'pending' ? 'ky-stat-active' : '']">
+          <div class="ky-stat-val" style="color:#f59e0b">{{ stats.pending }}</div>
+          <div class="ky-stat-label">⏳ معلّق</div>
+        </button>
+        <button @click="applyFilter('approved')" :class="['ky-stat-card', filter === 'approved' ? 'ky-stat-active' : '']">
+          <div class="ky-stat-val" style="color:#10b981">{{ stats.approved }}</div>
+          <div class="ky-stat-label">✅ معتمد</div>
+        </button>
+        <button @click="applyFilter('rejected')" :class="['ky-stat-card', filter === 'rejected' ? 'ky-stat-active' : '']">
+          <div class="ky-stat-val" style="color:#ef4444">{{ stats.rejected }}</div>
+          <div class="ky-stat-label">❌ مرفوض</div>
+        </button>
+        <div class="ky-stat-card" style="border-color:#fde68a;background:#fffbeb" v-if="stats.overdue > 0">
+          <div class="ky-stat-val" style="color:#dc2626">{{ stats.overdue }}</div>
+          <div class="ky-stat-label">🚨 متأخر +48h</div>
         </div>
       </div>
 
-      <div v-if="flash.success" class="max-w-7xl mx-auto px-6 mt-4">
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-emerald-700 text-sm">✓ {{ flash.success }}</div>
-      </div>
-
-      <div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
-        <!-- Stats Filter -->
-        <div class="grid grid-cols-3 gap-4">
-          <button @click="applyFilter('pending')" class="ky-stat" :class="filter === 'pending' ? 'ky-stat-yellow-active' : ''">
-            <div class="text-3xl font-black text-amber-600">{{ stats.pending }}</div>
-            <div class="text-sm text-[#475569] mt-1">⏳ قيد المراجعة</div>
-          </button>
-          <button @click="applyFilter('approved')" class="ky-stat" :class="filter === 'approved' ? 'ky-stat-green-active' : ''">
-            <div class="text-3xl font-black text-emerald-600">{{ stats.approved }}</div>
-            <div class="text-sm text-[#475569] mt-1">✅ معتمد</div>
-          </button>
-          <button @click="applyFilter('rejected')" class="ky-stat" :class="filter === 'rejected' ? 'ky-stat-red-active' : ''">
-            <div class="text-3xl font-black text-red-600">{{ stats.rejected }}</div>
-            <div class="text-sm text-[#475569] mt-1">❌ مرفوض</div>
-          </button>
-        </div>
-
-        <!-- Documents -->
-        <div class="ky-card overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="ky-table">
-              <thead><tr>
-                <th>العميل</th><th>نوع المستند</th><th>الملف</th><th>فحص الأصالة</th><th class="text-center">الحالة</th><th>التاريخ</th><th class="text-center">إجراء</th>
-              </tr></thead>
-              <tbody>
-                <tr v-for="doc in documents.data" :key="doc.id">
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="ky-avatar">{{ doc.user?.full_name?.charAt(0) }}</div>
-                      <div><div class="text-sm font-semibold text-[#0f172a]">{{ doc.user?.full_name }}</div><div class="text-xs text-[#475569]">{{ doc.user?.email }}</div></div>
-                    </div>
-                  </td>
-                  <td class="text-sm text-[#334155]">{{ docTypeLabels[doc.document_type] || doc.document_type }}</td>
-                  <td>
-                    <a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ky-file-link">📄 {{ doc.original_filename }}</a>
-                  </td>
-                  <td>
-                    <div class="flex items-center gap-2">
-                      <div class="ky-auth-score" :class="{ 'ky-auth-pass': analyzeDocument(doc).score >= 70, 'ky-auth-warn': analyzeDocument(doc).score >= 40 && analyzeDocument(doc).score < 70, 'ky-auth-fail': analyzeDocument(doc).score < 40 }">
-                        {{ analyzeDocument(doc).score }}%
-                      </div>
-                      <span class="text-xs text-[#475569]">{{ analyzeDocument(doc).verdict }}</span>
-                      <button @click="previewDoc = doc" class="text-xs text-[#1E5EFF] hover:underline">تفاصيل</button>
-                    </div>
-                  </td>
-                  <td class="text-center"><span :class="statusBadge[doc.status]" class="ky-badge">{{ doc.status }}</span></td>
-                  <td class="text-[#475569] text-xs">{{ new Date(doc.created_at).toLocaleString('en-GB') }}</td>
-                  <td class="text-center">
-                    <div v-if="doc.status === 'pending'" class="flex justify-center gap-1">
-                      <button @click="approve(doc)" class="ky-btn-green">✓ اعتماد</button>
-                      <button @click="reviewDoc = doc" class="ky-btn-red">✗ رفض</button>
-                    </div>
-                    <div v-else-if="doc.status === 'rejected'" class="text-xs text-red-500 max-w-[150px] truncate">{{ doc.rejection_reason }}</div>
-                    <div v-else class="text-xs text-[#475569]">{{ doc.reviewer?.full_name }}</div>
-                  </td>
-                </tr>
-                <tr v-if="!documents.data?.length"><td colspan="7" class="py-12 text-center text-[#475569]">لا توجد مستندات</td></tr>
-              </tbody>
-            </table>
+      <!-- User Review Queue -->
+      <div v-if="userQueue?.length && filter === 'pending'" class="ky-card mb-4">
+        <h3 class="ky-section-title">📋 قائمة الانتظار حسب العميل</h3>
+        <div class="ky-queue">
+          <div v-for="u in userQueue" :key="u.user_id" :class="['ky-queue-item', u.is_overdue ? 'ky-queue-overdue' : '']">
+            <div class="flex items-center gap-3">
+              <div class="ky-avatar">{{ u.user_name?.charAt(0) }}</div>
+              <div>
+                <div class="ky-queue-name">{{ u.user_name }}</div>
+                <div class="ky-queue-email">{{ u.user_email }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="ky-queue-docs">
+                <span v-for="t in u.doc_types" :key="t" class="ky-doc-tag">{{ docTypeLabels[t] || t }}</span>
+              </div>
+              <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">
+                ⏱️ {{ u.hours_waiting }}h
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Documents Table -->
+      <div class="ky-card">
+        <h3 class="ky-section-title">📄 المستندات</h3>
+        <div class="overflow-x-auto">
+          <table class="ky-table">
+            <thead><tr>
+              <th>العميل</th><th>نوع المستند</th><th>الملف</th><th>وقت الانتظار</th><th>الحالة</th><th>إجراء</th>
+            </tr></thead>
+            <tbody>
+              <tr v-for="doc in documents.data" :key="doc.id" :class="{ 'ky-row-overdue': doc.hours_elapsed > 48 && doc.status === 'pending' }">
+                <td>
+                  <Link :href="route('admin.users.show', doc.user?.id)" class="flex items-center gap-2">
+                    <div class="ky-avatar-sm">{{ doc.user?.full_name?.charAt(0) }}</div>
+                    <div><div class="font-semibold text-[#0f172a] text-sm">{{ doc.user?.full_name }}</div><div class="text-xs text-[#64748b]">{{ doc.user?.email }}</div></div>
+                  </Link>
+                </td>
+                <td><span class="ky-doc-badge">{{ docTypeLabels[doc.document_type] || doc.document_type }}</span></td>
+                <td>
+                  <div class="flex gap-2">
+                    <a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ky-view-btn">👁️ عرض</a>
+                    <button @click="previewDoc = doc; zoomLevel = 1" class="ky-view-btn ky-zoom-btn">🔍 تكبير</button>
+                  </div>
+                </td>
+                <td>
+                  <span :class="['ky-time-badge', doc.hours_elapsed > 48 ? 'ky-time-overdue' : doc.hours_elapsed > 24 ? 'ky-time-warn' : 'ky-time-ok']">
+                    ⏱️ {{ doc.time_elapsed_text }}
+                  </span>
+                </td>
+                <td><span :class="statusBadge[doc.status]" class="ky-badge">{{ doc.status }}</span></td>
+                <td>
+                  <div v-if="doc.status === 'pending'" class="flex gap-2">
+                    <button @click="approve(doc)" class="ky-action-btn ky-approve">✅ اعتماد</button>
+                    <button @click="reviewDoc = doc" class="ky-action-btn ky-reject">❌ رفض</button>
+                  </div>
+                  <div v-else class="text-xs text-[#64748b]">{{ doc.reviewer?.full_name || '—' }}</div>
+                </td>
+              </tr>
+              <tr v-if="!documents.data?.length"><td colspan="6" class="py-12 text-center text-[#94a3b8]">لا توجد مستندات</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="documents.links?.length > 3" class="ky-pagination">
+          <Link v-for="link in documents.links" :key="link.label" :href="link.url || '#'"
+            :class="['ky-page-btn', link.active ? 'ky-page-active' : '', !link.url ? 'ky-page-disabled' : '']"
+            v-html="link.label"></Link>
         </div>
       </div>
 
       <!-- Rejection Modal -->
       <Teleport to="body">
-        <div v-if="reviewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="reviewDoc = null">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
-            <h3 class="text-lg font-bold text-[#0f172a] mb-1">رفض مستند</h3>
-            <p class="text-[#475569] text-sm mb-4">{{ reviewDoc.user?.full_name }} — {{ docTypeLabels[reviewDoc.document_type] }}</p>
-            <textarea v-model="rejectionReason" placeholder="سبب الرفض..." rows="3"
-              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0f172a] outline-none focus:border-red-400 text-sm resize-none"></textarea>
+        <div v-if="reviewDoc" class="ky-modal-overlay" @click.self="reviewDoc = null">
+          <div class="ky-modal">
+            <h3 class="ky-modal-title">❌ رفض المستند</h3>
+            <p class="ky-modal-desc">العميل: <strong>{{ reviewDoc.user?.full_name }}</strong> — {{ docTypeLabels[reviewDoc.document_type] }}</p>
+
+            <div class="ky-reason-grid">
+              <button v-for="r in rejectionReasons" :key="r" @click="rejectionReason = r"
+                :class="['ky-reason-btn', rejectionReason === r ? 'ky-reason-active' : '']">{{ r }}</button>
+            </div>
+
+            <textarea v-model="rejectionReason" rows="2" class="ky-modal-input mt-3" placeholder="أو اكتب سبب آخر..."></textarea>
+
             <div class="flex gap-3 mt-4">
-              <button @click="reject(reviewDoc)" :disabled="!rejectionReason.trim()" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm disabled:opacity-50">✗ رفض</button>
-              <button @click="reviewDoc = null" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm">إلغاء</button>
+              <button @click="reject(reviewDoc)" :disabled="!rejectionReason" class="ky-action-btn ky-reject flex-1">❌ تأكيد الرفض</button>
+              <button @click="reviewDoc = null" class="ky-action-btn ky-cancel flex-1">إلغاء</button>
             </div>
           </div>
         </div>
       </Teleport>
 
-      <!-- Document Analysis Modal -->
+      <!-- Document Preview/Zoom Modal -->
       <Teleport to="body">
-        <div v-if="previewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="previewDoc = null">
-          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-gray-200" style="direction:rtl">
-            <h3 class="text-lg font-bold text-[#0f172a] mb-1">🔍 تقرير فحص أصالة المستند</h3>
-            <p class="text-[#475569] text-sm mb-4">{{ previewDoc.user?.full_name }} — {{ docTypeLabels[previewDoc.document_type] }}</p>
-
-            <div class="text-center mb-4">
-              <div class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl" :class="{'bg-emerald-50 border-emerald-200': analyzeDocument(previewDoc).score >= 70, 'bg-amber-50 border-amber-200': analyzeDocument(previewDoc).score >= 40 && analyzeDocument(previewDoc).score < 70, 'bg-red-50 border-red-200': analyzeDocument(previewDoc).score < 40}" style="border-width:1px">
-                <span class="text-3xl font-black" :class="{'text-emerald-600': analyzeDocument(previewDoc).score >= 70, 'text-amber-600': analyzeDocument(previewDoc).score >= 40 && analyzeDocument(previewDoc).score < 70, 'text-red-600': analyzeDocument(previewDoc).score < 40}">{{ analyzeDocument(previewDoc).score }}%</span>
-                <span class="text-sm font-semibold" :class="{'text-emerald-700': analyzeDocument(previewDoc).score >= 70, 'text-amber-700': analyzeDocument(previewDoc).score >= 40 && analyzeDocument(previewDoc).score < 70, 'text-red-700': analyzeDocument(previewDoc).score < 40}">{{ analyzeDocument(previewDoc).verdict }}</span>
+        <div v-if="previewDoc" class="ky-modal-overlay" @click.self="previewDoc = null">
+          <div class="ky-preview-modal">
+            <div class="ky-preview-header">
+              <h3 class="ky-modal-title">🔍 {{ docTypeLabels[previewDoc.document_type] }} — {{ previewDoc.user?.full_name }}</h3>
+              <div class="ky-zoom-controls">
+                <button @click="zoomOut" class="ky-zoom-ctrl">➖</button>
+                <span class="ky-zoom-text">{{ Math.round(zoomLevel * 100) }}%</span>
+                <button @click="zoomIn" class="ky-zoom-ctrl">➕</button>
+                <button @click="resetZoom" class="ky-zoom-ctrl">↻</button>
+                <button @click="previewDoc = null" class="ky-zoom-ctrl ky-close">✕</button>
               </div>
             </div>
 
-            <div class="space-y-2">
-              <div v-for="(check, i) in analyzeDocument(previewDoc).checks" :key="i" class="flex items-center gap-3 p-3 rounded-xl" :class="{'bg-emerald-50': check.status === 'pass', 'bg-amber-50': check.status === 'warning', 'bg-red-50': check.status === 'fail', 'bg-gray-50': check.status === 'info'}">
-                <span v-if="check.status === 'pass'" class="text-emerald-500">✅</span>
-                <span v-else-if="check.status === 'warning'" class="text-amber-500">⚠️</span>
-                <span v-else-if="check.status === 'fail'" class="text-red-500">❌</span>
-                <span v-else class="text-blue-500">ℹ️</span>
-                <div>
-                  <div class="text-sm font-semibold text-[#0f172a]">{{ check.label }}</div>
-                  <div class="text-xs text-[#475569]">{{ check.detail }}</div>
+            <!-- Side by Side -->
+            <div class="ky-sidebyside">
+              <div class="ky-side-panel">
+                <div class="ky-side-label">📄 {{ docTypeLabels[previewDoc.document_type] }}</div>
+                <div class="ky-img-container" :style="{transform: `scale(${zoomLevel})`}">
+                  <img :src="route('admin.kyc.view', previewDoc.id)" class="ky-preview-img" />
+                </div>
+              </div>
+              <div class="ky-side-panel" v-if="getSideBySide(previewDoc).selfie && previewDoc.document_type !== 'selfie'">
+                <div class="ky-side-label">🤳 صورة شخصية (للمقارنة)</div>
+                <div class="ky-img-container" :style="{transform: `scale(${zoomLevel})`}">
+                  <img :src="route('admin.kyc.view', getSideBySide(previewDoc).selfie.id)" class="ky-preview-img" />
+                </div>
+              </div>
+              <div class="ky-side-panel" v-else-if="getSideBySide(previewDoc).id && previewDoc.document_type === 'selfie'">
+                <div class="ky-side-label">🪪 الهوية (للمقارنة)</div>
+                <div class="ky-img-container" :style="{transform: `scale(${zoomLevel})`}">
+                  <img :src="route('admin.kyc.view', getSideBySide(previewDoc).id.id)" class="ky-preview-img" />
                 </div>
               </div>
             </div>
 
-            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-700">
-              💡 <strong>ملاحظة:</strong> يتم فحص الملف تلقائياً بناءً على حجم الصورة وأبعادها واسم الملف. سكرين شوت عادة تكون بحجم صغير وأبعاد شاشة الهاتف.
+            <div v-if="previewDoc.status === 'pending'" class="ky-preview-actions">
+              <button @click="approve(previewDoc); previewDoc = null" class="ky-action-btn ky-approve">✅ اعتماد</button>
+              <button @click="reviewDoc = previewDoc; previewDoc = null" class="ky-action-btn ky-reject">❌ رفض</button>
             </div>
-
-            <button @click="previewDoc = null" class="w-full mt-4 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm">إغلاق</button>
           </div>
         </div>
       </Teleport>
+
     </div>
   </AdminLayout>
 </template>
 
 <style>
 @import '../../../css/admin.css';
-@import '../../../css/admin.css';
-.ky-root{min-height:100vh;background:#f1f5f9;direction:rtl}
-.ky-header{background:#ffffff;border-bottom:1px solid #e2e8f0}
-.ky-back{padding:8px 18px;background:#ffffff;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ky-back:hover{background:#10b981;color:#fff}
-.ky-stat{background:#ffffff;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#10b981}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
-.ky-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px}
-.ky-table{width:100%;border-collapse:collapse;font-size:13px}
-.ky-table th{text-align:right;padding:12px 16px;background:#ffffff;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
-.ky-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
-.ky-table tr:hover td{background:#ffffff}
-.ky-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
-.ky-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
-.ky-badge-green{background:rgba(16,185,129,0.1);color:#059669}.ky-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.ky-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
-.ky-file-link{font-size:12px;color:#3b82f6;text-decoration:none;display:flex;align-items:center;gap:4px}.ky-file-link:hover{text-decoration:underline}
-.ky-auth-score{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px}
-.ky-auth-pass{background:rgba(16,185,129,0.1);color:#059669}.ky-auth-warn{background:rgba(245,158,11,0.1);color:#d97706}.ky-auth-fail{background:rgba(239,68,68,0.1);color:#dc2626}
-.ky-btn-green{font-size:11px;padding:5px 12px;background:#10b981;color:#fff;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:background .2s}.ky-btn-green:hover{background:#059669}
-.ky-btn-red{font-size:11px;padding:5px 12px;background:#ef4444;color:#fff;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:background .2s}.ky-btn-red:hover{background:#dc2626}
+.ky-root{direction:rtl}
+.ky-success{background:#ecfdf5;color:#059669;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;border:1px solid #a7f3d0;margin-bottom:16px}
+.ky-stats-row{display:flex;gap:12px;margin-bottom:20px}
+.ky-stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 24px;text-align:center;cursor:pointer;transition:all .2s;flex:1}
+.ky-stat-card:hover{border-color:#10b981}
+.ky-stat-active{border-color:#10b981!important;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+.ky-stat-val{font-size:32px;font-weight:800}
+.ky-stat-label{font-size:13px;color:#64748b;margin-top:4px;font-weight:600}
+
+.ky-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px}
+.ky-section-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:14px}
+
+/* Queue */
+.ky-queue{display:flex;flex-direction:column;gap:6px}
+.ky-queue-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e2e8f0;border-radius:12px;transition:all .15s}
+.ky-queue-item:hover{border-color:#cbd5e1;background:#fafbfc}
+.ky-queue-overdue{border-color:#fecaca!important;background:#fef2f2!important}
+.ky-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.ky-avatar-sm{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.ky-queue-name{font-size:14px;font-weight:600;color:#0f172a}
+.ky-queue-email{font-size:12px;color:#64748b}
+.ky-queue-docs{display:flex;gap:4px;flex-wrap:wrap}
+.ky-doc-tag{font-size:10px;background:#f1f5f9;color:#334155;padding:2px 8px;border-radius:6px;font-weight:600}
+.ky-queue-time{font-size:13px;font-weight:700;color:#334155;min-width:60px;text-align:center}
+.ky-time-overdue{color:#dc2626!important;font-weight:800}
+.ky-time-warn{color:#f59e0b}
+.ky-time-ok{color:#10b981}
+
+/* Table */
+.ky-table{width:100%;border-collapse:separate;border-spacing:0}
+.ky-table th{background:#f8fafc;padding:12px 14px;font-size:13px;font-weight:700;color:#334155;border-bottom:1px solid #e2e8f0;text-align:right}
+.ky-table td{padding:12px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155}
+.ky-row-overdue td{background:#fef2f2!important}
+.ky-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px}
+.ky-badge-yellow{background:#fffbeb;color:#d97706}
+.ky-badge-green{background:#ecfdf5;color:#059669}
+.ky-badge-red{background:#fef2f2;color:#dc2626}
+.ky-doc-badge{font-size:12px;background:#f1f5f9;color:#334155;padding:4px 10px;border-radius:8px;font-weight:600}
+.ky-time-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px}
+
+/* Buttons */
+.ky-view-btn{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#334155;cursor:pointer;text-decoration:none;font-weight:600}.ky-view-btn:hover{border-color:#10b981;color:#10b981}
+.ky-action-btn{font-size:13px;padding:7px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600;transition:all .15s}
+.ky-approve{background:#ecfdf5;color:#059669}.ky-approve:hover{background:#10b981;color:#fff}
+.ky-reject{background:#fef2f2;color:#dc2626}.ky-reject:hover{background:#ef4444;color:#fff}
+.ky-cancel{background:#f1f5f9;color:#64748b}.ky-cancel:hover{background:#e2e8f0}
+
+/* Modal */
+.ky-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.ky-modal{background:#fff;border-radius:20px;padding:28px;max-width:500px;width:90%}
+.ky-modal-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px}
+.ky-modal-desc{font-size:14px;color:#475569;margin-bottom:16px}
+.ky-modal-input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:13px;color:#0f172a;outline:none;resize:none}.ky-modal-input:focus{border-color:#10b981}
+
+.ky-reason-grid{display:flex;flex-wrap:wrap;gap:6px}
+.ky-reason-btn{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#334155;cursor:pointer;transition:all .15s}.ky-reason-btn:hover{border-color:#ef4444;color:#ef4444}
+.ky-reason-active{background:#fef2f2!important;border-color:#ef4444!important;color:#dc2626!important;font-weight:600}
+
+/* Preview Modal */
+.ky-preview-modal{background:#fff;border-radius:20px;padding:24px;max-width:900px;width:95%;max-height:90vh;overflow-y:auto}
+.ky-preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ky-zoom-controls{display:flex;align-items:center;gap:6px}
+.ky-zoom-ctrl{width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}.ky-zoom-ctrl:hover{border-color:#10b981;background:#ecfdf5}
+.ky-close{color:#ef4444}.ky-close:hover{background:#fef2f2!important;border-color:#ef4444!important}
+.ky-zoom-text{font-size:12px;font-weight:700;color:#334155;min-width:40px;text-align:center}
+
+.ky-sidebyside{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ky-side-panel{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
+.ky-side-label{background:#f8fafc;padding:10px 14px;font-size:13px;font-weight:700;color:#334155;border-bottom:1px solid #e2e8f0}
+.ky-img-container{overflow:auto;max-height:400px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;transition:transform .2s;transform-origin:center}
+.ky-preview-img{max-width:100%;height:auto;display:block}
+.ky-preview-actions{display:flex;gap:10px;justify-content:center;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0}
+
+.ky-pagination{display:flex;justify-content:center;gap:4px;margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9}
+.ky-page-btn{padding:6px 12px;border-radius:8px;font-size:12px;color:#334155;text-decoration:none;border:1px solid #e2e8f0}.ky-page-btn:hover{border-color:#10b981}
+.ky-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
+.ky-page-disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 </style>
