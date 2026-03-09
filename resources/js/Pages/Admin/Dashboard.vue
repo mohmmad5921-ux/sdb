@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({ stats: Object, dailyTransactions: Array, dailyUsers: Array, recentTransactions: Array, recentUsers: Array, currencies: Array, alerts: Array, recentWaitlist: Array, recentPrereg: Array });
 const sidebarOpen = ref(true);
@@ -14,6 +14,7 @@ const fmtM = (a) => {
 
 const sideLinks = [
   { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard', active: true },
+  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
   { label: 'التقارير', icon: '📈', route: 'admin.reports' },
   { label: 'المخاطر', icon: '🛡️', route: 'admin.risk' },
   { label: 'العملاء', icon: '👥', route: 'admin.users' },
@@ -26,144 +27,168 @@ const sideLinks = [
   { label: 'الدعم', icon: '🎧', route: 'admin.support' },
   { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
   { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
-  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.dashboard' },
 ];
 
-// Bar chart heights
 const maxTxCount = computed(() => Math.max(...(props.dailyTransactions || []).map(d => d.count), 1));
 const maxTxVol = computed(() => Math.max(...(props.dailyTransactions || []).map(d => d.volume), 1));
 
 const typeLabels = { transfer: 'تحويل', deposit: 'إيداع', withdrawal: 'سحب', exchange: 'صرف', card_payment: 'بطاقة', fee: 'رسوم' };
-const statusBadge = { completed: 'db-badge-green', pending: 'db-badge-yellow', failed: 'db-badge-red' };
+const statusBadge = { completed: 'ad-badge-green', pending: 'ad-badge-yellow', failed: 'ad-badge-red' };
 </script>
 
 <template>
   <Head title="Admin Dashboard - لوحة التحكم" />
   <AuthenticatedLayout>
-    <div class="db-root">
+    <div class="ad-root">
       <!-- SIDEBAR -->
-      <aside class="db-sidebar" :class="{'db-sidebar-collapsed': !sidebarOpen}">
-        <div class="db-logo">
-          <img src="/images/sdb-logo.png" alt="SDB" class="w-8 h-8 rounded-lg" onerror="this.style.display='none'"/>
-          <span v-if="sidebarOpen" class="text-lg font-black text-[#1A2B4A]">SDB Admin</span>
+      <aside class="ad-sidebar" :class="{'ad-sidebar-collapsed': !sidebarOpen}">
+        <div class="ad-logo">
+          <div class="ad-logo-icon">SDB</div>
+          <span v-if="sidebarOpen" class="ad-logo-text">لوحة الإدارة</span>
         </div>
-        <nav class="db-nav">
-          <Link v-for="l in sideLinks" :key="l.route" :href="route(l.route)" :class="['db-nav-item', l.active ? 'db-nav-active' : '']">
-            <span>{{ l.icon }}</span><span v-if="sidebarOpen">{{ l.label }}</span>
+        <nav class="ad-nav">
+          <Link v-for="l in sideLinks" :key="l.route + l.label" :href="route(l.route)" :class="['ad-nav-item', l.active ? 'ad-nav-active' : '']">
+            <span class="ad-nav-icon">{{ l.icon }}</span><span v-if="sidebarOpen" class="ad-nav-label">{{ l.label }}</span>
           </Link>
         </nav>
       </aside>
 
       <!-- MAIN -->
-      <main class="db-main">
-        <header class="db-topbar">
-          <div class="flex items-center gap-3">
-            <button @click="sidebarOpen = !sidebarOpen" class="text-[#8896AB] hover:text-[#1A2B4A]">☰</button>
-            <h2 class="text-lg font-bold text-[#1A2B4A]">لوحة التحكم الرئيسية</h2>
+      <main class="ad-main">
+        <header class="ad-topbar">
+          <div class="flex items-center gap-4">
+            <button @click="sidebarOpen = !sidebarOpen" class="ad-toggle">☰</button>
+            <div>
+              <h1 class="ad-title">لوحة التحكم الرئيسية</h1>
+              <p class="ad-subtitle">نظرة عامة على أداء النظام والبيانات الحية</p>
+            </div>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-[#8896AB]">{{ new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-            <div class="w-8 h-8 rounded-lg bg-[#1E5EFF] text-white flex items-center justify-center text-sm font-bold">A</div>
+          <div class="flex items-center gap-4">
+            <span class="ad-date">{{ new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+            <div class="ad-avatar">A</div>
           </div>
         </header>
 
-        <div class="db-content">
+        <div class="ad-content">
           <!-- System Alerts -->
-          <div v-if="alerts?.length" class="db-alerts">
-            <div v-for="(a, i) in alerts" :key="i" :class="['db-alert', 'db-alert-' + a.type]">
+          <div v-if="alerts?.length" class="ad-alerts">
+            <div v-for="(a, i) in alerts" :key="i" :class="['ad-alert', 'ad-alert-' + a.type]">
               <span v-if="a.type==='warning'">⚠️</span><span v-else-if="a.type==='error'">🚨</span><span v-else>ℹ️</span>
-              {{ a.msg }}
+              <span>{{ a.msg }}</span>
             </div>
           </div>
 
           <!-- Core Stats -->
-          <div class="db-stats-grid">
-            <div class="db-stat"><div class="db-stat-icon db-stat-blue">👥</div><div><div class="text-xs text-[#8896AB]">العملاء</div><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total_users }}</div><div class="text-[10px] text-emerald-500">+{{ stats.new_users_today }} اليوم</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon db-stat-green">🏦</div><div><div class="text-xs text-[#8896AB]">الحسابات</div><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total_accounts }}</div><div class="text-[10px] text-blue-500">{{ stats.active_accounts }} نشط</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon db-stat-purple">💳</div><div><div class="text-xs text-[#8896AB]">البطاقات</div><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total_cards }}</div><div class="text-[10px] text-blue-500">{{ stats.active_cards }} نشط</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon db-stat-yellow">💸</div><div><div class="text-xs text-[#8896AB]">المعاملات</div><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total_transactions }}</div><div class="text-[10px] text-emerald-500">+{{ stats.today_transactions }} اليوم</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon db-stat-red">🪪</div><div><div class="text-xs text-[#8896AB]">طلبات KYC</div><div class="text-2xl font-black text-amber-600">{{ stats.pending_kyc }}</div><div class="text-[10px] text-amber-500">بانتظار المراجعة</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon db-stat-green">💰</div><div><div class="text-xs text-[#8896AB]">حجم المعاملات (الكلي)</div><div class="text-2xl font-black text-emerald-600">{{ fmtM(stats.total_volume) }}</div><div class="text-[10px] text-emerald-500">{{ fmtM(stats.today_volume) }} اليوم</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon" style="background:rgba(99,102,241,.08)">📩</div><div><div class="text-xs text-[#8896AB]">قائمة الانتظار</div><div class="text-2xl font-black text-indigo-600">{{ stats.total_waitlist }}</div><div class="text-[10px] text-indigo-500">+{{ stats.waitlist_today }} اليوم</div></div></div>
-            <div class="db-stat"><div class="db-stat-icon" style="background:rgba(236,72,153,.08)">📝</div><div><div class="text-xs text-[#8896AB]">التسجيل المبكر</div><div class="text-2xl font-black text-pink-600">{{ stats.total_preregistrations }}</div><div class="text-[10px] text-pink-500">+{{ stats.prereg_today }} اليوم</div></div></div>
+          <div class="ad-stats-grid">
+            <div class="ad-stat ad-stat-glow-blue">
+              <div class="ad-stat-header"><span class="ad-stat-icon">👥</span><span class="ad-stat-label">العملاء</span></div>
+              <div class="ad-stat-value">{{ stats.total_users }}</div>
+              <div class="ad-stat-sub ad-sub-green">+{{ stats.new_users_today }} اليوم</div>
+            </div>
+            <div class="ad-stat ad-stat-glow-green">
+              <div class="ad-stat-header"><span class="ad-stat-icon">🏦</span><span class="ad-stat-label">الحسابات</span></div>
+              <div class="ad-stat-value">{{ stats.total_accounts }}</div>
+              <div class="ad-stat-sub ad-sub-blue">{{ stats.active_accounts }} نشط</div>
+            </div>
+            <div class="ad-stat ad-stat-glow-purple">
+              <div class="ad-stat-header"><span class="ad-stat-icon">💳</span><span class="ad-stat-label">البطاقات</span></div>
+              <div class="ad-stat-value">{{ stats.total_cards }}</div>
+              <div class="ad-stat-sub ad-sub-blue">{{ stats.active_cards }} نشط</div>
+            </div>
+            <div class="ad-stat ad-stat-glow-amber">
+              <div class="ad-stat-header"><span class="ad-stat-icon">💸</span><span class="ad-stat-label">المعاملات</span></div>
+              <div class="ad-stat-value">{{ stats.total_transactions }}</div>
+              <div class="ad-stat-sub ad-sub-green">+{{ stats.today_transactions }} اليوم</div>
+            </div>
+            <div class="ad-stat">
+              <div class="ad-stat-header"><span class="ad-stat-icon">🪪</span><span class="ad-stat-label">طلبات KYC معلّقة</span></div>
+              <div class="ad-stat-value" style="color:#f59e0b">{{ stats.pending_kyc }}</div>
+              <div class="ad-stat-sub" style="color:#d97706">بانتظار المراجعة</div>
+            </div>
+            <div class="ad-stat">
+              <div class="ad-stat-header"><span class="ad-stat-icon">💰</span><span class="ad-stat-label">حجم المعاملات الكلي</span></div>
+              <div class="ad-stat-value" style="color:#10b981">{{ fmtM(stats.total_volume) }}</div>
+              <div class="ad-stat-sub ad-sub-green">{{ fmtM(stats.today_volume) }} اليوم</div>
+            </div>
+            <div class="ad-stat">
+              <div class="ad-stat-header"><span class="ad-stat-icon">📩</span><span class="ad-stat-label">قائمة الانتظار</span></div>
+              <div class="ad-stat-value" style="color:#6366f1">{{ stats.total_waitlist }}</div>
+              <div class="ad-stat-sub" style="color:#818cf8">+{{ stats.waitlist_today }} اليوم</div>
+            </div>
+            <div class="ad-stat">
+              <div class="ad-stat-header"><span class="ad-stat-icon">📝</span><span class="ad-stat-label">التسجيل المبكر</span></div>
+              <div class="ad-stat-value" style="color:#ec4899">{{ stats.total_preregistrations }}</div>
+              <div class="ad-stat-sub" style="color:#f472b6">+{{ stats.prereg_today }} اليوم</div>
+            </div>
           </div>
 
-          <!-- Volume Stats Row -->
+          <!-- Volume Summary Row -->
           <div class="grid grid-cols-4 gap-4">
-            <div class="db-vol-card"><div class="text-xs text-[#8896AB]">حجم اليوم</div><div class="text-xl font-black text-[#1A2B4A]">{{ fmtM(stats.today_volume) }}</div><div class="text-[10px] text-[#8896AB]">{{ stats.today_transactions }} معاملة</div></div>
-            <div class="db-vol-card"><div class="text-xs text-[#8896AB]">حجم الأسبوع</div><div class="text-xl font-black text-[#1E5EFF]">{{ fmtM(stats.week_volume) }}</div><div class="text-[10px] text-[#8896AB]">{{ stats.week_transactions }} معاملة</div></div>
-            <div class="db-vol-card"><div class="text-xs text-[#8896AB]">حجم الشهر</div><div class="text-xl font-black text-emerald-600">{{ fmtM(stats.month_volume) }}</div><div class="text-[10px] text-[#8896AB]">{{ stats.month_transactions }} معاملة</div></div>
-            <div class="db-vol-card"><div class="text-xs text-[#8896AB]">مستخدمون جدد (هذا الشهر)</div><div class="text-xl font-black text-purple-600">{{ stats.new_users_month }}</div><div class="text-[10px] text-[#8896AB]">{{ stats.new_users_week }} هذا الأسبوع</div></div>
+            <div class="ad-vol-card"><div class="ad-vol-label">حجم اليوم</div><div class="ad-vol-value">{{ fmtM(stats.today_volume) }}</div><div class="ad-vol-sub">{{ stats.today_transactions }} معاملة</div></div>
+            <div class="ad-vol-card"><div class="ad-vol-label">حجم الأسبوع</div><div class="ad-vol-value" style="color:#3b82f6">{{ fmtM(stats.week_volume) }}</div><div class="ad-vol-sub">{{ stats.week_transactions }} معاملة</div></div>
+            <div class="ad-vol-card"><div class="ad-vol-label">حجم الشهر</div><div class="ad-vol-value" style="color:#10b981">{{ fmtM(stats.month_volume) }}</div><div class="ad-vol-sub">{{ stats.month_transactions }} معاملة</div></div>
+            <div class="ad-vol-card"><div class="ad-vol-label">مستخدمون جدد (هذا الشهر)</div><div class="ad-vol-value" style="color:#8b5cf6">{{ stats.new_users_month }}</div><div class="ad-vol-sub">{{ stats.new_users_week }} هذا الأسبوع</div></div>
           </div>
 
           <!-- Charts Row -->
           <div class="grid grid-cols-2 gap-4">
-            <!-- Transaction Volume Chart -->
-            <div class="db-chart-card">
-              <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">📈 حجم المعاملات (7 أيام)</h3>
-              <div class="db-bar-chart">
-                <div v-for="d in dailyTransactions" :key="d.date" class="db-bar-col">
-                  <div class="db-bar-wrapper">
-                    <div class="db-bar" :style="{height: Math.max((d.volume / maxTxVol) * 100, 4) + '%'}"></div>
-                  </div>
-                  <div class="text-[10px] text-[#8896AB] mt-1">{{ d.date }}</div>
-                  <div class="text-[9px] text-[#1E5EFF] font-bold">{{ fmtM(d.volume) }}</div>
+            <div class="ad-chart-card">
+              <h3 class="ad-section-title">📈 حجم المعاملات — آخر 7 أيام</h3>
+              <div class="ad-bar-chart">
+                <div v-for="d in dailyTransactions" :key="d.date" class="ad-bar-col" :title="'الحجم: ' + fmtM(d.volume)">
+                  <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-blue" :style="{height: Math.max((d.volume / maxTxVol) * 100, 4) + '%'}"></div></div>
+                  <div class="ad-bar-date">{{ d.date }}</div>
+                  <div class="ad-bar-val" style="color:#3b82f6">{{ fmtM(d.volume) }}</div>
                 </div>
               </div>
             </div>
-
-            <!-- Transaction Count Chart -->
-            <div class="db-chart-card">
-              <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">📊 عدد المعاملات (7 أيام)</h3>
-              <div class="db-bar-chart">
-                <div v-for="d in dailyTransactions" :key="d.date" class="db-bar-col">
-                  <div class="db-bar-wrapper">
-                    <div class="db-bar db-bar-green" :style="{height: Math.max((d.count / maxTxCount) * 100, 4) + '%'}"></div>
-                  </div>
-                  <div class="text-[10px] text-[#8896AB] mt-1">{{ d.date }}</div>
-                  <div class="text-[9px] text-emerald-600 font-bold">{{ d.count }}</div>
+            <div class="ad-chart-card">
+              <h3 class="ad-section-title">📊 عدد المعاملات — آخر 7 أيام</h3>
+              <div class="ad-bar-chart">
+                <div v-for="d in dailyTransactions" :key="d.date" class="ad-bar-col" :title="'العدد: ' + d.count">
+                  <div class="ad-bar-wrapper"><div class="ad-bar ad-bar-green" :style="{height: Math.max((d.count / maxTxCount) * 100, 4) + '%'}"></div></div>
+                  <div class="ad-bar-date">{{ d.date }}</div>
+                  <div class="ad-bar-val" style="color:#10b981">{{ d.count }}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Quick Actions + System Status -->
+          <!-- Quick Actions + Health + Currencies -->
           <div class="grid grid-cols-3 gap-4">
-            <div class="db-card col-span-1">
-              <h3 class="text-sm font-bold text-[#1A2B4A] mb-3">⚡ إجراءات سريعة</h3>
-              <div class="space-y-2">
-                <Link :href="route('admin.users')" class="db-quick-link"><span>👥</span>إدارة العملاء</Link>
-                <Link :href="route('admin.kyc')" class="db-quick-link db-quick-warn"><span>🪪</span>مراجعة KYC <span v-if="stats.pending_kyc" class="db-badge-count">{{ stats.pending_kyc }}</span></Link>
-                <Link :href="route('admin.transactions')" class="db-quick-link"><span>💸</span>المعاملات</Link>
-                <Link :href="route('admin.accounts')" class="db-quick-link"><span>🏦</span>الحسابات</Link>
-                <Link :href="route('admin.cards')" class="db-quick-link"><span>💳</span>البطاقات</Link>
-                <Link :href="route('admin.currencies')" class="db-quick-link"><span>💱</span>العملات والصرف</Link>
-                <Link :href="route('admin.merchants')" class="db-quick-link"><span>🔌</span>بوابة الدفع</Link>
-                <Link :href="route('admin.support')" class="db-quick-link"><span>🎧</span>تذاكر الدعم</Link>
-                <Link :href="route('admin.settings')" class="db-quick-link"><span>⚙️</span>الإعدادات</Link>
-                <Link :href="route('admin.audit-logs')" class="db-quick-link"><span>📋</span>سجل التدقيق</Link>
+            <div class="ad-card">
+              <h3 class="ad-section-title">⚡ إجراءات سريعة</h3>
+              <div class="ad-quick-grid">
+                <Link :href="route('admin.users')" class="ad-quick-btn"><span>👥</span>العملاء</Link>
+                <Link :href="route('admin.kyc')" class="ad-quick-btn ad-quick-warn"><span>🪪</span>KYC<span v-if="stats.pending_kyc" class="ad-badge-count">{{ stats.pending_kyc }}</span></Link>
+                <Link :href="route('admin.transactions')" class="ad-quick-btn"><span>💸</span>المعاملات</Link>
+                <Link :href="route('admin.accounts')" class="ad-quick-btn"><span>🏦</span>الحسابات</Link>
+                <Link :href="route('admin.cards')" class="ad-quick-btn"><span>💳</span>البطاقات</Link>
+                <Link :href="route('admin.currencies')" class="ad-quick-btn"><span>💱</span>العملات</Link>
+                <Link :href="route('admin.merchants')" class="ad-quick-btn"><span>🔌</span>بوابة الدفع</Link>
+                <Link :href="route('admin.support')" class="ad-quick-btn"><span>🎧</span>الدعم</Link>
+                <Link :href="route('admin.settings')" class="ad-quick-btn"><span>⚙️</span>الإعدادات</Link>
+                <Link :href="route('admin.audit-logs')" class="ad-quick-btn"><span>📋</span>التدقيق</Link>
               </div>
             </div>
 
-            <!-- System Health -->
-            <div class="db-card col-span-1">
-              <h3 class="text-sm font-bold text-[#1A2B4A] mb-3">💊 صحة النظام</h3>
-              <div class="space-y-3">
-                <div class="db-health-item"><span class="text-xs text-[#5A6B82]">حسابات نشطة</span><div class="db-health-bar"><div class="db-health-fill db-fill-green" :style="{width: (stats.active_accounts / Math.max(stats.total_accounts,1)) * 100 + '%'}"></div></div><span class="text-xs font-mono text-[#1A2B4A]">{{ Math.round((stats.active_accounts / Math.max(stats.total_accounts,1)) * 100) }}%</span></div>
-                <div class="db-health-item"><span class="text-xs text-[#5A6B82]">بطاقات نشطة</span><div class="db-health-bar"><div class="db-health-fill db-fill-blue" :style="{width: (stats.active_cards / Math.max(stats.total_cards,1)) * 100 + '%'}"></div></div><span class="text-xs font-mono text-[#1A2B4A]">{{ Math.round((stats.active_cards / Math.max(stats.total_cards,1)) * 100) }}%</span></div>
-                <div class="db-health-item"><span class="text-xs text-[#5A6B82]">مستخدمون نشطون</span><div class="db-health-bar"><div class="db-health-fill db-fill-purple" :style="{width: (stats.active_users / Math.max(stats.total_users,1)) * 100 + '%'}"></div></div><span class="text-xs font-mono text-[#1A2B4A]">{{ Math.round((stats.active_users / Math.max(stats.total_users,1)) * 100) }}%</span></div>
-                <div class="db-health-item"><span class="text-xs text-[#5A6B82]">حسابات مجمدة</span><div class="db-health-bar"><div class="db-health-fill db-fill-red" :style="{width: (stats.frozen_accounts / Math.max(stats.total_accounts,1)) * 100 + '%'}"></div></div><span class="text-xs font-mono text-red-500">{{ stats.frozen_accounts }}</span></div>
-                <div class="db-health-item"><span class="text-xs text-[#5A6B82]">معاملات فاشلة</span><div class="db-health-bar"><div class="db-health-fill db-fill-red" :style="{width: Math.min((stats.failed_transactions / Math.max(stats.total_transactions,1)) * 100, 100) + '%'}"></div></div><span class="text-xs font-mono text-red-500">{{ stats.failed_transactions }}</span></div>
+            <div class="ad-card">
+              <h3 class="ad-section-title">💊 صحة النظام</h3>
+              <div class="ad-health-list">
+                <div class="ad-health-row"><span class="ad-health-label">حسابات نشطة</span><div class="ad-health-bar"><div class="ad-health-fill" style="background:#10b981" :style="{width: (stats.active_accounts / Math.max(stats.total_accounts,1)) * 100 + '%'}"></div></div><span class="ad-health-pct">{{ Math.round((stats.active_accounts / Math.max(stats.total_accounts,1)) * 100) }}%</span></div>
+                <div class="ad-health-row"><span class="ad-health-label">بطاقات نشطة</span><div class="ad-health-bar"><div class="ad-health-fill" style="background:#3b82f6" :style="{width: (stats.active_cards / Math.max(stats.total_cards,1)) * 100 + '%'}"></div></div><span class="ad-health-pct">{{ Math.round((stats.active_cards / Math.max(stats.total_cards,1)) * 100) }}%</span></div>
+                <div class="ad-health-row"><span class="ad-health-label">مستخدمون نشطون</span><div class="ad-health-bar"><div class="ad-health-fill" style="background:#8b5cf6" :style="{width: (stats.active_users / Math.max(stats.total_users,1)) * 100 + '%'}"></div></div><span class="ad-health-pct">{{ Math.round((stats.active_users / Math.max(stats.total_users,1)) * 100) }}%</span></div>
+                <div class="ad-health-row"><span class="ad-health-label">حسابات مجمدة</span><div class="ad-health-bar"><div class="ad-health-fill" style="background:#ef4444" :style="{width: (stats.frozen_accounts / Math.max(stats.total_accounts,1)) * 100 + '%'}"></div></div><span class="ad-health-pct ad-text-red">{{ stats.frozen_accounts }}</span></div>
+                <div class="ad-health-row"><span class="ad-health-label">معاملات فاشلة</span><div class="ad-health-bar"><div class="ad-health-fill" style="background:#ef4444" :style="{width: Math.min((stats.failed_transactions / Math.max(stats.total_transactions,1)) * 100, 100) + '%'}"></div></div><span class="ad-health-pct ad-text-red">{{ stats.failed_transactions }}</span></div>
               </div>
             </div>
 
-            <!-- Currencies -->
-            <div class="db-card col-span-1">
-              <h3 class="text-sm font-bold text-[#1A2B4A] mb-3">💱 العملات المدعومة</h3>
-              <div class="space-y-2">
-                <div v-for="c in currencies" :key="c.id" class="flex items-center justify-between py-1.5 border-b border-[#F0F2F5] last:border-0">
-                  <div class="flex items-center gap-2"><span class="text-lg">{{ c.symbol }}</span><span class="text-sm font-semibold text-[#1A2B4A]">{{ c.code }}</span></div>
-                  <span class="text-xs font-mono text-[#8896AB]">{{ c.exchange_rate_to_eur }} EUR</span>
+            <div class="ad-card">
+              <h3 class="ad-section-title">💱 العملات المدعومة</h3>
+              <div class="ad-currency-list">
+                <div v-for="c in currencies" :key="c.id" class="ad-currency-row">
+                  <div class="ad-currency-info"><span class="ad-currency-sym">{{ c.symbol }}</span><span class="ad-currency-code">{{ c.code }}</span></div>
+                  <span class="ad-currency-rate">{{ c.exchange_rate_to_eur }} EUR</span>
                 </div>
               </div>
             </div>
@@ -171,93 +196,59 @@ const statusBadge = { completed: 'db-badge-green', pending: 'db-badge-yellow', f
 
           <!-- Recent Data -->
           <div class="grid grid-cols-2 gap-4">
-            <!-- Recent Transactions -->
-            <div class="db-card overflow-hidden">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-[#1A2B4A]">💸 آخر المعاملات</h3>
-                <Link :href="route('admin.transactions')" class="text-xs text-[#1E5EFF] hover:underline">عرض الكل →</Link>
-              </div>
-              <div class="space-y-2">
-                <div v-for="t in recentTransactions" :key="t.id" class="db-tx-row">
-                  <div class="flex items-center gap-2">
-                    <span :class="statusBadge[t.status]" class="db-badge-sm">{{ t.status === 'completed' ? '✓' : t.status === 'pending' ? '⏳' : '✗' }}</span>
-                    <div>
-                      <div class="text-xs font-semibold text-[#1A2B4A]">{{ t.from_account?.user?.full_name || '—' }} → {{ t.to_account?.user?.full_name || '—' }}</div>
-                      <div class="text-[10px] text-[#8896AB]">{{ typeLabels[t.type] || t.type }} · {{ new Date(t.created_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) }}</div>
-                    </div>
+            <div class="ad-card">
+              <div class="ad-card-header"><h3 class="ad-section-title">💸 آخر المعاملات</h3><Link :href="route('admin.transactions')" class="ad-link">عرض الكل ←</Link></div>
+              <div class="ad-list">
+                <div v-for="t in recentTransactions" :key="t.id" class="ad-list-row">
+                  <div class="flex items-center gap-3">
+                    <span :class="statusBadge[t.status]" class="ad-badge">{{ t.status === 'completed' ? '✓' : t.status === 'pending' ? '⏳' : '✗' }}</span>
+                    <div><div class="ad-list-primary">{{ t.from_account?.user?.full_name || '—' }} → {{ t.to_account?.user?.full_name || '—' }}</div><div class="ad-list-secondary">{{ typeLabels[t.type] || t.type }} · {{ new Date(t.created_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) }}</div></div>
                   </div>
-                  <span class="text-xs font-bold text-[#1A2B4A]">{{ Number(t.amount).toLocaleString() }} {{ t.currency?.symbol }}</span>
+                  <span class="ad-list-amount">{{ Number(t.amount).toLocaleString() }} {{ t.currency?.symbol }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Recent Users -->
-            <div class="db-card">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-[#1A2B4A]">👥 آخر المسجلين</h3>
-                <Link :href="route('admin.users')" class="text-xs text-[#1E5EFF] hover:underline">عرض الكل →</Link>
-              </div>
-              <div class="space-y-2">
-                <Link v-for="u in recentUsers" :key="u.id" :href="route('admin.users.show', u.id)" class="db-user-row">
-                  <div class="flex items-center gap-2">
-                    <div class="db-user-avatar">{{ u.full_name?.charAt(0) }}</div>
-                    <div>
-                      <div class="text-sm font-semibold text-[#1A2B4A]">{{ u.full_name }}</div>
-                      <div class="text-[10px] text-[#8896AB]">{{ u.email }}</div>
-                    </div>
+            <div class="ad-card">
+              <div class="ad-card-header"><h3 class="ad-section-title">👥 آخر المسجلين</h3><Link :href="route('admin.users')" class="ad-link">عرض الكل ←</Link></div>
+              <div class="ad-list">
+                <Link v-for="u in recentUsers" :key="u.id" :href="route('admin.users.show', u.id)" class="ad-list-row ad-list-link">
+                  <div class="flex items-center gap-3">
+                    <div class="ad-user-avatar">{{ u.full_name?.charAt(0) }}</div>
+                    <div><div class="ad-list-primary">{{ u.full_name }}</div><div class="ad-list-secondary">{{ u.email }}</div></div>
                   </div>
                   <div class="text-left">
-                    <span :class="u.status === 'active' ? 'db-badge-green' : 'db-badge-yellow'" class="db-badge-sm">{{ u.status }}</span>
-                    <div class="text-[10px] text-[#8896AB] mt-0.5">{{ new Date(u.created_at).toLocaleDateString('en-GB') }}</div>
+                    <span :class="u.status === 'active' ? 'ad-badge-green' : 'ad-badge-yellow'" class="ad-badge">{{ u.status }}</span>
+                    <div class="ad-list-secondary mt-1">{{ new Date(u.created_at).toLocaleDateString('en-GB') }}</div>
                   </div>
                 </Link>
               </div>
             </div>
 
-            <!-- Recent Waitlist -->
-            <div class="db-card">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-[#1A2B4A]">📩 آخر تسجيلات الانتظار</h3>
-                <div class="flex gap-2">
-                  <a href="/admin/export/waitlist" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg font-bold hover:bg-indigo-100">📥 CSV</a>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div v-for="w in recentWaitlist" :key="w.id" class="db-tx-row">
-                  <div class="flex items-center gap-2">
-                    <span class="db-badge-sm db-badge-green">📧</span>
-                    <div>
-                      <div class="text-xs font-semibold text-[#1A2B4A]">{{ w.email }}</div>
-                      <div class="text-[10px] text-[#8896AB]">{{ w.source }} · {{ new Date(w.created_at).toLocaleDateString('en-GB') }}</div>
-                    </div>
+            <div class="ad-card">
+              <div class="ad-card-header"><h3 class="ad-section-title">📩 آخر تسجيلات الانتظار</h3><a href="/admin/export/waitlist" class="ad-export-btn">📥 تصدير CSV</a></div>
+              <div class="ad-list">
+                <div v-for="w in recentWaitlist" :key="w.id" class="ad-list-row">
+                  <div class="flex items-center gap-3">
+                    <span class="ad-badge ad-badge-green">📧</span>
+                    <div><div class="ad-list-primary">{{ w.email }}</div><div class="ad-list-secondary">{{ w.source }} · {{ new Date(w.created_at).toLocaleDateString('en-GB') }}</div></div>
                   </div>
                 </div>
-                <div v-if="!recentWaitlist?.length" class="text-xs text-[#8896AB] text-center py-4">لا يوجد تسجيلات بعد</div>
+                <div v-if="!recentWaitlist?.length" class="ad-empty">لا يوجد تسجيلات بعد</div>
               </div>
             </div>
 
-            <!-- Recent Preregistrations -->
-            <div class="db-card">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-[#1A2B4A]">📝 آخر التسجيلات المبكرة</h3>
-                <div class="flex gap-2">
-                  <a href="/admin/export/preregistrations" class="text-xs bg-pink-50 text-pink-600 px-3 py-1 rounded-lg font-bold hover:bg-pink-100">📥 CSV</a>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div v-for="p in recentPrereg" :key="p.id" class="db-tx-row">
-                  <div class="flex items-center gap-2">
-                    <div class="db-user-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">{{ p.full_name?.charAt(0) }}</div>
-                    <div>
-                      <div class="text-sm font-semibold text-[#1A2B4A]">{{ p.full_name }}</div>
-                      <div class="text-[10px] text-[#8896AB]">{{ p.email }} · {{ p.country }}</div>
-                    </div>
+            <div class="ad-card">
+              <div class="ad-card-header"><h3 class="ad-section-title">📝 آخر التسجيلات المبكرة</h3><a href="/admin/export/preregistrations" class="ad-export-btn" style="background:rgba(236,72,153,0.1);color:#ec4899;border-color:rgba(236,72,153,0.2)">📥 تصدير CSV</a></div>
+              <div class="ad-list">
+                <div v-for="p in recentPrereg" :key="p.id" class="ad-list-row">
+                  <div class="flex items-center gap-3">
+                    <div class="ad-user-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">{{ p.full_name?.charAt(0) }}</div>
+                    <div><div class="ad-list-primary">{{ p.full_name }}</div><div class="ad-list-secondary">{{ p.email }} · {{ p.country }}</div></div>
                   </div>
-                  <div class="text-left">
-                    <div class="text-[10px] text-[#8896AB]">{{ new Date(p.created_at).toLocaleDateString('en-GB') }}</div>
-                  </div>
+                  <div class="ad-list-secondary">{{ new Date(p.created_at).toLocaleDateString('en-GB') }}</div>
                 </div>
-                <div v-if="!recentPrereg?.length" class="text-xs text-[#8896AB] text-center py-4">لا يوجد تسجيلات بعد</div>
+                <div v-if="!recentPrereg?.length" class="ad-empty">لا يوجد تسجيلات بعد</div>
               </div>
             </div>
           </div>
@@ -268,69 +259,123 @@ const statusBadge = { completed: 'db-badge-green', pending: 'db-badge-yellow', f
 </template>
 
 <style scoped>
-.db-root{display:flex;min-height:100vh;background:#F0F2F5;direction:rtl}
+/* RESET & ROOT */
+.ad-root{display:flex;min-height:100vh;background:#080d1c;color:#e2e8f0;direction:rtl;font-family:'Inter','Segoe UI',sans-serif}
 
-/* Sidebar */
-.db-sidebar{width:220px;background:#fff;border-left:1px solid #E8ECF1;display:flex;flex-direction:column;transition:width .3s;flex-shrink:0}
-.db-sidebar-collapsed{width:56px;overflow:hidden}
-.db-logo{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid #E8ECF1}
-.db-nav{padding:10px 8px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
-.db-nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;color:#5A6B82;text-decoration:none;transition:all .15s;font-weight:500}.db-nav-item:hover{background:#F0F4FF;color:#1E5EFF}
-.db-nav-active{background:#F0F4FF!important;color:#1E5EFF!important;font-weight:700}
+/* SIDEBAR */
+.ad-sidebar{width:240px;background:#0c1225;border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;transition:width .3s;flex-shrink:0}
+.ad-sidebar-collapsed{width:60px;overflow:hidden}
+.ad-logo{display:flex;align-items:center;gap:12px;padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ad-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#10b981,#059669);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:11px;flex-shrink:0;letter-spacing:0.5px}
+.ad-logo-text{font-size:15px;font-weight:800;color:#e2e8f0}
+.ad-nav{padding:12px 8px;display:flex;flex-direction:column;gap:3px;flex:1;overflow-y:auto}
+.ad-nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;font-size:14px;color:rgba(226,232,240,0.5);text-decoration:none;transition:all .15s;font-weight:500}
+.ad-nav-item:hover{background:rgba(255,255,255,0.04);color:rgba(226,232,240,0.8)}
+.ad-nav-active{background:rgba(16,185,129,0.1)!important;color:#10b981!important;font-weight:700}
+.ad-nav-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.ad-nav-label{white-space:nowrap}
 
-/* Main */
-.db-main{flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.db-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;border-bottom:1px solid #E8ECF1}
-.db-content{padding:20px 24px;display:flex;flex-direction:column;gap:20px}
+/* MAIN */
+.ad-main{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#0c1225;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ad-title{font-size:20px;font-weight:800;color:#e2e8f0;margin:0}
+.ad-subtitle{font-size:13px;color:rgba(226,232,240,0.4);margin-top:2px}
+.ad-toggle{font-size:18px;color:rgba(226,232,240,0.4);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:8px}.ad-toggle:hover{background:rgba(255,255,255,0.05);color:#e2e8f0}
+.ad-date{font-size:13px;color:rgba(226,232,240,0.4)}
+.ad-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+.ad-content{padding:24px 28px;display:flex;flex-direction:column;gap:24px}
 
-/* Alerts */
-.db-alerts{display:flex;flex-wrap:wrap;gap:8px}
-.db-alert{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
-.db-alert-warning{background:rgba(245,158,11,0.08);color:#d97706;border:1px solid rgba(245,158,11,0.15)}
-.db-alert-error{background:rgba(239,68,68,0.08);color:#dc2626;border:1px solid rgba(239,68,68,0.15)}
-.db-alert-info{background:rgba(30,94,255,0.08);color:#1E5EFF;border:1px solid rgba(30,94,255,0.15)}
+/* ALERTS */
+.ad-alerts{display:flex;flex-wrap:wrap;gap:10px}
+.ad-alert{padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.ad-alert-warning{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.15)}
+.ad-alert-error{background:rgba(239,68,68,0.08);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
+.ad-alert-info{background:rgba(59,130,246,0.08);color:#60a5fa;border:1px solid rgba(59,130,246,0.15)}
 
-/* Stats */
-.db-stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.db-stat{background:#fff;border:1px solid #E8ECF1;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px}
-.db-stat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.db-stat-blue{background:rgba(30,94,255,0.08)}.db-stat-green{background:rgba(16,185,129,0.08)}.db-stat-purple{background:rgba(139,92,246,0.08)}.db-stat-yellow{background:rgba(245,158,11,0.08)}.db-stat-red{background:rgba(239,68,68,0.08)}
+/* STATS */
+.ad-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.ad-stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:20px;transition:all .2s}
+.ad-stat:hover{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.04)}
+.ad-stat-glow-blue{box-shadow:0 0 0 1px rgba(59,130,246,0.08) inset}
+.ad-stat-glow-green{box-shadow:0 0 0 1px rgba(16,185,129,0.08) inset}
+.ad-stat-glow-purple{box-shadow:0 0 0 1px rgba(139,92,246,0.08) inset}
+.ad-stat-glow-amber{box-shadow:0 0 0 1px rgba(245,158,11,0.08) inset}
+.ad-stat-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ad-stat-icon{font-size:20px}
+.ad-stat-label{font-size:14px;color:rgba(226,232,240,0.5);font-weight:600}
+.ad-stat-value{font-size:32px;font-weight:900;color:#e2e8f0;line-height:1.1}
+.ad-stat-sub{font-size:13px;margin-top:6px;font-weight:600}
+.ad-sub-green{color:#10b981}.ad-sub-blue{color:#3b82f6}
 
-/* Volume */
-.db-vol-card{background:#fff;border:1px solid #E8ECF1;border-radius:14px;padding:16px}
+/* VOLUME */
+.ad-vol-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px}
+.ad-vol-label{font-size:13px;color:rgba(226,232,240,0.4);font-weight:600;margin-bottom:6px}
+.ad-vol-value{font-size:26px;font-weight:900;color:#e2e8f0}
+.ad-vol-sub{font-size:13px;color:rgba(226,232,240,0.35);margin-top:4px}
 
-/* Charts */
-.db-chart-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:20px}
-.db-bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px}
-.db-bar-col{flex:1;display:flex;flex-direction:column;align-items:center}
-.db-bar-wrapper{height:100px;width:100%;display:flex;align-items:flex-end;justify-content:center}
-.db-bar{width:70%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#1E5EFF,#3B82F6);min-height:3px;transition:height .4s ease}
-.db-bar-green{background:linear-gradient(180deg,#10b981,#34d399)}
+/* CHARTS */
+.ad-chart-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:24px}
+.ad-section-title{font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:18px}
+.ad-bar-chart{display:flex;align-items:flex-end;gap:10px;height:140px}
+.ad-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .2s}.ad-bar-col:hover{transform:translateY(-3px)}
+.ad-bar-wrapper{height:110px;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.ad-bar{width:65%;border-radius:6px 6px 0 0;min-height:3px;transition:height .5s ease}
+.ad-bar-blue{background:linear-gradient(180deg,#3b82f6,#1d4ed8)}
+.ad-bar-green{background:linear-gradient(180deg,#10b981,#059669)}
+.ad-bar-date{font-size:12px;color:rgba(226,232,240,0.35);margin-top:6px}
+.ad-bar-val{font-size:12px;font-weight:700;margin-top:2px}
 
-/* Cards */
-.db-card{background:#fff;border:1px solid #E8ECF1;border-radius:16px;padding:18px}
+/* CARDS */
+.ad-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:22px}
+.ad-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 
-/* Quick links */
-.db-quick-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;color:#5A6B82;text-decoration:none;transition:all .15s;border:1px solid transparent}.db-quick-link:hover{background:#F0F4FF;color:#1E5EFF;border-color:rgba(30,94,255,0.1)}
-.db-quick-warn{color:#d97706}.db-quick-warn:hover{background:rgba(245,158,11,0.05);color:#d97706}
-.db-badge-count{background:#ef4444;color:#fff;font-size:10px;padding:1px 6px;border-radius:100px;margin-right:auto}
+/* QUICK ACTIONS */
+.ad-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ad-quick-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;color:rgba(226,232,240,0.6);text-decoration:none;border:1px solid rgba(255,255,255,0.05);transition:all .15s}
+.ad-quick-btn:hover{background:rgba(255,255,255,0.05);color:#e2e8f0;border-color:rgba(255,255,255,0.1)}
+.ad-quick-warn{color:#fbbf24;border-color:rgba(245,158,11,0.15)}.ad-quick-warn:hover{background:rgba(245,158,11,0.05)}
+.ad-badge-count{background:#ef4444;color:#fff;font-size:11px;padding:2px 8px;border-radius:100px;margin-right:auto;font-weight:700}
 
-/* Health */
-.db-health-item{display:flex;align-items:center;gap:8px}
-.db-health-bar{flex:1;height:6px;background:#F0F2F5;border-radius:100px;overflow:hidden}
-.db-health-fill{height:100%;border-radius:100px;transition:width .5s ease}
-.db-fill-green{background:#10b981}.db-fill-blue{background:#1E5EFF}.db-fill-purple{background:#8b5cf6}.db-fill-red{background:#ef4444}
+/* HEALTH */
+.ad-health-list{display:flex;flex-direction:column;gap:14px}
+.ad-health-row{display:flex;align-items:center;gap:12px}
+.ad-health-label{font-size:13px;color:rgba(226,232,240,0.5);font-weight:500;width:120px;flex-shrink:0}
+.ad-health-bar{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden}
+.ad-health-fill{height:100%;border-radius:100px;transition:width .5s ease}
+.ad-health-pct{font-size:14px;font-weight:700;color:#e2e8f0;width:40px;text-align:left}
+.ad-text-red{color:#f87171!important}
 
-/* Transactions */
-.db-tx-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F0F2F5}.db-tx-row:last-child{border:0}
+/* CURRENCIES */
+.ad-currency-list{display:flex;flex-direction:column;gap:4px}
+.ad-currency-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}.ad-currency-row:last-child{border:0}
+.ad-currency-info{display:flex;align-items:center;gap:10px}
+.ad-currency-sym{font-size:22px}
+.ad-currency-code{font-size:15px;font-weight:700;color:#e2e8f0}
+.ad-currency-rate{font-size:13px;font-family:monospace;color:rgba(226,232,240,0.4)}
 
-/* Users */
-.db-user-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;text-decoration:none;transition:background .15s}.db-user-row:hover{background:#FAFBFC}
-.db-user-avatar{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0}
+/* LISTS */
+.ad-list{display:flex;flex-direction:column;gap:2px}
+.ad-list-row{display:flex;justify-content:space-between;align-items:center;padding:12px 6px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .15s}.ad-list-row:last-child{border:0}
+.ad-list-link{text-decoration:none;border-radius:10px;padding:12px 10px}.ad-list-link:hover{background:rgba(255,255,255,0.03)}
+.ad-list-primary{font-size:14px;font-weight:600;color:#e2e8f0}
+.ad-list-secondary{font-size:12px;color:rgba(226,232,240,0.35);margin-top:2px}
+.ad-list-amount{font-size:14px;font-weight:700;color:#e2e8f0}
+.ad-empty{text-align:center;padding:20px;font-size:14px;color:rgba(226,232,240,0.3)}
 
-/* Badges */
-.db-badge-sm{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:600}
-.db-badge-green{background:rgba(16,185,129,0.1);color:#059669}.db-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.db-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
+/* USER AVATAR */
+.ad-user-avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0}
 
-@media(max-width:1200px){.db-stats-grid{grid-template-columns:repeat(3,1fr)}}
+/* BADGES */
+.ad-badge{font-size:12px;padding:4px 10px;border-radius:100px;font-weight:600}
+.ad-badge-green{background:rgba(16,185,129,0.12);color:#34d399}
+.ad-badge-yellow{background:rgba(245,158,11,0.12);color:#fbbf24}
+.ad-badge-red{background:rgba(239,68,68,0.12);color:#f87171}
+
+/* LINKS */
+.ad-link{font-size:13px;color:#60a5fa;text-decoration:none;font-weight:600}.ad-link:hover{text-decoration:underline}
+.ad-export-btn{font-size:12px;padding:6px 14px;border-radius:10px;font-weight:700;text-decoration:none;background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.2);transition:all .15s}.ad-export-btn:hover{background:rgba(99,102,241,0.15)}
+
+/* RESPONSIVE */
+@media(max-width:1400px){.ad-stats-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1100px){.ad-stats-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
