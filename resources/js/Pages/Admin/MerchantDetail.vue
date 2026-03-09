@@ -26,7 +26,7 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
     <div class="md-root">
       <div class="md-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#1A2B4A]">🏪 {{ merchant.business_name }}</h1><p class="text-sm text-[#8896AB] mt-1">{{ merchant.business_name_ar || merchant.business_email }}</p></div>
+          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">🏪 {{ merchant.business_name }}</h1><p class="text-sm text-[#94a3b8] mt-1">{{ merchant.business_name_ar || merchant.business_email }}</p></div>
           <Link :href="route('admin.merchants')" class="md-back">← التجار</Link>
         </div>
       </div>
@@ -34,27 +34,27 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
       <div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
         <!-- Stats -->
         <div class="grid grid-cols-3 gap-4">
-          <div class="md-stat"><div class="text-xs text-[#8896AB]">إجمالي الحجم</div><div class="text-2xl font-black text-emerald-600 mt-1">{{ Number(merchant.total_volume).toLocaleString() }}</div></div>
-          <div class="md-stat"><div class="text-xs text-[#8896AB]">عدد المعاملات</div><div class="text-2xl font-black text-[#1E5EFF] mt-1">{{ merchant.total_transactions }}</div></div>
-          <div class="md-stat"><div class="text-xs text-[#8896AB]">عملة التسوية</div><div class="text-2xl font-black text-[#1A2B4A] mt-1">{{ merchant.settlement_currency }}</div></div>
+          <div class="md-stat"><div class="text-xs text-[#94a3b8]">إجمالي الحجم</div><div class="text-2xl font-black text-emerald-600 mt-1">{{ Number(merchant.total_volume).toLocaleString() }}</div></div>
+          <div class="md-stat"><div class="text-xs text-[#94a3b8]">عدد المعاملات</div><div class="text-2xl font-black text-[#1E5EFF] mt-1">{{ merchant.total_transactions }}</div></div>
+          <div class="md-stat"><div class="text-xs text-[#94a3b8]">عملة التسوية</div><div class="text-2xl font-black text-[#f1f5f9] mt-1">{{ merchant.settlement_currency }}</div></div>
         </div>
         <div class="grid md:grid-cols-2 gap-6">
           <!-- Edit -->
           <div class="md-card">
-            <div class="md-card-header"><h3 class="font-bold text-[#1A2B4A]">بيانات التاجر</h3></div>
+            <div class="md-card-header"><h3 class="font-bold text-[#f1f5f9]">بيانات التاجر</h3></div>
             <div class="p-5">
               <form @submit.prevent="saveChanges" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
-                  <div><label class="block text-xs text-[#8896AB] mb-1">الاسم EN</label><input v-model="editForm.business_name" class="md-input" /></div>
-                  <div><label class="block text-xs text-[#8896AB] mb-1">الاسم AR</label><input v-model="editForm.business_name_ar" class="md-input" /></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">الاسم EN</label><input v-model="editForm.business_name" class="md-input" /></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">الاسم AR</label><input v-model="editForm.business_name_ar" class="md-input" /></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <div><label class="block text-xs text-[#8896AB] mb-1">البريد</label><input v-model="editForm.business_email" class="md-input" /></div>
-                  <div><label class="block text-xs text-[#8896AB] mb-1">الحالة</label><select v-model="editForm.status" class="md-input"><option value="active">نشط</option><option value="pending">معلّق</option><option value="suspended">موقوف</option><option value="rejected">مرفوض</option></select></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">البريد</label><input v-model="editForm.business_email" class="md-input" /></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">الحالة</label><select v-model="editForm.status" class="md-input"><option value="active">نشط</option><option value="pending">معلّق</option><option value="suspended">موقوف</option><option value="rejected">مرفوض</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <div><label class="block text-xs text-[#8896AB] mb-1">العمولة %</label><input v-model="editForm.fee_percentage" type="number" step="0.01" class="md-input" /></div>
-                  <div><label class="block text-xs text-[#8896AB] mb-1">رسوم ثابتة</label><input v-model="editForm.fee_fixed" type="number" step="0.01" class="md-input" /></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">العمولة %</label><input v-model="editForm.fee_percentage" type="number" step="0.01" class="md-input" /></div>
+                  <div><label class="block text-xs text-[#94a3b8] mb-1">رسوم ثابتة</label><input v-model="editForm.fee_fixed" type="number" step="0.01" class="md-input" /></div>
                 </div>
                 <button type="submit" :disabled="editForm.processing" class="mt-2 px-6 py-2 bg-[#1E5EFF] hover:bg-[#1047b8] text-white rounded-xl text-sm font-semibold disabled:opacity-50">حفظ</button>
               </form>
@@ -62,32 +62,32 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
           </div>
           <!-- API Keys -->
           <div class="md-card">
-            <div class="md-card-header flex justify-between items-center"><h3 class="font-bold text-[#1A2B4A]">🔑 مفاتيح API</h3><button @click="generateKey" class="text-xs px-3 py-1.5 bg-[#1E5EFF] text-white rounded-lg">+ مفتاح جديد</button></div>
+            <div class="md-card-header flex justify-between items-center"><h3 class="font-bold text-[#f1f5f9]">🔑 مفاتيح API</h3><button @click="generateKey" class="text-xs px-3 py-1.5 bg-[#1E5EFF] text-white rounded-lg">+ مفتاح جديد</button></div>
             <div class="p-5 space-y-3">
-              <div v-for="key in apiKeys" :key="key.id" class="bg-[#FAFBFC] border border-[#E8ECF1] rounded-xl p-4">
-                <div class="flex justify-between items-start mb-2"><span class="text-sm font-semibold text-[#1A2B4A]">{{ key.name }}</span><span :class="key.is_active ? 'md-badge-green' : 'md-badge-red'" class="md-badge">{{ key.is_active ? 'نشط' : 'ملغي' }}</span></div>
-                <div class="text-xs font-mono text-[#8896AB] mb-1">PK: {{ key.public_key }}</div>
-                <div class="text-xs font-mono text-[#8896AB] mb-2">SK: {{ key.secret_key_prefix }}•••</div>
-                <div class="flex justify-between items-center text-xs"><span class="text-[#8896AB]">{{ key.environment }}</span><button v-if="key.is_active" @click="revokeKey(key.id)" class="text-red-500 hover:text-red-600 font-semibold">إلغاء</button></div>
+              <div v-for="key in apiKeys" :key="key.id" class="bg-[#1e293b] border border-[#334155] rounded-xl p-4">
+                <div class="flex justify-between items-start mb-2"><span class="text-sm font-semibold text-[#f1f5f9]">{{ key.name }}</span><span :class="key.is_active ? 'md-badge-green' : 'md-badge-red'" class="md-badge">{{ key.is_active ? 'نشط' : 'ملغي' }}</span></div>
+                <div class="text-xs font-mono text-[#94a3b8] mb-1">PK: {{ key.public_key }}</div>
+                <div class="text-xs font-mono text-[#94a3b8] mb-2">SK: {{ key.secret_key_prefix }}•••</div>
+                <div class="flex justify-between items-center text-xs"><span class="text-[#94a3b8]">{{ key.environment }}</span><button v-if="key.is_active" @click="revokeKey(key.id)" class="text-red-500 hover:text-red-600 font-semibold">إلغاء</button></div>
               </div>
-              <div v-if="!apiKeys.length" class="text-[#8896AB] text-sm text-center py-4">لا توجد مفاتيح</div>
+              <div v-if="!apiKeys.length" class="text-[#94a3b8] text-sm text-center py-4">لا توجد مفاتيح</div>
             </div>
           </div>
         </div>
         <!-- Sessions -->
         <div class="md-card overflow-hidden">
-          <div class="md-card-header"><h3 class="font-bold text-[#1A2B4A]">جلسات الدفع</h3></div>
+          <div class="md-card-header"><h3 class="font-bold text-[#f1f5f9]">جلسات الدفع</h3></div>
           <table class="md-table">
             <thead><tr><th>الجلسة</th><th>المبلغ</th><th class="text-center">الحالة</th><th>العميل</th><th>التاريخ</th></tr></thead>
             <tbody>
               <tr v-for="s in sessions.data" :key="s.id">
                 <td class="font-mono text-xs text-[#1E5EFF]">{{ s.session_id?.substring(0, 20) }}…</td>
-                <td class="font-bold text-[#1A2B4A]">{{ Number(s.amount).toLocaleString() }} {{ s.currency_code }}</td>
+                <td class="font-bold text-[#f1f5f9]">{{ Number(s.amount).toLocaleString() }} {{ s.currency_code }}</td>
                 <td class="text-center"><span :class="sessionBadge[s.status]" class="md-badge">{{ s.status }}</span></td>
-                <td class="text-[#5A6B82]">{{ s.paid_by_user?.full_name || s.customer_email || '—' }}</td>
-                <td class="text-[#8896AB] text-xs">{{ new Date(s.created_at).toLocaleString('en-GB') }}</td>
+                <td class="text-[#cbd5e1]">{{ s.paid_by_user?.full_name || s.customer_email || '—' }}</td>
+                <td class="text-[#94a3b8] text-xs">{{ new Date(s.created_at).toLocaleString('en-GB') }}</td>
               </tr>
-              <tr v-if="!sessions.data?.length"><td colspan="5" class="py-8 text-center text-[#8896AB]">لا توجد جلسات</td></tr>
+              <tr v-if="!sessions.data?.length"><td colspan="5" class="py-8 text-center text-[#94a3b8]">لا توجد جلسات</td></tr>
             </tbody>
           </table>
         </div>
@@ -100,7 +100,7 @@ const sessionBadge = { pending: 'md-badge-yellow', paid: 'md-badge-green', faile
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .md-root{min-height:100vh;background:#0f172a;direction:rtl}
-.md-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.md-header{background:#1e293b;border-bottom:1px solid #334155}
 .md-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.md-back:hover{background:#10b981;color:#fff}
 .md-stat{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px 20px}
 .md-card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}

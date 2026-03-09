@@ -65,8 +65,8 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             <div class="flex items-center gap-5">
               <div class="ud-avatar-lg">{{ user.full_name?.charAt(0) }}</div>
               <div>
-                <h1 class="text-2xl font-bold text-[#1A2B4A]">{{ user.full_name }}</h1>
-                <div class="flex items-center gap-3 mt-1 text-sm text-[#8896AB] flex-wrap">
+                <h1 class="text-2xl font-bold text-[#f1f5f9]">{{ user.full_name }}</h1>
+                <div class="flex items-center gap-3 mt-1 text-sm text-[#94a3b8] flex-wrap">
                   <span class="font-mono bg-[#F0F4FF] text-[#1E5EFF] px-3 py-0.5 rounded-lg text-xs font-bold border border-[#1E5EFF]/10">رقم العميل: {{ user.customer_number }}</span>
                   <span>📧 {{ user.email }}</span>
                   <span>📱 {{ user.phone }}</span>
@@ -79,7 +79,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
               </div>
             </div>
             <div class="ud-balance-card">
-              <div class="text-xs text-[#8896AB]">الرصيد الإجمالي (EUR)</div>
+              <div class="text-xs text-[#94a3b8]">الرصيد الإجمالي (EUR)</div>
               <div class="text-3xl font-black text-[#1E5EFF]">{{ fmt(totalBalance) }}</div>
               <div class="flex gap-3 mt-2 text-xs">
                 <span class="text-emerald-600">↓ وارد: {{ fmt(totalIn) }}</span>
@@ -110,15 +110,15 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
         <!-- OVERVIEW TAB -->
         <template v-if="activeTab === 'overview'">
           <div class="grid lg:grid-cols-3 gap-4">
-            <div class="ud-card"><h3 class="ud-card-title mb-4">إحصائيات العميل</h3><div class="space-y-3"><div class="ud-info-row"><span>الحسابات</span><span class="font-bold text-[#1A2B4A]">{{ accounts.length }}</span></div><div class="ud-info-row"><span>البطاقات</span><span class="font-bold text-[#1A2B4A]">{{ cards.length }}</span></div><div class="ud-info-row"><span>المعاملات</span><span class="font-bold text-[#1A2B4A]">{{ transactions.length }}</span></div><div class="ud-info-row"><span>إجمالي الوارد</span><span class="font-bold text-emerald-600">{{ fmt(totalIn) }}</span></div><div class="ud-info-row"><span>إجمالي الصادر</span><span class="font-bold text-red-500">{{ fmt(totalOut) }}</span></div></div></div>
-            <div class="ud-card"><h3 class="ud-card-title mb-4">المعلومات الشخصية</h3><div class="space-y-3"><div class="ud-info-row"><span>الاسم</span><span class="text-[#1A2B4A]">{{ user.full_name }}</span></div><div class="ud-info-row"><span>البريد</span><span class="text-[#1A2B4A]">{{ user.email }}</span></div><div class="ud-info-row"><span>الهاتف</span><span class="text-[#1A2B4A]">{{ user.phone }}</span></div><div class="ud-info-row"><span>الجنسية</span><span class="text-[#1A2B4A]">{{ user.nationality || '—' }}</span></div><div class="ud-info-row"><span>تاريخ الميلاد</span><span class="text-[#1A2B4A]">{{ user.date_of_birth || '—' }}</span></div><div class="ud-info-row"><span>المدينة</span><span class="text-[#1A2B4A]">{{ user.city || '—' }}, {{ user.country || '—' }}</span></div><div class="ud-info-row"><span>العنوان</span><span class="text-[#1A2B4A]">{{ user.address || '—' }}</span></div></div></div>
+            <div class="ud-card"><h3 class="ud-card-title mb-4">إحصائيات العميل</h3><div class="space-y-3"><div class="ud-info-row"><span>الحسابات</span><span class="font-bold text-[#f1f5f9]">{{ accounts.length }}</span></div><div class="ud-info-row"><span>البطاقات</span><span class="font-bold text-[#f1f5f9]">{{ cards.length }}</span></div><div class="ud-info-row"><span>المعاملات</span><span class="font-bold text-[#f1f5f9]">{{ transactions.length }}</span></div><div class="ud-info-row"><span>إجمالي الوارد</span><span class="font-bold text-emerald-600">{{ fmt(totalIn) }}</span></div><div class="ud-info-row"><span>إجمالي الصادر</span><span class="font-bold text-red-500">{{ fmt(totalOut) }}</span></div></div></div>
+            <div class="ud-card"><h3 class="ud-card-title mb-4">المعلومات الشخصية</h3><div class="space-y-3"><div class="ud-info-row"><span>الاسم</span><span class="text-[#f1f5f9]">{{ user.full_name }}</span></div><div class="ud-info-row"><span>البريد</span><span class="text-[#f1f5f9]">{{ user.email }}</span></div><div class="ud-info-row"><span>الهاتف</span><span class="text-[#f1f5f9]">{{ user.phone }}</span></div><div class="ud-info-row"><span>الجنسية</span><span class="text-[#f1f5f9]">{{ user.nationality || '—' }}</span></div><div class="ud-info-row"><span>تاريخ الميلاد</span><span class="text-[#f1f5f9]">{{ user.date_of_birth || '—' }}</span></div><div class="ud-info-row"><span>المدينة</span><span class="text-[#f1f5f9]">{{ user.city || '—' }}, {{ user.country || '—' }}</span></div><div class="ud-info-row"><span>العنوان</span><span class="text-[#f1f5f9]">{{ user.address || '—' }}</span></div></div></div>
             <!-- Quick Admin Actions -->
             <div class="ud-card">
               <h3 class="ud-card-title mb-4">⚡ تحكم سريع</h3>
               <div class="space-y-3">
-                <div><label class="text-xs text-[#8896AB] font-medium block mb-1">حالة الحساب</label><div class="flex gap-2"><select v-model="statusForm.status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="active">نشط</option><option value="suspended">موقوف</option><option value="blocked">محظور</option></select><button @click="updateStatus" :disabled="statusForm.processing" class="ud-btn-blue">حفظ</button></div></div>
-                <div><label class="text-xs text-[#8896AB] font-medium block mb-1">حالة KYC</label><div class="flex gap-2"><select v-model="kycForm.kyc_status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="submitted">مقدّم</option><option value="verified">مُوثّق</option><option value="rejected">مرفوض</option></select><button @click="updateKyc" :disabled="kycForm.processing" class="ud-btn-green">حفظ</button></div></div>
-                <hr class="border-[#E8ECF1]">
+                <div><label class="text-xs text-[#94a3b8] font-medium block mb-1">حالة الحساب</label><div class="flex gap-2"><select v-model="statusForm.status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="active">نشط</option><option value="suspended">موقوف</option><option value="blocked">محظور</option></select><button @click="updateStatus" :disabled="statusForm.processing" class="ud-btn-blue">حفظ</button></div></div>
+                <div><label class="text-xs text-[#94a3b8] font-medium block mb-1">حالة KYC</label><div class="flex gap-2"><select v-model="kycForm.kyc_status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="submitted">مقدّم</option><option value="verified">مُوثّق</option><option value="rejected">مرفوض</option></select><button @click="updateKyc" :disabled="kycForm.processing" class="ud-btn-green">حفظ</button></div></div>
+                <hr class="border-[#334155]">
                 <button @click="showEditProfile = true" class="ud-action-btn w-full">✏️ تعديل بيانات العميل</button>
                 <button @click="resetPassword" class="ud-action-btn ud-action-warn w-full">🔑 إعادة تعيين كلمة المرور</button>
                 <button @click="showSendNote = true" class="ud-action-btn ud-action-info w-full">📩 إرسال إشعار للعميل</button>
@@ -134,12 +134,12 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             <h3 class="ud-card-title mb-4">آخر 5 معاملات</h3>
             <div class="ud-table">
               <div v-for="t in transactions.slice(0, 5)" :key="t.id" class="ud-table-row">
-                <div class="flex items-center gap-3"><div class="ud-tx-icon">{{ typeIcons[t.type] || '📄' }}</div><div><div class="text-sm font-semibold text-[#1A2B4A]">{{ typeLabels[t.type] || t.type }}</div><div class="text-xs text-[#8896AB]">{{ t.reference_number }}</div></div></div>
-                <div class="text-sm text-[#8896AB]">{{ fmtDate(t.created_at) }}</div>
-                <div class="text-sm font-bold text-[#1A2B4A]">{{ fmt(t.amount, t.currency?.symbol) }}</div>
+                <div class="flex items-center gap-3"><div class="ud-tx-icon">{{ typeIcons[t.type] || '📄' }}</div><div><div class="text-sm font-semibold text-[#f1f5f9]">{{ typeLabels[t.type] || t.type }}</div><div class="text-xs text-[#94a3b8]">{{ t.reference_number }}</div></div></div>
+                <div class="text-sm text-[#94a3b8]">{{ fmtDate(t.created_at) }}</div>
+                <div class="text-sm font-bold text-[#f1f5f9]">{{ fmt(t.amount, t.currency?.symbol) }}</div>
                 <span :class="statusBadge[t.status]" class="ud-badge">{{ t.status }}</span>
               </div>
-              <div v-if="!transactions.length" class="py-8 text-center text-[#8896AB]">لا توجد معاملات</div>
+              <div v-if="!transactions.length" class="py-8 text-center text-[#94a3b8]">لا توجد معاملات</div>
             </div>
           </div>
         </template>
@@ -149,9 +149,9 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div v-for="acc in accounts" :key="acc.id" class="ud-card ud-account-card">
               <div class="flex items-center justify-between mb-3"><div class="text-3xl">{{ acc.currency?.symbol }}</div><span :class="statusBadge[acc.status]" class="ud-badge">{{ acc.status }}</span></div>
-              <div class="text-2xl font-black text-[#1A2B4A] mb-1">{{ fmt(acc.balance, acc.currency?.symbol) }}</div>
-              <div class="text-xs text-[#8896AB] font-mono mb-1">{{ acc.iban }}</div>
-              <div class="text-xs text-[#8896AB]">{{ acc.currency?.code }} — {{ acc.currency?.name_ar }}</div>
+              <div class="text-2xl font-black text-[#f1f5f9] mb-1">{{ fmt(acc.balance, acc.currency?.symbol) }}</div>
+              <div class="text-xs text-[#94a3b8] font-mono mb-1">{{ acc.iban }}</div>
+              <div class="text-xs text-[#94a3b8]">{{ acc.currency?.code }} — {{ acc.currency?.name_ar }}</div>
               <div class="ud-info-row mt-3"><span>رقم الحساب</span><span class="font-mono">{{ acc.account_number }}</span></div>
               <div class="ud-info-row"><span>تاريخ الإنشاء</span><span>{{ fmtShort(acc.created_at) }}</span></div>
             </div>
@@ -162,8 +162,8 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
         <template v-if="activeTab === 'cards'">
           <div class="grid md:grid-cols-2 gap-4">
             <div v-for="card in cards" :key="card.id" class="ud-card">
-              <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span class="text-xl">💳</span><span class="font-bold text-[#1A2B4A]">{{ card.card_type || 'Mastercard' }}</span></div><span :class="statusBadge[card.status]" class="ud-badge">{{ card.status }}</span></div>
-              <div class="text-xl font-mono text-[#1A2B4A] tracking-wider mb-3">{{ card.card_number_masked }}</div>
+              <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span class="text-xl">💳</span><span class="font-bold text-[#f1f5f9]">{{ card.card_type || 'Mastercard' }}</span></div><span :class="statusBadge[card.status]" class="ud-badge">{{ card.status }}</span></div>
+              <div class="text-xl font-mono text-[#f1f5f9] tracking-wider mb-3">{{ card.card_number_masked }}</div>
               <div class="grid grid-cols-2 gap-3">
                 <div class="ud-info-row"><span>حامل البطاقة</span><span>{{ card.card_holder_name }}</span></div>
                 <div class="ud-info-row"><span>الصلاحية</span><span>{{ card.formatted_expiry }}</span></div>
@@ -173,28 +173,28 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
                 <div class="ud-info-row"><span>اللاتلامسي</span><span>{{ card.contactless_enabled ? '✅' : '❌' }}</span></div>
               </div>
               <div v-if="card.account" class="mt-3 p-3 bg-[#F0F4FF] rounded-xl text-xs">
-                <span class="text-[#8896AB]">حساب:</span> <span class="font-bold text-[#1E5EFF]">{{ card.account?.currency?.code }} — {{ fmt(card.account?.balance || 0, card.account?.currency?.symbol) }}</span>
+                <span class="text-[#94a3b8]">حساب:</span> <span class="font-bold text-[#1E5EFF]">{{ card.account?.currency?.code }} — {{ fmt(card.account?.balance || 0, card.account?.currency?.symbol) }}</span>
               </div>
             </div>
           </div>
-          <div v-if="!cards.length" class="ud-card text-center py-10 text-[#8896AB]">لا توجد بطاقات</div>
+          <div v-if="!cards.length" class="ud-card text-center py-10 text-[#94a3b8]">لا توجد بطاقات</div>
         </template>
 
         <!-- TRANSACTIONS TAB -->
         <template v-if="activeTab === 'transactions'">
-          <div class="ud-card"><div class="flex items-center justify-between mb-4"><h3 class="ud-card-title">سجل المعاملات الكامل</h3><span class="text-sm text-[#8896AB]">{{ transactions.length }} معاملة</span></div>
+          <div class="ud-card"><div class="flex items-center justify-between mb-4"><h3 class="ud-card-title">سجل المعاملات الكامل</h3><span class="text-sm text-[#94a3b8]">{{ transactions.length }} معاملة</span></div>
             <div class="ud-table-scroll"><table class="ud-full-table"><thead><tr><th>المرجع</th><th>النوع</th><th>المبلغ</th><th>العملة</th><th>من</th><th>إلى</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>
               <tr v-for="t in transactions" :key="t.id"><td class="font-mono text-xs text-[#1E5EFF]">{{ t.reference_number }}</td><td><span class="ud-type-badge">{{ typeIcons[t.type] }} {{ typeLabels[t.type] || t.type }}</span></td><td class="font-bold">{{ fmt(t.amount, t.currency?.symbol) }}</td><td>{{ t.currency?.code }}</td><td class="text-xs">{{ t.from_account?.currency?.code || '—' }}</td><td class="text-xs">{{ t.to_account?.currency?.code || '—' }}</td><td><span :class="statusBadge[t.status]" class="ud-badge">{{ t.status }}</span></td><td class="text-xs">{{ fmtDate(t.created_at) }}</td></tr>
-            </tbody></table><div v-if="!transactions.length" class="py-10 text-center text-[#8896AB]">لا توجد معاملات</div></div>
+            </tbody></table><div v-if="!transactions.length" class="py-10 text-center text-[#94a3b8]">لا توجد معاملات</div></div>
           </div>
         </template>
 
         <!-- PURCHASES TAB -->
         <template v-if="activeTab === 'purchases'">
-          <div class="ud-card"><div class="flex items-center justify-between mb-4"><h3 class="ud-card-title">سجل المشتريات بالبطاقة</h3><span class="text-sm text-[#8896AB]">{{ (cardTransactions || []).length }} عملية</span></div>
+          <div class="ud-card"><div class="flex items-center justify-between mb-4"><h3 class="ud-card-title">سجل المشتريات بالبطاقة</h3><span class="text-sm text-[#94a3b8]">{{ (cardTransactions || []).length }} عملية</span></div>
             <div class="ud-table-scroll" v-if="cardTransactions && cardTransactions.length"><table class="ud-full-table"><thead><tr><th>التاجر</th><th>المبلغ</th><th>العملة</th><th>البطاقة</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>
               <tr v-for="ct in cardTransactions" :key="ct.id"><td class="font-semibold">{{ ct.merchant_name || 'غير محدد' }}</td><td class="font-bold">{{ fmt(ct.amount, ct.currency_code) }}</td><td>{{ ct.currency_code }}</td><td class="font-mono text-xs">****{{ ct.card_id }}</td><td><span :class="statusBadge[ct.status]" class="ud-badge">{{ ct.status }}</span></td><td class="text-xs">{{ fmtDate(ct.created_at) }}</td></tr>
-            </tbody></table></div><div v-else class="py-10 text-center text-[#8896AB]"><div class="text-4xl mb-3">🛒</div>لا توجد مشتريات بالبطاقة بعد</div>
+            </tbody></table></div><div v-else class="py-10 text-center text-[#94a3b8]"><div class="text-4xl mb-3">🛒</div>لا توجد مشتريات بالبطاقة بعد</div>
           </div>
         </template>
 
@@ -204,11 +204,11 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             <div class="ud-card"><h3 class="ud-card-title mb-4">حالة التحقق</h3><div class="space-y-3"><div class="ud-info-row"><span>الحالة</span><span :class="statusBadge[user.kyc_status]" class="ud-badge">{{ user.kyc_status }}</span></div><div class="ud-info-row"><span>الجنسية</span><span>{{ user.nationality || 'غير محدد' }}</span></div><div class="ud-info-row"><span>الدولة</span><span>{{ user.country || 'غير محدد' }}</span></div><div class="ud-info-row"><span>تاريخ التسجيل</span><span>{{ fmtShort(user.created_at) }}</span></div></div></div>
             <div class="ud-card"><h3 class="ud-card-title mb-4">المستندات</h3>
               <div v-if="kycDocuments && kycDocuments.length" class="space-y-3">
-                <div v-for="doc in kycDocuments" :key="doc.id" class="flex items-center justify-between p-3 bg-[#FAFBFC] rounded-xl border border-[#E8ECF1]">
-                  <div class="flex items-center gap-3"><span class="text-xl">📄</span><div><div class="text-sm font-semibold text-[#1A2B4A]">{{ doc.document_type }}</div><div class="text-xs text-[#8896AB]">{{ fmtShort(doc.created_at) }}</div></div></div>
+                <div v-for="doc in kycDocuments" :key="doc.id" class="flex items-center justify-between p-3 bg-[#1e293b] rounded-xl border border-[#334155]">
+                  <div class="flex items-center gap-3"><span class="text-xl">📄</span><div><div class="text-sm font-semibold text-[#f1f5f9]">{{ doc.document_type }}</div><div class="text-xs text-[#94a3b8]">{{ fmtShort(doc.created_at) }}</div></div></div>
                   <div class="flex items-center gap-2"><span :class="statusBadge[doc.status]" class="ud-badge">{{ doc.status }}</span><a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ud-btn-sm">عرض</a></div>
                 </div>
-              </div><div v-else class="py-6 text-center text-[#8896AB]">لم يرفع أي مستندات</div>
+              </div><div v-else class="py-6 text-center text-[#94a3b8]">لم يرفع أي مستندات</div>
             </div>
           </div>
         </template>
@@ -226,11 +226,11 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             </div>
             <div class="ud-card"><h3 class="ud-card-title mb-4">📋 سجل تسجيل الدخول</h3>
               <div v-if="loginHistory && loginHistory.length" class="space-y-2">
-                <div v-for="log in loginHistory" :key="log.id" class="flex items-center justify-between p-2 bg-[#FAFBFC] rounded-lg border border-[#E8ECF1] text-xs">
-                  <div><span class="font-mono text-[#1E5EFF]">{{ log.ip_address }}</span><span class="text-[#8896AB] mx-2">·</span><span class="text-[#8896AB]">{{ log.user_agent?.substring(0, 40) }}...</span></div>
-                  <span class="text-[#8896AB]">{{ fmtDate(log.created_at) }}</span>
+                <div v-for="log in loginHistory" :key="log.id" class="flex items-center justify-between p-2 bg-[#1e293b] rounded-lg border border-[#334155] text-xs">
+                  <div><span class="font-mono text-[#1E5EFF]">{{ log.ip_address }}</span><span class="text-[#94a3b8] mx-2">·</span><span class="text-[#94a3b8]">{{ log.user_agent?.substring(0, 40) }}...</span></div>
+                  <span class="text-[#94a3b8]">{{ fmtDate(log.created_at) }}</span>
                 </div>
-              </div><div v-else class="py-6 text-center text-[#8896AB]">لا توجد سجلات</div>
+              </div><div v-else class="py-6 text-center text-[#94a3b8]">لا توجد سجلات</div>
             </div>
           </div>
         </template>
@@ -242,8 +242,8 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
             <div class="ud-card">
               <h3 class="ud-card-title mb-4">🔧 تحكم بحالة العميل</h3>
               <div class="space-y-4">
-                <div><label class="text-xs text-[#8896AB] font-medium block mb-1">حالة الحساب</label><div class="flex gap-2"><select v-model="statusForm.status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="active">نشط</option><option value="suspended">موقوف</option><option value="blocked">محظور</option></select><button @click="updateStatus" :disabled="statusForm.processing" class="ud-btn-blue">حفظ</button></div></div>
-                <div><label class="text-xs text-[#8896AB] font-medium block mb-1">حالة KYC</label><div class="flex gap-2"><select v-model="kycForm.kyc_status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="submitted">مقدّم</option><option value="verified">مُوثّق</option><option value="rejected">مرفوض</option></select><button @click="updateKyc" :disabled="kycForm.processing" class="ud-btn-green">حفظ</button></div></div>
+                <div><label class="text-xs text-[#94a3b8] font-medium block mb-1">حالة الحساب</label><div class="flex gap-2"><select v-model="statusForm.status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="active">نشط</option><option value="suspended">موقوف</option><option value="blocked">محظور</option></select><button @click="updateStatus" :disabled="statusForm.processing" class="ud-btn-blue">حفظ</button></div></div>
+                <div><label class="text-xs text-[#94a3b8] font-medium block mb-1">حالة KYC</label><div class="flex gap-2"><select v-model="kycForm.kyc_status" class="ud-select flex-1"><option value="pending">معلّق</option><option value="submitted">مقدّم</option><option value="verified">مُوثّق</option><option value="rejected">مرفوض</option></select><button @click="updateKyc" :disabled="kycForm.processing" class="ud-btn-green">حفظ</button></div></div>
               </div>
             </div>
             <!-- Account Actions -->
@@ -272,15 +272,15 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
       <!-- Edit Profile Modal -->
       <Teleport to="body">
         <div v-if="showEditProfile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showEditProfile = false">
-          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-xl font-bold text-[#1A2B4A] mb-5">✏️ تعديل بيانات العميل</h3>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-xl font-bold text-[#f1f5f9] mb-5">✏️ تعديل بيانات العميل</h3>
             <form @submit.prevent="saveProfile" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#8896AB] mb-1">الاسم الكامل</label><input v-model="profileForm.full_name" class="ud-modal-input" required /></div><div><label class="block text-xs text-[#8896AB] mb-1">البريد</label><input v-model="profileForm.email" type="email" class="ud-modal-input" required /></div></div>
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#8896AB] mb-1">الهاتف</label><input v-model="profileForm.phone" class="ud-modal-input" /></div><div><label class="block text-xs text-[#8896AB] mb-1">الجنسية</label><input v-model="profileForm.nationality" class="ud-modal-input" /></div></div>
-              <div><label class="block text-xs text-[#8896AB] mb-1">العنوان</label><input v-model="profileForm.address" class="ud-modal-input" /></div>
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#8896AB] mb-1">المدينة</label><input v-model="profileForm.city" class="ud-modal-input" /></div><div><label class="block text-xs text-[#8896AB] mb-1">الدولة</label><input v-model="profileForm.country" class="ud-modal-input" /></div></div>
+              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#94a3b8] mb-1">الاسم الكامل</label><input v-model="profileForm.full_name" class="ud-modal-input" required /></div><div><label class="block text-xs text-[#94a3b8] mb-1">البريد</label><input v-model="profileForm.email" type="email" class="ud-modal-input" required /></div></div>
+              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#94a3b8] mb-1">الهاتف</label><input v-model="profileForm.phone" class="ud-modal-input" /></div><div><label class="block text-xs text-[#94a3b8] mb-1">الجنسية</label><input v-model="profileForm.nationality" class="ud-modal-input" /></div></div>
+              <div><label class="block text-xs text-[#94a3b8] mb-1">العنوان</label><input v-model="profileForm.address" class="ud-modal-input" /></div>
+              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#94a3b8] mb-1">المدينة</label><input v-model="profileForm.city" class="ud-modal-input" /></div><div><label class="block text-xs text-[#94a3b8] mb-1">الدولة</label><input v-model="profileForm.country" class="ud-modal-input" /></div></div>
               <div v-if="profileForm.errors" class="text-xs text-red-500"><div v-for="(e, k) in profileForm.errors" :key="k">{{ e }}</div></div>
-              <div class="flex gap-3"><button type="submit" :disabled="profileForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ التغييرات</button><button type="button" @click="showEditProfile = false" class="flex-1 bg-[#F0F2F5] text-[#5A6B82] py-3 rounded-xl">إلغاء</button></div>
+              <div class="flex gap-3"><button type="submit" :disabled="profileForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ التغييرات</button><button type="button" @click="showEditProfile = false" class="flex-1 bg-[#0f172a] text-[#cbd5e1] py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>
@@ -289,12 +289,12 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
       <!-- Send Notification Modal -->
       <Teleport to="body">
         <div v-if="showSendNote" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showSendNote = false">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-xl font-bold text-[#1A2B4A] mb-1">📩 إرسال إشعار</h3>
-            <p class="text-[#8896AB] text-sm mb-4">إلى: {{ user.full_name }}</p>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-xl font-bold text-[#f1f5f9] mb-1">📩 إرسال إشعار</h3>
+            <p class="text-[#94a3b8] text-sm mb-4">إلى: {{ user.full_name }}</p>
             <form @submit.prevent="sendNote" class="space-y-4">
-              <textarea v-model="noteForm.note" placeholder="اكتب رسالة الإشعار..." rows="4" class="w-full border border-[#E8ECF1] rounded-xl px-4 py-3 text-[#1A2B4A] outline-none focus:border-[#1E5EFF] text-sm resize-none" required></textarea>
-              <div class="flex gap-3"><button type="submit" :disabled="noteForm.processing || !noteForm.note" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">إرسال</button><button type="button" @click="showSendNote = false" class="flex-1 bg-[#F0F2F5] text-[#5A6B82] py-3 rounded-xl">إلغاء</button></div>
+              <textarea v-model="noteForm.note" placeholder="اكتب رسالة الإشعار..." rows="4" class="w-full border border-[#334155] rounded-xl px-4 py-3 text-[#f1f5f9] outline-none focus:border-[#1E5EFF] text-sm resize-none" required></textarea>
+              <div class="flex gap-3"><button type="submit" :disabled="noteForm.processing || !noteForm.note" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">إرسال</button><button type="button" @click="showSendNote = false" class="flex-1 bg-[#0f172a] text-[#cbd5e1] py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>
@@ -309,7 +309,7 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
 .ud-root{min-height:100vh;background:#0f172a;direction:rtl}
 .ud-header{background:#1e293b;border-bottom:1px solid #334155}
 .ud-back{font-size:13px;color:#3b82f6;font-weight:600;text-decoration:none}.ud-back:hover{color:#1047b8}
-.ud-avatar-lg{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px;flex-shrink:0}
+.ud-avatar-lg{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px;flex-shrink:0}
 .ud-balance-card{background:linear-gradient(135deg,rgba(30,94,255,0.04),rgba(30,94,255,0.02));border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:16px 24px;text-align:right}
 .ud-tabs{display:flex;gap:4px;border-bottom:2px solid #334155;overflow-x:auto}
 .ud-tab{padding:10px 16px;font-size:13px;font-weight:500;color:#94a3b8;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;display:flex;align-items:center;gap:6px;white-space:nowrap}.ud-tab:hover{color:#3b82f6}

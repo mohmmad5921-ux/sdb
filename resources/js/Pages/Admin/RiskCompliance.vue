@@ -34,7 +34,7 @@ const sideLinks = [
   <AdminLayout title="🛡️ المخاطر والامتثال">
     <div class="rk-root">
       <aside class="rk-sidebar">
-        <div class="rk-logo"><span class="text-lg font-black text-[#1A2B4A]">SDB Admin</span></div>
+        <div class="rk-logo"><span class="text-lg font-black text-[#f1f5f9]">SDB Admin</span></div>
         <nav class="rk-nav">
           <Link v-for="l in sideLinks" :key="l.route" :href="route(l.route)" :class="['rk-nav-item', l.active ? 'rk-nav-active' : '']"><span>{{ l.icon }}</span><span>{{ l.label }}</span></Link>
         </nav>
@@ -42,8 +42,8 @@ const sideLinks = [
 
       <main class="rk-main">
         <header class="rk-topbar">
-          <h2 class="text-lg font-bold text-[#1A2B4A]">🛡️ المخاطر والامتثال — AML Monitor</h2>
-          <span class="text-xs text-[#8896AB]">الحد الأدنى للمراقبة: {{ fmt(threshold) }} €</span>
+          <h2 class="text-lg font-bold text-[#f1f5f9]">🛡️ المخاطر والامتثال — AML Monitor</h2>
+          <span class="text-xs text-[#94a3b8]">الحد الأدنى للمراقبة: {{ fmt(threshold) }} €</span>
         </header>
 
         <div class="rk-content">
@@ -68,76 +68,76 @@ const sideLinks = [
 
           <!-- Suspicious Transactions -->
           <div v-if="activeSection === 'transactions'" class="rk-card">
-            <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">🔍 المعاملات المشبوهة — تحليل المخاطر</h3>
+            <h3 class="text-sm font-bold text-[#f1f5f9] mb-4">🔍 المعاملات المشبوهة — تحليل المخاطر</h3>
             <div class="overflow-x-auto">
               <table class="rk-table">
                 <thead><tr><th>المرسل</th><th>المستقبل</th><th>المبلغ</th><th>مستوى المخاطر</th><th>تقييم</th><th>الأسباب</th><th>التاريخ</th><th>إجراء</th></tr></thead>
                 <tbody>
                   <tr v-for="t in largeTransactions" :key="t.id">
-                    <td><div class="flex items-center gap-2"><div class="rk-avatar">{{ t.from_account?.user?.full_name?.charAt(0) || '?' }}</div><div><div class="text-sm font-semibold text-[#1A2B4A]">{{ t.from_account?.user?.full_name || '—' }}</div><div class="text-[10px] text-[#8896AB] font-mono">{{ t.from_account?.user?.customer_number }}</div></div></div></td>
-                    <td class="text-sm text-[#5A6B82]">{{ t.to_account?.user?.full_name || '—' }}</td>
-                    <td class="text-lg font-black text-[#1A2B4A]">{{ fmt(t.amount) }} {{ t.currency?.symbol }}</td>
+                    <td><div class="flex items-center gap-2"><div class="rk-avatar">{{ t.from_account?.user?.full_name?.charAt(0) || '?' }}</div><div><div class="text-sm font-semibold text-[#f1f5f9]">{{ t.from_account?.user?.full_name || '—' }}</div><div class="text-[10px] text-[#94a3b8] font-mono">{{ t.from_account?.user?.customer_number }}</div></div></div></td>
+                    <td class="text-sm text-[#cbd5e1]">{{ t.to_account?.user?.full_name || '—' }}</td>
+                    <td class="text-lg font-black text-[#f1f5f9]">{{ fmt(t.amount) }} {{ t.currency?.symbol }}</td>
                     <td><span :class="riskColor(t.risk_level)" class="rk-risk-badge">{{ riskLabel(t.risk_level) }}</span></td>
                     <td>
                       <div class="rk-score-bar">
                         <div class="rk-score-fill" :class="t.risk_score >= 60 ? 'rk-sf-red' : t.risk_score >= 30 ? 'rk-sf-yellow' : 'rk-sf-green'" :style="{width: t.risk_score + '%'}"></div>
                       </div>
-                      <span class="text-[10px] font-mono" :class="t.risk_score >= 60 ? 'text-red-500' : 'text-[#8896AB]'">{{ t.risk_score }}/100</span>
+                      <span class="text-[10px] font-mono" :class="t.risk_score >= 60 ? 'text-red-500' : 'text-[#94a3b8]'">{{ t.risk_score }}/100</span>
                     </td>
                     <td>
                       <div class="flex flex-wrap gap-1">
                         <span v-for="(f, i) in t.risk_flags" :key="i" class="rk-flag">{{ f }}</span>
                       </div>
                     </td>
-                    <td class="text-xs text-[#8896AB]">{{ fmtDate(t.created_at) }}</td>
+                    <td class="text-xs text-[#94a3b8]">{{ fmtDate(t.created_at) }}</td>
                     <td><Link v-if="t.from_account?.user" :href="route('admin.users.show', t.from_account.user.id)" class="rk-link">فحص ←</Link></td>
                   </tr>
                 </tbody>
               </table>
-              <div v-if="!largeTransactions?.length" class="py-10 text-center text-[#8896AB]">✅ لا توجد معاملات مشبوهة حالياً</div>
+              <div v-if="!largeTransactions?.length" class="py-10 text-center text-[#94a3b8]">✅ لا توجد معاملات مشبوهة حالياً</div>
             </div>
           </div>
 
           <!-- Suspended/Blocked Users -->
           <div v-if="activeSection === 'users'" class="rk-card">
-            <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">👥 المستخدمون الموقوفون والمحظورون</h3>
+            <h3 class="text-sm font-bold text-[#f1f5f9] mb-4">👥 المستخدمون الموقوفون والمحظورون</h3>
             <div class="overflow-x-auto">
               <table class="rk-table">
                 <thead><tr><th>العميل</th><th>البريد</th><th>رقم العميل</th><th>الحالة</th><th>KYC</th><th>تاريخ التسجيل</th><th>إجراء</th></tr></thead>
                 <tbody>
                   <tr v-for="u in suspiciousUsers" :key="u.id">
-                    <td><div class="flex items-center gap-2"><div class="rk-avatar rk-avatar-red">{{ u.full_name?.charAt(0) }}</div><span class="font-semibold text-[#1A2B4A]">{{ u.full_name }}</span></div></td>
-                    <td class="text-sm text-[#8896AB]">{{ u.email }}</td>
+                    <td><div class="flex items-center gap-2"><div class="rk-avatar rk-avatar-red">{{ u.full_name?.charAt(0) }}</div><span class="font-semibold text-[#f1f5f9]">{{ u.full_name }}</span></div></td>
+                    <td class="text-sm text-[#94a3b8]">{{ u.email }}</td>
                     <td class="font-mono text-xs text-[#1E5EFF]">{{ u.customer_number }}</td>
                     <td><span :class="u.status === 'suspended' ? 'rk-risk-med' : 'rk-risk-high'" class="rk-risk-badge">{{ u.status === 'suspended' ? '⚠️ موقوف' : '🚫 محظور' }}</span></td>
                     <td><span :class="u.kyc_status === 'verified' ? 'rk-badge-green' : 'rk-badge-yellow'" class="rk-badge-sm">{{ u.kyc_status }}</span></td>
-                    <td class="text-xs text-[#8896AB]">{{ fmtDate(u.created_at) }}</td>
+                    <td class="text-xs text-[#94a3b8]">{{ fmtDate(u.created_at) }}</td>
                     <td><Link :href="route('admin.users.show', u.id)" class="rk-link">فحص ←</Link></td>
                   </tr>
                 </tbody>
               </table>
-              <div v-if="!suspiciousUsers?.length" class="py-10 text-center text-[#8896AB]">✅ لا يوجد مستخدمون موقوفون</div>
+              <div v-if="!suspiciousUsers?.length" class="py-10 text-center text-[#94a3b8]">✅ لا يوجد مستخدمون موقوفون</div>
             </div>
           </div>
 
           <!-- Frozen Accounts -->
           <div v-if="activeSection === 'frozen'" class="rk-card">
-            <h3 class="text-sm font-bold text-[#1A2B4A] mb-4">❄️ الحسابات المجمّدة</h3>
+            <h3 class="text-sm font-bold text-[#f1f5f9] mb-4">❄️ الحسابات المجمّدة</h3>
             <div class="overflow-x-auto">
               <table class="rk-table">
                 <thead><tr><th>الحساب</th><th>العميل</th><th>IBAN</th><th>العملة</th><th>الرصيد</th><th>إجراء</th></tr></thead>
                 <tbody>
                   <tr v-for="a in frozenAccounts" :key="a.id">
                     <td class="font-mono text-xs text-[#1E5EFF]">{{ a.account_number }}</td>
-                    <td><div class="flex items-center gap-2"><div class="rk-avatar rk-avatar-blue">{{ a.user?.full_name?.charAt(0) }}</div><span class="font-semibold text-[#1A2B4A]">{{ a.user?.full_name }}</span></div></td>
-                    <td class="font-mono text-xs text-[#8896AB]">{{ a.iban }}</td>
+                    <td><div class="flex items-center gap-2"><div class="rk-avatar rk-avatar-blue">{{ a.user?.full_name?.charAt(0) }}</div><span class="font-semibold text-[#f1f5f9]">{{ a.user?.full_name }}</span></div></td>
+                    <td class="font-mono text-xs text-[#94a3b8]">{{ a.iban }}</td>
                     <td><span class="text-lg">{{ a.currency?.symbol }}</span> {{ a.currency?.code }}</td>
-                    <td class="font-bold text-[#1A2B4A]">{{ fmt(a.balance) }} {{ a.currency?.symbol }}</td>
+                    <td class="font-bold text-[#f1f5f9]">{{ fmt(a.balance) }} {{ a.currency?.symbol }}</td>
                     <td><Link :href="route('admin.accounts')" class="rk-link">إدارة ←</Link></td>
                   </tr>
                 </tbody>
               </table>
-              <div v-if="!frozenAccounts?.length" class="py-10 text-center text-[#8896AB]">✅ لا توجد حسابات مجمّدة</div>
+              <div v-if="!frozenAccounts?.length" class="py-10 text-center text-[#94a3b8]">✅ لا توجد حسابات مجمّدة</div>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ const sideLinks = [
 .rk-table th{text-align:right;padding:10px 12px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;border-bottom:2px solid #334155}
 .rk-table td{padding:10px 12px;border-bottom:1px solid #1e293b;color:#f1f5f9;vertical-align:middle}
 .rk-table tr:hover td{background:#1e293b}
-.rk-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
+.rk-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
 .rk-avatar-red{background:linear-gradient(135deg,#dc2626,#ef4444)}.rk-avatar-blue{background:linear-gradient(135deg,#2563eb,#3b82f6)}
 .rk-risk-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
 .rk-risk-high{background:rgba(239,68,68,0.1);color:#dc2626}.rk-risk-med{background:rgba(245,158,11,0.1);color:#d97706}.rk-risk-low{background:rgba(16,185,129,0.1);color:#059669}

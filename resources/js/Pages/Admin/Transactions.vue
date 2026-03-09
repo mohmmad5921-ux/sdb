@@ -24,8 +24,8 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
       <div class="at-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-[#1A2B4A]">المعاملات المالية</h1>
-            <p class="text-sm text-[#8896AB] mt-1">{{ transactions.total }} معاملة مسجلة</p>
+            <h1 class="text-2xl font-bold text-[#f1f5f9]">المعاملات المالية</h1>
+            <p class="text-sm text-[#94a3b8] mt-1">{{ transactions.total }} معاملة مسجلة</p>
           </div>
           <div class="flex gap-2">
             <Link :href="route('admin.dashboard')" class="at-back">← الرئيسية</Link>
@@ -51,9 +51,9 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
 
         <!-- Summary -->
         <div class="grid grid-cols-3 gap-4 mb-6">
-          <div class="at-summary"><div class="text-xs text-[#8896AB]">إجمالي المعاملات</div><div class="text-2xl font-black text-[#1A2B4A]">{{ transactions.total }}</div></div>
-          <div class="at-summary"><div class="text-xs text-[#8896AB]">المعروضة حالياً</div><div class="text-2xl font-black text-[#1E5EFF]">{{ (transactions.data || []).length }}</div></div>
-          <div class="at-summary"><div class="text-xs text-[#8896AB]">إجمالي المكتملة (هذه الصفحة)</div><div class="text-2xl font-black text-emerald-600">{{ fmt(totalCompleted) }}</div></div>
+          <div class="at-summary"><div class="text-xs text-[#94a3b8]">إجمالي المعاملات</div><div class="text-2xl font-black text-[#f1f5f9]">{{ transactions.total }}</div></div>
+          <div class="at-summary"><div class="text-xs text-[#94a3b8]">المعروضة حالياً</div><div class="text-2xl font-black text-[#1E5EFF]">{{ (transactions.data || []).length }}</div></div>
+          <div class="at-summary"><div class="text-xs text-[#94a3b8]">إجمالي المكتملة (هذه الصفحة)</div><div class="text-2xl font-black text-emerald-600">{{ fmt(totalCompleted) }}</div></div>
         </div>
 
         <!-- Table -->
@@ -69,15 +69,15 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
                 <tr v-for="t in transactions.data" :key="t.id">
                   <td><span class="font-mono text-[#1E5EFF] text-xs">{{ t.reference_number }}</span></td>
                   <td><span class="at-type">{{ typeIcons[t.type] || '📄' }} {{ typeLabels[t.type] || t.type }}</span></td>
-                  <td class="text-[#5A6B82]">{{ t.from_account?.user?.full_name || '—' }}</td>
-                  <td class="text-[#5A6B82]">{{ t.to_account?.user?.full_name || '—' }}</td>
-                  <td class="font-bold text-[#1A2B4A]">{{ fmt(t.amount, t.currency?.symbol) }}</td>
+                  <td class="text-[#cbd5e1]">{{ t.from_account?.user?.full_name || '—' }}</td>
+                  <td class="text-[#cbd5e1]">{{ t.to_account?.user?.full_name || '—' }}</td>
+                  <td class="font-bold text-[#f1f5f9]">{{ fmt(t.amount, t.currency?.symbol) }}</td>
                   <td class="text-center"><span :class="statusBadge[t.status]" class="at-badge">{{ t.status }}</span></td>
-                  <td class="text-[#8896AB] text-xs">{{ new Date(t.created_at).toLocaleString('en-GB') }}</td>
+                  <td class="text-[#94a3b8] text-xs">{{ new Date(t.created_at).toLocaleString('en-GB') }}</td>
                 </tr>
               </tbody>
             </table>
-            <div v-if="!(transactions.data || []).length" class="py-12 text-center text-[#8896AB]">لا توجد معاملات</div>
+            <div v-if="!(transactions.data || []).length" class="py-12 text-center text-[#94a3b8]">لا توجد معاملات</div>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ const totalCompleted = computed(() => (props.transactions?.data || []).filter(t 
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .at-root{min-height:100vh;background:#0f172a;direction:rtl}
-.at-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.at-header{background:#1e293b;border-bottom:1px solid #334155}
 .at-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.at-back:hover{background:#10b981;color:#fff}
 .at-search{width:320px;padding:10px 16px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none}.at-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}.at-search::placeholder{color:#94a3b8}
 .at-filter-select{padding:10px 14px;border:1px solid #334155;border-radius:12px;background:#1e293b;font-size:13px;color:#f1f5f9;outline:none;cursor:pointer}.at-filter-select:focus{border-color:#10b981}

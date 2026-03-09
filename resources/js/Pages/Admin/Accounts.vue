@@ -32,7 +32,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
     <div class="aa-root">
       <div class="aa-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#1A2B4A]">🏦 إدارة الحسابات المصرفية</h1><p class="text-sm text-[#8896AB] mt-1">{{ accounts.total }} حساب مسجل — تحكم شامل بالأرصدة والحالات</p></div>
+          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">🏦 إدارة الحسابات المصرفية</h1><p class="text-sm text-[#94a3b8] mt-1">{{ accounts.total }} حساب مسجل — تحكم شامل بالأرصدة والحالات</p></div>
           <Link :href="route('admin.dashboard')" class="aa-back">← الرئيسية</Link>
         </div>
       </div>
@@ -42,11 +42,11 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
       <div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
         <!-- Stats Row -->
         <div class="grid grid-cols-5 gap-3">
-          <div class="aa-stat"><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total }}</div><div class="text-[10px] text-[#8896AB] mt-1">إجمالي الحسابات</div></div>
-          <button @click="statusFilter = statusFilter === 'active' ? '' : 'active'; applyFilter()" :class="{'aa-stat-active': statusFilter === 'active'}" class="aa-stat"><div class="text-2xl font-black text-emerald-600">{{ stats.active }}</div><div class="text-[10px] text-[#8896AB] mt-1">✅ نشط</div></button>
-          <button @click="statusFilter = statusFilter === 'frozen' ? '' : 'frozen'; applyFilter()" :class="{'aa-stat-active-blue': statusFilter === 'frozen'}" class="aa-stat"><div class="text-2xl font-black text-[#1E5EFF]">{{ stats.frozen }}</div><div class="text-[10px] text-[#8896AB] mt-1">❄️ مجمّد</div></button>
-          <button @click="statusFilter = statusFilter === 'closed' ? '' : 'closed'; applyFilter()" :class="{'aa-stat-active-red': statusFilter === 'closed'}" class="aa-stat"><div class="text-2xl font-black text-red-500">{{ stats.closed }}</div><div class="text-[10px] text-[#8896AB] mt-1">🔒 مغلق</div></button>
-          <div class="aa-stat"><div class="text-2xl font-black text-emerald-600">{{ fmtM(stats.total_balance_eur) }}€</div><div class="text-[10px] text-[#8896AB] mt-1">💰 إجمالي الأرصدة</div></div>
+          <div class="aa-stat"><div class="text-2xl font-black text-[#f1f5f9]">{{ stats.total }}</div><div class="text-[10px] text-[#94a3b8] mt-1">إجمالي الحسابات</div></div>
+          <button @click="statusFilter = statusFilter === 'active' ? '' : 'active'; applyFilter()" :class="{'aa-stat-active': statusFilter === 'active'}" class="aa-stat"><div class="text-2xl font-black text-emerald-600">{{ stats.active }}</div><div class="text-[10px] text-[#94a3b8] mt-1">✅ نشط</div></button>
+          <button @click="statusFilter = statusFilter === 'frozen' ? '' : 'frozen'; applyFilter()" :class="{'aa-stat-active-blue': statusFilter === 'frozen'}" class="aa-stat"><div class="text-2xl font-black text-[#1E5EFF]">{{ stats.frozen }}</div><div class="text-[10px] text-[#94a3b8] mt-1">❄️ مجمّد</div></button>
+          <button @click="statusFilter = statusFilter === 'closed' ? '' : 'closed'; applyFilter()" :class="{'aa-stat-active-red': statusFilter === 'closed'}" class="aa-stat"><div class="text-2xl font-black text-red-500">{{ stats.closed }}</div><div class="text-[10px] text-[#94a3b8] mt-1">🔒 مغلق</div></button>
+          <div class="aa-stat"><div class="text-2xl font-black text-emerald-600">{{ fmtM(stats.total_balance_eur) }}€</div><div class="text-[10px] text-[#94a3b8] mt-1">💰 إجمالي الأرصدة</div></div>
         </div>
 
         <!-- Filters -->
@@ -71,16 +71,16 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
                       <div class="flex items-center gap-3">
                         <div class="aa-avatar">{{ a.user?.full_name?.charAt(0) }}</div>
                         <div>
-                          <div class="text-sm font-semibold text-[#1A2B4A]">{{ a.user?.full_name }}</div>
-                          <div class="text-xs text-[#8896AB]">{{ a.user?.email }}</div>
+                          <div class="text-sm font-semibold text-[#f1f5f9]">{{ a.user?.full_name }}</div>
+                          <div class="text-xs text-[#94a3b8]">{{ a.user?.email }}</div>
                           <div class="text-[10px] font-mono text-[#1E5EFF]">{{ a.user?.customer_number }}</div>
                         </div>
                       </div>
                     </td>
-                    <td class="font-mono text-sm text-[#1A2B4A]">{{ a.account_number }}</td>
-                    <td class="font-mono text-xs text-[#8896AB]">{{ a.iban }}</td>
-                    <td><span class="text-lg">{{ a.currency?.symbol }}</span> <span class="text-sm text-[#5A6B82]">{{ a.currency?.code }}</span></td>
-                    <td class="font-bold text-[#1A2B4A] text-lg">{{ fmt(a.balance, a.currency?.symbol) }}</td>
+                    <td class="font-mono text-sm text-[#f1f5f9]">{{ a.account_number }}</td>
+                    <td class="font-mono text-xs text-[#94a3b8]">{{ a.iban }}</td>
+                    <td><span class="text-lg">{{ a.currency?.symbol }}</span> <span class="text-sm text-[#cbd5e1]">{{ a.currency?.code }}</span></td>
+                    <td class="font-bold text-[#f1f5f9] text-lg">{{ fmt(a.balance, a.currency?.symbol) }}</td>
                     <td class="text-center"><span :class="statusBadge[a.status]" class="aa-badge">{{ a.status === 'active' ? 'نشط' : a.status === 'frozen' ? 'مجمّد' : 'مغلق' }}</span></td>
                     <td class="text-center" @click.stop>
                       <div class="flex justify-center gap-1">
@@ -95,16 +95,16 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
                   <!-- Expanded Detail Row -->
                   <tr v-if="expandedId === a.id" class="aa-expanded-row">
                     <td colspan="7">
-                      <div class="p-4 bg-[#FAFBFC] rounded-xl border border-[#E8ECF1] mx-2 my-1">
+                      <div class="p-4 bg-[#1e293b] rounded-xl border border-[#334155] mx-2 my-1">
                         <div class="grid grid-cols-4 gap-4 text-sm">
-                          <div><span class="text-[#8896AB] block text-xs mb-1">رقم الحساب</span><span class="font-mono font-bold text-[#1A2B4A]">{{ a.account_number }}</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">IBAN</span><span class="font-mono text-[#1A2B4A] text-xs">{{ a.iban }}</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">العملة</span><span class="text-[#1A2B4A]">{{ a.currency?.name_ar || a.currency?.name }} ({{ a.currency?.code }})</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">تاريخ الإنشاء</span><span class="text-[#1A2B4A]">{{ new Date(a.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' }) }}</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">الرصيد بالعملة الأصلية</span><span class="font-bold text-lg text-[#1A2B4A]">{{ fmt(a.balance, a.currency?.symbol) }}</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">الرصيد تقريباً (EUR)</span><span class="font-bold text-lg text-emerald-600">{{ fmt(a.balance * (a.currency?.exchange_rate_to_eur || 1)) }}</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">سعر الصرف للعميل</span><span class="text-[#1A2B4A] font-mono">1 {{ a.currency?.code }} = {{ a.currency?.exchange_rate_to_eur || 1 }} EUR</span></div>
-                          <div><span class="text-[#8896AB] block text-xs mb-1">الحالة</span><span :class="statusBadge[a.status]" class="aa-badge">{{ a.status }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">رقم الحساب</span><span class="font-mono font-bold text-[#f1f5f9]">{{ a.account_number }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">IBAN</span><span class="font-mono text-[#f1f5f9] text-xs">{{ a.iban }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">العملة</span><span class="text-[#f1f5f9]">{{ a.currency?.name_ar || a.currency?.name }} ({{ a.currency?.code }})</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">تاريخ الإنشاء</span><span class="text-[#f1f5f9]">{{ new Date(a.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' }) }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">الرصيد بالعملة الأصلية</span><span class="font-bold text-lg text-[#f1f5f9]">{{ fmt(a.balance, a.currency?.symbol) }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">الرصيد تقريباً (EUR)</span><span class="font-bold text-lg text-emerald-600">{{ fmt(a.balance * (a.currency?.exchange_rate_to_eur || 1)) }}</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">سعر الصرف للعميل</span><span class="text-[#f1f5f9] font-mono">1 {{ a.currency?.code }} = {{ a.currency?.exchange_rate_to_eur || 1 }} EUR</span></div>
+                          <div><span class="text-[#94a3b8] block text-xs mb-1">الحالة</span><span :class="statusBadge[a.status]" class="aa-badge">{{ a.status }}</span></div>
                         </div>
                       </div>
                     </td>
@@ -123,19 +123,19 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
       <!-- Adjust Modal -->
       <Teleport to="body">
         <div v-if="adjustingAccount" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="adjustingAccount = null">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-xl font-bold text-[#1A2B4A] mb-1">💰 تعديل رصيد</h3>
-            <p class="text-[#8896AB] text-sm mb-2">{{ adjustingAccount.user?.full_name }} — {{ adjustingAccount.currency?.code }}</p>
-            <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm"><span class="text-[#8896AB]">الرصيد الحالي: </span><span class="font-bold text-[#1E5EFF]">{{ fmt(adjustingAccount.balance, adjustingAccount.currency?.symbol) }}</span></div>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-xl font-bold text-[#f1f5f9] mb-1">💰 تعديل رصيد</h3>
+            <p class="text-[#94a3b8] text-sm mb-2">{{ adjustingAccount.user?.full_name }} — {{ adjustingAccount.currency?.code }}</p>
+            <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm"><span class="text-[#94a3b8]">الرصيد الحالي: </span><span class="font-bold text-[#1E5EFF]">{{ fmt(adjustingAccount.balance, adjustingAccount.currency?.symbol) }}</span></div>
             <form @submit.prevent="submitAdjust" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs text-[#8896AB] mb-1">النوع</label><select v-model="adjustForm.type" class="aa-modal-input"><option value="credit">➕ إضافة (Credit)</option><option value="debit">➖ خصم (Debit)</option></select></div>
-                <div><label class="block text-xs text-[#8896AB] mb-1">المبلغ</label><input v-model="adjustForm.amount" type="number" step="0.01" min="0.01" class="aa-modal-input" required /></div>
+                <div><label class="block text-xs text-[#94a3b8] mb-1">النوع</label><select v-model="adjustForm.type" class="aa-modal-input"><option value="credit">➕ إضافة (Credit)</option><option value="debit">➖ خصم (Debit)</option></select></div>
+                <div><label class="block text-xs text-[#94a3b8] mb-1">المبلغ</label><input v-model="adjustForm.amount" type="number" step="0.01" min="0.01" class="aa-modal-input" required /></div>
               </div>
-              <div><label class="block text-xs text-[#8896AB] mb-1">السبب</label><input v-model="adjustForm.reason" required placeholder="سبب التعديل (مطلوب)..." class="aa-modal-input" /></div>
+              <div><label class="block text-xs text-[#94a3b8] mb-1">السبب</label><input v-model="adjustForm.reason" required placeholder="سبب التعديل (مطلوب)..." class="aa-modal-input" /></div>
               <div v-if="adjustForm.type === 'debit' && adjustForm.amount > adjustingAccount.balance" class="p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">⚠️ المبلغ أكبر من الرصيد الحالي!</div>
               <p v-if="adjustForm.errors.amount" class="text-red-500 text-xs">{{ adjustForm.errors.amount }}</p>
-              <div class="flex gap-3"><button type="submit" :disabled="adjustForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">تطبيق</button><button type="button" @click="adjustingAccount = null" class="flex-1 bg-[#F0F2F5] text-[#5A6B82] py-3 rounded-xl">إلغاء</button></div>
+              <div class="flex gap-3"><button type="submit" :disabled="adjustForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">تطبيق</button><button type="button" @click="adjustingAccount = null" class="flex-1 bg-[#0f172a] text-[#cbd5e1] py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>
@@ -148,7 +148,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .aa-root{min-height:100vh;background:#0f172a;direction:rtl}
-.aa-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.aa-header{background:#1e293b;border-bottom:1px solid #334155}
 .aa-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.aa-back:hover{background:#10b981;color:#fff}
 .aa-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}.aa-stat:hover{border-color:#10b981}
 .aa-stat-active{border-color:#10b981!important;background:rgba(16,185,129,0.03)}.aa-stat-active-blue{border-color:#10b981!important;background:rgba(30,94,255,0.03)}.aa-stat-active-red{border-color:#ef4444!important;background:rgba(239,68,68,0.03)}
@@ -161,7 +161,7 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
 .aa-table td{padding:14px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
 .aa-table tr:hover td{background:#1e293b}
 .aa-expanded-row td{background:#1e293b!important;padding:0!important;border:none!important}
-.aa-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.aa-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
 .aa-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .aa-badge-green{background:rgba(16,185,129,0.1);color:#059669}.aa-badge-blue{background:rgba(59,130,246,0.15);color:#3b82f6}.aa-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .aa-act{font-size:11px;padding:4px 10px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s;text-decoration:none}

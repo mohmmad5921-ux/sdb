@@ -65,7 +65,7 @@ const analyzeDocument = (doc) => {
     <div class="ky-root">
       <div class="ky-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div><h1 class="text-2xl font-bold text-[#1A2B4A]">مراجعة وثائق الهوية — KYC</h1><p class="text-sm text-[#8896AB] mt-1">فحص والتحقق من أصالة المستندات</p></div>
+          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">مراجعة وثائق الهوية — KYC</h1><p class="text-sm text-[#94a3b8] mt-1">فحص والتحقق من أصالة المستندات</p></div>
           <Link :href="route('admin.dashboard')" class="ky-back">← الرئيسية</Link>
         </div>
       </div>
@@ -79,15 +79,15 @@ const analyzeDocument = (doc) => {
         <div class="grid grid-cols-3 gap-4">
           <button @click="applyFilter('pending')" class="ky-stat" :class="filter === 'pending' ? 'ky-stat-yellow-active' : ''">
             <div class="text-3xl font-black text-amber-600">{{ stats.pending }}</div>
-            <div class="text-sm text-[#8896AB] mt-1">⏳ قيد المراجعة</div>
+            <div class="text-sm text-[#94a3b8] mt-1">⏳ قيد المراجعة</div>
           </button>
           <button @click="applyFilter('approved')" class="ky-stat" :class="filter === 'approved' ? 'ky-stat-green-active' : ''">
             <div class="text-3xl font-black text-emerald-600">{{ stats.approved }}</div>
-            <div class="text-sm text-[#8896AB] mt-1">✅ معتمد</div>
+            <div class="text-sm text-[#94a3b8] mt-1">✅ معتمد</div>
           </button>
           <button @click="applyFilter('rejected')" class="ky-stat" :class="filter === 'rejected' ? 'ky-stat-red-active' : ''">
             <div class="text-3xl font-black text-red-600">{{ stats.rejected }}</div>
-            <div class="text-sm text-[#8896AB] mt-1">❌ مرفوض</div>
+            <div class="text-sm text-[#94a3b8] mt-1">❌ مرفوض</div>
           </button>
         </div>
 
@@ -103,10 +103,10 @@ const analyzeDocument = (doc) => {
                   <td>
                     <div class="flex items-center gap-3">
                       <div class="ky-avatar">{{ doc.user?.full_name?.charAt(0) }}</div>
-                      <div><div class="text-sm font-semibold text-[#1A2B4A]">{{ doc.user?.full_name }}</div><div class="text-xs text-[#8896AB]">{{ doc.user?.email }}</div></div>
+                      <div><div class="text-sm font-semibold text-[#f1f5f9]">{{ doc.user?.full_name }}</div><div class="text-xs text-[#94a3b8]">{{ doc.user?.email }}</div></div>
                     </div>
                   </td>
-                  <td class="text-sm text-[#5A6B82]">{{ docTypeLabels[doc.document_type] || doc.document_type }}</td>
+                  <td class="text-sm text-[#cbd5e1]">{{ docTypeLabels[doc.document_type] || doc.document_type }}</td>
                   <td>
                     <a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ky-file-link">📄 {{ doc.original_filename }}</a>
                   </td>
@@ -115,22 +115,22 @@ const analyzeDocument = (doc) => {
                       <div class="ky-auth-score" :class="{ 'ky-auth-pass': analyzeDocument(doc).score >= 70, 'ky-auth-warn': analyzeDocument(doc).score >= 40 && analyzeDocument(doc).score < 70, 'ky-auth-fail': analyzeDocument(doc).score < 40 }">
                         {{ analyzeDocument(doc).score }}%
                       </div>
-                      <span class="text-xs text-[#8896AB]">{{ analyzeDocument(doc).verdict }}</span>
+                      <span class="text-xs text-[#94a3b8]">{{ analyzeDocument(doc).verdict }}</span>
                       <button @click="previewDoc = doc" class="text-xs text-[#1E5EFF] hover:underline">تفاصيل</button>
                     </div>
                   </td>
                   <td class="text-center"><span :class="statusBadge[doc.status]" class="ky-badge">{{ doc.status }}</span></td>
-                  <td class="text-[#8896AB] text-xs">{{ new Date(doc.created_at).toLocaleString('en-GB') }}</td>
+                  <td class="text-[#94a3b8] text-xs">{{ new Date(doc.created_at).toLocaleString('en-GB') }}</td>
                   <td class="text-center">
                     <div v-if="doc.status === 'pending'" class="flex justify-center gap-1">
                       <button @click="approve(doc)" class="ky-btn-green">✓ اعتماد</button>
                       <button @click="reviewDoc = doc" class="ky-btn-red">✗ رفض</button>
                     </div>
                     <div v-else-if="doc.status === 'rejected'" class="text-xs text-red-500 max-w-[150px] truncate">{{ doc.rejection_reason }}</div>
-                    <div v-else class="text-xs text-[#8896AB]">{{ doc.reviewer?.full_name }}</div>
+                    <div v-else class="text-xs text-[#94a3b8]">{{ doc.reviewer?.full_name }}</div>
                   </td>
                 </tr>
-                <tr v-if="!documents.data?.length"><td colspan="7" class="py-12 text-center text-[#8896AB]">لا توجد مستندات</td></tr>
+                <tr v-if="!documents.data?.length"><td colspan="7" class="py-12 text-center text-[#94a3b8]">لا توجد مستندات</td></tr>
               </tbody>
             </table>
           </div>
@@ -140,14 +140,14 @@ const analyzeDocument = (doc) => {
       <!-- Rejection Modal -->
       <Teleport to="body">
         <div v-if="reviewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="reviewDoc = null">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-lg font-bold text-[#1A2B4A] mb-1">رفض مستند</h3>
-            <p class="text-[#8896AB] text-sm mb-4">{{ reviewDoc.user?.full_name }} — {{ docTypeLabels[reviewDoc.document_type] }}</p>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-lg font-bold text-[#f1f5f9] mb-1">رفض مستند</h3>
+            <p class="text-[#94a3b8] text-sm mb-4">{{ reviewDoc.user?.full_name }} — {{ docTypeLabels[reviewDoc.document_type] }}</p>
             <textarea v-model="rejectionReason" placeholder="سبب الرفض..." rows="3"
-              class="w-full border border-[#E8ECF1] rounded-xl px-4 py-3 text-[#1A2B4A] outline-none focus:border-red-400 text-sm resize-none"></textarea>
+              class="w-full border border-[#334155] rounded-xl px-4 py-3 text-[#f1f5f9] outline-none focus:border-red-400 text-sm resize-none"></textarea>
             <div class="flex gap-3 mt-4">
               <button @click="reject(reviewDoc)" :disabled="!rejectionReason.trim()" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm disabled:opacity-50">✗ رفض</button>
-              <button @click="reviewDoc = null" class="flex-1 py-3 bg-[#F0F2F5] text-[#5A6B82] rounded-xl text-sm">إلغاء</button>
+              <button @click="reviewDoc = null" class="flex-1 py-3 bg-[#0f172a] text-[#cbd5e1] rounded-xl text-sm">إلغاء</button>
             </div>
           </div>
         </div>
@@ -156,9 +156,9 @@ const analyzeDocument = (doc) => {
       <!-- Document Analysis Modal -->
       <Teleport to="body">
         <div v-if="previewDoc" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="previewDoc = null">
-          <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-lg font-bold text-[#1A2B4A] mb-1">🔍 تقرير فحص أصالة المستند</h3>
-            <p class="text-[#8896AB] text-sm mb-4">{{ previewDoc.user?.full_name }} — {{ docTypeLabels[previewDoc.document_type] }}</p>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-lg font-bold text-[#f1f5f9] mb-1">🔍 تقرير فحص أصالة المستند</h3>
+            <p class="text-[#94a3b8] text-sm mb-4">{{ previewDoc.user?.full_name }} — {{ docTypeLabels[previewDoc.document_type] }}</p>
 
             <div class="text-center mb-4">
               <div class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl" :class="{'bg-emerald-50 border-emerald-200': analyzeDocument(previewDoc).score >= 70, 'bg-amber-50 border-amber-200': analyzeDocument(previewDoc).score >= 40 && analyzeDocument(previewDoc).score < 70, 'bg-red-50 border-red-200': analyzeDocument(previewDoc).score < 40}" style="border-width:1px">
@@ -174,8 +174,8 @@ const analyzeDocument = (doc) => {
                 <span v-else-if="check.status === 'fail'" class="text-red-500">❌</span>
                 <span v-else class="text-blue-500">ℹ️</span>
                 <div>
-                  <div class="text-sm font-semibold text-[#1A2B4A]">{{ check.label }}</div>
-                  <div class="text-xs text-[#8896AB]">{{ check.detail }}</div>
+                  <div class="text-sm font-semibold text-[#f1f5f9]">{{ check.label }}</div>
+                  <div class="text-xs text-[#94a3b8]">{{ check.detail }}</div>
                 </div>
               </div>
             </div>
@@ -184,7 +184,7 @@ const analyzeDocument = (doc) => {
               💡 <strong>ملاحظة:</strong> يتم فحص الملف تلقائياً بناءً على حجم الصورة وأبعادها واسم الملف. سكرين شوت عادة تكون بحجم صغير وأبعاد شاشة الهاتف.
             </div>
 
-            <button @click="previewDoc = null" class="w-full mt-4 py-3 bg-[#F0F2F5] text-[#5A6B82] rounded-xl text-sm">إغلاق</button>
+            <button @click="previewDoc = null" class="w-full mt-4 py-3 bg-[#0f172a] text-[#cbd5e1] rounded-xl text-sm">إغلاق</button>
           </div>
         </div>
       </Teleport>
@@ -196,7 +196,7 @@ const analyzeDocument = (doc) => {
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .ky-root{min-height:100vh;background:#0f172a;direction:rtl}
-.ky-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.ky-header{background:#1e293b;border-bottom:1px solid #334155}
 .ky-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ky-back:hover{background:#10b981;color:#fff}
 .ky-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}.ky-stat:hover{border-color:#10b981}.ky-stat-yellow-active{border-color:#f59e0b;background:rgba(245,158,11,0.03)}.ky-stat-green-active{border-color:#10b981;background:rgba(16,185,129,0.03)}.ky-stat-red-active{border-color:#ef4444;background:rgba(239,68,68,0.03)}
 .ky-card{background:#1e293b;border:1px solid #334155;border-radius:16px}
@@ -204,7 +204,7 @@ const analyzeDocument = (doc) => {
 .ky-table th{text-align:right;padding:12px 16px;background:#1e293b;color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #334155}
 .ky-table td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
 .ky-table tr:hover td{background:#1e293b}
-.ky-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.ky-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
 .ky-badge{font-size:11px;padding:2px 10px;border-radius:100px;font-weight:600}
 .ky-badge-green{background:rgba(16,185,129,0.1);color:#059669}.ky-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}.ky-badge-red{background:rgba(239,68,68,0.1);color:#dc2626}
 .ky-file-link{font-size:12px;color:#3b82f6;text-decoration:none;display:flex;align-items:center;gap:4px}.ky-file-link:hover{text-decoration:underline}

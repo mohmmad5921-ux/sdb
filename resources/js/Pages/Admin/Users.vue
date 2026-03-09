@@ -18,8 +18,8 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
       <div class="ul-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-[#1A2B4A]">إدارة العملاء</h1>
-            <p class="text-sm text-[#8896AB] mt-1">{{ users.total }} عميل مسجل</p>
+            <h1 class="text-2xl font-bold text-[#f1f5f9]">إدارة العملاء</h1>
+            <p class="text-sm text-[#94a3b8] mt-1">{{ users.total }} عميل مسجل</p>
           </div>
           <Link :href="route('admin.dashboard')" class="ul-back">← الرئيسية</Link>
         </div>
@@ -47,23 +47,23 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
                   <div class="flex items-center gap-3">
                     <div class="ul-avatar">{{ user.full_name?.charAt(0) }}</div>
                     <div>
-                      <div class="text-sm font-semibold text-[#1A2B4A]">{{ user.full_name }}</div>
-                      <div class="text-xs text-[#8896AB]">{{ user.email }}</div>
+                      <div class="text-sm font-semibold text-[#f1f5f9]">{{ user.full_name }}</div>
+                      <div class="text-xs text-[#94a3b8]">{{ user.email }}</div>
                       <div class="text-[10px] font-mono text-[#1E5EFF]" v-if="user.customer_number">رقم: {{ user.customer_number }}</div>
                     </div>
                   </div>
                 </td>
-                <td class="text-[#5A6B82]">{{ user.phone || '—' }}</td>
+                <td class="text-[#cbd5e1]">{{ user.phone || '—' }}</td>
                 <td class="text-center"><span :class="statusBadge[user.status]" class="ul-badge">{{ user.status }}</span></td>
                 <td class="text-center"><span :class="statusBadge[user.kyc_status]" class="ul-badge">{{ user.kyc_status }}</span></td>
-                <td class="text-center text-[#5A6B82]">{{ user.accounts_count }}</td>
-                <td class="text-center text-[#5A6B82]">{{ user.cards_count }}</td>
-                <td class="text-[#8896AB] text-sm">{{ new Date(user.created_at).toLocaleDateString('en-GB') }}</td>
+                <td class="text-center text-[#cbd5e1]">{{ user.accounts_count }}</td>
+                <td class="text-center text-[#cbd5e1]">{{ user.cards_count }}</td>
+                <td class="text-[#94a3b8] text-sm">{{ new Date(user.created_at).toLocaleDateString('en-GB') }}</td>
                 <td><Link :href="route('admin.users.show', user.id)" class="ul-view-btn">عرض التفاصيل ←</Link></td>
               </tr>
             </tbody>
           </table>
-          <div v-if="!users.data?.length" class="py-12 text-center text-[#8896AB]">لا يوجد عملاء</div>
+          <div v-if="!users.data?.length" class="py-12 text-center text-[#94a3b8]">لا يوجد عملاء</div>
         </div>
 
         <!-- Pagination -->
@@ -90,7 +90,7 @@ const statusBadge = { active: 'ul-badge-green', pending: 'ul-badge-yellow', susp
 .ul-table td{padding:14px 18px;border-bottom:1px solid #1e293b;vertical-align:middle}
 .ul-table tr:hover td{background:#1e293b}
 .ul-table tr:last-child td{border-bottom:none}
-.ul-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1E5EFF,#3B82F6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.ul-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
 .ul-badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
 .ul-badge-green{background:rgba(16,185,129,0.1);color:#059669}
 .ul-badge-yellow{background:rgba(245,158,11,0.1);color:#d97706}

@@ -20,8 +20,8 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
         <div class="max-w-3xl mx-auto px-6 py-4">
           <div class="flex justify-between items-start">
             <div>
-              <h1 class="text-xl font-bold text-[#1A2B4A]">{{ ticket.subject }}</h1>
-              <div class="text-xs text-[#8896AB] mt-1 flex items-center gap-2">
+              <h1 class="text-xl font-bold text-[#f1f5f9]">{{ ticket.subject }}</h1>
+              <div class="text-xs text-[#94a3b8] mt-1 flex items-center gap-2">
                 <span class="font-mono text-[#1E5EFF]">{{ ticket.ticket_number }}</span><span>·</span><span>{{ ticket.user?.full_name }}</span><span>·</span><span>{{ statusLabels[ticket.status] }}</span>
               </div>
             </div>
@@ -40,10 +40,10 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
           <div v-for="msg in ticket.messages" :key="msg.id" :class="msg.is_admin ? 'ml-auto' : 'mr-auto'" class="max-w-[80%]">
             <div :class="msg.is_admin ? 'sd-msg-admin' : 'sd-msg-user'" class="rounded-2xl p-4">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-medium" :class="msg.is_admin ? 'text-[#1E5EFF]' : 'text-[#5A6B82]'">{{ msg.is_admin ? '🛡 أنت (الدعم)' : '👤 ' + msg.user?.full_name }}</span>
-                <span class="text-[10px] text-[#8896AB]">{{ timeAgo(msg.created_at) }}</span>
+                <span class="text-xs font-medium" :class="msg.is_admin ? 'text-[#1E5EFF]' : 'text-[#cbd5e1]'">{{ msg.is_admin ? '🛡 أنت (الدعم)' : '👤 ' + msg.user?.full_name }}</span>
+                <span class="text-[10px] text-[#94a3b8]">{{ timeAgo(msg.created_at) }}</span>
               </div>
-              <p class="text-sm leading-relaxed whitespace-pre-wrap text-[#1A2B4A]">{{ msg.message }}</p>
+              <p class="text-sm leading-relaxed whitespace-pre-wrap text-[#f1f5f9]">{{ msg.message }}</p>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ const timeAgo = (d) => { if (!d) return '-'; const s = Math.floor((Date.now() - 
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .sd-root{min-height:100vh;background:#0f172a;direction:rtl;display:flex;flex-direction:column}
-.sd-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.sd-header{background:#1e293b;border-bottom:1px solid #334155}
 .sd-back{padding:6px 14px;background:#1e293b;color:#3b82f6;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.sd-back:hover{background:#10b981;color:#fff}
 .sd-status-btn{font-size:11px;padding:4px 12px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s}
 .sd-btn-yellow{background:rgba(245,158,11,0.08);color:#d97706;border-color:rgba(245,158,11,0.15)}.sd-btn-green{background:rgba(16,185,129,0.08);color:#059669;border-color:rgba(16,185,129,0.15)}.sd-btn-gray{background:#0f172a;color:#94a3b8}

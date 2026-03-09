@@ -30,7 +30,7 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
     <div class="ac-root">
       <div class="ac-header">
         <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div><h1 class="text-2xl font-bold text-[#1A2B4A]">💳 إدارة البطاقات</h1><p class="text-sm text-[#8896AB] mt-1">{{ cards.total }} بطاقة — تحكم بالحدود والحالات والتفاصيل</p></div>
+          <div><h1 class="text-2xl font-bold text-[#f1f5f9]">💳 إدارة البطاقات</h1><p class="text-sm text-[#94a3b8] mt-1">{{ cards.total }} بطاقة — تحكم بالحدود والحالات والتفاصيل</p></div>
           <Link :href="route('admin.dashboard')" class="ac-back">← الرئيسية</Link>
         </div>
       </div>
@@ -40,14 +40,14 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
       <div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
         <!-- Stats -->
         <div class="grid grid-cols-4 lg:grid-cols-8 gap-3">
-          <div class="ac-stat lg:col-span-1"><div class="text-2xl font-black text-[#1A2B4A]">{{ stats.total }}</div><div class="text-[10px] text-[#8896AB]">الكل</div></div>
-          <button @click="statusFilter = statusFilter === 'active' ? '' : 'active'; applyFilter()" :class="{'ac-stat-active-g': statusFilter === 'active'}" class="ac-stat"><div class="text-2xl font-black text-emerald-600">{{ stats.active }}</div><div class="text-[10px] text-[#8896AB]">✅ نشط</div></button>
-          <button @click="statusFilter = statusFilter === 'frozen' ? '' : 'frozen'; applyFilter()" :class="{'ac-stat-active-b': statusFilter === 'frozen'}" class="ac-stat"><div class="text-2xl font-black text-[#1E5EFF]">{{ stats.frozen }}</div><div class="text-[10px] text-[#8896AB]">❄️ مجمّد</div></button>
-          <button @click="statusFilter = statusFilter === 'cancelled' ? '' : 'cancelled'; applyFilter()" :class="{'ac-stat-active-r': statusFilter === 'cancelled'}" class="ac-stat"><div class="text-2xl font-black text-red-500">{{ stats.cancelled }}</div><div class="text-[10px] text-[#8896AB]">🚫 ملغي</div></button>
-          <button @click="statusFilter = statusFilter === 'expired' ? '' : 'expired'; applyFilter()" :class="{'ac-stat-active-g': statusFilter === 'expired'}" class="ac-stat"><div class="text-2xl font-black text-gray-400">{{ stats.expired }}</div><div class="text-[10px] text-[#8896AB]">⏰ منتهي</div></button>
-          <div class="ac-stat"><div class="text-2xl font-black text-purple-600">{{ stats.virtual }}</div><div class="text-[10px] text-[#8896AB]">🌐 افتراضي</div></div>
-          <div class="ac-stat"><div class="text-2xl font-black text-amber-600">{{ stats.physical }}</div><div class="text-[10px] text-[#8896AB]">📦 فعلي</div></div>
-          <div class="ac-stat"><div class="text-xl font-black text-emerald-600">{{ fmt(stats.total_daily_limit) }}</div><div class="text-[10px] text-[#8896AB]">حدود يومية</div></div>
+          <div class="ac-stat lg:col-span-1"><div class="text-2xl font-black text-[#f1f5f9]">{{ stats.total }}</div><div class="text-[10px] text-[#94a3b8]">الكل</div></div>
+          <button @click="statusFilter = statusFilter === 'active' ? '' : 'active'; applyFilter()" :class="{'ac-stat-active-g': statusFilter === 'active'}" class="ac-stat"><div class="text-2xl font-black text-emerald-600">{{ stats.active }}</div><div class="text-[10px] text-[#94a3b8]">✅ نشط</div></button>
+          <button @click="statusFilter = statusFilter === 'frozen' ? '' : 'frozen'; applyFilter()" :class="{'ac-stat-active-b': statusFilter === 'frozen'}" class="ac-stat"><div class="text-2xl font-black text-[#1E5EFF]">{{ stats.frozen }}</div><div class="text-[10px] text-[#94a3b8]">❄️ مجمّد</div></button>
+          <button @click="statusFilter = statusFilter === 'cancelled' ? '' : 'cancelled'; applyFilter()" :class="{'ac-stat-active-r': statusFilter === 'cancelled'}" class="ac-stat"><div class="text-2xl font-black text-red-500">{{ stats.cancelled }}</div><div class="text-[10px] text-[#94a3b8]">🚫 ملغي</div></button>
+          <button @click="statusFilter = statusFilter === 'expired' ? '' : 'expired'; applyFilter()" :class="{'ac-stat-active-g': statusFilter === 'expired'}" class="ac-stat"><div class="text-2xl font-black text-gray-400">{{ stats.expired }}</div><div class="text-[10px] text-[#94a3b8]">⏰ منتهي</div></button>
+          <div class="ac-stat"><div class="text-2xl font-black text-purple-600">{{ stats.virtual }}</div><div class="text-[10px] text-[#94a3b8]">🌐 افتراضي</div></div>
+          <div class="ac-stat"><div class="text-2xl font-black text-amber-600">{{ stats.physical }}</div><div class="text-[10px] text-[#94a3b8]">📦 فعلي</div></div>
+          <div class="ac-stat"><div class="text-xl font-black text-emerald-600">{{ fmt(stats.total_daily_limit) }}</div><div class="text-[10px] text-[#94a3b8]">حدود يومية</div></div>
         </div>
 
         <!-- Search + Clear -->
@@ -68,18 +68,18 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
                       <div class="flex items-center gap-3">
                         <div class="ac-avatar">💳</div>
                         <div>
-                          <div class="text-sm font-semibold text-[#1A2B4A]">{{ c.user?.full_name }}</div>
+                          <div class="text-sm font-semibold text-[#f1f5f9]">{{ c.user?.full_name }}</div>
                           <div class="text-[10px] font-mono text-[#1E5EFF]">{{ c.user?.customer_number }}</div>
                         </div>
                       </div>
                     </td>
-                    <td class="font-mono text-xs text-[#8896AB]">{{ c.card_number_masked }}</td>
+                    <td class="font-mono text-xs text-[#94a3b8]">{{ c.card_number_masked }}</td>
                     <td><span class="ac-type-badge" :class="c.card_type === 'virtual' ? 'ac-type-virtual' : 'ac-type-physical'">{{ c.card_type === 'virtual' ? '🌐 افتراضي' : '📦 فعلي' }}</span></td>
                     <td><span class="text-lg">{{ c.account?.currency?.symbol }}</span> {{ c.account?.currency?.code }}</td>
                     <td class="text-center"><span :class="statusBadge[c.status]" class="ac-badge">{{ c.status === 'active' ? 'نشط' : c.status === 'frozen' ? 'مجمّد' : c.status === 'cancelled' ? 'ملغي' : 'منتهي' }}</span></td>
-                    <td class="text-[#1A2B4A] font-semibold">{{ fmt(c.daily_limit) }}</td>
-                    <td class="text-[#1A2B4A] font-semibold">{{ fmt(c.monthly_limit) }}</td>
-                    <td class="text-[#8896AB] text-sm">{{ c.formatted_expiry || new Date(c.expiry_date).toLocaleDateString('en', { month: '2-digit', year: '2-digit' }) }}</td>
+                    <td class="text-[#f1f5f9] font-semibold">{{ fmt(c.daily_limit) }}</td>
+                    <td class="text-[#f1f5f9] font-semibold">{{ fmt(c.monthly_limit) }}</td>
+                    <td class="text-[#94a3b8] text-sm">{{ c.formatted_expiry || new Date(c.expiry_date).toLocaleDateString('en', { month: '2-digit', year: '2-digit' }) }}</td>
                     <td class="text-center" @click.stop>
                       <div class="flex justify-center gap-1">
                         <button @click="openLimits(c)" class="ac-act ac-act-yellow">📝 حدود</button>
@@ -109,7 +109,7 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
                           </div>
                           <!-- Card Details -->
                           <div class="space-y-2">
-                            <div class="ac-detail-row"><span>حامل البطاقة</span><span class="font-semibold text-[#1A2B4A]">{{ c.card_holder_name }}</span></div>
+                            <div class="ac-detail-row"><span>حامل البطاقة</span><span class="font-semibold text-[#f1f5f9]">{{ c.card_holder_name }}</span></div>
                             <div class="ac-detail-row"><span>نوع البطاقة</span><span>{{ c.card_type === 'virtual' ? 'افتراضية' : 'فعلية' }}</span></div>
                             <div class="ac-detail-row"><span>الحساب المربوط</span><span class="font-mono text-[#1E5EFF]">{{ c.account?.iban || '—' }}</span></div>
                             <div class="ac-detail-row"><span>رصيد الحساب</span><span class="font-bold text-emerald-600">{{ fmt(c.account?.balance || 0) }} {{ c.account?.currency?.symbol }}</span></div>
@@ -137,19 +137,19 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
       <!-- Limits Modal -->
       <Teleport to="body">
         <div v-if="editingCard" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="editingCard = null">
-          <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#E8ECF1]" style="direction:rtl">
-            <h3 class="text-xl font-bold text-[#1A2B4A] mb-1">📝 تعديل حدود البطاقة</h3>
-            <p class="text-[#8896AB] text-sm mb-2">{{ editingCard.user?.full_name }} — {{ editingCard.card_number_masked }}</p>
+          <div class="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-[#334155]" style="direction:rtl">
+            <h3 class="text-xl font-bold text-[#f1f5f9] mb-1">📝 تعديل حدود البطاقة</h3>
+            <p class="text-[#94a3b8] text-sm mb-2">{{ editingCard.user?.full_name }} — {{ editingCard.card_number_masked }}</p>
             <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm grid grid-cols-3 gap-2">
-              <div><span class="text-[#8896AB] text-xs block">يومي حالي</span><span class="font-bold text-[#1A2B4A]">{{ fmt(editingCard.daily_limit) }}</span></div>
-              <div><span class="text-[#8896AB] text-xs block">شهري حالي</span><span class="font-bold text-[#1A2B4A]">{{ fmt(editingCard.monthly_limit) }}</span></div>
-              <div><span class="text-[#8896AB] text-xs block">إنفاق حالي</span><span class="font-bold text-[#1A2B4A]">{{ fmt(editingCard.spending_limit) }}</span></div>
+              <div><span class="text-[#94a3b8] text-xs block">يومي حالي</span><span class="font-bold text-[#f1f5f9]">{{ fmt(editingCard.daily_limit) }}</span></div>
+              <div><span class="text-[#94a3b8] text-xs block">شهري حالي</span><span class="font-bold text-[#f1f5f9]">{{ fmt(editingCard.monthly_limit) }}</span></div>
+              <div><span class="text-[#94a3b8] text-xs block">إنفاق حالي</span><span class="font-bold text-[#f1f5f9]">{{ fmt(editingCard.spending_limit) }}</span></div>
             </div>
             <form @submit.prevent="updateLimits" class="space-y-4">
-              <div><label class="block text-xs text-[#8896AB] mb-1">الحد اليومي الجديد</label><input v-model="limitForm.daily_limit" type="number" step="0.01" class="ac-modal-input" /></div>
-              <div><label class="block text-xs text-[#8896AB] mb-1">الحد الشهري الجديد</label><input v-model="limitForm.monthly_limit" type="number" step="0.01" class="ac-modal-input" /></div>
-              <div><label class="block text-xs text-[#8896AB] mb-1">حد الإنفاق الجديد</label><input v-model="limitForm.spending_limit" type="number" step="0.01" class="ac-modal-input" /></div>
-              <div class="flex gap-3"><button type="submit" :disabled="limitForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ</button><button type="button" @click="editingCard = null" class="flex-1 bg-[#F0F2F5] text-[#5A6B82] py-3 rounded-xl">إلغاء</button></div>
+              <div><label class="block text-xs text-[#94a3b8] mb-1">الحد اليومي الجديد</label><input v-model="limitForm.daily_limit" type="number" step="0.01" class="ac-modal-input" /></div>
+              <div><label class="block text-xs text-[#94a3b8] mb-1">الحد الشهري الجديد</label><input v-model="limitForm.monthly_limit" type="number" step="0.01" class="ac-modal-input" /></div>
+              <div><label class="block text-xs text-[#94a3b8] mb-1">حد الإنفاق الجديد</label><input v-model="limitForm.spending_limit" type="number" step="0.01" class="ac-modal-input" /></div>
+              <div class="flex gap-3"><button type="submit" :disabled="limitForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ</button><button type="button" @click="editingCard = null" class="flex-1 bg-[#0f172a] text-[#cbd5e1] py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>
@@ -162,7 +162,7 @@ const fmt = (a) => Number(a).toLocaleString('en-US', { minimumFractionDigits: 2,
 @import '../../../css/admin.css';
 @import '../../../css/admin.css';
 .ac-root{min-height:100vh;background:#0f172a;direction:rtl}
-.ac-header{background:linear-gradient(135deg,#fff,#F8FAFC);border-bottom:1px solid #334155}
+.ac-header{background:#1e293b;border-bottom:1px solid #334155}
 .ac-back{padding:8px 18px;background:#1e293b;color:#3b82f6;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(16,185,129,0.2)}.ac-back:hover{background:#10b981;color:#fff}
 .ac-stat{background:#1e293b;border:2px solid #E8ECF1;border-radius:14px;padding:14px;text-align:center;cursor:pointer;transition:all .2s}.ac-stat:hover{border-color:#10b981}
 .ac-stat-active-g{border-color:#10b981!important;background:rgba(16,185,129,0.03)}.ac-stat-active-b{border-color:#10b981!important;background:rgba(30,94,255,0.03)}.ac-stat-active-r{border-color:#ef4444!important;background:rgba(239,68,68,0.03)}
