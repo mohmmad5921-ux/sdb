@@ -233,6 +233,11 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     // Risk & Compliance
     Route::get('/risk', [AdminRisk::class, 'index'])->name('risk');
 
+    // Waitlist Management
+    Route::get('/waitlist', [\App\Http\Controllers\Admin\WaitlistController::class, 'index'])->name('waitlist');
+    Route::delete('/waitlist/{type}/{id}', [\App\Http\Controllers\Admin\WaitlistController::class, 'destroy'])->name('waitlist.delete');
+    Route::post('/waitlist/bulk-delete', [\App\Http\Controllers\Admin\WaitlistController::class, 'bulkDelete'])->name('waitlist.bulk-delete');
+
     // CSV Exports
     Route::get('/export/preregistrations', [\App\Http\Controllers\ExportController::class, 'preregistrations'])->name('export.preregistrations');
     Route::get('/export/waitlist', [\App\Http\Controllers\ExportController::class, 'waitlist'])->name('export.waitlist');
