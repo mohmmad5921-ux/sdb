@@ -291,6 +291,34 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/export/transactions', [\App\Http\Controllers\Admin\ExportController::class, 'transactions'])->name('export.transactions');
     Route::get('/export/preregistrations', [\App\Http\Controllers\Admin\ExportController::class, 'preregistrations'])->name('export.preregistrations');
     Route::get('/export/waitlist', [\App\Http\Controllers\Admin\ExportController::class, 'waitlist'])->name('export.waitlist');
+
+    // Phase 5: Advanced Features
+    Route::get('/promotions', [\App\Http\Controllers\Admin\PromotionController::class, 'index'])->name('promotions');
+    Route::post('/promotions', [\App\Http\Controllers\Admin\PromotionController::class, 'store'])->name('promotions.store');
+    Route::post('/promotions/{id}/toggle', [\App\Http\Controllers\Admin\PromotionController::class, 'toggle'])->name('promotions.toggle');
+    Route::delete('/promotions/{id}', [\App\Http\Controllers\Admin\PromotionController::class, 'destroy'])->name('promotions.destroy');
+
+    Route::get('/cms', [\App\Http\Controllers\Admin\CmsController::class, 'index'])->name('cms');
+    Route::patch('/cms/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'update'])->name('cms.update');
+
+    Route::get('/limits', [\App\Http\Controllers\Admin\LimitsController::class, 'index'])->name('limits');
+    Route::post('/limits', [\App\Http\Controllers\Admin\LimitsController::class, 'update'])->name('limits.update');
+
+    Route::get('/frozen-accounts', [\App\Http\Controllers\Admin\FrozenAccountController::class, 'index'])->name('frozen');
+    Route::post('/frozen-accounts/freeze', [\App\Http\Controllers\Admin\FrozenAccountController::class, 'freeze'])->name('frozen.freeze');
+    Route::post('/frozen-accounts/{userId}/unfreeze', [\App\Http\Controllers\Admin\FrozenAccountController::class, 'unfreeze'])->name('frozen.unfreeze');
+
+    Route::get('/customer-map', [\App\Http\Controllers\Admin\CustomerMapController::class, 'index'])->name('customer-map');
+    Route::get('/revenue', [\App\Http\Controllers\Admin\RevenueController::class, 'index'])->name('revenue');
+    Route::get('/retention', [\App\Http\Controllers\Admin\RetentionController::class, 'index'])->name('retention');
+
+    Route::get('/changelog', [\App\Http\Controllers\Admin\ChangelogController::class, 'index'])->name('changelog');
+
+    Route::get('/alerts', [\App\Http\Controllers\Admin\AlertController::class, 'index'])->name('alerts');
+    Route::post('/alerts/{id}/read', [\App\Http\Controllers\Admin\AlertController::class, 'markRead'])->name('alerts.read');
+    Route::post('/alerts/{id}/resolve', [\App\Http\Controllers\Admin\AlertController::class, 'resolve'])->name('alerts.resolve');
+
+    Route::get('/pdf-reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('pdf-reports');
 });
 
 require __DIR__ . '/auth.php';
