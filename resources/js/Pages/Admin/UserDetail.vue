@@ -18,8 +18,37 @@ const updateKyc = () => kycForm.patch(route('admin.users.kyc', props.user.id));
 
 // Profile edit form
 const showEditProfile = ref(false);
-const profileForm = useForm({ full_name: props.user.full_name, email: props.user.email, phone: props.user.phone || '', nationality: props.user.nationality || '', address: props.user.address || '', city: props.user.city || '', country: props.user.country || '' });
+const profileForm = useForm({
+  full_name: props.user.full_name, email: props.user.email, phone: props.user.phone || '',
+  nationality: props.user.nationality || '', address: props.user.address || '',
+  city: props.user.city || '', country: props.user.country || '',
+  governorate: props.user.governorate || '', employment: props.user.employment || '',
+  date_of_birth: props.user.date_of_birth || '', postal_code: props.user.postal_code || '',
+});
 const saveProfile = () => profileForm.patch(route('admin.users.update-profile', props.user.id), { onSuccess: () => showEditProfile.value = false });
+
+// Countries list (matching preregister page)
+const countries = [
+  {code:'SY',ar:'سوريا 🇸🇾'},{code:'TR',ar:'تركيا 🇹🇷'},{code:'LB',ar:'لبنان 🇱🇧'},{code:'JO',ar:'الأردن 🇯🇴'},
+  {code:'IQ',ar:'العراق 🇮🇶'},{code:'EG',ar:'مصر 🇪🇬'},{code:'SA',ar:'السعودية 🇸🇦'},{code:'AE',ar:'الإمارات 🇦🇪'},
+  {code:'DE',ar:'ألمانيا 🇩🇪'},{code:'SE',ar:'السويد 🇸🇪'},{code:'NL',ar:'هولندا 🇳🇱'},{code:'DK',ar:'الدنمارك 🇩🇰'},
+  {code:'NO',ar:'النرويج 🇳🇴'},{code:'FR',ar:'فرنسا 🇫🇷'},{code:'GB',ar:'بريطانيا 🇬🇧'},{code:'US',ar:'أمريكا 🇺🇸'},
+  {code:'CA',ar:'كندا 🇨🇦'},{code:'AU',ar:'أستراليا 🇦🇺'},{code:'OTHER',ar:'دولة أخرى 🌍'},
+];
+const governorates = [
+  {en:'Damascus',ar:'دمشق'},{en:'Aleppo',ar:'حلب'},{en:'Homs',ar:'حمص'},{en:'Hama',ar:'حماة'},
+  {en:'Latakia',ar:'اللاذقية'},{en:'Tartus',ar:'طرطوس'},{en:'Idlib',ar:'إدلب'},{en:'Deir ez-Zor',ar:'دير الزور'},
+  {en:'Raqqa',ar:'الرقة'},{en:'Hasakah',ar:'الحسكة'},{en:'Daraa',ar:'درعا'},{en:'Sweida',ar:'السويداء'},
+  {en:'Quneitra',ar:'القنيطرة'},{en:'Rural Damascus',ar:'ريف دمشق'},
+];
+const employmentOptions = [
+  {v:'employed',l:'موظف'},{v:'self_employed',l:'عمل حر'},{v:'student',l:'طالب'},
+  {v:'unemployed',l:'غير موظف'},{v:'retired',l:'متقاعد'},{v:'other',l:'أخرى'},
+];
+const isSyria = computed(() => profileForm.country === 'SY');
+const getCountryName = (code) => countries.find(c => c.code === code)?.ar || code || '—';
+const getGovName = (en) => governorates.find(g => g.en === en)?.ar || en || '—';
+const getEmpName = (v) => employmentOptions.find(e => e.v === v)?.l || v || '—';
 
 // Admin actions
 const resetPassword = () => { if (confirm('هل أنت متأكد من إعادة تعيين كلمة المرور؟')) router.post(route('admin.users.reset-password', props.user.id)); };
@@ -111,7 +140,19 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
         <template v-if="activeTab === 'overview'">
           <div class="grid lg:grid-cols-3 gap-4">
             <div class="ud-card"><h3 class="ud-card-title mb-4">إحصائيات العميل</h3><div class="space-y-3"><div class="ud-info-row"><span>الحسابات</span><span class="font-bold text-[#0f172a]">{{ accounts.length }}</span></div><div class="ud-info-row"><span>البطاقات</span><span class="font-bold text-[#0f172a]">{{ cards.length }}</span></div><div class="ud-info-row"><span>المعاملات</span><span class="font-bold text-[#0f172a]">{{ transactions.length }}</span></div><div class="ud-info-row"><span>إجمالي الوارد</span><span class="font-bold text-emerald-600">{{ fmt(totalIn) }}</span></div><div class="ud-info-row"><span>إجمالي الصادر</span><span class="font-bold text-red-500">{{ fmt(totalOut) }}</span></div></div></div>
-            <div class="ud-card"><h3 class="ud-card-title mb-4">المعلومات الشخصية</h3><div class="space-y-3"><div class="ud-info-row"><span>الاسم</span><span class="text-[#0f172a]">{{ user.full_name }}</span></div><div class="ud-info-row"><span>البريد</span><span class="text-[#0f172a]">{{ user.email }}</span></div><div class="ud-info-row"><span>الهاتف</span><span class="text-[#0f172a]">{{ user.phone }}</span></div><div class="ud-info-row"><span>الجنسية</span><span class="text-[#0f172a]">{{ user.nationality || '—' }}</span></div><div class="ud-info-row"><span>تاريخ الميلاد</span><span class="text-[#0f172a]">{{ user.date_of_birth || '—' }}</span></div><div class="ud-info-row"><span>المدينة</span><span class="text-[#0f172a]">{{ user.city || '—' }}, {{ user.country || '—' }}</span></div><div class="ud-info-row"><span>العنوان</span><span class="text-[#0f172a]">{{ user.address || '—' }}</span></div></div></div>
+            <div class="ud-card"><h3 class="ud-card-title mb-4">المعلومات الشخصية</h3><div class="space-y-3">
+              <div class="ud-info-row"><span>الاسم</span><span class="text-[#0f172a] font-semibold">{{ user.full_name }}</span></div>
+              <div class="ud-info-row"><span>البريد</span><span class="text-[#0f172a]">{{ user.email }}</span></div>
+              <div class="ud-info-row"><span>الهاتف</span><span class="text-[#0f172a] font-mono">{{ user.phone }}</span></div>
+              <div class="ud-info-row"><span>الجنسية</span><span class="text-[#0f172a]">{{ user.nationality || '—' }}</span></div>
+              <div class="ud-info-row"><span>تاريخ الميلاد</span><span class="text-[#0f172a]">{{ user.date_of_birth || '—' }}</span></div>
+              <div class="ud-info-row"><span>🌍 الدولة</span><span class="text-[#0f172a] font-semibold">{{ getCountryName(user.country) }}</span></div>
+              <div class="ud-info-row"><span>🏙️ المحافظة</span><span class="text-[#0f172a]">{{ getGovName(user.governorate) }}</span></div>
+              <div class="ud-info-row"><span>📍 المدينة</span><span class="text-[#0f172a]">{{ user.city || '—' }}</span></div>
+              <div class="ud-info-row"><span>📮 العنوان</span><span class="text-[#0f172a]">{{ user.address || '—' }}</span></div>
+              <div class="ud-info-row"><span>📬 الرمز البريدي</span><span class="text-[#0f172a] font-mono">{{ user.postal_code || '—' }}</span></div>
+              <div class="ud-info-row"><span>💼 الحالة الاجتماعية</span><span class="text-[#0f172a] font-semibold">{{ getEmpName(user.employment) }}</span></div>
+            </div></div>
             <!-- Quick Admin Actions -->
             <div class="ud-card">
               <h3 class="ud-card-title mb-4">⚡ تحكم سريع</h3>
@@ -274,13 +315,54 @@ const totalOut = computed(() => props.transactions.filter(t => props.accounts.so
         <div v-if="showEditProfile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="showEditProfile = false">
           <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-5">✏️ تعديل بيانات العميل</h3>
-            <form @submit.prevent="saveProfile" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#475569] mb-1">الاسم الكامل</label><input v-model="profileForm.full_name" class="ud-modal-input" required /></div><div><label class="block text-xs text-[#475569] mb-1">البريد</label><input v-model="profileForm.email" type="email" class="ud-modal-input" required /></div></div>
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#475569] mb-1">الهاتف</label><input v-model="profileForm.phone" class="ud-modal-input" /></div><div><label class="block text-xs text-[#475569] mb-1">الجنسية</label><input v-model="profileForm.nationality" class="ud-modal-input" /></div></div>
-              <div><label class="block text-xs text-[#475569] mb-1">العنوان</label><input v-model="profileForm.address" class="ud-modal-input" /></div>
-              <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs text-[#475569] mb-1">المدينة</label><input v-model="profileForm.city" class="ud-modal-input" /></div><div><label class="block text-xs text-[#475569] mb-1">الدولة</label><input v-model="profileForm.country" class="ud-modal-input" /></div></div>
+            <form @submit.prevent="saveProfile" class="space-y-4" style="max-height:70vh;overflow-y:auto;padding-left:4px">
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">الاسم الكامل</label><input v-model="profileForm.full_name" class="ud-modal-input" required /></div>
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">البريد</label><input v-model="profileForm.email" type="email" class="ud-modal-input" required /></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">الهاتف</label><input v-model="profileForm.phone" class="ud-modal-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">الجنسية</label><input v-model="profileForm.nationality" class="ud-modal-input" /></div>
+              </div>
+              <div><label class="block text-xs text-[#475569] mb-1 font-medium">تاريخ الميلاد</label><input v-model="profileForm.date_of_birth" type="date" class="ud-modal-input" /></div>
+              <hr class="border-gray-100" />
+              <p class="text-xs font-bold text-[#1E5EFF]">🌍 بيانات الإقامة</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-[#475569] mb-1 font-medium">الدولة</label>
+                  <select v-model="profileForm.country" class="ud-modal-input">
+                    <option value="">اختر الدولة...</option>
+                    <option v-for="c in countries" :key="c.code" :value="c.code">{{ c.ar }}</option>
+                  </select>
+                </div>
+                <div v-if="isSyria">
+                  <label class="block text-xs text-[#475569] mb-1 font-medium">المحافظة</label>
+                  <select v-model="profileForm.governorate" class="ud-modal-input">
+                    <option value="">اختر المحافظة...</option>
+                    <option v-for="g in governorates" :key="g.en" :value="g.en">{{ g.ar }}</option>
+                  </select>
+                </div>
+                <div v-else>
+                  <label class="block text-xs text-[#475569] mb-1 font-medium">المحافظة / المنطقة</label>
+                  <input v-model="profileForm.governorate" class="ud-modal-input" placeholder="المحافظة أو المنطقة..." />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">المدينة</label><input v-model="profileForm.city" class="ud-modal-input" /></div>
+                <div><label class="block text-xs text-[#475569] mb-1 font-medium">الرمز البريدي</label><input v-model="profileForm.postal_code" class="ud-modal-input" /></div>
+              </div>
+              <div><label class="block text-xs text-[#475569] mb-1 font-medium">العنوان التفصيلي</label><input v-model="profileForm.address" class="ud-modal-input" placeholder="الشارع، البناء، الطابق..." /></div>
+              <hr class="border-gray-100" />
+              <p class="text-xs font-bold text-[#1E5EFF]">💼 الوضع الاجتماعي</p>
+              <div>
+                <label class="block text-xs text-[#475569] mb-1 font-medium">الحالة المهنية</label>
+                <select v-model="profileForm.employment" class="ud-modal-input">
+                  <option value="">اختر...</option>
+                  <option v-for="e in employmentOptions" :key="e.v" :value="e.v">{{ e.l }}</option>
+                </select>
+              </div>
               <div v-if="profileForm.errors" class="text-xs text-red-500"><div v-for="(e, k) in profileForm.errors" :key="k">{{ e }}</div></div>
-              <div class="flex gap-3"><button type="submit" :disabled="profileForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ التغييرات</button><button type="button" @click="showEditProfile = false" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl">إلغاء</button></div>
+              <div class="flex gap-3 pt-2"><button type="submit" :disabled="profileForm.processing" class="flex-1 bg-[#1E5EFF] hover:bg-[#1047b8] text-white py-3 rounded-xl font-semibold disabled:opacity-50">حفظ التغييرات</button><button type="button" @click="showEditProfile = false" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl">إلغاء</button></div>
             </form>
           </div>
         </div>

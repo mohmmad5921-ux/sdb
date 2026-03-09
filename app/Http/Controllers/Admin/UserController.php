@@ -61,8 +61,7 @@ class UserController extends Controller
                 ->orderByDesc('created_at')
                 ->limit(50)
                 ->get();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
         }
 
         // Total balance in EUR
@@ -77,8 +76,7 @@ class UserController extends Controller
                 ->orderByDesc('created_at')
                 ->limit(20)
                 ->get();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
         }
 
         return Inertia::render('Admin/UserDetail', [
@@ -129,8 +127,12 @@ class UserController extends Controller
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
+            'governorate' => 'nullable|string|max:100',
+            'employment' => 'nullable|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'postal_code' => 'nullable|string|max:20',
         ]);
-        $user->update($request->only(['full_name', 'email', 'phone', 'nationality', 'address', 'city', 'country']));
+        $user->update($request->only(['full_name', 'email', 'phone', 'nationality', 'address', 'city', 'country', 'governorate', 'employment', 'date_of_birth', 'postal_code']));
         return back()->with('success', 'تم تحديث بيانات العميل');
     }
 
@@ -162,8 +164,7 @@ class UserController extends Controller
                 'message' => $request->note,
                 'type' => 'admin_notice',
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
         }
         return back()->with('success', 'تم إرسال الإشعار للعميل');
     }

@@ -12,11 +12,29 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'full_name', 'email', 'phone', 'password', 'status', 'kyc_status',
-        'nationality', 'date_of_birth', 'address', 'city', 'country',
-        'postal_code', 'profile_photo', 'role', 'preferred_language',
-        'last_login_at', 'last_login_ip', 'referral_code', 'referred_by',
-        'customer_number', 'stripe_cardholder_id',
+        'full_name',
+        'email',
+        'phone',
+        'password',
+        'status',
+        'kyc_status',
+        'nationality',
+        'date_of_birth',
+        'address',
+        'city',
+        'country',
+        'governorate',
+        'employment',
+        'postal_code',
+        'profile_photo',
+        'role',
+        'preferred_language',
+        'last_login_at',
+        'last_login_ip',
+        'referral_code',
+        'referred_by',
+        'customer_number',
+        'stripe_cardholder_id',
     ];
 
     protected static function booted(): void
@@ -73,7 +91,7 @@ class User extends Authenticatable
     }
     public function referrals()
     {
-        return $this->hasMany(Referral::class , 'referrer_id');
+        return $this->hasMany(Referral::class, 'referrer_id');
     }
 
     public function isAdmin(): bool
