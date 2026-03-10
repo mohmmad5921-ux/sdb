@@ -40,7 +40,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ? ListView(children: [
                   const SizedBox(height: 100),
                   Center(child: Column(children: [
-                    Container(width: 80, height: 80, decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(24)),
+                    Container(width: 80, height: 80, decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(24)),
                       child: Icon(Icons.notifications_off_outlined, size: 36, color: AppTheme.textMuted)),
                     const SizedBox(height: 16),
                     Text('لا توجد إشعارات', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),

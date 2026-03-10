@@ -243,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: AppTheme.bgSurface,
+        color: AppTheme.bgMuted,
         border: Border.all(color: AppTheme.border),
       ),
       child: TextField(

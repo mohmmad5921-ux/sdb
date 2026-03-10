@@ -37,6 +37,17 @@ class ApiService {
     return {'success': r.statusCode == 201 || r.statusCode == 200, 'data': data, 'status': r.statusCode};
   }
 
+  static Future<Map<String, dynamic>> checkUsername(String username) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/check-username'), headers: await _headers(), body: jsonEncode({'username': username}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+  static Future<Map<String, dynamic>> findByUsername(String username) async {
+    final r = await http.get(Uri.parse('$baseUrl/users/@$username'), headers: await _headers());
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+
   static Future<void> logout() async {
     try { await http.post(Uri.parse('$baseUrl/auth/logout'), headers: await _headers()); } catch (_) {}
     await clearToken();

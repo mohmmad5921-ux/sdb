@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 import '../services/api_service.dart';
-import 'notifications_screen.dart';
+import '../theme/app_theme.dart';
 
 class MoreTab extends StatefulWidget {
   const MoreTab({super.key});
@@ -10,305 +9,197 @@ class MoreTab extends StatefulWidget {
 }
 
 class _MoreTabState extends State<MoreTab> {
-  Map<String, dynamic>? profile;
-  bool loading = true;
+  Map<String, dynamic>? _user;
+  bool _loading = true;
+  bool _notifications = true;
+  bool _biometrics = true;
+  bool _twoFactor = false;
 
   @override
-  void initState() { super.initState(); _loadProfile(); }
+  void initState() { super.initState(); _load(); }
 
-  Future<void> _loadProfile() async {
-    try {
-      final r = await ApiService.getProfile();
-      if (r['success'] == true) {
-        setState(() => profile = r['data'] is Map ? r['data'] as Map<String, dynamic> : null);
-      }
-    } catch (_) {}
-    setState(() => loading = false);
+  Future<void> _load() async {
+    final r = await ApiService.getProfile();
+    if (r['success'] == true) setState(() { _user = r['data']?['user'] ?? r['data']; _loading = false; });
+    else setState(() => _loading = false);
+  }
+
+  Future<void> _logout() async {
+    await ApiService.logout();
+    if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = profile?['full_name'] ?? profile?['user']?['full_name'] ?? 'المستخدم';
-    final email = profile?['email'] ?? profile?['user']?['email'] ?? '';
-    final kyc = profile?['kyc_status'] ?? profile?['user']?['kyc_status'] ?? 'unverified';
+    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
+    final name = _user?['full_name'] ?? 'User';
+    final email = _user?['email'] ?? '';
+    final phone = _user?['phone'] ?? '';
+    final username = _user?['username'];
+    final kyc = _user?['kyc_status'] ?? 'pending';
+    final initials = _getInitials(name);
 
     return Scaffold(
-      body: SafeArea(child: ListView(padding: const EdgeInsets.all(20), children: [
-        const Text('الإعدادات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        const SizedBox(height: 24),
-
-        // Profile Card
-        GestureDetector(
-          onTap: () => _showProfile(name, email, kyc),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E293B), Color(0xFF334155)]),
-              boxShadow: [BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.15), blurRadius: 15, offset: const Offset(0, 6))],
-            ),
-            child: Row(children: [
+      backgroundColor: AppTheme.bgLight,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, bottom: 32),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Profile header
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [
+            Stack(children: [
               Container(
-                width: 56, height: 56,
-                decoration: const BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)])),
-                child: Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white))),
+                width: 60, height: 60,
+                decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(30)),
+                child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700))),
               ),
-              const SizedBox(width: 16),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-                const SizedBox(height: 3),
-                Text(email, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.45))),
-              ])),
-              Container(
-                width: 36, height: 36,
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withValues(alpha: 0.4)),
-              ),
+              Positioned(bottom: 0, right: 0, child: Container(
+                width: 20, height: 20,
+                decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.bgLight, width: 2)),
+                child: const Icon(Icons.edit, size: 10, color: Colors.white),
+              )),
             ]),
-          ),
-        ),
-        const SizedBox(height: 28),
+            const SizedBox(width: 14),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              if (username != null) Text('@$username', style: const TextStyle(fontSize: 13, color: AppTheme.primary, fontWeight: FontWeight.w500)),
+              Text(email, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              if (phone.isNotEmpty) Text(phone, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+            ])),
+          ])),
+          const SizedBox(height: 16),
 
-        _section('الخدمات'),
-        _menuGroup([
-          _item(Icons.swap_horiz_rounded, 'التحويلات', const Color(0xFF6366F1), () => Navigator.pushNamed(context, '/transfer')),
-          _item(Icons.add_rounded, 'الإيداع', const Color(0xFF10B981), () => Navigator.pushNamed(context, '/deposit')),
-          _item(Icons.currency_exchange_rounded, 'صرف العملات', const Color(0xFFF59E0B), () => Navigator.pushNamed(context, '/exchange')),
-          _item(Icons.verified_user_rounded, 'تحقق الهوية KYC', AppTheme.success, () => Navigator.pushNamed(context, '/kyc')),
-        ]),
-        const SizedBox(height: 20),
+          // Stats
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [
+            _buildStat('Member', '2026'),
+            const SizedBox(width: 8),
+            _buildStat('Transfers', '5'),
+            const SizedBox(width: 8),
+            _buildStat('KYC', kyc == 'verified' ? '✓' : '⏳'),
+          ])),
+          const SizedBox(height: 24),
 
-        _section('الحساب والأمان'),
-        _menuGroup([
-          _item(Icons.notifications_rounded, 'الإشعارات', const Color(0xFFF59E0B), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
-          _item(Icons.lock_rounded, 'الأمان والخصوصية', const Color(0xFF10B981), () => _showComingSoon('الأمان والخصوصية')),
-          _item(Icons.fingerprint_rounded, 'البصمة / Face ID', const Color(0xFF8B5CF6), () => _showComingSoon('البصمة / Face ID')),
-          _item(Icons.headset_mic_rounded, 'الدعم والمساعدة', const Color(0xFF06B6D4), () => _showComingSoon('الدعم والمساعدة')),
-        ]),
-        const SizedBox(height: 20),
-
-        _section('قانوني'),
-        _menuGroup([
-          _item(Icons.description_rounded, 'الشروط والأحكام', AppTheme.textMuted, () => _showComingSoon('الشروط والأحكام')),
-          _item(Icons.shield_rounded, 'سياسة الخصوصية', AppTheme.textMuted, () => _showComingSoon('سياسة الخصوصية')),
-          _item(Icons.info_rounded, 'عن SDB', AppTheme.textMuted, () => _showAbout()),
-        ]),
-        const SizedBox(height: 24),
-
-        GestureDetector(
-          onTap: () => _logout(context),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.danger.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppTheme.danger.withValues(alpha: 0.15)),
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Icons.logout_rounded, color: AppTheme.danger.withValues(alpha: 0.7), size: 20),
-              const SizedBox(width: 10),
-              Text('تسجيل الخروج', style: TextStyle(color: AppTheme.danger.withValues(alpha: 0.8), fontWeight: FontWeight.w700, fontSize: 14)),
-            ]),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Center(child: Text('SDB Banking v1.0.0', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withValues(alpha: 0.4)))),
-        const SizedBox(height: 30),
-      ])),
-    );
-  }
-
-  void _showProfile(String name, String email, String kyc) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 24),
-        Container(
-          width: 80, height: 80,
-          decoration: const BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)])),
-          child: Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white))),
-        ),
-        const SizedBox(height: 16),
-        Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        const SizedBox(height: 4),
-        Text(email, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: kyc == 'verified' ? AppTheme.success.withValues(alpha: 0.08) : const Color(0xFFF59E0B).withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Text(
-            kyc == 'verified' ? '✓ هوية مُوثّقة' : '⚠ بحاجة للتحقق',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kyc == 'verified' ? AppTheme.success : const Color(0xFFF59E0B)),
-          ),
-        ),
-        const SizedBox(height: 24),
-        _profileItem(Icons.person_rounded, 'الاسم الكامل', name),
-        _profileItem(Icons.email_rounded, 'البريد الإلكتروني', email),
-        _profileItem(Icons.phone_rounded, 'الهاتف', profile?['phone'] ?? profile?['user']?['phone'] ?? 'غير محدد'),
-        _profileItem(Icons.badge_rounded, 'رقم العميل', profile?['customer_number'] ?? profile?['user']?['customer_number'] ?? '-'),
-      ]),
-    ));
-  }
-
-  Widget _profileItem(IconData icon, String label, String value) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Row(children: [
-      Container(width: 40, height: 40, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12)),
-        child: Icon(icon, color: AppTheme.primary, size: 18)),
-      const SizedBox(width: 14),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-        const SizedBox(height: 2),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-      ])),
-    ]),
-  );
-
-  void _showKYC(String kyc) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 24),
-        Container(
-          width: 70, height: 70,
-          decoration: BoxDecoration(
-            color: kyc == 'verified' ? AppTheme.success.withValues(alpha: 0.1) : const Color(0xFFF59E0B).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(kyc == 'verified' ? Icons.verified_rounded : Icons.badge_outlined, size: 36,
-            color: kyc == 'verified' ? AppTheme.success : const Color(0xFFF59E0B)),
-        ),
-        const SizedBox(height: 16),
-        Text(kyc == 'verified' ? 'هويتك موثّقة ✓' : 'التحقق من الهوية', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        const SizedBox(height: 8),
-        Text(
-          kyc == 'verified' ? 'تم التحقق من هويتك بنجاح. يمكنك استخدام جميع خدمات البنك.' : 'يرجى إرسال مستنداتك عبر الويب أو التواصل مع الدعم لإتمام التحقق.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.6),
-        ),
-        const SizedBox(height: 20),
-        if (kyc == 'verified')
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)),
-            child: Row(children: [
-              Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 22),
-              const SizedBox(width: 12),
-              const Text('جميع الخدمات مفعّلة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            ]),
-          )
-        else
-          Column(children: [
-            _kycStep(Icons.badge_rounded, 'بطاقة هوية', 'صورة أمامية وخلفية', true),
-            const SizedBox(height: 10),
-            _kycStep(Icons.portrait_rounded, 'صورة شخصية', 'سيلفي واضح', false),
-            const SizedBox(height: 10),
-            _kycStep(Icons.home_rounded, 'إثبات عنوان', 'فاتورة أو كشف حساب', false),
+          // Account
+          _buildSection('ACCOUNT', [
+            _buildRow(Icons.person_outline, 'Personal Information', subtitle: 'Name, email, phone'),
+            _buildRow(Icons.location_on_outlined, 'Address', subtitle: _user?['city'] ?? 'Not set'),
+            _buildRow(Icons.verified_outlined, 'Verification', right: _kycBadge(kyc), onTap: () => Navigator.pushNamed(context, '/kyc')),
           ]),
-      ]),
-    ));
-  }
+          const SizedBox(height: 16),
 
-  Widget _kycStep(IconData icon, String title, String sub, bool first) => Container(
-    padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(
-      color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: first ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.border),
-    ),
-    child: Row(children: [
-      Container(width: 42, height: 42, decoration: BoxDecoration(
-        color: first ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.bgSurface, borderRadius: BorderRadius.circular(12)),
-        child: Icon(icon, color: first ? AppTheme.primary : AppTheme.textMuted, size: 20)),
-      const SizedBox(width: 12),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-        Text(sub, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-      ])),
-      Icon(first ? Icons.arrow_forward_ios_rounded : Icons.lock_rounded, size: 14, color: AppTheme.textMuted),
-    ]),
-  );
+          // Security
+          _buildSection('SECURITY', [
+            _buildRow(Icons.shield_outlined, 'Biometric Login', subtitle: 'Face ID / Fingerprint', right: _toggle(_biometrics, () => setState(() => _biometrics = !_biometrics))),
+            _buildRow(Icons.lock_outline, 'Two-Factor Auth', subtitle: 'SMS or authenticator', right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
+            _buildRow(Icons.key, 'Change Password'),
+          ]),
+          const SizedBox(height: 16),
 
-  void _showAbout() {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 24),
-        Container(
-          width: 70, height: 70,
-          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20)),
-          child: const Center(child: Text('SDB', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.primary))),
-        ),
-        const SizedBox(height: 14),
-        const Text('SDB Banking', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        const SizedBox(height: 4),
-        Text('v1.0.0', style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
-        const SizedBox(height: 16),
-        Text('بنك رقمي حديث يقدم خدمات مصرفية متكاملة\nتحويلات • بطاقات • صرف عملات',
-          textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.6)),
-        const SizedBox(height: 20),
-        Text('© 2024 SDB Banking. جميع الحقوق محفوظة', style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
-      ]),
-    ));
-  }
+          // Preferences
+          _buildSection('PREFERENCES', [
+            _buildRow(Icons.notifications_none, 'Notifications', subtitle: 'Push & email alerts', right: _toggle(_notifications, () => setState(() => _notifications = !_notifications))),
+            _buildRow(Icons.language, 'Language', subtitle: 'English'),
+            _buildRow(Icons.attach_money, 'Default Currency', subtitle: 'Euro (EUR)'),
+          ]),
+          const SizedBox(height: 16),
 
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('⏳ $feature — قريباً!'),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
-  }
+          // Support
+          _buildSection('SUPPORT', [
+            _buildRow(Icons.help_outline, 'Help Center'),
+            _buildRow(Icons.chat_bubble_outline, 'Contact Support', subtitle: 'Chat, email or call'),
+          ]),
+          const SizedBox(height: 16),
 
-  void _logout(BuildContext context) async {
-    final ok = await showDialog<bool>(context: context, builder: (_) => AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('تسجيل الخروج', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 18)),
-      content: Text('هل تريد تسجيل الخروج من حسابك؟', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text('إلغاء', style: TextStyle(color: AppTheme.textMuted))),
-        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('خروج', style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w700))),
-      ],
-    ));
-    if (ok == true) {
-      await ApiService.logout();
-      if (mounted) Navigator.pushReplacementNamed(context, '/login');
-    }
-  }
+          // Sign Out
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Container(
+            decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
+            child: _buildRow(Icons.logout, 'Sign Out', danger: true, onTap: _logout),
+          )),
+          const SizedBox(height: 16),
 
-  Widget _section(String t) => Padding(padding: const EdgeInsets.only(bottom: 10, right: 4), child: Text(t, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textMuted, letterSpacing: 0.5)));
-
-  Widget _menuGroup(List<Widget> items) => Container(
-    decoration: BoxDecoration(
-      color: AppTheme.bgCard, borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: AppTheme.border),
-      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 6, offset: const Offset(0, 2))],
-    ),
-    child: Column(children: items),
-  );
-
-  Widget _item(IconData icon, String label, Color c, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(children: [
-          Container(width: 38, height: 38, decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(11)),
-            child: Icon(icon, color: c, size: 18)),
-          const SizedBox(width: 14),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textPrimary))),
-          Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textMuted.withValues(alpha: 0.4)),
+          Center(child: Text('SDB Bank v1.0.4 · Syrian Digital Bank', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withOpacity(0.6)))),
         ]),
       ),
     );
+  }
+
+  Widget _buildStat(String label, String value) {
+    return Expanded(child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+      child: Column(children: [
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+        const SizedBox(height: 2),
+        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+      ]),
+    ));
+  }
+
+  Widget _buildSection(String title, List<Widget> children) {
+    return Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textMuted, letterSpacing: 1.2)),
+      const SizedBox(height: 8),
+      Container(
+        decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
+        child: Column(children: List.generate(children.length, (i) => Column(children: [
+          children[i],
+          if (i < children.length - 1) Divider(height: 0.5, color: AppTheme.border, indent: 52),
+        ]))),
+      ),
+    ]));
+  }
+
+  Widget _buildRow(IconData icon, String label, {String? subtitle, Widget? right, bool danger = false, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap ?? () {},
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13), child: Row(children: [
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(color: danger ? AppTheme.danger.withOpacity(0.1) : AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, size: 16, color: danger ? AppTheme.danger : AppTheme.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: danger ? AppTheme.danger : AppTheme.textPrimary)),
+          if (subtitle != null) Text(subtitle, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+        ])),
+        right ?? Icon(Icons.chevron_right, size: 18, color: danger ? AppTheme.danger : AppTheme.textMuted),
+      ])),
+    );
+  }
+
+  Widget _toggle(bool value, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 44, height: 24,
+        decoration: BoxDecoration(color: value ? AppTheme.primary : AppTheme.border, borderRadius: BorderRadius.circular(12)),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 20, height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _kycBadge(String status) {
+    final isVerified = status == 'verified';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: (isVerified ? AppTheme.primary : AppTheme.warning).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+      child: Text(isVerified ? 'Verified' : 'Pending', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isVerified ? AppTheme.primary : AppTheme.warning)),
+    );
+  }
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    return name.isNotEmpty ? name[0].toUpperCase() : 'U';
   }
 }

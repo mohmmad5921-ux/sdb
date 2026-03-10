@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:io';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
-import '../theme/app_theme.dart';
+import 'dart:math' as math;
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 
 class CardsTab extends StatefulWidget {
   const CardsTab({super.key});
@@ -14,588 +10,284 @@ class CardsTab extends StatefulWidget {
 }
 
 class _CardsTabState extends State<CardsTab> {
-  List cards = [];
-  bool loading = true;
+  List<Map<String, dynamic>> _cards = [];
+  bool _loading = true;
+  int _activeIndex = 0;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
-    setState(() => loading = true);
-    try {
-      final r = await ApiService.getCards();
-      if (r['success'] == true) {
-        final d = r['data'];
-        setState(() => cards = d is List ? d : d?['cards'] ?? d?['data'] ?? []);
-      }
-    } catch (_) {}
-    setState(() => loading = false);
-  }
-
-  void _showIssueDialog() async {
-    // Fetch accounts first
-    List accounts = [];
-    bool loadingAccounts = true;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => StatefulBuilder(builder: (ctx, setSheetState) {
-        if (loadingAccounts) {
-          ApiService.getAccounts().then((r) {
-            if (r['success'] == true) {
-              final d = r['data'];
-              final list = d is List ? d : d?['accounts'] ?? d?['data'] ?? [];
-              setSheetState(() { accounts = List.from(list); loadingAccounts = false; });
-            } else {
-              setSheetState(() => loadingAccounts = false);
-            }
-          });
-        }
-
-        return Container(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            // Handle bar
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-            const SizedBox(height: 20),
-            Row(children: [
-              Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
-                child: Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 22),
-              ),
-              const SizedBox(width: 12),
-              const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('إصدار بطاقة جديدة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-                Text('اختر الحساب المرتبط', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-              ]),
-            ]),
-            const SizedBox(height: 20),
-
-            if (loadingAccounts)
-              const Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator(color: AppTheme.primary))
-            else if (accounts.isEmpty)
-              Padding(padding: const EdgeInsets.all(20), child: GestureDetector(
-                onTap: () => _issueCard(0, ctx),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15)),
-                  ),
-                  child: Column(children: [
-                    Container(
-                      width: 56, height: 56,
-                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(18)),
-                      child: Icon(Icons.credit_card_rounded, size: 28, color: AppTheme.primary),
-                    ),
-                    const SizedBox(height: 14),
-                    const Text('إصدار بطاقة رقمية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                    const SizedBox(height: 4),
-                    Text('سيتم إنشاء حساب EUR تلقائياً', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                      decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(12)),
-                      child: const Text('إصدار الآن', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
-                    ),
-                  ]),
-                ),
-              ))
-            else
-              ...accounts.map((acc) {
-                final code = acc['currency']?['code'] ?? '';
-                final symbol = acc['currency']?['symbol'] ?? '€';
-                final balance = acc['balance'] ?? 0;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: GestureDetector(
-                    onTap: () => _issueCard(acc['id'], ctx),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.border),
-                      ),
-                      child: Row(children: [
-                        Container(
-                          width: 40, height: 40,
-                          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12)),
-                          child: Center(child: Text(symbol, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.primary))),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('حساب $code', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                          Text('الرصيد: $balance $symbol', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-                        ])),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textMuted),
-                      ]),
-                    ),
-                  ),
-                );
-              }),
-          ]),
-        );
-      }),
-    );
-  }
-
-  Future<void> _issueCard(int accountId, BuildContext sheetCtx) async {
-    Navigator.pop(sheetCtx);
-    // Show loading
-    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
-
-    final r = await ApiService.issueCard(accountId);
-
-    if (mounted) Navigator.pop(context); // close loading
-
+    setState(() => _loading = true);
+    final r = await ApiService.getCards();
     if (r['success'] == true) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('✅ تم إصدار البطاقة بنجاح!'), backgroundColor: AppTheme.success, behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-        );
-      }
-      _load(); // Refresh cards
-    } else {
-      final msg = r['data']?['message'] ?? 'فشل إصدار البطاقة';
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ $msg'), backgroundColor: AppTheme.danger, behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-        );
-      }
+      final list = r['data']?['cards'];
+      setState(() { _cards = List<Map<String, dynamic>>.from(list ?? []); _loading = false; });
+    } else { setState(() => _loading = false); }
+  }
+
+  Future<void> _toggleFreeze(int cardId) async {
+    final r = await ApiService.toggleCardFreeze(cardId);
+    if (r['success'] == true) _load();
+  }
+
+  Future<void> _issueCard() async {
+    final r = await ApiService.issueCard(0);
+    if (r['success'] == true) _load();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(r['success'] == true ? 'Card issued!' : (r['data']?['message'] ?? 'Error')),
+        backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
+      ));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: loading
+      backgroundColor: AppTheme.bgLight,
+      body: _loading
         ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-        : RefreshIndicator(
-            color: AppTheme.primary,
-            onRefresh: _load,
-            child: CustomScrollView(slivers: [
-              SliverToBoxAdapter(child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(children: [
-                  const Text('بطاقاتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-                  const Spacer(),
+        : RefreshIndicator(color: AppTheme.primary, onRefresh: _load, child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, bottom: 24),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  const Text('My Cards', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                   GestureDetector(
-                    onTap: () => _showIssueDialog(),
+                    onTap: _issueCard,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(100)),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.add_rounded, size: 16, color: AppTheme.primary),
-                        const SizedBox(width: 4),
-                        const Text('إصدار بطاقة', style: TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w600)),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(12)),
+                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.add, size: 14, color: Colors.white),
+                        SizedBox(width: 4),
+                        Text('New Card', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                       ]),
                     ),
                   ),
                 ]),
-              )),
+              ),
+              const SizedBox(height: 16),
 
-              if (cards.isEmpty)
-                SliverToBoxAdapter(child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 80),
-                  child: Center(child: Column(children: [
-                    Container(
-                      width: 80, height: 80,
-                      decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(24)),
-                      child: Icon(Icons.credit_card_off_outlined, size: 36, color: AppTheme.textMuted),
+              if (_cards.isEmpty) _buildEmptyCards()
+              else ...[
+                // Dots
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(_cards.length, (i) =>
+                  GestureDetector(
+                    onTap: () => setState(() => _activeIndex = i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: i == _activeIndex ? 20 : 8, height: 8,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        color: i == _activeIndex ? AppTheme.primary : AppTheme.border,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text('لا توجد بطاقات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                    const SizedBox(height: 6),
-                    Text('أصدر بطاقتك الرقمية الأولى', style: TextStyle(color: AppTheme.textMuted)),
-                  ])),
+                  ),
                 )),
+                const SizedBox(height: 16),
 
-              SliverList(delegate: SliverChildBuilderDelegate(
-                (_, i) => _cardWidget(cards[i]),
-                childCount: cards.length,
-              )),
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                // Card Visual
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildCardVisual(_cards[_activeIndex])),
+                const SizedBox(height: 16),
+
+                // Actions
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildCardActions(_cards[_activeIndex])),
+                const SizedBox(height: 24),
+
+                // All Cards List
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('All Cards', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    const SizedBox(height: 10),
+                    ..._cards.asMap().entries.map((e) => _buildCardListItem(e.value, e.key)),
+                  ]),
+                ),
+                const SizedBox(height: 20),
+
+                // Monthly Spend
+                _buildSpendingTracker(),
+              ],
             ]),
           )),
     );
   }
 
-  Widget _cardWidget(Map<String, dynamic> card) {
+  Widget _buildCardVisual(Map<String, dynamic> card) {
     final isFrozen = card['status'] == 'frozen';
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Column(children: [
-        Container(
-          height: 210,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: isFrozen
-              ? const LinearGradient(colors: [Color(0xFF64748B), Color(0xFF94A3B8)])
-              : const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF334155)]),
-            boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.15), blurRadius: 25, offset: const Offset(0, 10))],
-          ),
-          child: Stack(children: [
-            Positioned(right: -30, top: -30, child: Container(width: 120, height: 120, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.03)))),
-            Positioned(left: -20, bottom: -40, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.02)))),
-            if (isFrozen) Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.ac_unit_rounded, size: 40, color: const Color(0xFF93C5FD).withValues(alpha: 0.7)),
-              const SizedBox(height: 8),
-              const Text('البطاقة مجمّدة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF93C5FD))),
-            ])),
-            if (!isFrozen) Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Text('SDB', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.4), letterSpacing: 3)),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(100)),
-                  child: Text('✓ نشطة', style: TextStyle(fontSize: 10, color: AppTheme.success, fontWeight: FontWeight.w600)),
-                ),
-              ]),
-              const Spacer(),
-              Text(card['card_number_masked'] ?? '•••• •••• •••• ••••', style: TextStyle(fontSize: 22, letterSpacing: 4, fontFamily: 'monospace', color: Colors.white.withValues(alpha: 0.85))),
-              const SizedBox(height: 18),
-              Row(children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('CARD HOLDER', style: TextStyle(fontSize: 8, color: Colors.white.withValues(alpha: 0.25), letterSpacing: 1.5)),
-                  const SizedBox(height: 3),
-                  Text('${card['card_holder_name'] ?? ''}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7))),
-                ]),
-                const Spacer(),
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text('EXPIRES', style: TextStyle(fontSize: 8, color: Colors.white.withValues(alpha: 0.25), letterSpacing: 1.5)),
-                  const SizedBox(height: 3),
-                  Text(_fmtExpiry(card['expiry_date']), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7))),
-                ]),
-              ]),
-            ])),
-          ]),
+    final isVirtual = card['card_type'] == 'virtual';
+    final last4 = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '').substring(math.max(0, card['card_number_masked'].toString().replaceAll(RegExp(r'[^\d]'), '').length - 4)) ?? '0000';
+    final name = card['card_holder_name'] ?? '';
+    final expiry = card['expiry_date'] ?? '';
+
+    return Container(
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isVirtual ? [const Color(0xFF334155), const Color(0xFF0F172A)] : [const Color(0xFF10B981), const Color(0xFF059669)],
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
-        const SizedBox(height: 14),
-        Row(children: [
-          _cardAction(isFrozen ? Icons.lock_open_rounded : Icons.ac_unit_rounded, isFrozen ? 'تفعيل' : 'تجميد', () async {
-            await ApiService.toggleCardFreeze(card['id']);
-            _load();
-          }),
-          const SizedBox(width: 10),
-          _cardAction(Icons.visibility_outlined, 'التفاصيل', () => _showCardDetails(card)),
-          const SizedBox(width: 10),
-          _cardAction(Icons.settings_outlined, 'الحدود', () => _showCardLimits(card)),
-        ]),
-        const SizedBox(height: 10),
-        // Apple Wallet button
-        if (!isFrozen) GestureDetector(
-          onTap: () => _addToAppleWallet(card),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))],
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Icons.apple, size: 20, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('إضافة إلى Apple Wallet', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 0.3)),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: (isVirtual ? const Color(0xFF334155) : AppTheme.primary).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 8))],
+      ),
+      child: Stack(children: [
+        // Decorative circles
+        Positioned(right: -32, top: -32, child: Container(width: 140, height: 140, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.08)))),
+        Positioned(right: -16, bottom: -20, child: Container(width: 110, height: 110, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.06)))),
+
+        // Network logo
+        Positioned(top: 16, right: 16, child: Text('Mastercard', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w600))),
+
+        // Content
+        Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Chip
+          Container(
+            width: 36, height: 26,
+            decoration: BoxDecoration(color: const Color(0xFFFCD34D).withOpacity(0.8), borderRadius: BorderRadius.circular(5)),
+            child: Center(child: Container(width: 22, height: 16, decoration: BoxDecoration(border: Border.all(color: const Color(0xFFA16207).withOpacity(0.4)), borderRadius: BorderRadius.circular(3)))),
+          ),
+          const SizedBox(height: 20),
+          // Number
+          Text('•••• •••• •••• $last4', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 15, letterSpacing: 3, fontWeight: FontWeight.w500)),
+          const Spacer(),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('CARD HOLDER', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, letterSpacing: 1.2)),
+              const SizedBox(height: 2),
+              Text(name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
             ]),
-          ),
-        ),
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Text('EXPIRES', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, letterSpacing: 1.2)),
+              const SizedBox(height: 2),
+              Text(expiry, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+            ]),
+          ]),
+        ])),
+
+        // Frozen Overlay
+        if (isFrozen) Positioned.fill(child: Container(
+          decoration: BoxDecoration(color: const Color(0xFF0F172A).withOpacity(0.65), borderRadius: BorderRadius.circular(20)),
+          child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
+            SizedBox(height: 8),
+            Text('Card Frozen', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+          ]),
+        )),
       ]),
     );
   }
 
-  void _showCardDetails(Map<String, dynamic> card) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 20),
-        Row(children: [
-          Container(width: 44, height: 44, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
-            child: Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 22)),
-          const SizedBox(width: 12),
-          const Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        ]),
-        const SizedBox(height: 24),
-        _detailRow('رقم البطاقة', card['card_number_masked'] ?? '•••• •••• •••• ••••'),
-        _detailRow('اسم حامل البطاقة', card['card_holder_name'] ?? ''),
-        _detailRow('تاريخ الانتهاء', _fmtExpiry(card['expiry_date'])),
-        _detailRow('نوع البطاقة', 'Mastercard Virtual'),
-        _detailRow('الحالة', card['status'] == 'active' ? '✓ نشطة' : card['status'] == 'frozen' ? '❄ مجمّدة' : card['status'] ?? ''),
-        _detailRow('العملة', card['account']?['currency']?['code'] ?? 'EUR'),
-      ]),
-    ));
-  }
+  Widget _buildCardActions(Map<String, dynamic> card) {
+    final isFrozen = card['status'] == 'frozen';
+    final cardId = card['id'] as int? ?? 0;
 
-  Widget _detailRow(String label, String value) => Padding(
-    padding: const EdgeInsets.only(bottom: 14),
-    child: Row(children: [
-      Text(label, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
-      const Spacer(),
-      Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-    ]),
-  );
+    final actions = [
+      {'icon': Icons.ac_unit_rounded, 'label': isFrozen ? 'Unfreeze' : 'Freeze', 'highlight': isFrozen, 'onTap': () => _toggleFreeze(cardId)},
+      {'icon': Icons.info_outline_rounded, 'label': 'Details', 'highlight': false, 'onTap': () {}},
+      {'icon': Icons.shield_outlined, 'label': 'Limits', 'highlight': false, 'onTap': () {}},
+      {'icon': Icons.refresh_rounded, 'label': 'Replace', 'highlight': false, 'onTap': () {}},
+    ];
 
-  void _showCardLimits(Map<String, dynamic> card) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 20),
-        Row(children: [
-          Container(width: 44, height: 44, decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
-            child: const Icon(Icons.speed_rounded, color: Color(0xFFF59E0B), size: 22)),
-          const SizedBox(width: 12),
-          const Text('حدود البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        ]),
-        const SizedBox(height: 24),
-        _limitItem('حد الإنفاق', '€${card['spending_limit'] ?? 5000}', Icons.shopping_bag_rounded, const Color(0xFF6366F1)),
-        _limitItem('الحد اليومي', '€${card['daily_limit'] ?? 2000}', Icons.today_rounded, const Color(0xFF10B981)),
-        _limitItem('الحد الشهري', '€${card['monthly_limit'] ?? 10000}', Icons.calendar_month_rounded, const Color(0xFFF59E0B)),
-        const SizedBox(height: 10),
-        _limitToggle('الدفع عبر الإنترنت', card['online_payment_enabled'] ?? true),
-        _limitToggle('الدفع بدون تلامس', card['contactless_enabled'] ?? true),
-      ]),
-    ));
-  }
-
-  Widget _limitItem(String label, String value, IconData icon, Color c) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: c.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14)),
-      child: Row(children: [
-        Container(width: 38, height: 38, decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, color: c, size: 18)),
-        const SizedBox(width: 12),
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.textPrimary)),
-        const Spacer(),
-        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c)),
-      ]),
-    ),
-  );
-
-  Widget _limitToggle(String label, bool enabled) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Row(children: [
-      Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
-      const Spacer(),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: enabled ? AppTheme.success.withValues(alpha: 0.08) : AppTheme.danger.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Text(enabled ? 'مفعّل' : 'معطّل', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: enabled ? AppTheme.success : AppTheme.danger)),
-      ),
-    ]),
-  );
-
-  void _addToAppleWallet(Map<String, dynamic> card) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (ctx) => Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(100))),
-        const SizedBox(height: 24),
-        Container(
-          width: 70, height: 70,
-          decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(18)),
-          child: const Icon(Icons.apple, color: Colors.white, size: 36),
-        ),
-        const SizedBox(height: 16),
-        const Text('إضافة إلى Apple Wallet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-        const SizedBox(height: 8),
-        Text('بطاقة SDB Mastercard', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
-        const SizedBox(height: 24),
-
-        // Card preview
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF0F172A), Color(0xFF1E293B)]),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Text('SDB', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.4), letterSpacing: 3)),
-              const Spacer(),
-              Text('Mastercard', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.3))),
-            ]),
-            const SizedBox(height: 16),
-            Text(card['card_number_masked'] ?? '•••• •••• •••• ••••', style: TextStyle(fontSize: 16, letterSpacing: 3, fontFamily: 'monospace', color: Colors.white.withValues(alpha: 0.8))),
-            const SizedBox(height: 10),
-            Row(children: [
-              Text(card['card_holder_name'] ?? '', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
-              const Spacer(),
-              Text(_fmtExpiry(card['expiry_date']), style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5))),
-            ]),
-          ]),
-        ),
-        const SizedBox(height: 24),
-
-        // Info text
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(14)),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.primary),
-            const SizedBox(width: 10),
-            Expanded(child: Text('ستتم إضافة بطاقتك إلى Apple Wallet للدفع السريع عبر Apple Pay في المتاجر وعبر الإنترنت.',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5))),
-          ]),
-        ),
-        const SizedBox(height: 20),
-
-        // Add button
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(ctx);
-            _realAddToWallet(card);
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(16)),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(Icons.apple, color: Colors.white, size: 22),
-              const SizedBox(width: 8),
-              const Text('إضافة الآن', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
-            ]),
-          ),
-        ),
-      ]),
-    ));
-  }
-
-  void _realAddToWallet(Map<String, dynamic> card) async {
-    // Show loading
-    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)));
-
-    try {
-      // Check if device supports adding passes
-      const passChannel = MethodChannel('com.sdb.wallet/passkit');
-      final canAdd = await passChannel.invokeMethod('canAddPasses');
-      
-      if (canAdd != true) {
-        if (mounted) Navigator.pop(context);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('هذا الجهاز لا يدعم Apple Wallet'),
-            backgroundColor: AppTheme.danger,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ));
-        }
-        return;
-      }
-
-      final bytes = await ApiService.downloadWalletPass(card['id']);
-      if (mounted) Navigator.pop(context);
-
-      if (bytes != null && bytes.isNotEmpty) {
-        try {
-          // Use native PassKit to add the pass
-          final result = await passChannel.invokeMethod('addPass', {
-            'passData': bytes,
-          });
-
-          if (result is Map && mounted) {
-            final status = result['status'] ?? '';
-            if (status == 'already_added') {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: const Text('✅ البطاقة موجودة بالفعل في Apple Wallet'),
-                backgroundColor: AppTheme.success,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ));
-            } else if (status == 'presented') {
-              // Pass dialog shown — user will accept/decline
-            }
-          }
-        } on PlatformException catch (e) {
-          // If native PassKit fails (unsigned pass), fall back to OpenFilex
-          if (mounted) {
-            final dir = await getTemporaryDirectory();
-            final file = File('${dir.path}/sdb_card.pkpass');
-            await file.writeAsBytes(bytes);
-            
-            final openResult = await OpenFilex.open(file.path, type: 'application/vnd.apple.pkpass');
-            if (openResult.type != ResultType.done && mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('⚠️ يحتاج إعداد شهادة Apple Wallet - ${e.message}'),
-                backgroundColor: AppTheme.warning,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ));
-            }
-          }
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('فشل تحميل ملف البطاقة'),
-            backgroundColor: AppTheme.danger,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ));
-        }
-      }
-    } catch (e) {
-      if (mounted) Navigator.pop(context);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('خطأ: $e'),
-          backgroundColor: AppTheme.danger,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ));
-      }
-    }
-  }
-
-  String _fmtExpiry(dynamic raw) {
-    if (raw == null) return '';
-    final s = '$raw';
-    // Already short format like "12/28"
-    if (s.length <= 5) return s;
-    try {
-      final d = DateTime.parse(s);
-      return DateFormat('MM/yy').format(d);
-    } catch (_) {
-      // Fallback: extract from ISO string "2028-12-31..."
-      if (s.length >= 7) return '${s.substring(5, 7)}/${s.substring(2, 4)}';
-      return s;
-    }
-  }
-
-  Widget _cardAction(IconData icon, String label, VoidCallback onTap) {
-    return Expanded(child: GestureDetector(
-      onTap: onTap,
+    return Row(children: actions.map((a) => Expanded(child: GestureDetector(
+      onTap: a['onTap'] as VoidCallback,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.border),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4)],
+          color: (a['highlight'] as bool) ? AppTheme.primary.withOpacity(0.1) : AppTheme.bgMuted,
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, size: 16, color: AppTheme.textSecondary),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textSecondary)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(a['icon'] as IconData, size: 20, color: (a['highlight'] as bool) ? AppTheme.primary : AppTheme.textSecondary),
+          const SizedBox(height: 6),
+          Text(a['label'] as String, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: (a['highlight'] as bool) ? AppTheme.primary : AppTheme.textPrimary)),
         ]),
       ),
+    ))).toList());
+  }
+
+  Widget _buildCardListItem(Map<String, dynamic> card, int index) {
+    final isActive = _activeIndex == index;
+    final isVirtual = card['card_type'] == 'virtual';
+    final isFrozen = card['status'] == 'frozen';
+    final last4 = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '') ?? '';
+    final l4 = last4.length >= 4 ? last4.substring(last4.length - 4) : last4;
+    final expiry = card['expiry_date'] ?? '';
+
+    return GestureDetector(
+      onTap: () => setState(() => _activeIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isActive ? AppTheme.bgMuted : AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: isActive ? AppTheme.primary : AppTheme.border),
+        ),
+        child: Row(children: [
+          Container(
+            width: 42, height: 30,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: isVirtual ? [const Color(0xFF475569), const Color(0xFF0F172A)] : [const Color(0xFF10B981), const Color(0xFF059669)]),
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${isVirtual ? "Virtual" : "Physical"} Card •••• $l4', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            Text('Mastercard · Expires $expiry', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+          ])),
+          if (isFrozen) Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(color: const Color(0xFFDBEAFE), borderRadius: BorderRadius.circular(10)),
+            child: const Text('Frozen', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF1D4ED8))),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildSpendingTracker() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
+        child: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('Monthly Spend', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            Text('€1,240 / €3,000', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+          ]),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(value: 0.413, minHeight: 8, backgroundColor: AppTheme.bgMuted, color: AppTheme.primary),
+          ),
+          const SizedBox(height: 8),
+          const Align(alignment: Alignment.centerLeft, child: Text('€1,760 remaining this month', style: TextStyle(fontSize: 11, color: AppTheme.textMuted))),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildEmptyCards() {
+    return Center(child: Padding(
+      padding: const EdgeInsets.all(40),
+      child: Column(children: [
+        Icon(Icons.credit_card_off_rounded, size: 56, color: AppTheme.textMuted.withOpacity(0.3)),
+        const SizedBox(height: 16),
+        const Text('No cards yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+        const SizedBox(height: 8),
+        const Text('Tap "New Card" to issue your first card', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+      ]),
     ));
   }
 }

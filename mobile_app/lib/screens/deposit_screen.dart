@@ -81,7 +81,7 @@ class _DepositScreenState extends State<DepositScreen> {
               const SizedBox(height: 8),
             ],
             if (paymentMethod != 'card') Container(padding: const EdgeInsets.all(20), margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(16)),
               child: Column(children: [
                 Icon(paymentMethod == 'apple_pay' ? Icons.apple_rounded : Icons.g_mobiledata_rounded, size: 40, color: AppTheme.textMuted),
                 const SizedBox(height: 10),
@@ -114,7 +114,7 @@ class _DepositScreenState extends State<DepositScreen> {
   }
 
   Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)));
-  BoxDecoration _boxDeco() => BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border));
+  BoxDecoration _boxDeco() => BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border));
   Widget _field(TextEditingController c, String hint, IconData icon, TextInputType type, {TextDirection dir = TextDirection.rtl}) => Container(decoration: _boxDeco(),
     child: TextField(controller: c, keyboardType: type, textDirection: dir, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
       decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: AppTheme.textMuted), prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16))));
