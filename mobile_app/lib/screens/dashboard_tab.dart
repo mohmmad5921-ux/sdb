@@ -3,7 +3,8 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 
 class DashboardTab extends StatefulWidget {
-  const DashboardTab({super.key});
+  final Function(int)? onTabChange;
+  const DashboardTab({super.key, this.onTabChange});
   @override
   State<DashboardTab> createState() => _DashboardTabState();
 }
@@ -97,7 +98,10 @@ class _DashboardTabState extends State<DashboardTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 const Text('My Wallets', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                GestureDetector(
+                  onTap: () => widget.onTabChange?.call(2),
+                  child: Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                ),
               ]),
             ),
             const SizedBox(height: 10),
@@ -117,7 +121,10 @@ class _DashboardTabState extends State<DashboardTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 const Text('Recent Transactions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                GestureDetector(
+                  onTap: () => widget.onTabChange?.call(3),
+                  child: Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                ),
               ]),
             ),
             const SizedBox(height: 8),

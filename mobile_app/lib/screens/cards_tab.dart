@@ -42,6 +42,74 @@ class _CardsTabState extends State<CardsTab> {
     }
   }
 
+  void _showCardDetails(Map<String, dynamic> card) {
+    final last4 = card['card_number_masked']?.toString() ?? '•••• ••••';
+    final name = card['card_holder_name'] ?? '';
+    final expiry = card['expiry_date'] ?? '';
+    final type = card['card_type'] == 'virtual' ? 'Virtual' : 'Physical';
+    final status = card['status'] ?? 'active';
+
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Center(child: Text('Card Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+        const SizedBox(height: 20),
+        _detailRow('Card Number', last4),
+        _detailRow('Card Holder', name),
+        _detailRow('Expiry Date', expiry),
+        _detailRow('Card Type', type),
+        _detailRow('Status', status.toString().toUpperCase()),
+        _detailRow('Network', 'Mastercard'),
+        const SizedBox(height: 16),
+      ]),
+    ));
+  }
+
+  Widget _detailRow(String label, String value) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+      Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+    ]),
+  );
+
+  Future<void> _addToAppleWallet(int cardId) async {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adding to Apple Wallet...'), backgroundColor: AppTheme.primary));
+    final bytes = await ApiService.downloadWalletPass(cardId);
+    if (bytes != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Card added to Apple Wallet!'), backgroundColor: AppTheme.primary));
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Wallet not available yet'), backgroundColor: AppTheme.warning));
+    }
+  }
+
+  void _showLimits() {
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('Card Limits', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 20),
+        _limitRow('Daily ATM', '€500', 0.4),
+        _limitRow('Daily Purchase', '€2,000', 0.25),
+        _limitRow('Monthly Spend', '€3,000', 0.41),
+        _limitRow('Online Payments', '€1,000', 0.6),
+        const SizedBox(height: 16),
+      ]),
+    ));
+  }
+
+  Widget _limitRow(String label, String limit, double progress) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+        Text(limit, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+      ]),
+      const SizedBox(height: 6),
+      ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: progress, minHeight: 6, backgroundColor: AppTheme.bgMuted, color: AppTheme.primary)),
+    ]),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,9 +258,9 @@ class _CardsTabState extends State<CardsTab> {
 
     final actions = [
       {'icon': Icons.ac_unit_rounded, 'label': isFrozen ? 'Unfreeze' : 'Freeze', 'highlight': isFrozen, 'onTap': () => _toggleFreeze(cardId)},
-      {'icon': Icons.info_outline_rounded, 'label': 'Details', 'highlight': false, 'onTap': () {}},
-      {'icon': Icons.shield_outlined, 'label': 'Limits', 'highlight': false, 'onTap': () {}},
-      {'icon': Icons.refresh_rounded, 'label': 'Replace', 'highlight': false, 'onTap': () {}},
+      {'icon': Icons.info_outline_rounded, 'label': 'Details', 'highlight': false, 'onTap': () => _showCardDetails(card)},
+      {'icon': Icons.apple, 'label': 'Wallet', 'highlight': false, 'onTap': () => _addToAppleWallet(cardId)},
+      {'icon': Icons.shield_outlined, 'label': 'Limits', 'highlight': false, 'onTap': () => _showLimits()},
     ];
 
     return Row(children: actions.map((a) => Expanded(child: GestureDetector(

@@ -15,13 +15,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final _screens = const [
-    DashboardTab(),
-    TransferScreen(embedded: true),
-    CardsTab(),
-    TransactionsTab(),
-    MoreTab(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      DashboardTab(onTabChange: (i) => setState(() => _currentIndex = i)),
+      const TransferScreen(embedded: true),
+      const CardsTab(),
+      const TransactionsTab(),
+      const MoreTab(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

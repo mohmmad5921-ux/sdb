@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -16,6 +17,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _confirmPass = TextEditingController();
   final _phone = TextEditingController();
   bool _loading = false, _obscure = true, _isRegister = false;
+  final _auth = LocalAuthentication();
+  bool _canBiometric = false;
   String? _error;
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
@@ -54,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _animCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
+    _checkBiometric();
   }
 
   @override
@@ -85,6 +89,35 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       setState(() => _error = 'خطأ في الاتصال بالسيرفر');
     }
     setState(() => _loading = false);
+  }
+
+  Future<void> _checkBiometric() async {
+    try {
+      final canCheck = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
+      setState(() => _canBiometric = canCheck);
+      // Auto-trigger if previously logged in
+      final hasToken = await ApiService.isLoggedIn();
+      if (hasToken && canCheck) _biometricLogin();
+    } catch (_) {}
+  }
+
+  Future<void> _biometricLogin() async {
+    try {
+      final didAuth = await _auth.authenticate(
+        localizedReason: 'Sign in with Face ID or fingerprint',
+        options: const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
+      );
+      if (didAuth && mounted) {
+        final hasToken = await ApiService.isLoggedIn();
+        if (hasToken) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          setState(() => _error = 'Please log in with email first');
+        }
+      }
+    } on PlatformException catch (e) {
+      setState(() => _error = 'Biometric error: ${e.message}');
+    }
   }
 
   @override
@@ -208,14 +241,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ]),
 
                 const SizedBox(height: 20),
-                if (!_isRegister) Container(
-                  height: 52,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border), color: AppTheme.bgCard),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.fingerprint_rounded, color: AppTheme.textMuted, size: 22),
-                    const SizedBox(width: 10),
-                    Text('الدخول بالبصمة', style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
-                  ]),
+                if (!_isRegister && _canBiometric) GestureDetector(
+                  onTap: _biometricLogin,
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border), color: AppTheme.bgCard),
+                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Icon(Icons.fingerprint_rounded, color: AppTheme.primary, size: 24),
+                      const SizedBox(width: 10),
+                      Text('Sign in with Face ID', style: TextStyle(fontSize: 14, color: AppTheme.textPrimary, fontWeight: FontWeight.w600)),
+                    ]),
+                  ),
                 ),
 
                 const SizedBox(height: 24),
