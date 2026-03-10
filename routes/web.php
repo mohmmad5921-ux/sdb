@@ -183,6 +183,17 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 
     Route::get('/users', [AdminUsers::class, 'index'])->name('users');
     Route::get('/users/{user}', [AdminUsers::class, 'show'])->name('users.show');
+
+    // Accounts
+    Route::get('/accounts', [\App\Http\Controllers\Admin\AccountController::class, 'index'])->name('accounts');
+    Route::post('/accounts/{id}/freeze', [\App\Http\Controllers\Admin\AccountController::class, 'freeze'])->name('accounts.freeze');
+    Route::post('/accounts/{id}/unfreeze', [\App\Http\Controllers\Admin\AccountController::class, 'unfreeze'])->name('accounts.unfreeze');
+
+    // Cards
+    Route::get('/cards', [\App\Http\Controllers\Admin\CardController::class, 'index'])->name('cards');
+    Route::post('/cards/{id}/freeze', [\App\Http\Controllers\Admin\CardController::class, 'freeze'])->name('cards.freeze');
+    Route::post('/cards/{id}/unfreeze', [\App\Http\Controllers\Admin\CardController::class, 'unfreeze'])->name('cards.unfreeze');
+    Route::post('/cards/{id}/block', [\App\Http\Controllers\Admin\CardController::class, 'block'])->name('cards.block');
     Route::patch('/users/{user}/status', [AdminUsers::class, 'updateStatus'])->name('users.status');
     Route::patch('/users/{user}/kyc', [AdminUsers::class, 'updateKycStatus'])->name('users.kyc');
     Route::post('/users/{user}/reset-password', [AdminUsers::class, 'resetPassword'])->name('users.reset-password');
