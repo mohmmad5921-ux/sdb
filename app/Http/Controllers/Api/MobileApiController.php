@@ -60,6 +60,7 @@ class MobileApiController extends Controller
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
+            'username' => 'required|string|min:3|max:30|unique:users|regex:/^[a-zA-Z0-9._]+$/',
             'email' => 'required|email|unique:users',
             'phone' => 'nullable|string|max:20',
             'password' => 'required|min:8|confirmed',
@@ -68,6 +69,7 @@ class MobileApiController extends Controller
 
         $user = \App\Models\User::create([
             'full_name' => $request->full_name,
+            'username' => strtolower($request->username),
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => $request->password,
@@ -107,6 +109,7 @@ class MobileApiController extends Controller
     {
         $request->validate([
             'full_name' => 'sometimes|string|max:255',
+            'username' => 'sometimes|string|min:3|max:30|regex:/^[a-zA-Z0-9._]+$/|unique:users,username,'.$request->user()->id,
             'phone' => 'sometimes|string|max:20',
             'nationality' => 'sometimes|string|max:100',
             'date_of_birth' => 'sometimes|date',
@@ -116,10 +119,12 @@ class MobileApiController extends Controller
             'preferred_language' => 'sometimes|in:ar,en',
         ]);
 
-        $request->user()->update($request->only([
+        $data = $request->only([
             'full_name', 'phone', 'nationality', 'date_of_birth',
             'address', 'city', 'country', 'preferred_language',
-        ]));
+        ]);
+        if ($request->has('username')) $data['username'] = strtolower($request->username);
+        $request->user()->update($data);
 
         return response()->json(['user' => $this->formatUser($request->user()->fresh())]);
     }
@@ -455,11 +460,31 @@ class MobileApiController extends Controller
 
     /* ==================== HELPERS ==================== */
 
+    public function checkUsername(Request $request)
+    {
+        $request->validate(['username' => 'required|string|min:3|max:30|regex:/^[a-zA-Z0-9._]+$/']);
+        $taken = \App\Models\User::where('username', strtolower($request->username))->exists();
+        return response()->json(['available' => !$taken, 'username' => strtolower($request->username)]);
+    }
+
+    public function findByUsername($username)
+    {
+        $user = \App\Models\User::where('username', strtolower($username))->first();
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
+        return response()->json([
+            'id' => $user->id,
+            'full_name' => $user->full_name,
+            'username' => $user->username,
+            'profile_photo' => $user->profile_photo,
+        ]);
+    }
+
     private function formatUser($user): array
     {
         return [
             'id' => $user->id,
             'full_name' => $user->full_name,
+            'username' => $user->username,
             'email' => $user->email,
             'phone' => $user->phone,
             'status' => $user->status,

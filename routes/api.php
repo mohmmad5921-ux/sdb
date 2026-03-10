@@ -19,6 +19,7 @@ Route::prefix('v1/mobile')->group(function () {
 
     // Public
     Route::get('/currencies', [MobileApiController::class, 'currencies']);
+    Route::post('/auth/check-username', [MobileApiController::class, 'checkUsername']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(
@@ -28,6 +29,7 @@ Route::prefix('v1/mobile')->group(function () {
             // Profile
             Route::get('/profile', [MobileApiController::class, 'profile']);
             Route::patch('/profile', [MobileApiController::class, 'updateProfile']);
+            Route::get('/users/@{username}', [MobileApiController::class, 'findByUsername']);
 
             // KYC
             Route::get('/kyc/status', [MobileApiController::class, 'kycStatus']);
