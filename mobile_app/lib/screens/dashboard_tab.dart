@@ -86,7 +86,7 @@ class _DashboardTabState extends State<DashboardTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                 _buildQuickAction(Icons.send_rounded, 'Send', AppTheme.primary, true, () => Navigator.pushNamed(context, '/transfer')),
-                _buildQuickAction(Icons.download_rounded, 'Receive', AppTheme.bgMuted, false, () {}),
+                _buildQuickAction(Icons.download_rounded, 'Receive', AppTheme.bgMuted, false, () => _showReceive(accounts)),
                 _buildQuickAction(Icons.add_circle_outline_rounded, 'Add Money', AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/deposit')),
                 _buildQuickAction(Icons.swap_horiz_rounded, 'Exchange', AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/exchange')),
               ]),
@@ -339,5 +339,53 @@ class _DashboardTabState extends State<DashboardTab> {
       }
       return '${dt.day}/${dt.month}/${dt.year}';
     } catch (_) { return d; }
+  }
+
+  void _showReceive(List<Map<String, dynamic>> accounts) {
+    final acc = accounts.isNotEmpty ? accounts[_activeWallet] : null;
+    final iban = acc?['iban'] ?? acc?['account_number'] ?? 'N/A';
+    final currency = acc?['currency']?['code'] ?? 'EUR';
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('Receive Money', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 20),
+        Container(
+          width: 100, height: 100,
+          decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.qr_code_2, size: 60, color: AppTheme.primary),
+        ),
+        const SizedBox(height: 16),
+        const Text('Your Account Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
+          child: Column(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              const Text('Account', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(iban, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            ]),
+            const SizedBox(height: 8),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              const Text('Currency', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(currency, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            ]),
+            const SizedBox(height: 8),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              const Text('Bank', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              const Text('SDB Bank', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            ]),
+          ]),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(width: double.infinity, child: ElevatedButton.icon(
+          onPressed: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account details copied ✓'), backgroundColor: AppTheme.primary)); },
+          icon: const Icon(Icons.copy, size: 16),
+          label: const Text('Copy Details'),
+        )),
+      ]),
+    ));
   }
 }

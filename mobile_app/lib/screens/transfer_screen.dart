@@ -102,9 +102,13 @@ class _TransferScreenState extends State<TransferScreen> {
       Row(children: [
         _buildSmallAction(Icons.add_circle_outline, 'Add Money', () => Navigator.pushNamed(context, '/deposit')),
         const SizedBox(width: 8),
-        _buildSmallAction(Icons.qr_code_rounded, 'QR Code', () {}),
+        _buildSmallAction(Icons.qr_code_rounded, 'QR Code', () {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR Payments coming soon'), backgroundColor: AppTheme.primary));
+        }),
         const SizedBox(width: 8),
-        _buildSmallAction(Icons.schedule, 'Scheduled', () {}),
+        _buildSmallAction(Icons.schedule, 'Scheduled', () {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scheduled transfers coming soon'), backgroundColor: AppTheme.primary));
+        }),
       ]),
       const SizedBox(height: 24),
       // Live Rates
