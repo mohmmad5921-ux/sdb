@@ -200,7 +200,7 @@ class KycReviewController extends Controller
             Notification::create([
                 'user_id' => $user->id,
                 'title' => '✅ تم التحقق من هويتك',
-                'message' => 'تمت الموافقة على مستنداتك. يمكنك الآن استخدام جميع خدمات SDB Bank.',
+                'body' => 'تمت الموافقة على مستنداتك. يمكنك الآن استخدام جميع خدمات SDB Bank.',
                 'type' => 'kyc_approved',
             ]);
         } elseif ($request->action === 'reject') {
@@ -210,7 +210,7 @@ class KycReviewController extends Controller
             Notification::create([
                 'user_id' => $user->id,
                 'title' => '❌ تم رفض المستند',
-                'message' => 'السبب: ' . ($request->rejection_reason ?? 'غير محدد') . '. يرجى إعادة رفع المستندات.',
+                'body' => 'السبب: ' . ($request->rejection_reason ?? 'غير محدد') . '. يرجى إعادة رفع المستندات.',
                 'type' => 'kyc_rejected',
             ]);
         }
@@ -271,20 +271,20 @@ class KycReviewController extends Controller
         $messages = [
             'approved' => [
                 'title' => $isAr ? '✅ تمت الموافقة على حسابك' : '✅ Your Account Has Been Approved',
-                'message' => $isAr
+                'body' => $isAr
                     ? 'مرحباً! تم التحقق من هويتك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.'
                     : 'Hello! Your identity has been verified. You can now use all SDB Bank services.',
             ],
             'request_docs' => [
                 'title' => $isAr ? '📄 مطلوب مستندات إضافية' : '📄 Additional Documents Required',
-                'message' => ($isAr
+                'body' => ($isAr
                     ? 'نحتاج إلى مستندات إضافية لإكمال عملية التحقق. يرجى رفع المستندات التالية:'
                     : 'We need additional documents to complete verification. Please upload the following:')
                     . $docList,
             ],
             'custom' => [
                 'title' => $isAr ? '📫 رسالة من SDB Bank' : '📫 Message from SDB Bank',
-                'message' => $request->custom_message ?? '',
+                'body' => $request->custom_message ?? '',
             ],
         ];
 
@@ -293,7 +293,7 @@ class KycReviewController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title' => $msg['title'],
-            'message' => $msg['message'],
+            'body' => $msg['body'],
             'type' => 'kyc_message',
         ]);
 
@@ -306,7 +306,7 @@ class KycReviewController extends Controller
                         . '<h1 style="color:#fff;font-size:20px;margin:0;">SDB Bank</h1>'
                         . '</div>'
                         . '<h2 style="color:#0f172a;font-size:18px;">' . e($msg['title']) . '</h2>'
-                        . '<p style="color:#334155;font-size:14px;line-height:1.8;white-space:pre-line;">' . e($msg['message']) . '</p>'
+                        . '<p style="color:#334155;font-size:14px;line-height:1.8;white-space:pre-line;">' . e($msg['body']) . '</p>'
                         . '<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;">'
                         . '<p style="color:#94a3b8;font-size:12px;">SDB Bank — Digital Banking</p>'
                         . '</div>';
@@ -349,7 +349,7 @@ class KycReviewController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title' => '✅ تم التحقق من هويتك',
-            'message' => 'تمت الموافقة على جميع مستنداتك. مرحباً بك في SDB Bank!',
+            'body' => 'تمت الموافقة على جميع مستنداتك. مرحباً بك في SDB Bank!',
             'type' => 'kyc_approved',
         ]);
 
