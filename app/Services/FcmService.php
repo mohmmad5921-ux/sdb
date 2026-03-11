@@ -4,40 +4,52 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class FcmService
 {
     /**
-     * Send a push notification via Firebase Cloud Messaging (Legacy HTTP API)
+     * Send push notification via FCM HTTP v1 API
      */
     public static function send(string $fcmToken, string $title, string $body, array $data = []): bool
     {
-        $serverKey = config('services.firebase.server_key');
-
-        if (!$serverKey || !$fcmToken) {
-            Log::warning('FCM: Missing server key or token');
+        $accessToken = self::getAccessToken();
+        if (!$accessToken || !$fcmToken) {
+            Log::warning('FCM: Missing access token or FCM token');
             return false;
         }
 
+        $projectId = self::getProjectId();
+
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'key=' . $serverKey,
+                'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
-            ])->post('https://fcm.googleapis.com/fcm/send', [
-                'to' => $fcmToken,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                    'sound' => 'default',
-                    'badge' => 1,
+            ])->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
+                'message' => [
+                    'token' => $fcmToken,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'data' => array_map('strval', $data),
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => ['sound' => 'default'],
+                    ],
+                    'apns' => [
+                        'payload' => [
+                            'aps' => [
+                                'sound' => 'default',
+                                'badge' => 1,
+                            ],
+                        ],
+                    ],
                 ],
-                'data' => array_merge($data, [
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                ]),
             ]);
 
             if ($response->successful()) {
-                Log::info('FCM: Push sent to token ' . substr($fcmToken, 0, 20) . '...');
+                Log::info('FCM: Push sent successfully');
                 return true;
             }
 
@@ -50,7 +62,7 @@ class FcmService
     }
 
     /**
-     * Send push to a user by their ID
+     * Send push to a user by ID
      */
     public static function sendToUser(int $userId, string $title, string $body, array $data = []): bool
     {
@@ -59,5 +71,62 @@ class FcmService
             return false;
         }
         return self::send($user->fcm_token, $title, $body, $data);
+    }
+
+    /**
+     * Get OAuth2 access token from service account (cached 50min)
+     */
+    private static function getAccessToken(): ?string
+    {
+        return Cache::remember('fcm_access_token', 3000, function () {
+            $saPath = storage_path('app/firebase-adminsdk.json');
+            if (!file_exists($saPath)) {
+                Log::error('FCM: Service account JSON not found at ' . $saPath);
+                return null;
+            }
+
+            $sa = json_decode(file_get_contents($saPath), true);
+            $now = time();
+
+            // Build JWT
+            $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'RS256']));
+            $payload = base64_encode(json_encode([
+                'iss' => $sa['client_email'],
+                'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+                'aud' => 'https://oauth2.googleapis.com/token',
+                'iat' => $now,
+                'exp' => $now + 3600,
+            ]));
+
+            $signInput = $header . '.' . $payload;
+            openssl_sign($signInput, $signature, $sa['private_key'], OPENSSL_ALGO_SHA256);
+            $jwt = $signInput . '.' . base64_encode($signature);
+
+            // Exchange JWT for access token
+            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $jwt,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('access_token');
+            }
+
+            Log::error('FCM: Token exchange failed - ' . $response->body());
+            return null;
+        });
+    }
+
+    /**
+     * Get project ID from service account JSON
+     */
+    private static function getProjectId(): string
+    {
+        $saPath = storage_path('app/firebase-adminsdk.json');
+        if (file_exists($saPath)) {
+            $sa = json_decode(file_get_contents($saPath), true);
+            return $sa['project_id'] ?? 'sdb-banking-471e1';
+        }
+        return 'sdb-banking-471e1';
     }
 }
