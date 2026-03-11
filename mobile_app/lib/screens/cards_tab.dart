@@ -182,7 +182,7 @@ class _CardsTabState extends State<CardsTab> {
       content: const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.',
         style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
       actions: [
-        TextButton(onTap: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: Color(0xFF9CA3AF)))),
+        TextButton(onPressed: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: Color(0xFF9CA3AF)))),
         TextButton(
           onPressed: () async {
             Navigator.pop(dCtx);
