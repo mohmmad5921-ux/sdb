@@ -396,20 +396,38 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       <button class="mob-seg-btn" :class="{active:segment==='private'}" @click="setSegment('private')">{{ isAr ? 'خاص' : 'Private' }}</button>
       <button class="mob-seg-btn" :class="{active:segment==='business'}" @click="setSegment('business')">{{ isAr ? 'أعمال' : 'Business' }}</button>
     </div>
-    <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
-    <div v-for="m in megaNav" :key="m.id" class="mob-sec">
-      <button class="mob-sec-btn" @click="toggleMobileSection(m.id)">
-        {{ m.label }} <span class="mob-arr" :class="{'mob-arr-open':mobileActiveSection===m.id}">▸</span>
-      </button>
-      <div v-if="mobileActiveSection===m.id" class="mob-sec-body">
-        <template v-for="col in m.cols" :key="col.title">
-          <div class="mob-col-h">{{ col.title }}</div>
-          <Link v-for="lnk in col.links" :key="lnk.h" :href="lnk.h" class="sn-mob-link mob-sub" @click="mobileOpen=false">{{ lnk.l }}</Link>
-        </template>
+
+    <!-- ═══ Private Mobile Menu ═══ -->
+    <template v-if="!isBiz">
+      <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
+      <div v-for="m in megaNav" :key="m.id" class="mob-sec">
+        <button class="mob-sec-btn" @click="toggleMobileSection(m.id)">
+          {{ m.label }} <span class="mob-arr" :class="{'mob-arr-open':mobileActiveSection===m.id}">▸</span>
+        </button>
+        <div v-if="mobileActiveSection===m.id" class="mob-sec-body">
+          <template v-for="col in m.cols" :key="col.title">
+            <div class="mob-col-h">{{ col.title }}</div>
+            <Link v-for="lnk in col.links" :key="lnk.h" :href="lnk.h" class="sn-mob-link mob-sub" @click="mobileOpen=false">{{ lnk.l }}</Link>
+          </template>
+        </div>
       </div>
-    </div>
-    <button @click="handleLogin(); mobileOpen=false" class="sn-mob-link" style="color:#2D6A00;font-weight:800;background:none;border:none;border-bottom:1px solid rgba(22,51,0,.06);width:100%;text-align:start;font-size:16px;cursor:pointer;font-family:inherit">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
-    <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
+      <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
+    </template>
+
+    <!-- ═══ Business Mobile Menu ═══ -->
+    <template v-else>
+      <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
+      <Link href="/business" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'🖥️ نت بنك الأعمال':'🖥️ Business Net Bank' }}</Link>
+      <Link href="/business" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'💼 حسابات الأعمال':'💼 Business Accounts' }}</Link>
+      <Link href="/transfers-info" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'🌐 التحويلات الدولية':'🌐 International Transfers' }}</Link>
+      <Link href="/currencies" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'💱 العملات والصرف':'💱 Currencies & Exchange' }}</Link>
+      <Link href="/plans" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'📋 الباقات والأسعار':'📋 Plans & Pricing' }}</Link>
+      <Link href="/security" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'🔐 الأمان':'🔐 Security' }}</Link>
+      <Link href="/about" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'🏢 عن الشركة':'🏢 About Us' }}</Link>
+      <Link href="/support" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'📞 الدعم':'📞 Support' }}</Link>
+      <button @click="handleLogin(); mobileOpen=false" class="sn-mob-link" style="color:#2D6A00;font-weight:800;background:none;border:none;border-bottom:1px solid rgba(22,51,0,.06);width:100%;text-align:start;font-size:16px;cursor:pointer;font-family:inherit">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
+      <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ isAr?'افتح حساب أعمال ←':'Open Business Account →' }}</Link>
+    </template>
   </div>
   </Transition>
 
