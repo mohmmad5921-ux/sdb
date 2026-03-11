@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { inject, ref, computed, onMounted, onUnmounted } from 'vue';
+import { inject, ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import SiteLayout from '@/Layouts/SiteLayout.vue';
 import WelcomeBusiness from '@/Pages/WelcomeBusiness.vue';
 defineOptions({ layout: SiteLayout });
@@ -64,6 +64,16 @@ onMounted(()=>{
   document.querySelectorAll('[data-stagger]').forEach(p=>{p.querySelectorAll(':scope > *').forEach(ch=>ch.classList.add('an'));obs.observe(p)});
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
+
+/* Re-observe animations when switching segments */
+watch(isBiz, ()=>{
+  nextTick(()=>{
+    if(obs){
+      document.querySelectorAll('.an,.an-l,.an-r').forEach(el=>{el.classList.remove('vi');obs.observe(el)});
+      document.querySelectorAll('[data-stagger]').forEach(p=>{p.querySelectorAll(':scope > *').forEach(ch=>{ch.classList.remove('vi');ch.classList.add('an')});obs.observe(p)});
+    }
+  });
+});
 
 
 /* ── Business overrides ── */
