@@ -378,7 +378,9 @@ class MobileApiController extends Controller
     public function cards(Request $request)
     {
         return response()->json([
-            'cards' => $request->user()->cards()->with('account.currency')->get(),
+            'cards' => $request->user()->cards()
+                ->whereNotIn('status', ['cancelled', 'deleted'])
+                ->with('account.currency')->get(),
         ]);
     }
 
@@ -435,7 +437,12 @@ class MobileApiController extends Controller
     public function deleteCard(Request $request, $cardId)
     {
         $card = $request->user()->cards()->findOrFail($cardId);
-        $this->cardService->cancel($card);
+        try {
+            $this->cardService->cancel($card);
+        } catch (\Exception $e) {
+            // Ignore Stripe errors on cancel
+        }
+        $card->delete();
         return response()->json(['message' => 'تم حذف البطاقة بنجاح']);
     }
 
