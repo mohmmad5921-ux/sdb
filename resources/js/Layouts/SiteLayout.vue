@@ -505,23 +505,23 @@ html{scroll-behavior:smooth}
 .rtl{direction:rtl;text-align:right}
 .rtl .text-center{text-align:center}
 
-/* ─── Nav — Vibrant Sky Blue ─── */
-.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:linear-gradient(135deg,rgba(2,132,199,.85) 0%,rgba(14,165,233,.85) 50%,rgba(56,189,248,.85) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
-.sn.scrolled{background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 50%,#38BDF8 100%);box-shadow:0 4px 20px rgba(2,132,199,.25)}
+/* ─── Nav — V0 Green ─── */
+.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.sn.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 20px rgba(0,0,0,.06)}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
-.sn-logo{font-size:28px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-1.5px;flex-shrink:0;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.sn-logo{font-size:28px;font-weight:900;color:#163300;text-decoration:none;letter-spacing:-1.5px;flex-shrink:0}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:4px;margin:0 auto}
 .sn-dd{position:relative}
-.sn-link{font-size:15px;font-weight:600;color:rgba(255,255,255,.9);text-decoration:none;transition:all .2s;letter-spacing:.2px;cursor:pointer;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:4px;user-select:none}
-.sn-link:hover,.sn-active{color:#fff!important;background:rgba(255,255,255,.15)}
+.sn-link{font-size:15px;font-weight:600;color:#555;text-decoration:none;transition:all .2s;letter-spacing:.2px;cursor:pointer;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:4px;user-select:none}
+.sn-link:hover,.sn-active{color:#163300!important;background:rgba(159,232,112,.1)}
 .sn-arr{font-size:10px;opacity:.7;transition:transform .2s}
 .sn-active .sn-arr{transform:rotate(180deg);opacity:.8}
 .sn-right{display:flex;align-items:center;gap:10px}
-.sn-lang{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;backdrop-filter:blur(8px)}.sn-lang:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
-.sn-cta{font-size:14px;font-weight:800;color:#0284C7;background:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.sn-cta:hover{background:#F0F9FF;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.sn-lang{font-size:14px;font-weight:700;color:#163300;background:rgba(159,232,112,.1);border:1.5px solid rgba(159,232,112,.3);padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit}.sn-lang:hover{background:rgba(159,232,112,.2);border-color:rgba(159,232,112,.5)}
+.sn-cta{font-size:14px;font-weight:800;color:#fff;background:#163300;padding:10px 24px;border-radius:999px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(22,51,0,.15)}.sn-cta:hover{background:#1e4400;transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,51,0,.2)}
 .sn-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
-.sn-hamburger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .2s}
+.sn-hamburger span{width:22px;height:2px;background:#163300;border-radius:2px;transition:all .2s}
 
 /* ─── Mega Menu Dropdown ─── */
 .mm{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);min-width:480px;z-index:100}
@@ -529,10 +529,10 @@ html{scroll-behavior:smooth}
 .mm-inner{background:#fff;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.12),0 0 0 1px rgba(14,165,233,.06);padding:24px;display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
 .mm::before{content:'';position:absolute;top:-6px;left:50%;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid #fff}
 .rtl .mm::before{left:auto;right:50%;margin-left:0;margin-right:-6px}
-.mm-col-h{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(14,165,233,.5);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(14,165,233,.06)}
+.mm-col-h{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(45,106,0,.5);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(159,232,112,.1)}
 .rtl .mm-col-h{letter-spacing:0}
-.mm-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;text-decoration:none;transition:all .15s}.mm-item:hover{background:rgba(14,165,233,.04)}
-.mm-item-l{font-size:13.5px;font-weight:700;color:#0C4A6E}
+.mm-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;text-decoration:none;transition:all .15s}.mm-item:hover{background:rgba(159,232,112,.06)}
+.mm-item-l{font-size:13.5px;font-weight:700;color:#163300}
 .mm-item-d{font-size:11px;color:rgba(10,10,10,.3)}
 
 /* Mega menu transition */
@@ -540,32 +540,32 @@ html{scroll-behavior:smooth}
 @keyframes mmIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* Mobile nav */
-.sn-mobile{position:fixed;top:68px;left:0;right:0;bottom:0;background:linear-gradient(180deg,#0284C7 0%,#0369A1 100%);padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(255,255,255,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.2);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sn-mobile{position:fixed;top:68px;left:0;right:0;bottom:0;background:#fff;padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(159,232,112,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .mob-slide-enter-active,.mob-slide-leave-active{transition:all .3s cubic-bezier(.16,1,.3,1)}
 .mob-slide-enter-from,.mob-slide-leave-to{opacity:0;transform:translateY(-12px)}
-.sn-mob-link{font-size:16px;color:rgba(255,255,255,.9);text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600}
+.sn-mob-link{font-size:16px;color:#163300;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(22,51,0,.06);font-weight:600}
 .sn-mob-cta{text-align:center;margin-top:16px;display:block;font-size:16px}
-.mob-sec{border-bottom:1px solid rgba(255,255,255,.08)}
-.mob-sec-btn{width:100%;text-align:start;padding:14px 0;background:none;border:none;font-size:16px;font-weight:700;color:rgba(255,255,255,.9);cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center}
+.mob-sec{border-bottom:1px solid rgba(22,51,0,.06)}
+.mob-sec-btn{width:100%;text-align:start;padding:14px 0;background:none;border:none;font-size:16px;font-weight:700;color:#163300;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center}
 .rtl .mob-sec-btn{text-align:right}
-.mob-arr{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.4)}.mob-arr-open{transform:rotate(90deg);color:#fff}
+.mob-arr{font-size:14px;transition:transform .2s;color:rgba(22,51,0,.3)}.mob-arr-open{transform:rotate(90deg);color:#163300}
 .mob-sec-body{padding-bottom:12px}
-.mob-col-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);padding:8px 12px 4px}
-.mob-sub{padding:10px 16px;font-size:14px;color:rgba(255,255,255,.65);border:none}
+.mob-col-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(22,51,0,.35);padding:8px 12px 4px}
+.mob-sub{padding:10px 16px;font-size:14px;color:#555;border:none}
 
-/* ─── Mega Footer — Deep Navy Blue ─── */
-.sf{background:linear-gradient(180deg,#0C1B2E 0%,#0A1628 100%);padding:80px 0 0;color:#fff;margin-top:auto}
-.sf-top{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(56,189,248,.08)}
+/* ─── Mega Footer — V0 Dark Green ─── */
+.sf{background:#163300;padding:80px 0 0;color:#fff;margin-top:auto}
+.sf-top{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(159,232,112,.1)}
 .sf-brand{display:flex;flex-direction:column;gap:12px}
 .sn-logo-ft{font-size:22px;display:inline-block;margin-bottom:4px}
 .sf-desc{font-size:15px;font-weight:400;color:rgba(255,255,255,.6);line-height:1.8;white-space:pre-line;max-width:300px}
 .sf-social{display:flex;gap:8px;margin-top:4px}
-.sf-soc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(255,255,255,.5);color:#fff;background:rgba(255,255,255,.1)}
+.sf-soc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:12px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(159,232,112,.5);color:#163300;background:#9FE870}
 .sf-col{display:flex;flex-direction:column;gap:10px}
 .sf-col-h{font-size:14px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#fff;margin-bottom:10px}
 .rtl .sf-col-h{letter-spacing:0}
-.sf-link{font-size:15px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:color .2s;line-height:1.7}.sf-link:hover{color:#fff}
-.sf-contact{padding:28px 0;border-bottom:1px solid rgba(56,189,248,.08)}
+.sf-link{font-size:15px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:color .2s;line-height:1.7}.sf-link:hover{color:#9FE870}
+.sf-contact{padding:28px 0;border-bottom:1px solid rgba(159,232,112,.1)}
 .sf-contact-row{display:flex;gap:32px;flex-wrap:wrap}
 .sf-contact-item{font-size:15px;font-weight:600;color:rgba(255,255,255,.75)}
 .sf-bottom{padding:24px 0;display:flex;flex-direction:column;gap:12px}
@@ -670,11 +670,11 @@ html{scroll-behavior:smooth}
 .dark :deep(.link-btn){color:#38BDF8}
 
 /* ─── Scroll Progress Bar ─── */
-.scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#0EA5E9,#38BDF8);z-index:10001;transition:width .1s linear;pointer-events:none;border-radius:0 2px 2px 0}
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#9FE870,#2D6A00);z-index:10001;transition:width .1s linear;pointer-events:none;border-radius:0 2px 2px 0}
 
 /* ─── Back to Top ─── */
-.back-top{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;border:none;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(14,165,233,.3);z-index:9998;transition:all .2s;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif}
-.back-top:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,165,233,.4)}
+.back-top{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:#163300;color:#fff;border:none;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(22,51,0,.2);z-index:9998;transition:all .2s;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif}
+.back-top:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(22,51,0,.3)}
 .back-top:active{transform:scale(.92)}
 .rtl .back-top{right:auto;left:24px}
 .btt-enter-active,.btt-leave-active{transition:all .3s cubic-bezier(.16,1,.3,1)}
@@ -748,7 +748,7 @@ html{scroll-behavior:smooth}
 
 /* ─── SSL Badges ─── */
 .sf-badges{display:flex;gap:10px;margin-bottom:16px}
-.sf-badge{padding:6px 14px;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.1);border-radius:50px;font-size:11px;font-weight:700;color:#0C4A6E}
+.sf-badge{padding:6px 14px;background:rgba(159,232,112,.1);border:1px solid rgba(159,232,112,.15);border-radius:50px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)}
 .dark .sf-badge{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
 
 /* ─── Share Buttons ─── */

@@ -13,514 +13,358 @@ const em = ref('');const done = ref(false);const emailErr = ref('');const submit
 async function submitEmail() {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!em.value || !regex.test(em.value)) { emailErr.value = isAr.value ? 'أدخل بريد صحيح' : 'Enter a valid email'; return; }
-  emailErr.value = '';
-  submitting.value = true;
+  emailErr.value = '';submitting.value = true;
   try {
-    const res = await fetch('/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
-      body: JSON.stringify({ email: em.value, source: 'hero' })
-    });
+    const res = await fetch('/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify({ email: em.value, source: 'hero' }) });
     const data = await res.json();
-    if(res.ok && data.success) {
-      done.value = true;
-      /* Confetti burst */
-      for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#0EA5E9','#38BDF8','#0284C7','#7DD3FC','#10B981','#F59E0B'][Math.floor(Math.random()*6)];c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(1.5+Math.random())+'s';document.querySelector('.hero')?.appendChild(c);setTimeout(()=>c.remove(),3000)}
-    } else {
-      emailErr.value = isAr.value ? 'حدث خطأ، حاول مرة ثانية' : 'Something went wrong, try again';
-    }
-  } catch(e) {
-    emailErr.value = isAr.value ? 'خطأ بالاتصال' : 'Connection error';
-  }
+    if(res.ok && data.success) { done.value = true; } else { emailErr.value = isAr.value ? 'حدث خطأ' : 'Something went wrong'; }
+  } catch(e) { emailErr.value = isAr.value ? 'خطأ بالاتصال' : 'Connection error'; }
   submitting.value = false;
 }
-/* Mini converter */
 const cAmt = ref(1000); const cFrom = ref('EUR'); const cTo = ref('SYP');
 const cRates = {EUR:1,USD:1.08,GBP:0.86,SYP:13500,TRY:34.2,AED:3.97,SAR:4.05,DKK:7.46};
 const cResult = computed(() => {const r=(cRates[cTo.value]||1)/(cRates[cFrom.value]||1);const v=cAmt.value*r; return v>=1000?Math.round(v).toLocaleString('en-US'):v.toFixed(2)});
 const cRate = computed(() => {const r=(cRates[cTo.value]||1)/(cRates[cFrom.value]||1);return r>=100?Math.round(r).toLocaleString('en-US'):r.toFixed(4)});
-/* Scroll counter animation */
+function swapCurr(){const tmp=cFrom.value;cFrom.value=cTo.value;cTo.value=tmp}
 const counted = ref(false);
 const counters = ref({users:0,countries:0,currencies:0,uptime:0});
 function animateCounters(){if(counted.value)return;counted.value=true;
-  const targets={users:50000,countries:150,currencies:30,uptime:99.99};
+  const targets={users:50000,countries:170,currencies:70,uptime:99.9};
   Object.keys(targets).forEach(k=>{let start=0;const end=targets[k];const dur=2000;const step=16;const inc=end*step/dur;
-    const timer=setInterval(()=>{start+=inc;if(start>=end){counters.value[k]=end;clearInterval(timer)}else{counters.value[k]=Math.floor(start)}},step)});}
+    const timer=setInterval(()=>{start+=inc;if(start>=end){counters.value[k]=end;clearInterval(timer)}else{counters.value[k]=Math.floor(start)}},step)})}
+const faqOpen = ref(-1);
+function toggleFaq(i){faqOpen.value = faqOpen.value === i ? -1 : i}
 let obs;
 onMounted(()=>{tick();ti=setInterval(tick,1e3);
-  obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){
-    x.target.classList.add('vi');
-    if(x.target.classList.contains('counter-trigger'))animateCounters();
-    /* Stagger children when parent enters viewport */
-    if(x.target.hasAttribute('data-stagger')){
-      x.target.querySelectorAll(':scope > *').forEach((ch,i)=>{
-        setTimeout(()=>ch.classList.add('vi'), i*120);
-      });
-    }
-  }}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vi');if(x.target.classList.contains('counter-trigger'))animateCounters();if(x.target.hasAttribute('data-stagger')){x.target.querySelectorAll(':scope > *').forEach((ch,i)=>{setTimeout(()=>ch.classList.add('vi'), i*120)})}}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
   document.querySelectorAll('.an,.an-l,.an-r,.an-s,.counter-trigger').forEach(el=>obs.observe(el));
-  document.querySelectorAll('[data-stagger]').forEach(parent=>{
-    parent.querySelectorAll(':scope > *').forEach((ch)=>{ch.classList.add('an')});
-    obs.observe(parent);
-  });
+  document.querySelectorAll('[data-stagger]').forEach(p=>{p.querySelectorAll(':scope > *').forEach(ch=>ch.classList.add('an'));obs.observe(p)});
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 const t = computed(() => isAr.value ? {
-  tag:'أول بنك إلكتروني سوري',hd1:'حوّل، ادفع، ووفّر',hd2:'بدون رسوم مخفية.',
-  sub:'افتح حسابك من سوريا أو من أي مكان بالعالم. معاشات، تحويلات، بطاقات — كل شيء بتطبيق واحد.',
+  tag:'⭐ 4.9 من 100,000+ تقييم',hd1:'حوّل أموالك',hd2:'بذكاء',
+  sub:'أرسل واستقبل الأموال بسعر الصرف الحقيقي. وفّر حتى 90% مقارنة بالبنوك التقليدية.',
   days:'يوم',hrs:'ساعة',min:'دقيقة',sec:'ثانية',
   emailPh:'بريدك الإلكتروني...',notify:'سجّل مبكراً',emailDone:'✓ تم! سنبلغك فور الإطلاق.',
-  trust:['🇩🇰 مرخّص بالدنمارك','🔒 تشفير 256-بت','🏦 ماستركارد معتمد'],
-  convTitle:'جرّب المحوّل',convSend:'ترسل',convGet:'تحصل على',convRate:'السعر:',convBtn:'حوّل الآن ←',
-  compTitle:'لا تدفع رسوم مخفية بعد اليوم',compSub:'البنوك التقليدية تضيف هوامش ربح على سعر الصرف. نحن لا نفعل ذلك.',
-  compRows:[
-    ['السعر','سعر السوق الحقيقي','هامش 3-5% مخفي'],
-    ['الرسوم','0.3% فقط','2-5% + رسوم خفية'],
-    ['السرعة','ثوانٍ','1-3 أيام عمل'],
-    ['التوفر','24/7 من التطبيق','ساعات عمل البنك'],
-  ],
-  compSdb:'SDB Bank',compBank:'البنوك التقليدية',
-  servTitle:'كل ما تحتاجه.',servFade:'بتطبيق واحد.',
-  servCards:[
-    {ic:'💸',t:'أرسل لأهلك بسوريا',d:'تحويلات فورية بأقل رسوم — 0.5% فقط. أسرع طريقة لإرسال الأموال لعائلتك.',btn:'تفاصيل التحويلات',href:'/transfers-info'},
-    {ic:'💳',t:'بطاقة ماستركارد',d:'بطاقة افتراضية فورية مجانية. بطاقة معدنية فاخرة. ادفع بأي مكان بالعالم.',btn:'اكتشف البطاقات',href:'/cards-info'},
-    {ic:'💱',t:'صرف 30+ عملة',d:'حوّل بسعر السوق الحقيقي. بدون هوامش ربح. يورو، دولار، ليرة، درهم والمزيد.',btn:'أسعار الصرف',href:'/exchange-rates'},
-  ],
-  feat1Title:'استلم معاشك',feat1Em:'مباشرة.',
-  feat1Desc:'معاشك يصل تلقائياً لحسابك الرقمي. بدون وسطاء، بدون تأخير. إشعار فوري عند الوصول مع تحليل ذكي لمصاريفك.',
-  feat1Btn:'المزيد عن الرواتب',feat1Href:'/salary',
-  feat1Points:['إيداع مباشر فوري','إشعار لحظي بالهاتف','تحليل ذكي للمصاريف','صفر رسوم استلام'],
-  feat2Title:'أمانك',feat2Em:'أولويتنا.',
-  feat2Desc:'نستخدم نفس تقنيات الحماية المستخدمة بأكبر بنوك العالم. أموالك محمية بمعايير أوروبية صارمة 24/7.',
-  feat2Btn:'تفاصيل الأمان',feat2Href:'/security',
-  feat2Points:['تشفير AES-256 بنكي','بصمة الوجه والإصبع','فريق مراقبة احتيال 24/7','CVV ديناميكي كل ساعة'],
-  cardsTitle:'اختر بطاقتك.',cardsFade:'4 مستويات.',
-  cardTiers:[
-    {n:'Standard',p:'مجاني',c:'#0EA5E9',feat:'بطاقة افتراضية + Apple Pay'},
-    {n:'Plus',p:'600 ل.س/شهر',c:'#7C3AED',feat:'بطاقة معدنية + CVV ديناميكي'},
-    {n:'Premium',p:'1,200 ل.س/شهر',c:'#DB2777',feat:'صرف بلا حدود + تأمين سفر'},
-    {n:'Elite',p:'2,250 ل.س/شهر',c:'#B45309',feat:'مدير شخصي + VIP lounges'},
-  ],
-  cardsBtn:'قارن كل الباقات',
-  testimonials:[
-    {q:'بنك مصمم خصيصاً للسوريين. حوّلت لأهلي وهم بدمشق خلال ثوانٍ — شي ما كنت أحلم فيه.',n:'أحمد م.',loc:'برلين 🇩🇪'},
-    {q:'فتحت حسابي من إسطنبول بـ 5 دقائق. بطاقة افتراضية فوراً. خلّصت من مشاكل التحويلات التقليدية.',n:'سارة ع.',loc:'إسطنبول 🇹🇷'},
-    {q:'أسعار صرف أفضل بكتير من الصرافين التقليديين. والتطبيق سهل وبسيط. SDB غيّر حياتي المالية.',n:'محمد ك.',loc:'الرياض 🇸🇦'},
-  ],
-  testTitle:'سوريون حول العالم يثقون بـ SDB',
-  statsTitle:'أرقام تتحدث.',
-  stat1L:'عميل مسجّل',stat2L:'دولة مدعومة',stat3L:'عملة',stat4L:'وقت تشغيل %',
-  moreTitle:'المزيد مع SDB',
-  moreCards:[
-    {ic:'📱',t:'التطبيق الذكي',d:'iOS و Android',href:'/app'},
-    {ic:'🪪',t:'الهوية الرقمية',d:'تحقق فوري',href:'/digital-id'},
-    {ic:'🧾',t:'دفع فواتير',d:'قريباً',href:'/bills'},
-    {ic:'📊',t:'تحليلات AI',d:'مصاريفك بذكاء',href:'/analytics'},
-    {ic:'🇸🇾',t:'الليرة السورية',d:'أسعار حية',href:'/syrian-lira'},
-    {ic:'🪙',t:'عملات رقمية',d:'BTC, ETH + 10',href:'/crypto'},
-  ],
-  ctaTag:'جاهز؟',ctaTitle:'مستقبلك المالي يبدأ هنا.',
-  ctaSub:'افتح حسابك المجاني بدقيقتين. أول بنك إلكتروني سوري مصمم لخدمتك.',
-  ctaBtn:'افتح حسابك المجاني ←',ctaBtn2:'تواصل معنا',
+  cta1:'ابدأ مجاناً',cta2:'شاهد كيف يعمل',
+  heroStats:[{v:'14M+',l:'عميل'},{v:'70+',l:'عملة'},{v:'170+',l:'دولة'}],
+  badges:['⚡ تحويل فوري','🔒 آمن 100%'],
+  convTitle:'💱 حاسبة التحويل',convSend:'ترسل',convGet:'تحصل على',convRate:'السعر:',convBtn:'حوّل الآن ←',
+  howTitle:'أرسل المال في 4 خطوات بسيطة',howSub:'لا تعقيد، لا رسوم خفية. فقط طريقة بسيطة وشفافة.',
+  steps:[{n:'01',t:'أنشئ حسابك',d:'التسجيل مجاني ويستغرق دقيقتين فقط.'},{n:'02',t:'أضف المستلم',d:'أدخل تفاصيل المستلم وحسابه البنكي.'},{n:'03',t:'اختر المبلغ',d:'شاهد سعر الصرف الحقيقي والرسوم.'},{n:'04',t:'أرسل فوراً',d:'أكد التحويل وسيصل المال خلال ثوانٍ.'}],
+  featTag:'المميزات',featTitle:'كل ما تحتاجه في مكان واحد',featSub:'منصة مصرفية متكاملة توفر لك كل الأدوات لإدارة أموالك بذكاء',
+  feats:[{ic:'⚡',t:'تحويلات فورية',d:'74% من التحويلات تصل خلال 20 ثانية'},{ic:'🔒',t:'حماية متقدمة',d:'تشفير على مستوى البنوك'},{ic:'💰',t:'السعر الحقيقي',d:'سعر الصرف بدون إضافات'},{ic:'🌍',t:'170+ دولة',d:'أرسل المال لأي مكان بالعالم'},{ic:'💳',t:'بطاقات ذكية',d:'بطاقات مجانية للدفع والسحب'},{ic:'📱',t:'تطبيق سهل',d:'أدر كل شيء من هاتفك'},{ic:'🕐',t:'دعم 24/7',d:'فريق دعم متاح على مدار الساعة'},{ic:'🐷',t:'وفر أكثر',d:'وفر حتى 90% من الرسوم'}],
+  compTag:'قارن الأسعار',compTitle:'وفّر حتى 90% من رسوم التحويل',compSub:'البنوك تخفي الرسوم في سعر الصرف. نحن نقدم السعر الحقيقي بشفافية.',
+  compSdb:{n:'SDB Bank',rec:'موصى به',amount:'14,250,000',points:['سعر الصرف الحقيقي','رسوم 2.99$ فقط','يصل خلال ثوانٍ']},
+  compBank:{n:'بنك تقليدي',amount:'13,800,000',less:'- 450,000 أقل',points:['هامش 3-5% مخفي','رسوم 25$+','2-5 أيام عمل']},
+  compWu:{n:'Western Union',amount:'13,500,000',less:'- 750,000 أقل',points:['سعر غير تنافسي +5%','رسوم 35$+','1-3 أيام']},
+  testTag:'آراء العملاء',testTitle:'يثق بنا الملايين',testSub:'اكتشف لماذا يختار عملاؤنا SDB Bank',
+  tests:[{n:'أحمد محمد',r:'رجل أعمال',q:'خدمة ممتازة وسريعة. التحويلات تصل في ثوانٍ. أنصح الجميع بتجربة SDB.',a:'A'},{n:'سارة العلي',r:'مهندسة برمجيات',q:'تطبيق سهل ورسوم شفافة. أفضل تجربة مصرفية رقمية.',a:'S'},{n:'محمود حسن',r:'طبيب',q:'أستخدم SDB منذ سنة. الأمان والسرعة لا مثيل لهما.',a:'M'},{n:'نور الدين',r:'مدير مشاريع',q:'وفرت الكثير مقارنة بالبنوك التقليدية.',a:'N'}],
+  testStats:[{v:'4.9/5',l:'تقييم App Store'},{v:'100K+',l:'تقييمات'},{v:'14M+',l:'عميل سعيد'},{v:'99%',l:'رضا العملاء'}],
+  faqTag:'الأسئلة الشائعة',faqTitle:'كل ما تريد معرفته',
+  faqs:[{q:'كيف أفتح حساب في SDB Bank؟',a:'التسجيل مجاني ويستغرق دقيقتين. كل ما تحتاجه بريدك الإلكتروني وإثبات هوية.'},{q:'ما هي رسوم التحويل؟',a:'رسومنا تبدأ من 0.3% فقط — أقل بكثير من البنوك التقليدية التي تأخذ 3-5%.'},{q:'كم يستغرق التحويل؟',a:'74% من التحويلات تصل خلال 20 ثانية. الباقي خلال ساعات قليلة.'},{q:'هل أموالي آمنة؟',a:'نعم. نستخدم تشفير AES-256 وحماية ثنائية العامل. أموالك محمية بمعايير أوروبية صارمة.'},{q:'ما هي الدول المدعومة؟',a:'ندعم التحويلات إلى 170+ دولة حول العالم بما فيها سوريا والدول العربية.'}],
+  ctaTag:'حمّل التطبيق',ctaTitle:'البنك في جيبك',ctaSub:'حمّل تطبيق SDB Bank وأرسل الأموال من أي مكان. متوفر على iOS و Android.',
+  statsTitle:'أرقام تتحدث.',stat1L:'عميل مسجّل',stat2L:'دولة مدعومة',stat3L:'عملة',stat4L:'وقت تشغيل %',
+  footServices:'خدماتنا',footAbout:'عن SDB',footHelp:'المساعدة',footLegal:'قانوني',
+  footDesc:'نحن نجعل إرسال الأموال للخارج سهلاً وسريعاً وبتكلفة أقل.',
 } : {
-  tag:'The First Syrian Digital Bank',hd1:'Send, pay and save',hd2:'with no hidden fees.',
-  sub:'Open your account from Syria or anywhere in the world. Salary, transfers, cards — everything in one app.',
+  tag:'⭐ 4.9 from 100,000+ reviews',hd1:'Move your money',hd2:'smarter',
+  sub:'Send and receive money at the real exchange rate. Save up to 90% compared to banks.',
   days:'Days',hrs:'Hrs',min:'Min',sec:'Sec',
   emailPh:'Your email...',notify:'Sign up early',emailDone:'✓ Done! We\'ll notify you at launch.',
-  trust:['🇩🇰 Licensed in Denmark','🔒 256-bit encrypted','🏦 Mastercard certified'],
-  convTitle:'Try the converter',convSend:'You send',convGet:'They get',convRate:'Rate:',convBtn:'Convert now →',
-  compTitle:'Never pay a hidden fee again',compSub:'Banks add markup to exchange rates to make you pay more. We don\'t.',
-  compRows:[
-    ['Rate','Real market rate','3-5% hidden markup'],
-    ['Fees','Only 0.3%','2-5% + hidden fees'],
-    ['Speed','Seconds','1-3 business days'],
-    ['Availability','24/7 from app','Bank hours only'],
-  ],
-  compSdb:'SDB Bank',compBank:'Traditional Banks',
-  servTitle:'Everything you need.',servFade:'In one app.',
-  servCards:[
-    {ic:'💸',t:'Send to family in Syria',d:'Instant transfers at lowest fees — just 0.5%. Fastest way to send money to your family.',btn:'Transfer details',href:'/transfers-info'},
-    {ic:'💳',t:'Mastercard Card',d:'Free instant virtual card. Premium metal card. Pay anywhere worldwide.',btn:'Explore cards',href:'/cards-info'},
-    {ic:'💱',t:'Exchange 30+ currencies',d:'Convert at real market rate. Zero markup. EUR, USD, GBP, TRY, AED and more.',btn:'Exchange rates',href:'/exchange-rates'},
-  ],
-  feat1Title:'Receive your salary',feat1Em:'directly.',
-  feat1Desc:'Your salary arrives directly into your digital account. No middlemen, no delays. Instant notification with smart spending analytics.',
-  feat1Btn:'More about salary',feat1Href:'/salary',
-  feat1Points:['Direct instant deposit','Real-time phone alert','Smart spending analytics','Zero reception fees'],
-  feat2Title:'Your security',feat2Em:'our priority.',
-  feat2Desc:'We use the same protection technologies as the world\'s largest banks. Your money protected by strict European standards 24/7.',
-  feat2Btn:'Security details',feat2Href:'/security',
-  feat2Points:['AES-256 bank encryption','Face ID & fingerprint','24/7 fraud monitoring','Dynamic CVV every hour'],
-  cardsTitle:'Choose your card.',cardsFade:'4 tiers.',
-  cardTiers:[
-    {n:'Standard',p:'Free',c:'#0EA5E9',feat:'Virtual card + Apple Pay'},
-    {n:'Plus',p:'€3.99/mo',c:'#7C3AED',feat:'Metal card + Dynamic CVV'},
-    {n:'Premium',p:'€7.99/mo',c:'#DB2777',feat:'Unlimited FX + Travel insurance'},
-    {n:'Elite',p:'€14.99/mo',c:'#B45309',feat:'Personal manager + VIP lounges'},
-  ],
-  cardsBtn:'Compare all plans',
-  testimonials:[
-    {q:'A bank designed for Syrians. I sent money to my family in Damascus in seconds — something I never dreamed of.',n:'Ahmed M.',loc:'Berlin 🇩🇪'},
-    {q:'I opened my account from Istanbul in 5 minutes. Instant virtual card. No more traditional transfer headaches.',n:'Sara A.',loc:'Istanbul 🇹🇷'},
-    {q:'Exchange rates way better than traditional exchangers. The app is simple and easy. SDB changed my financial life.',n:'Mohammad K.',loc:'Riyadh 🇸🇦'},
-  ],
-  testTitle:'Syrians worldwide trust SDB',
-  statsTitle:'Numbers that speak.',
-  stat1L:'Registered users',stat2L:'Countries',stat3L:'Currencies',stat4L:'Uptime %',
-  moreTitle:'More with SDB',
-  moreCards:[
-    {ic:'📱',t:'Smart App',d:'iOS & Android',href:'/app'},
-    {ic:'🪪',t:'Digital Identity',d:'Instant verification',href:'/digital-id'},
-    {ic:'🧾',t:'Bill Payments',d:'Coming soon',href:'/bills'},
-    {ic:'📊',t:'AI Analytics',d:'Smart spending',href:'/analytics'},
-    {ic:'🇸🇾',t:'Syrian Lira',d:'Live rates',href:'/syrian-lira'},
-    {ic:'🪙',t:'Crypto',d:'BTC, ETH + 10',href:'/crypto'},
-  ],
-  ctaTag:'Ready?',ctaTitle:'Your financial future starts here.',
-  ctaSub:'Open your free account in 2 minutes. The first Syrian digital bank designed for you.',
-  ctaBtn:'Open free account →',ctaBtn2:'Contact us',
+  cta1:'Get started free',cta2:'See how it works',
+  heroStats:[{v:'14M+',l:'Customers'},{v:'70+',l:'Currencies'},{v:'170+',l:'Countries'}],
+  badges:['⚡ Instant transfer','🔒 100% secure'],
+  convTitle:'💱 Transfer Calculator',convSend:'You send',convGet:'They get',convRate:'Rate:',convBtn:'Convert now →',
+  howTitle:'Send money in 4 simple steps',howSub:'No complexity, no hidden fees. Just a simple, transparent way.',
+  steps:[{n:'01',t:'Create your account',d:'Signing up is free and takes just 2 minutes.'},{n:'02',t:'Add your recipient',d:'Enter recipient details and bank account.'},{n:'03',t:'Choose the amount',d:'See the real exchange rate and fees.'},{n:'04',t:'Send instantly',d:'Confirm and money arrives in seconds.'}],
+  featTag:'FEATURES',featTitle:'Everything you need in one place',featSub:'A complete banking platform with all the tools to manage your money smartly',
+  feats:[{ic:'⚡',t:'Instant transfers',d:'74% of transfers arrive in under 20 seconds'},{ic:'🔒',t:'Advanced security',d:'Bank-level encryption and fraud protection'},{ic:'💰',t:'Real exchange rate',d:'We use the real rate with no markup'},{ic:'🌍',t:'170+ countries',d:'Send money almost anywhere in the world'},{ic:'💳',t:'Smart cards',d:'Free cards to pay and withdraw anywhere'},{ic:'📱',t:'Easy app',d:'Manage everything easily from your phone'},{ic:'🕐',t:'24/7 support',d:'Support team available around the clock'},{ic:'🐷',t:'Save more',d:'Save up to 90% compared to banks'}],
+  compTag:'COMPARE PRICES',compTitle:'Save up to 90% on transfer fees',compSub:'Banks hide fees in exchange rates. We offer the real rate with complete transparency.',
+  compSdb:{n:'SDB Bank',rec:'Recommended',amount:'14,250,000',points:['Real exchange rate','Only $2.99 fee','Arrives in seconds']},
+  compBank:{n:'Traditional Bank',amount:'13,800,000',less:'- 450,000 SYP less',points:['Marked up rate (+3%)','$25+ fees','2-5 business days']},
+  compWu:{n:'Western Union',amount:'13,500,000',less:'- 750,000 SYP less',points:['Poor rate (+5%)','$35+ fees','1-3 days']},
+  testTag:'TESTIMONIALS',testTitle:'Trusted by millions',testSub:'Discover why customers choose SDB Bank',
+  tests:[{n:'Ahmad Mohammad',r:'Businessman',q:'Excellent and fast service. Transfers arrive in seconds. I recommend SDB.',a:'A'},{n:'Sara Al-Ali',r:'Software Engineer',q:'Easy to use app with transparent fees. Best digital banking experience.',a:'S'},{n:'Mahmoud Hassan',r:'Doctor',q:'I\'ve been using SDB for a year. Security and speed are unmatched.',a:'M'},{n:'Nour Al-Din',r:'Project Manager',q:'Saved a lot on fees compared to traditional banks.',a:'N'}],
+  testStats:[{v:'4.9/5',l:'App Store Rating'},{v:'100K+',l:'Reviews'},{v:'14M+',l:'Happy Customers'},{v:'99%',l:'Satisfaction Rate'}],
+  faqTag:'FAQ',faqTitle:'Everything you need to know',
+  faqs:[{q:'How do I open an SDB Bank account?',a:'Registration is free and takes 2 minutes. All you need is your email and ID.'},{q:'What are the transfer fees?',a:'Our fees start from just 0.3% — much less than traditional banks charging 3-5%.'},{q:'How long does a transfer take?',a:'74% of transfers arrive in under 20 seconds. The rest within a few hours.'},{q:'Is my money safe?',a:'Yes. We use AES-256 encryption and two-factor authentication. Protected by strict European standards.'},{q:'Which countries are supported?',a:'We support transfers to 170+ countries worldwide including Syria and Arab countries.'}],
+  ctaTag:'DOWNLOAD APP',ctaTitle:'Banking in your pocket',ctaSub:'Download the SDB Bank app and send money from anywhere. Available on iOS and Android.',
+  statsTitle:'Numbers that speak.',stat1L:'Registered users',stat2L:'Countries',stat3L:'Currencies',stat4L:'Uptime %',
+  footServices:'Services',footAbout:'About',footHelp:'Help',footLegal:'Legal',
+  footDesc:'We make sending money abroad easy, fast, and affordable.',
 });
+const stepColors = ['from-blue-500 to-blue-600','from-purple-500 to-purple-600','from-amber-500 to-orange-500','from-green-500 to-emerald-500'];
+const stepBgs = ['bg-blue-50','bg-purple-50','bg-amber-50','bg-green-50'];
+const testColors = ['from-blue-400 to-blue-500','from-purple-400 to-purple-500','from-green-400 to-green-500','from-orange-400 to-orange-500'];
 </script>
 <template>
-<Head :title="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'"><meta :content="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'" name="description"/></Head>
+<Head :title="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'"><meta :content="isAr?'SDB Bank — الأسرع والأوفر لتحويل الأموال':'SDB Bank — Fastest & cheapest money transfers'" name="description"/></Head>
 
 <!-- ═══ HERO ═══ -->
-<section class="hero"><div class="sw hero-grid">
-  <div class="hero-left">
-    <div class="hero-tag an">{{ t.tag }}</div>
-    <h1 class="hero-h an" style="transition-delay:100ms"><span class="hero-h1">{{ t.hd1 }}</span><span class="hero-h2">{{ t.hd2 }}</span></h1>
-    <p class="hero-p an" style="transition-delay:200ms">{{ t.sub }}</p>
-    <div class="hero-cd an" style="transition-delay:300ms"><div v-for="(lb,k) in {d:t.days,h:t.hrs,m:t.min,s:t.sec}" :key="k" class="cd-b"><div class="cd-n">{{ String(cd[k]).padStart(2,'0') }}</div><div class="cd-l">{{ lb }}</div></div></div>
-    <div class="hero-eml an" style="transition-delay:400ms"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="eml-i" @keyup.enter="submitEmail"/><button @click="submitEmail" class="eml-b">{{ t.notify }}</button></template><div v-else class="eml-ok">✨ {{ t.emailDone }}</div><div v-if="emailErr" class="eml-err">{{ emailErr }}</div></div>
-    <div class="hero-trust an" style="transition-delay:500ms"><span v-for="tr in t.trust" :key="tr" class="trust-i">{{ tr }}</span></div>
+<section class="v-hero"><div class="v-hero-bg"></div><div class="v-hero-circles"><div class="v-circle v-c1"></div><div class="v-circle v-c2"></div><div class="v-circle v-c3"></div></div>
+<div class="sw v-hero-grid">
+  <div class="v-hero-left">
+    <div class="v-badge an">{{ t.tag }}</div>
+    <h1 class="v-h1 an" style="transition-delay:100ms">{{ t.hd1 }}<br><span class="v-h1-em">{{ t.hd2 }}</span></h1>
+    <p class="v-hero-p an" style="transition-delay:200ms">{{ t.sub }}</p>
+    <div class="v-badges an" style="transition-delay:250ms"><span v-for="b in t.badges" :key="b" class="v-mini-badge">{{ b }}</span></div>
+    <div class="v-hero-cd an" style="transition-delay:300ms"><div v-for="(lb,k) in {d:t.days,h:t.hrs,m:t.min,s:t.sec}" :key="k" class="vcd-b"><div class="vcd-n">{{ String(cd[k]).padStart(2,'0') }}</div><div class="vcd-l">{{ lb }}</div></div></div>
+    <div class="v-hero-eml an" style="transition-delay:400ms"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="veml-i" @keyup.enter="submitEmail"/><button @click="submitEmail" class="veml-b">{{ t.notify }}</button></template><div v-else class="veml-ok">✨ {{ t.emailDone }}</div><div v-if="emailErr" class="veml-err">{{ emailErr }}</div></div>
+    <div class="v-hero-stats an" style="transition-delay:500ms"><div v-for="s in t.heroStats" :key="s.l" class="vhs"><div class="vhs-v">{{ s.v }}</div><div class="vhs-l">{{ s.l }}</div></div></div>
   </div>
-  <!-- Mini Converter -->
-  <div class="hero-right an-r">
-    <div class="conv-mini">
-      <div class="conv-head">{{ t.convTitle }}</div>
-      <div class="conv-field"><label class="conv-lbl">{{ t.convSend }}</label><div class="conv-row"><select v-model="cFrom" class="conv-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><input v-model.number="cAmt" type="number" class="conv-inp"/></div></div>
-      <div class="conv-swap-mini" @click="[cFrom.value,cTo.value]=[cTo,cFrom];let tmp=cFrom;cFrom=cTo;cTo=tmp">⇅</div>
-      <div class="conv-field"><label class="conv-lbl">{{ t.convGet }}</label><div class="conv-row"><select v-model="cTo" class="conv-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><div class="conv-res">{{ cResult }}</div></div></div>
-      <div class="conv-rate">{{ t.convRate }} 1 {{ cFrom }} = {{ cRate }} {{ cTo }}</div>
-      <Link href="/exchange-rates" class="conv-cta">{{ t.convBtn }}</Link>
+  <div class="v-hero-right an-r">
+    <div class="v-conv">
+      <div class="vc-head">{{ t.convTitle }}</div>
+      <div class="vc-field"><label class="vc-lbl">{{ t.convSend }}</label><div class="vc-row"><select v-model="cFrom" class="vc-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><input v-model.number="cAmt" type="number" class="vc-inp"/></div></div>
+      <div class="vc-swap" @click="swapCurr">⇅</div>
+      <div class="vc-field"><label class="vc-lbl">{{ t.convGet }}</label><div class="vc-row"><select v-model="cTo" class="vc-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><div class="vc-res">{{ cResult }}</div></div></div>
+      <div class="vc-rate">{{ t.convRate }} 1 {{ cFrom }} = {{ cRate }} {{ cTo }}</div>
+      <Link href="/exchange-rates" class="vc-cta">{{ t.convBtn }}</Link>
     </div>
   </div>
-</div>
-<!-- Animated wave -->
-<svg class="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none"><path d="M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z" fill="#fff"><animate attributeName="d" dur="8s" repeatCount="indefinite" values="M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z;M0,60 C480,0 960,100 1440,40 L1440,100 L0,100 Z;M0,40 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"/></path></svg>
-</section>
+</div></section>
 
 <!-- ═══ MARQUEE ═══ -->
-<div class="mq"><div class="mq-track"><span v-for="(p,i) in ['SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','Berlin','Istanbul','SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','Berlin','Istanbul']" :key="i" class="mq-i">{{ p }}</span></div></div>
+<div class="v-mq"><div class="v-mq-track"><span v-for="(p,i) in ['SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus']" :key="i" class="v-mq-i">{{ p }}</span></div></div>
 
-<!-- ═══ COMPARISON (Wise-style) ═══ -->
-<section class="sec"><div class="sw">
-  <div class="comp-hdr an"><h2 class="t2 tc">{{ t.compTitle }}</h2><p class="t2-sub tc" style="margin:0 auto 48px">{{ t.compSub }}</p></div>
-  <div class="comp-table an-s">
-    <div class="comp-header"><div class="comp-f"></div><div class="comp-v comp-sdb-h">✅ {{ t.compSdb }}</div><div class="comp-v comp-bank-h">{{ t.compBank }}</div></div>
-    <div v-for="r in t.compRows" :key="r[0]" class="comp-row"><div class="comp-f">{{ r[0] }}</div><div class="comp-v comp-sdb">{{ r[1] }}</div><div class="comp-v comp-bank">{{ r[2] }}</div></div>
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="v-sec"><div class="sw">
+  <div class="v-sec-hdr an"><span class="v-pill">{{ isAr?'كيف يعمل':'HOW IT WORKS' }}</span><h2 class="v-t2">{{ t.howTitle }}</h2><p class="v-t2-sub">{{ t.howSub }}</p></div>
+  <div class="v-steps" data-stagger><div v-for="(s,i) in t.steps" :key="i" class="v-step">
+    <div class="v-step-num" :class="stepColors[i]">{{ s.n }}</div>
+    <div class="v-step-card" :class="stepBgs[i]"><h3 class="v-step-t">{{ s.t }}</h3><p class="v-step-d">{{ s.d }}</p></div>
+  </div></div>
+</div></section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="v-sec v-sec-light"><div class="sw">
+  <div class="v-sec-hdr an"><span class="v-pill">{{ t.featTag }}</span><h2 class="v-t2">{{ t.featTitle }}</h2><p class="v-t2-sub">{{ t.featSub }}</p></div>
+  <div class="v-feats" data-stagger><div v-for="f in t.feats" :key="f.t" class="v-feat">
+    <span class="v-feat-ic">{{ f.ic }}</span><h3 class="v-feat-t">{{ f.t }}</h3><p class="v-feat-d">{{ f.d }}</p>
+  </div></div>
+</div></section>
+
+<!-- ═══ COMPARISON ═══ -->
+<section class="v-sec v-sec-green"><div class="sw">
+  <div class="v-sec-hdr an"><span class="v-pill">{{ t.compTag }}</span><h2 class="v-t2">{{ t.compTitle }}</h2><p class="v-t2-sub">{{ t.compSub }}</p></div>
+  <div class="v-comp" data-stagger>
+    <div class="v-comp-card v-comp-best"><div class="v-comp-badge">{{ isAr?'الأفضل قيمة':'BEST VALUE' }}</div><div class="v-comp-logo"><div class="v-comp-sdb-logo">SDB</div><div><h3 class="v-comp-name">{{ t.compSdb.n }}</h3><span class="v-comp-rec">{{ t.compSdb.rec }}</span></div></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-val">{{ t.compSdb.amount }} <small>SYP</small></span></div><ul class="v-comp-pts"><li v-for="p in t.compSdb.points" :key="p"><span class="v-check">✓</span>{{ p }}</li></ul><Link href="/preregister" class="v-comp-cta">{{ isAr?'ابدأ الآن':'Get started' }} →</Link></div>
+    <div class="v-comp-card v-comp-dim"><div class="v-comp-logo"><div class="v-comp-dim-logo">BANK</div><h3 class="v-comp-name-dim">{{ t.compBank.n }}</h3></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-dim">{{ t.compBank.amount }} <small>SYP</small></span><span class="v-comp-less">{{ t.compBank.less }}</span></div><ul class="v-comp-pts-dim"><li v-for="p in t.compBank.points" :key="p"><span class="v-x">✗</span>{{ p }}</li></ul></div>
+    <div class="v-comp-card v-comp-dim"><div class="v-comp-logo"><div class="v-comp-wu-logo">WU</div><h3 class="v-comp-name-dim">{{ t.compWu.n }}</h3></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-dim">{{ t.compWu.amount }} <small>SYP</small></span><span class="v-comp-less">{{ t.compWu.less }}</span></div><ul class="v-comp-pts-dim"><li v-for="p in t.compWu.points" :key="p"><span class="v-x">✗</span>{{ p }}</li></ul></div>
   </div>
 </div></section>
 
-<!-- ═══ 3 SERVICE CARDS (Wise-style showcase) ═══ -->
-<section class="sec sec-alt"><div class="sw">
-  <div class="sec-hdr an-l"><h2 class="t2">{{ t.servTitle }}<br><span class="t2-em">{{ t.servFade }}</span></h2></div>
-  <div class="serv-grid" data-stagger>
-    <Link v-for="(s,i) in t.servCards" :key="i" :href="s.href" class="serv-c" :style="{animationDelay:(i*120)+'ms'}">
-      <span class="serv-ic">{{ s.ic }}</span>
-      <h3 class="serv-t">{{ s.t }}</h3>
-      <p class="serv-d">{{ s.d }}</p>
-      <span class="serv-btn">{{ s.btn }} →</span>
-    </Link>
-  </div>
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="v-sec v-sec-green"><div class="sw">
+  <div class="v-sec-hdr an"><span class="v-pill">{{ t.testTag }}</span><h2 class="v-t2">{{ t.testTitle }}</h2><p class="v-t2-sub">{{ t.testSub }}</p></div>
+  <div class="v-tests" data-stagger><div v-for="(tt,i) in t.tests" :key="i" class="v-test-card">
+    <div class="v-test-top"><span class="v-test-quote">❝</span><div class="v-test-stars">★★★★★</div></div>
+    <p class="v-test-q">"{{ tt.q }}"</p>
+    <div class="v-test-author"><div class="v-test-avatar" :class="testColors[i]">{{ tt.a }}</div><div><div class="v-test-name">{{ tt.n }}</div><div class="v-test-role">{{ tt.r }}</div></div></div>
+  </div></div>
+  <div class="v-test-stats an"><div v-for="s in t.testStats" :key="s.l" class="v-tstat"><div class="v-tstat-v">{{ s.v }}</div><div class="v-tstat-l">{{ s.l }}</div></div></div>
 </div></section>
 
-<!-- ═══ FEATURE 1: Salary (left text, right visual) ═══ -->
-<section class="sec"><div class="sw feat-row an-l">
-  <div class="feat-text">
-    <h2 class="t2">{{ t.feat1Title }}<br><span class="t2-em">{{ t.feat1Em }}</span></h2>
-    <p class="t2-sub">{{ t.feat1Desc }}</p>
-    <ul class="feat-points"><li v-for="p in t.feat1Points" :key="p">{{ p }}</li></ul>
-    <Link :href="t.feat1Href" class="link-btn">{{ t.feat1Btn }} →</Link>
-  </div>
-  <div class="feat-visual">
-    <div class="feat-phone"><div class="fp-notif"><span class="fp-dot"></span><div><div class="fp-notif-t">{{ isAr?'وصل الراتب!':'Salary received!' }}</div><div class="fp-notif-v">+ 750,000 {{ isAr?'ل.س':'SYP' }}</div></div></div><div class="fp-balance"><div class="fp-bl">{{ isAr?'الرصيد الحالي':'Current Balance' }}</div><div class="fp-bv">1,250,000 <small>{{ isAr?'ل.س':'SYP' }}</small></div></div></div>
-  </div>
+<!-- ═══ COUNTERS ═══ -->
+<section class="v-sec"><div class="sw">
+  <h2 class="v-t2 tc an">{{ t.statsTitle }}</h2>
+  <div class="v-counters counter-trigger"><div class="vctr"><div class="vctr-v">{{ counters.users >= 50000 ? '50,000+' : counters.users.toLocaleString() }}</div><div class="vctr-l">{{ t.stat1L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.countries }}+</div><div class="vctr-l">{{ t.stat2L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.currencies }}+</div><div class="vctr-l">{{ t.stat3L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.uptime }}%</div><div class="vctr-l">{{ t.stat4L }}</div></div></div>
 </div></section>
 
-<!-- ═══ FEATURE 2: Security (right text, left visual) ═══ -->
-<section class="sec sec-dark"><div class="sw feat-row feat-row-rev an-r">
-  <div class="feat-text">
-    <h2 class="t2 t2-w">{{ t.feat2Title }}<br><span class="t2-em-w">{{ t.feat2Em }}</span></h2>
-    <p class="t2-sub t2-sub-w">{{ t.feat2Desc }}</p>
-    <ul class="feat-points feat-points-w"><li v-for="p in t.feat2Points" :key="p">{{ p }}</li></ul>
-    <Link :href="t.feat2Href" class="link-btn link-btn-w">{{ t.feat2Btn }} →</Link>
-  </div>
-  <div class="feat-visual">
-    <div class="sec-shield"><div class="shield-ring"><div class="shield-ring2"><span class="shield-ic">🔒</span></div></div><div class="shield-labels"><span>AES-256</span><span>3D Secure</span><span>Biometric</span><span>24/7</span></div></div>
-  </div>
-</div></section>
-
-<!-- ═══ CARD TIERS ═══ -->
-<section class="sec"><div class="sw">
-  <div class="sec-hdr an"><h2 class="t2 tc">{{ t.cardsTitle }}<br><span class="t2-em">{{ t.cardsFade }}</span></h2></div>
-  <div class="tiers" data-stagger>
-    <Link v-for="(c,i) in [{h:'/cards/standard'},{h:'/cards/plus'},{h:'/cards/premium'},{h:'/cards/elite'}]" :key="i" :href="c.h" class="tier-c" :style="{animationDelay:(i*80)+'ms'}">
-      <div class="tier-bar" :style="{background:t.cardTiers[i].c}"></div>
-      <h4 class="tier-n">{{ t.cardTiers[i].n }}</h4>
-      <div class="tier-p" :style="{color:t.cardTiers[i].c}">{{ t.cardTiers[i].p }}</div>
-      <p class="tier-feat">{{ t.cardTiers[i].feat }}</p>
-    </Link>
-  </div>
-  <div class="tc an" style="margin-top:32px"><Link href="/plans" class="link-btn">{{ t.cardsBtn }} →</Link></div>
-</div></section>
-
-<!-- ═══ TESTIMONIALS (Wise-style) ═══ -->
-<section class="sec sec-alt"><div class="sw">
-  <h2 class="t2 tc an">{{ t.testTitle }}</h2>
-  <div class="test-grid" data-stagger>
-    <div v-for="(tt,i) in t.testimonials" :key="i" class="test-c" :style="{animationDelay:(i*100)+'ms'}">
-      <div class="test-stars">★★★★★</div>
-      <p class="test-q">"{{ tt.q }}"</p>
-      <div class="test-author"><strong>{{ tt.n }}</strong><span class="test-loc">{{ tt.loc }}</span></div>
-    </div>
-  </div>
-</div></section>
-
-<!-- ═══ ANIMATED COUNTERS ═══ -->
-<section class="sec"><div class="sw">
-  <h2 class="t2 tc an">{{ t.statsTitle }}</h2>
-  <div class="counters counter-trigger">
-    <div class="ctr-i"><div class="ctr-v">{{ counters.users >= 50000 ? '50,000+' : counters.users.toLocaleString() }}</div><div class="ctr-l">{{ t.stat1L }}</div></div>
-    <div class="ctr-i"><div class="ctr-v">{{ counters.countries }}+</div><div class="ctr-l">{{ t.stat2L }}</div></div>
-    <div class="ctr-i"><div class="ctr-v">{{ counters.currencies }}+</div><div class="ctr-l">{{ t.stat3L }}</div></div>
-    <div class="ctr-i"><div class="ctr-v">{{ counters.uptime }}%</div><div class="ctr-l">{{ t.stat4L }}</div></div>
-  </div>
-</div></section>
-
-<!-- ═══ MORE WITH SDB ═══ -->
-<section class="sec sec-alt"><div class="sw">
-  <h2 class="t2 tc an">{{ t.moreTitle }}</h2>
-  <div class="more-grid" data-stagger>
-    <Link v-for="m in t.moreCards" :key="m.t" :href="m.href" class="more-c">
-      <span class="more-ic">{{ m.ic }}</span>
-      <h4 class="more-t">{{ m.t }}</h4>
-      <p class="more-d">{{ m.d }}</p>
-    </Link>
-  </div>
+<!-- ═══ FAQ ═══ -->
+<section class="v-sec v-sec-light"><div class="sw" style="max-width:800px">
+  <div class="v-sec-hdr an"><span class="v-pill">{{ t.faqTag }}</span><h2 class="v-t2">{{ t.faqTitle }}</h2></div>
+  <div class="v-faqs an"><div v-for="(f,i) in t.faqs" :key="i" class="v-faq" :class="{open:faqOpen===i}" @click="toggleFaq(i)">
+    <div class="v-faq-q"><span>{{ f.q }}</span><span class="v-faq-arrow">{{ faqOpen===i?'−':'+' }}</span></div>
+    <div class="v-faq-a" v-if="faqOpen===i">{{ f.a }}</div>
+  </div></div>
 </div></section>
 
 <!-- ═══ CTA ═══ -->
-<section class="sec sec-cta"><div class="sw tc">
-  <div class="cta-tag an">{{ t.ctaTag }}</div>
-  <h2 class="t2 an">{{ t.ctaTitle }}</h2>
-  <p class="t2-sub an tc" style="margin:0 auto 32px">{{ t.ctaSub }}</p>
-  <div class="cta-row an"><a href="/preregister" class="cta-btn">{{ t.ctaBtn }}</a><a href="/support" class="cta-btn2">{{ t.ctaBtn2 }}</a></div>
+<section class="v-sec v-sec-cta"><div class="sw tc">
+  <div class="v-cta-tag an">{{ t.ctaTag }}</div>
+  <h2 class="v-t2 an" style="color:#163300">{{ t.ctaTitle }}</h2>
+  <p class="v-t2-sub an tc" style="margin:0 auto 32px">{{ t.ctaSub }}</p>
+  <div class="v-cta-row an"><a href="/preregister" class="v-cta-btn">{{ isAr?'افتح حسابك المجاني ←':'Open free account →' }}</a><a href="/support" class="v-cta-btn2">{{ isAr?'تواصل معنا':'Contact us' }}</a></div>
 </div></section>
 </template>
 
 <style scoped>
-/* ═══ HERO ═══ */
-.hero{padding:160px 0 80px;background:linear-gradient(-45deg,#F0F9FF,#E0F2FE,#BAE6FD,#F0F9FF);background-size:400% 400%;animation:heroGrad 15s ease infinite;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;top:-20%;right:-10%;width:50%;height:140%;background:radial-gradient(ellipse,rgba(14,165,233,.08) 0%,transparent 65%);pointer-events:none;animation:heroBlob 8s ease-in-out infinite}
-.rtl .hero::after{right:auto;left:-10%}
-@keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes heroBlob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,10px) scale(.95)}}
-.hero-wave{position:absolute;bottom:-1px;left:0;width:100%;height:80px;pointer-events:none;z-index:0}
-.eml-err{font-size:12px;color:#DC2626;font-weight:700;margin-top:6px;text-align:center}
-.eml-ok{padding:14px;color:#10B981;font-weight:800;font-size:15px;text-align:center;animation:popIn .4s cubic-bezier(.16,1,.3,1)}
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.confetti{position:absolute;width:8px;height:8px;border-radius:2px;top:50%;animation:confettiFall linear forwards;pointer-events:none;z-index:10}
-@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}100%{opacity:0;transform:translateY(400px) rotate(720deg) scale(0.3)}}
-.hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
-.hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:#0EA5E9;margin-bottom:24px;text-transform:uppercase}.rtl .hero-tag{letter-spacing:0}
-.hero-h{margin-bottom:20px;line-height:1.05}
-.hero-h1,.hero-h2{display:block;font-size:clamp(2.4rem,5vw,4rem);font-weight:900;letter-spacing:-.04em}.hero-h1{color:#0C4A6E}.hero-h2{color:#0EA5E9}.rtl .hero-h1,.rtl .hero-h2{letter-spacing:0}
-.hero-p{font-size:17px;color:rgba(10,10,10,.6);line-height:1.85;margin-bottom:36px;max-width:480px}
-.hero-cd{display:flex;gap:20px;margin-bottom:32px}
-.cd-b{text-align:center}.cd-n{font-size:40px;font-weight:900;color:#0a0a0a;line-height:1;font-variant-numeric:tabular-nums}.cd-l{font-size:10px;color:rgba(10,10,10,.4);margin-top:4px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
-.hero-eml{display:flex;gap:0;max-width:420px;border:2px solid #0a0a0a;border-radius:14px;overflow:hidden;margin-bottom:28px}
-.eml-i{flex:1;padding:14px 18px;border:none;outline:none;font-size:15px;background:transparent;color:#0a0a0a;font-family:inherit}.eml-i::placeholder{color:#ccc}
-.eml-b{padding:14px 24px;background:#0a0a0a;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;white-space:nowrap}.eml-b:hover{background:#222}
-.eml-ok{padding:14px;color:#0EA5E9;font-weight:700;font-size:14px}
-.rtl .hero-eml{flex-direction:row-reverse}
-.hero-trust{display:flex;gap:16px;flex-wrap:wrap}.trust-i{font-size:12px;color:rgba(10,10,10,.5);font-weight:700}
+/* ═══ V0 GREEN DESIGN ═══ */
+:root{--g1:#9FE870;--g2:#163300;--g3:#2D6A00;--g4:#E8F5E0;--g5:#F5F9F3;--g6:#F0FBE8;}
 
-/* ═══ MINI CONVERTER ═══ */
-.conv-mini{background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:24px;padding:28px;box-shadow:0 16px 48px rgba(0,0,0,.06);position:relative}
-.conv-head{font-size:14px;font-weight:800;color:#0C4A6E;margin-bottom:20px;text-align:center}
-.conv-field{margin-bottom:8px}.conv-lbl{font-size:12px;font-weight:700;color:rgba(10,10,10,.55);margin-bottom:6px;display:block}
-.conv-row{display:flex;gap:8px;align-items:center}
-.conv-sel{padding:12px;border:1px solid rgba(14,165,233,.1);border-radius:12px;font-size:16px;font-weight:800;color:#0C4A6E;background:#F8FAFC;cursor:pointer;font-family:inherit;outline:none;min-width:80px}
-.conv-inp{flex:1;padding:12px;border:1px solid rgba(14,165,233,.1);border-radius:12px;font-size:22px;font-weight:900;color:#0C4A6E;outline:none;font-family:inherit;text-align:end;background:#F8FAFC}.conv-inp:focus{border-color:#0EA5E9}
-.conv-inp::-webkit-inner-spin-button,.conv-inp::-webkit-outer-spin-button{-webkit-appearance:none}.conv-inp{-moz-appearance:textfield}
-.rtl .conv-inp{text-align:start}
-.conv-res{flex:1;padding:12px;background:#F0F9FF;border-radius:12px;font-size:22px;font-weight:900;color:#0EA5E9;text-align:end}.rtl .conv-res{text-align:start}
-.conv-swap-mini{text-align:center;font-size:16px;color:rgba(14,165,233,.3);margin:4px 0;cursor:pointer;transition:color .2s}.conv-swap-mini:hover{color:#0EA5E9}
-.conv-rate{font-size:12px;color:rgba(10,10,10,.5);text-align:center;margin:12px 0;font-weight:600}
-.conv-cta{display:block;padding:14px;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:12px;text-decoration:none;transition:all .2s}.conv-cta:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.2)}
+/* HERO */
+.v-hero{padding:160px 0 80px;position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center}
+.v-hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#E8F5E0,#F0FBE8,#fff)}
+.v-hero-circles{position:absolute;inset:0;overflow:hidden}
+.v-circle{position:absolute;border-radius:50%;filter:blur(80px)}
+.v-c1{top:-20%;right:-10%;width:600px;height:600px;background:rgba(159,232,112,.3);animation:pulse 4s ease-in-out infinite}
+.v-c2{bottom:-20%;left:-10%;width:500px;height:500px;background:rgba(159,232,112,.2);animation:pulse 6s ease-in-out infinite}
+.v-c3{top:40%;left:30%;width:300px;height:300px;background:rgba(22,51,0,.05)}
+.v-hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
+.v-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:#163300;border:1px solid rgba(159,232,112,.3);margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.v-h1{font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:900;color:#163300;line-height:1.05;letter-spacing:-.04em;margin-bottom:20px}.rtl .v-h1{letter-spacing:0}
+.v-h1-em{color:#2D6A00;position:relative;display:inline-block}
+.v-hero-p{font-size:18px;color:#555;line-height:1.85;margin-bottom:24px;max-width:500px}
+.v-badges{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.v-mini-badge{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.6);backdrop-filter:blur(4px);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;color:#163300}
+.v-hero-cd{display:flex;gap:18px;margin-bottom:28px}
+.vcd-b{text-align:center}.vcd-n{font-size:38px;font-weight:900;color:#163300;line-height:1;font-variant-numeric:tabular-nums}.vcd-l{font-size:10px;color:rgba(22,51,0,.4);margin-top:3px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.v-hero-eml{display:flex;gap:0;max-width:420px;border:2px solid #163300;border-radius:999px;overflow:hidden;margin-bottom:28px}
+.veml-i{flex:1;padding:14px 20px;border:none;outline:none;font-size:15px;background:transparent;color:#163300;font-family:inherit}.veml-i::placeholder{color:#aaa}
+.veml-b{padding:14px 28px;background:#163300;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}.veml-b:hover{background:#1e4400}
+.veml-ok{padding:14px;color:#2D6A00;font-weight:700;font-size:14px}.veml-err{font-size:12px;color:#DC2626;font-weight:700;margin-top:6px}
+.rtl .v-hero-eml{flex-direction:row-reverse}
+.v-hero-stats{display:flex;gap:32px}
+.vhs{text-align:center}.vhs-v{font-size:26px;font-weight:900;color:#163300}.vhs-l{font-size:12px;color:#888}
 
-/* ═══ MARQUEE ═══ */
-.mq{padding:16px 0;border-top:1px solid rgba(0,0,0,.04);border-bottom:1px solid rgba(0,0,0,.04);overflow:hidden;background:#fafafa}
-.mq-track{display:flex;gap:48px;animation:mqs 25s linear infinite;white-space:nowrap}
-.mq-i{font-size:13px;font-weight:800;color:rgba(10,10,10,.06);letter-spacing:3px;text-transform:uppercase}
+/* CONVERTER */
+.v-conv{background:#fff;border:1px solid rgba(159,232,112,.15);border-radius:24px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.06);position:relative}
+.vc-head{font-size:15px;font-weight:800;color:#163300;margin-bottom:20px;text-align:center}
+.vc-field{margin-bottom:8px}.vc-lbl{font-size:12px;font-weight:700;color:#888;margin-bottom:6px;display:block}
+.vc-row{display:flex;gap:8px;align-items:center}
+.vc-sel{padding:12px;border:1px solid rgba(159,232,112,.15);border-radius:12px;font-size:16px;font-weight:800;color:#163300;background:#F8FAF6;cursor:pointer;font-family:inherit;outline:none;min-width:80px}
+.vc-inp{flex:1;padding:12px;border:1px solid rgba(159,232,112,.15);border-radius:12px;font-size:22px;font-weight:900;color:#163300;outline:none;font-family:inherit;text-align:end;background:#F8FAF6}.vc-inp:focus{border-color:#9FE870}
+.vc-inp::-webkit-inner-spin-button,.vc-inp::-webkit-outer-spin-button{-webkit-appearance:none}.vc-inp{-moz-appearance:textfield}
+.rtl .vc-inp{text-align:start}
+.vc-res{flex:1;padding:12px;background:#F0FBE8;border-radius:12px;font-size:22px;font-weight:900;color:#2D6A00;text-align:end}.rtl .vc-res{text-align:start}
+.vc-swap{text-align:center;font-size:16px;color:rgba(159,232,112,.4);margin:4px 0;cursor:pointer;transition:color .2s}.vc-swap:hover{color:#9FE870}
+.vc-rate{font-size:12px;color:#888;text-align:center;margin:12px 0;font-weight:600}
+.vc-cta{display:block;padding:14px;background:linear-gradient(135deg,#163300,#2D6A00);color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:12px;text-decoration:none;transition:all .2s}.vc-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,51,0,.15)}
+
+/* MARQUEE */
+.v-mq{padding:16px 0;border-top:1px solid rgba(0,0,0,.04);border-bottom:1px solid rgba(0,0,0,.04);overflow:hidden;background:#fafafa}
+.v-mq-track{display:flex;gap:48px;animation:mqs 25s linear infinite;white-space:nowrap}
+.v-mq-i{font-size:13px;font-weight:800;color:rgba(22,51,0,.06);letter-spacing:3px;text-transform:uppercase}
 @keyframes mqs{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-/* ═══ SECTIONS ═══ */
-.sec{padding:100px 0}.sec-alt{background:#FAFAFA}.sec-dark{background:linear-gradient(135deg,#0C4A6E,#0369A1,#0EA5E9);color:#fff}.sec-cta{padding:120px 0;background:linear-gradient(135deg,#F0F9FF,#E0F2FE)}
-.sec-hdr{margin-bottom:48px}.sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.t2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;color:#0C4A6E}.rtl .t2{letter-spacing:0}
-.t2-em{color:#0EA5E9}.t2-w{color:#fff}.t2-em-w{color:#7DD3FC}
-.t2-sub{font-size:16px;color:rgba(10,10,10,.6);line-height:1.85;max-width:520px;margin-top:8px}.t2-sub-w{color:rgba(255,255,255,.65)}
+/* SECTIONS */
+.v-sec{padding:100px 0}.v-sec-light{background:#fff}.v-sec-green{background:#F5F9F3}
+.v-sec-cta{padding:120px 0;background:linear-gradient(135deg,#F0FBE8,#E8F5E0)}
+.v-sec-hdr{text-align:center;margin-bottom:48px}.sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
+.v-pill{display:inline-block;padding:6px 16px;background:#E8F5E0;color:#2D6A00;font-size:12px;font-weight:700;border-radius:999px;margin-bottom:12px;letter-spacing:1px}
+.v-t2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;color:#163300}.rtl .v-t2{letter-spacing:0}
+.v-t2-sub{font-size:16px;color:#666;line-height:1.85;max-width:550px;margin:0 auto}
 
-/* ═══ COMPARISON TABLE ═══ */
-.comp-table{max-width:700px;margin:0 auto;border:1px solid rgba(14,165,233,.08);border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.03)}
-.comp-header{display:grid;grid-template-columns:1fr 1fr 1fr;background:#F0F9FF}
-.comp-header .comp-f,.comp-header .comp-v{padding:16px 20px;font-size:14px;font-weight:800;color:#0C4A6E}
-.comp-sdb-h{color:#059669!important;background:rgba(5,150,105,.04)}.comp-bank-h{color:rgba(10,10,10,.5)!important}
-.comp-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(14,165,233,.06);transition:background .2s}.comp-row:hover{background:rgba(14,165,233,.02)}
-.comp-f{padding:14px 20px;font-size:14px;font-weight:700;color:#0C4A6E}
-.comp-v{padding:14px 20px;font-size:14px}
-.comp-sdb{color:#059669;font-weight:700}.comp-bank{color:rgba(10,10,10,.4);text-decoration:line-through}
+/* HOW IT WORKS */
+.v-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.v-step-num{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:14px;box-shadow:0 8px 20px rgba(0,0,0,.1);transition:all .4s}
+.v-step-num:hover{transform:scale(1.1) rotate(6deg)}
+.v-step-card{border-radius:16px;padding:20px;transition:all .3s}.v-step-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.v-step-t{font-size:17px;font-weight:800;color:#163300;margin-bottom:8px}
+.v-step-d{font-size:14px;color:#666;line-height:1.7}
 
-/* ═══ SERVICE CARDS ═══ */
-.serv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.serv-c{padding:36px 28px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:20px;text-decoration:none;color:inherit;transition:all .4s;display:flex;flex-direction:column}.serv-c:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.06)}
-.serv-ic{font-size:36px;display:block;margin-bottom:16px}
-.serv-t{font-size:20px;font-weight:900;color:#0C4A6E;margin-bottom:10px}
-.serv-d{font-size:14px;color:rgba(10,10,10,.6);line-height:1.8;flex:1}
-.serv-btn{font-size:13px;font-weight:700;color:#0EA5E9;margin-top:16px}
+/* FEATURES */
+.v-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.v-feat{padding:24px;background:#fff;border:2px solid #f0f0f0;border-radius:20px;transition:all .4s;cursor:pointer}
+.v-feat:hover{border-color:#9FE870;transform:translateY(-6px);box-shadow:0 16px 40px rgba(159,232,112,.15)}
+.v-feat-ic{font-size:32px;display:block;margin-bottom:12px}
+.v-feat-t{font-size:16px;font-weight:800;color:#163300;margin-bottom:6px}
+.v-feat-d{font-size:13px;color:#666;line-height:1.7}
 
-/* ═══ FEATURE ROWS ═══ */
-.feat-row{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.feat-row-rev{direction:ltr}.rtl .feat-row-rev{direction:rtl}
-.feat-points{list-style:none;padding:0;margin:20px 0;display:flex;flex-direction:column;gap:10px}
-.feat-points li{font-size:14px;font-weight:600;color:#0C4A6E;padding:10px 16px;background:rgba(14,165,233,.04);border-radius:10px;display:flex;align-items:center;gap:8px}
-.feat-points li::before{content:'✓';color:#059669;font-weight:900;font-size:16px}
-.feat-points-w li{color:rgba(255,255,255,.9);background:rgba(255,255,255,.08)}
-.feat-points-w li::before{color:#7DD3FC}
-.link-btn{font-size:14px;font-weight:700;color:#0EA5E9;text-decoration:none;transition:opacity .2s}.link-btn:hover{opacity:.7}.link-btn-w{color:#7DD3FC}
+/* COMPARISON */
+.v-comp{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.v-comp-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;position:relative;transition:all .3s}
+.v-comp-best{border:2px solid #9FE870;box-shadow:0 16px 40px rgba(159,232,112,.15)}
+.v-comp-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);padding:6px 18px;background:linear-gradient(135deg,#163300,#2D6A00);color:#fff;font-size:11px;font-weight:800;border-radius:999px;white-space:nowrap;box-shadow:0 4px 12px rgba(22,51,0,.2)}
+.v-comp-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.v-comp-sdb-logo{width:48px;height:48px;background:linear-gradient(135deg,#9FE870,#7ACC50);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#163300;font-size:13px;box-shadow:0 4px 12px rgba(159,232,112,.3)}
+.v-comp-name{font-weight:800;color:#163300;font-size:16px}.v-comp-rec{font-size:11px;color:#2D6A00}
+.v-comp-dim{opacity:.75;transition:opacity .3s}.v-comp-dim:hover{opacity:1}
+.v-comp-dim-logo{width:48px;height:48px;background:#f0f0f0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#aaa;font-size:12px}
+.v-comp-wu-logo{width:48px;height:48px;background:#FEF9E7;border:1px solid #F59E0B;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#D97706;font-size:12px}
+.v-comp-name-dim{font-weight:800;color:#888;font-size:16px}
+.v-comp-amt{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}
+.v-comp-amt-lbl{display:block;font-size:12px;color:#888;margin-bottom:4px}
+.v-comp-amt-val{font-size:28px;font-weight:900;color:#163300}.v-comp-amt-val small{font-size:14px;color:#888;margin-inline-start:4px}
+.v-comp-amt-dim{font-size:28px;font-weight:900;color:#bbb}.v-comp-amt-dim small{font-size:14px}
+.v-comp-less{display:block;font-size:11px;color:#EF4444;margin-top:2px}
+.v-comp-pts{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:10px}
+.v-comp-pts li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#333}
+.v-check{width:22px;height:22px;background:#E8F5E0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#2D6A00;font-size:12px;font-weight:900;flex-shrink:0}
+.v-comp-pts-dim{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.v-comp-pts-dim li{display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa}
+.v-x{width:22px;height:22px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#EF4444;font-size:12px;font-weight:900;flex-shrink:0}
+.v-comp-cta{display:block;padding:14px;background:#163300;color:#fff;text-align:center;border-radius:14px;font-weight:800;font-size:14px;text-decoration:none;transition:all .2s}.v-comp-cta:hover{background:#1e4400;box-shadow:0 8px 20px rgba(22,51,0,.15)}
 
-/* Feature phone mockup */
-.feat-phone{max-width:320px;margin:0 auto;background:#fff;border-radius:28px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.08);border:1px solid rgba(14,165,233,.08)}
-.fp-notif{display:flex;align-items:center;gap:12px;padding:16px;background:#F0FDF4;border-radius:14px;margin-bottom:16px}
-.fp-dot{width:8px;height:8px;background:#059669;border-radius:50%;display:block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.fp-notif-t{font-size:13px;font-weight:800;color:#059669}.fp-notif-v{font-size:18px;font-weight:900;color:#065F46}
-.fp-balance{padding:20px;background:#F8FAFC;border-radius:14px;text-align:center}
-.fp-bl{font-size:12px;color:rgba(10,10,10,.5);margin-bottom:4px;font-weight:600}.fp-bv{font-size:28px;font-weight:900;color:#0C4A6E}
-.fp-bv small{font-size:14px;color:rgba(10,10,10,.45)}
+/* TESTIMONIALS */
+.v-tests{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.v-test-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;transition:all .4s;cursor:pointer}
+.v-test-card:hover{border-color:rgba(159,232,112,.3);box-shadow:0 16px 40px rgba(0,0,0,.06);transform:translateY(-3px)}
+.v-test-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.v-test-quote{font-size:36px;color:rgba(159,232,112,.3);line-height:1;font-weight:900}
+.v-test-stars{color:#F59E0B;font-size:14px;letter-spacing:2px}
+.v-test-q{font-size:16px;color:#333;line-height:1.8;margin-bottom:20px}
+.v-test-author{display:flex;align-items:center;gap:12px}
+.v-test-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;transition:transform .3s}
+.v-test-card:hover .v-test-avatar{transform:scale(1.1)}
+.v-test-name{font-weight:800;color:#163300;font-size:15px}.v-test-role{font-size:12px;color:#888}
+.v-test-stats{margin-top:40px;background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8}
+.v-test-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+.v-tstat-v{font-size:24px;font-weight:900;color:#163300;margin-bottom:2px}
+.v-tstat-l{font-size:12px;color:#888}
 
-/* Security visual */
-.sec-shield{text-align:center}
-.shield-ring{width:160px;height:160px;border:3px solid rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;animation:ringPulse 3s ease-in-out infinite;position:relative}
-.shield-ring::before{content:'';position:absolute;inset:-8px;border:1px solid rgba(255,255,255,.04);border-radius:50%;animation:ringPulse 3s ease-in-out infinite .5s}
-.shield-ring2{width:100px;height:100px;background:rgba(255,255,255,.06);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.shield-ic{font-size:40px}
-@keyframes ringPulse{0%,100%{transform:scale(1);border-color:rgba(255,255,255,.1)}50%{transform:scale(1.05);border-color:rgba(255,255,255,.2)}}
-.shield-labels{display:flex;justify-content:center;gap:12px;margin-top:20px}
-.shield-labels span{font-size:11px;font-weight:800;color:rgba(255,255,255,.6);padding:6px 14px;border:1px solid rgba(255,255,255,.15);border-radius:8px}
+/* COUNTERS */
+.v-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(159,232,112,.1);border:1px solid rgba(159,232,112,.15);border-radius:20px;overflow:hidden}
+.vctr{padding:48px 24px;background:#fff;text-align:center}
+.vctr-v{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#2D6A00;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.vctr-l{font-size:13px;color:#888;font-weight:700}
 
-/* ═══ CARD TIERS ═══ */
-.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.tier-c{padding:28px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:18px;position:relative;overflow:hidden;text-decoration:none;color:inherit;transition:all .3s}.tier-c:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.06)}
-.tier-bar{height:4px;position:absolute;top:0;left:0;right:0}
-.tier-n{font-size:20px;font-weight:900;color:#0C4A6E;margin:12px 0 6px}
-.tier-p{font-size:15px;font-weight:800;margin-bottom:10px}
-.tier-feat{font-size:13px;color:rgba(10,10,10,.55);line-height:1.6}
+/* FAQ */
+.v-faqs{display:flex;flex-direction:column;gap:8px}
+.v-faq{background:#fff;border:1px solid #e8e8e8;border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .3s}
+.v-faq:hover,.v-faq.open{border-color:#9FE870;box-shadow:0 4px 16px rgba(159,232,112,.1)}
+.v-faq-q{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:#163300}
+.v-faq-arrow{font-size:20px;color:#9FE870;font-weight:300}
+.v-faq-a{margin-top:12px;font-size:14px;color:#666;line-height:1.8;padding-top:12px;border-top:1px solid #f0f0f0}
 
-/* ═══ TESTIMONIALS ═══ */
-.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.test-c{padding:32px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:20px;transition:all .3s}.test-c:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.05)}
-.test-stars{font-size:16px;color:#F59E0B;margin-bottom:14px;letter-spacing:2px}
-.test-q{font-size:15px;color:#0C4A6E;line-height:1.8;margin-bottom:16px;font-style:italic}
-.test-author{font-size:13px;color:#0C4A6E}.test-loc{color:rgba(10,10,10,.5);margin-inline-start:8px}
+/* CTA */
+.v-cta-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#2D6A00;text-transform:uppercase;margin-bottom:20px}.rtl .v-cta-tag{letter-spacing:0}
+.v-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.v-cta-btn{display:inline-block;padding:18px 48px;background:#163300;color:#fff;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;transition:all .3s}.v-cta-btn:hover{background:#1e4400;transform:translateY(-2px);box-shadow:0 12px 32px rgba(22,51,0,.15)}
+.v-cta-btn2{display:inline-block;padding:18px 48px;background:transparent;color:#163300;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;border:2px solid rgba(22,51,0,.15);transition:all .2s}.v-cta-btn2:hover{border-color:#163300}
 
-/* ═══ ANIMATED COUNTERS ═══ */
-.counters{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(10,10,10,.06);border:1px solid rgba(10,10,10,.06);border-radius:20px;overflow:hidden}
-.ctr-i{padding:48px 24px;background:#fff;text-align:center}
-.ctr-v{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#0EA5E9;margin-bottom:6px;font-variant-numeric:tabular-nums}
-.ctr-l{font-size:13px;color:rgba(10,10,10,.5);font-weight:700}
+/* BG Classes for steps */
+.from-blue-500{background:linear-gradient(135deg,#3B82F6,#2563EB)}.from-purple-500{background:linear-gradient(135deg,#8B5CF6,#7C3AED)}.from-amber-500{background:linear-gradient(135deg,#F59E0B,#EA580C)}.from-green-500{background:linear-gradient(135deg,#22C55E,#10B981)}
+.from-blue-400{background:linear-gradient(135deg,#60A5FA,#3B82F6)}.from-purple-400{background:linear-gradient(135deg,#A78BFA,#8B5CF6)}.from-green-400{background:linear-gradient(135deg,#4ADE80,#22C55E)}.from-orange-400{background:linear-gradient(135deg,#FB923C,#F97316)}
+.bg-blue-50{background:#EFF6FF}.bg-purple-50{background:#F5F3FF}.bg-amber-50{background:#FFFBEB}.bg-green-50{background:#F0FDF4}
 
-/* ═══ MORE GRID ═══ */
-.more-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.more-c{padding:24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:16px;text-align:center;text-decoration:none;color:inherit;transition:all .3s}.more-c:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.04)}
-.more-ic{font-size:28px;display:block;margin-bottom:8px}
-.more-t{font-size:13px;font-weight:800;color:#0C4A6E;margin-bottom:4px}.more-d{font-size:12px;color:rgba(10,10,10,.5);font-weight:500}
-
-/* ═══ CTA ═══ */
-.cta-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#0EA5E9;text-transform:uppercase;margin-bottom:20px}.rtl .cta-tag{letter-spacing:0}
-.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.2)}
-.cta-btn2{display:inline-block;padding:18px 48px;background:transparent;color:#0C4A6E;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;border:2px solid rgba(10,10,10,.1);transition:all .2s}.cta-btn2:hover{border-color:rgba(10,10,10,.3)}
-
-/* ═══ ANIMATIONS ═══ */
+/* ANIMATIONS */
 .an{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
 .an-l{opacity:0;transform:translateX(-40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-l.vi{opacity:1;transform:none}
 .an-r{opacity:0;transform:translateX(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-r.vi{opacity:1;transform:none}
 .an-s{opacity:0;transform:scale(.92);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-s.vi{opacity:1;transform:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-/* ═══ RESPONSIVE ═══ */
+/* RESPONSIVE */
 @media(max-width:900px){
-  .hero-grid{grid-template-columns:1fr;gap:32px;text-align:center}
-  .hero-grid .an-l,.hero-grid .an-r{text-align:center}
-  .hero-sub{margin:0 auto 28px}
-  .email-row{justify-content:center;max-width:400px;margin:0 auto 20px}
-  .trust-row{justify-content:center}
-  .tiers{grid-template-columns:repeat(2,1fr)}
-  .serv-grid{grid-template-columns:1fr}
-  .counters{grid-template-columns:repeat(2,1fr)}
-  .test-grid{grid-template-columns:1fr}
-  .more-grid{grid-template-columns:repeat(3,1fr)}
-  .feat-row{grid-template-columns:1fr;gap:32px;text-align:center}
-  .feat-info{text-align:center}
-  .comp-table{border-radius:14px}
+  .v-hero-grid{grid-template-columns:1fr;gap:32px;text-align:center}
+  .v-hero-left{display:flex;flex-direction:column;align-items:center}
+  .v-hero-p{text-align:center}
+  .v-hero-stats{justify-content:center}
+  .v-badges{justify-content:center}
+  .v-steps{grid-template-columns:repeat(2,1fr)}
+  .v-feats{grid-template-columns:repeat(2,1fr)}
+  .v-comp{grid-template-columns:1fr}
+  .v-tests{grid-template-columns:1fr}
+  .v-counters{grid-template-columns:repeat(2,1fr)}
+  .v-test-stats{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:600px){
-  .hero{padding:120px 0 40px}
-  .hero-grid{gap:24px}
-  .sec{padding:50px 0}
-  .sw{padding:0 16px}
-  .t2{font-size:clamp(1.4rem,5vw,2rem);margin-bottom:32px}
-  .t2-sub{font-size:14px}
-  .hero-h{font-size:clamp(1.8rem,7vw,2.6rem)}
-  .hero-sub{font-size:14px;padding:0 8px}
-  .email-row{flex-direction:column;gap:8px;padding:0 8px}
-  .email-row input{width:100%}
-  .email-row button{width:100%}
-  .conv-box{margin:0 -8px;border-radius:16px}
-  .conv-mini{padding:20px;border-radius:18px}
-  .conv-sel{min-width:70px;font-size:14px;padding:10px}
-  .conv-inp{font-size:18px;padding:10px}
-  .conv-res{font-size:18px;padding:10px}
-  .conv-cta{font-size:14px;padding:12px}
-  .hero-eml{display:flex;flex-direction:column!important;gap:10px;max-width:100%;border:none!important;border-radius:0!important;overflow:visible!important}
-  .eml-i{width:100%!important;font-size:15px!important;padding:14px 18px!important;border-radius:14px!important;border:2px solid #0a0a0a!important;background:#fff}
-  .eml-b{width:100%!important;font-size:14px!important;padding:14px!important;border-radius:14px!important}
-  .hero-trust{flex-wrap:wrap;gap:8px;font-size:11px;justify-content:center}
-  .hero-cd{flex-wrap:wrap;gap:12px;justify-content:center}
-  .cd-n{font-size:clamp(1.6rem,8vw,2.2rem)}
-  .cd-l{font-size:9px}
-  .hero::after{display:none}
-  .hero-h1,.hero-h2{font-size:clamp(1.6rem,7vw,2.4rem)}
-  .hero-p{font-size:14px;margin-bottom:24px}
-  .comp-table{margin:0 -8px;border-radius:12px;font-size:13px}
-  .serv-c{padding:28px 20px}
-  .tiers{grid-template-columns:1fr;gap:12px}
-  .tier{padding:28px 20px}
-  .test-c{padding:24px 20px}
-  .counters{grid-template-columns:1fr}
-  .ctr-i{padding:28px 16px}
-  .more-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .more-c{padding:16px 12px}
-  .more-ic{font-size:22px}
-  .more-t{font-size:11px}
-  .more-d{font-size:10px}
-  .feat-row{gap:20px}
-  .feat-img{max-width:280px;margin:0 auto}
-  .cta-btn,.cta-btn2{width:100%;text-align:center;padding:16px 24px;font-size:15px}
-  .cta-row{flex-direction:column;padding:0 16px}
-  .partners-row{gap:16px;padding:0 16px}
-  .partners-row img{height:18px!important}
+  .v-hero{padding:120px 0 40px}
+  .v-sec{padding:60px 0}.sw{padding:0 16px}
+  .v-t2{font-size:clamp(1.4rem,6vw,2rem)}
+  .v-steps{grid-template-columns:1fr}
+  .v-feats{grid-template-columns:1fr}
+  .v-counters{grid-template-columns:1fr}
+  .v-test-stats{grid-template-columns:repeat(2,1fr)}
+  .v-hero-cd{flex-wrap:wrap;gap:12px;justify-content:center}
+  .vcd-n{font-size:28px}
+  .v-hero-eml{flex-direction:column!important;border:none!important;border-radius:0!important;overflow:visible!important;gap:10px}
+  .veml-i{border:2px solid #163300!important;border-radius:14px!important;background:#fff}
+  .veml-b{border-radius:14px!important;width:100%}
+  .v-cta-btn,.v-cta-btn2{width:100%;text-align:center;padding:16px}
+  .v-cta-row{flex-direction:column;padding:0 16px}
 }
 </style>
