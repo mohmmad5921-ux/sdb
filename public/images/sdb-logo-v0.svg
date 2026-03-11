@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <!-- SDB Text - Dark Green Bold -->
+  <text x="0" y="48" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#163300" letter-spacing="-2">SDB</text>
+  <!-- Syrian Flag Circle -->
+  <circle cx="165" cy="28" r="26" fill="#1B5E20"/>
+  <!-- Green stripe -->
+  <path d="M139.2 18.5C142.5 10.2 152.5 2 165 2c12.5 0 22.5 8.2 25.8 16.5z" fill="#1B5E20"/>
+  <!-- White stripe -->
+  <rect x="139" y="18.5" width="52" height="19" rx="0" fill="#fff" clip-path="url(#flagClip)"/>
+  <!-- Black stripe -->
+  <path d="M139.2 37.5C142.5 45.8 152.5 54 165 54c12.5 0 22.5-8.2 25.8-16.5z" fill="#1a1a1a"/>
+  <!-- Clip path for circle -->
+  <clipPath id="flagClip"><circle cx="165" cy="28" r="26"/></clipPath>
+  <!-- Recalculate stripes with proper circle clip -->
+  <g clip-path="url(#flagClip)">
+    <!-- Green top -->
+    <rect x="139" y="2" width="52" height="17.3" fill="#1B5E20"/>
+    <!-- White middle -->
+    <rect x="139" y="19.3" width="52" height="17.4" fill="#ffffff"/>
+    <!-- Black bottom -->
+    <rect x="139" y="36.7" width="52" height="17.3" fill="#1a1a1a"/>
+    <!-- 3 Red Stars -->
+    <g fill="#B71C1C">
+      <polygon points="153,30 154.2,26.2 158,26.2 154.9,23.8 156.1,20 153,22.4 149.9,20 151.1,23.8 148,26.2 151.8,26.2" />
+      <polygon points="165,30 166.2,26.2 170,26.2 166.9,23.8 168.1,20 165,22.4 161.9,20 163.1,23.8 160,26.2 163.8,26.2" />
+      <polygon points="177,30 178.2,26.2 182,26.2 178.9,23.8 180.1,20 177,22.4 173.9,20 175.1,23.8 172,26.2 175.8,26.2" />
+    </g>
+  </g>
+</svg>
