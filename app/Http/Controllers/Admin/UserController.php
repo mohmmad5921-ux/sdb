@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Account;
 use App\Models\AdminActivityLog;
 use App\Models\AdminNote;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -119,22 +120,18 @@ class UserController extends Controller
             $user->update(['status' => 'active']);
         }
 
-        // Send notification to customer
+        // Send notification + push to customer
         try {
             if ($request->kyc_status === 'verified') {
-                \App\Models\Notification::create([
-                    'user_id' => $user->id,
-                    'title' => 'تم تفعيل حسابك ✅',
-                    'body' => 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.',
-                    'type' => 'system',
-                ]);
+                $t = 'تم تفعيل حسابك ✅';
+                $b = 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.';
+                \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'system']);
+                FcmService::sendToUser($user->id, $t, $b);
             } elseif ($request->kyc_status === 'rejected') {
-                \App\Models\Notification::create([
-                    'user_id' => $user->id,
-                    'title' => 'يرجى تحديث مستنداتك ⚠️',
-                    'body' => 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.',
-                    'type' => 'security',
-                ]);
+                $t = 'يرجى تحديث مستنداتك ⚠️';
+                $b = 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.';
+                \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'security']);
+                FcmService::sendToUser($user->id, $t, $b);
             }
         } catch (\Exception $e) {}
 
@@ -190,20 +187,15 @@ class UserController extends Controller
         return back()->with('success', 'تم إلغاء تجميد جميع حسابات وبطاقات العميل');
     }
 
-    // Send admin note (stored in session flash)
+    // Send admin note to customer + push
     public function sendNote(Request $request, User $user)
     {
         $request->validate(['note' => 'required|string|max:1000']);
-        // In a real app, this would create a notification record
+        $t = 'رسالة من الإدارة';
         try {
-            \App\Models\Notification::create([
-                'user_id' => $user->id,
-                'title' => 'رسالة من الإدارة',
-                'body' => $request->note,
-                'type' => 'system',
-            ]);
-        } catch (\Exception $e) {
-        }
+            \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $request->note, 'type' => 'system']);
+            FcmService::sendToUser($user->id, $t, $request->note);
+        } catch (\Exception $e) {}
         AdminActivityLog::log('user.send_note', 'user', $user->id, ['user_name' => $user->full_name, 'note_preview' => mb_substr($request->note, 0, 100)]);
         return back()->with('success', 'تم إرسال الإشعار للعميل');
     }
@@ -239,15 +231,10 @@ class UserController extends Controller
 
         foreach ($users as $user) {
             try {
-                \App\Models\Notification::create([
-                    'user_id' => $user->id,
-                    'title' => $request->title,
-                    'body' => $request->message,
-                    'type' => 'promotion',
-                ]);
+                \App\Models\Notification::create(['user_id' => $user->id, 'title' => $request->title, 'body' => $request->message, 'type' => 'promotion']);
+                FcmService::sendToUser($user->id, $request->title, $request->message);
                 $count++;
-            } catch (\Exception $e) {
-            }
+            } catch (\Exception $e) {}
         }
 
         AdminActivityLog::log('broadcast.notification', null, null, [
