@@ -4,6 +4,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
+import '../services/push_notification_service.dart';
 import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -130,7 +131,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         if (res['success'] == true) {
           if (mounted) {
             await Navigator.pushNamed(context, '/phone-verify');
-            if (mounted) Navigator.pushReplacementNamed(context, '/home');
+            if (mounted) {
+              PushNotificationService.initialize();
+              Navigator.pushReplacementNamed(context, '/home');
+            }
           }
         } else {
           setState(() => _error = res['data']?['message'] ?? t.connectionError);
@@ -140,7 +144,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         final identifier = _loginMode == 'email' ? _email.text : fullPhone;
         final res = await ApiService.login(identifier, _pass.text.isNotEmpty ? _pass.text : 'phone_login');
         if (res['success'] == true) {
-          if (mounted) Navigator.pushReplacementNamed(context, '/home');
+          if (mounted) {
+            PushNotificationService.initialize();
+            Navigator.pushReplacementNamed(context, '/home');
+          }
         } else {
           setState(() => _error = res['data']?['message'] ?? t.connectionError);
         }
@@ -172,7 +179,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       );
       if (didAuth && mounted) {
         final hasToken = await ApiService.isLoggedIn();
-        if (hasToken && mounted) Navigator.pushReplacementNamed(context, '/home');
+        if (hasToken && mounted) {
+          PushNotificationService.initialize();
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       }
     } on PlatformException catch (_) {}
   }
