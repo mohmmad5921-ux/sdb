@@ -392,6 +392,10 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <!-- Mobile mega menu (outside nav to avoid clipping) -->
   <Transition name="mob-slide">
   <div v-if="mobileOpen" class="sn-mobile">
+    <div class="mob-seg-toggle">
+      <button class="mob-seg-btn" :class="{active:segment==='private'}" @click="setSegment('private')">{{ isAr ? 'خاص' : 'Private' }}</button>
+      <button class="mob-seg-btn" :class="{active:segment==='business'}" @click="setSegment('business')">{{ isAr ? 'أعمال' : 'Business' }}</button>
+    </div>
     <Link href="/" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'الرئيسية':'Home' }}</Link>
     <div v-for="m in megaNav" :key="m.id" class="mob-sec">
       <button class="mob-sec-btn" @click="toggleMobileSection(m.id)">
@@ -554,6 +558,11 @@ html{scroll-behavior:smooth}
 .seg-btn{padding:4px 20px;font-size:12px;font-weight:700;border:none;background:none;color:rgba(255,255,255,.6);cursor:pointer;border-radius:4px;font-family:inherit;transition:all .2s;letter-spacing:.5px}
 .seg-btn.active{background:#9FE870;color:#163300}
 .seg-btn:hover:not(.active){color:#fff}
+/* Mobile segment toggle inside side menu */
+.mob-seg-toggle{display:flex;gap:0;background:#f0f4ec;border-radius:10px;padding:4px;margin:0 16px 12px}
+.mob-seg-btn{flex:1;padding:10px 0;font-size:14px;font-weight:700;border:none;background:none;color:#8a9a7e;cursor:pointer;border-radius:8px;font-family:inherit;transition:all .2s;text-align:center}
+.mob-seg-btn.active{background:#2D6A00;color:#fff;box-shadow:0 2px 8px rgba(45,106,0,.2)}
+@media(max-width:900px){.seg-bar{display:none}.sn{top:0!important}.sn-mobile{top:68px!important}}
 
 /* ─── Nav — V0 Green ─── */
 .sn{position:fixed;top:36px;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
