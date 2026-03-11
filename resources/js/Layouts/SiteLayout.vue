@@ -331,7 +331,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <!-- Nav -->
   <nav class="sn" :class="{scrolled}">
     <div class="sw">
-      <Link href="/" class="sn-logo"><img src="/images/sdb-logo-v0.svg" alt="SDB Bank" class="sn-logo-img"/></Link>
+      <Link href="/" class="sn-logo"><span class="sdb-text">SDB</span><span class="sdb-flag"><span class="sf-g"></span><span class="sf-w"><span class="sf-star">★</span><span class="sf-star">★</span><span class="sf-star">★</span></span><span class="sf-b"></span></span></Link>
       <div class="sn-links">
         <div v-for="m in megaNav" :key="m.id" class="sn-dd" @mouseenter="openMenu(m.id)" @mouseleave="startClose">
           <span class="sn-link" :class="{'sn-active':activeMenu===m.id}">{{ m.label }} <span class="sn-arr">▾</span></span>
@@ -424,7 +424,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
     <div class="sw">
       <div class="sf-top">
         <div class="sf-brand">
-          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-v0.svg" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
+          <a href="/" class="sn-logo sn-logo-ft"><span class="sdb-text">SDB</span><span class="sdb-flag sdb-flag-ft"><span class="sf-g"></span><span class="sf-w"><span class="sf-star">★</span><span class="sf-star">★</span><span class="sf-star">★</span></span><span class="sf-b"></span></span></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
             <span class="sf-soc-icon">𝕏</span>
@@ -509,9 +509,16 @@ html{scroll-behavior:smooth}
 .sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
 .sn.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 20px rgba(0,0,0,.06)}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
-.sn-logo{text-decoration:none;flex-shrink:0;display:flex;align-items:center}
-.sn-logo-img{height:36px;width:auto}
-.sn-logo-img-ft{height:28px}
+.sn-logo{text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;gap:5px;flex-wrap:nowrap}
+.sdb-text{font-size:32px;font-weight:900;color:#163300;letter-spacing:-1.5px;line-height:1;white-space:nowrap}
+.sdb-flag{width:30px;height:30px;border-radius:50%;overflow:hidden;display:flex;flex-direction:column;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.sdb-flag-ft{width:24px;height:24px}
+.sf-g{flex:1;background:linear-gradient(180deg,#1B5E20 0%,#2E7D32 100%)}
+.sf-w{flex:1;background:#fff;display:flex;align-items:center;justify-content:center;gap:1px}
+.sf-star{font-size:6px;color:#B71C1C;line-height:1}
+.sdb-flag-ft .sf-star{font-size:5px}
+.sf-b{flex:1;background:linear-gradient(180deg,#333 0%,#1a1a1a 100%)}
+.sn-logo-ft .sdb-text{font-size:22px}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:4px;margin:0 auto}
 .sn-dd{position:relative}
