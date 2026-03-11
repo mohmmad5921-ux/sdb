@@ -97,7 +97,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         if ($role === 'admin') {
-            return redirect('/sdb-admin');
+            return redirect('/gate/sdb-m5921');
         }
 
         return redirect('/');
