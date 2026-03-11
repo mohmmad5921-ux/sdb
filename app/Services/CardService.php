@@ -25,7 +25,12 @@ class CardService
     public function issueCard(User $user, Account $account): Card
     {
         if ($this->useStripe) {
-            return $this->issueViaStripe($user, $account);
+            try {
+                return $this->issueViaStripe($user, $account);
+            } catch (\Exception $e) {
+                // Stripe Issuing not available — fallback to local generation
+                \Log::info('Stripe Issuing unavailable, using local: ' . $e->getMessage());
+            }
         }
         return $this->issueLocal($user, $account);
     }
