@@ -189,66 +189,122 @@ class _CardsTabState extends State<CardsTab> {
 
   Widget _buildCardVisual(Map<String, dynamic> card) {
     final isFrozen = card['status'] == 'frozen';
-    final isVirtual = card['card_type'] == 'virtual';
     final last4 = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '').substring(math.max(0, card['card_number_masked'].toString().replaceAll(RegExp(r'[^\d]'), '').length - 4)) ?? '0000';
+    final masked = card['card_number_masked']?.toString() ?? '•••• •••• •••• $last4';
     final name = card['card_holder_name'] ?? '';
     final expiry = card['expiry_date'] ?? '';
+    // Format expiry as MM/YY
+    String expiryFormatted = expiry;
+    if (expiry.contains('-') && expiry.length >= 7) {
+      final parts = expiry.split('-');
+      expiryFormatted = '${parts[1]}/${parts[0].substring(2)}';
+    }
 
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 210,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isVirtual ? [const Color(0xFF334155), const Color(0xFF0F172A)] : [const Color(0xFF10B981), const Color(0xFF059669)],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: (isVirtual ? const Color(0xFF334155) : AppTheme.primary).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: const Color(0xFF1E3A5F).withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 12))],
       ),
-      child: Stack(children: [
-        // Decorative circles
-        Positioned(right: -32, top: -32, child: Container(width: 140, height: 140, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.08)))),
-        Positioned(right: -16, bottom: -20, child: Container(width: 110, height: 110, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.06)))),
-
-        // Network logo
-        Positioned(top: 16, right: 16, child: Text('Mastercard', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w600))),
-
-        // Content
-        Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Chip
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(children: [
+          // Base gradient — blue to purple
           Container(
-            width: 36, height: 26,
-            decoration: BoxDecoration(color: const Color(0xFFFCD34D).withOpacity(0.8), borderRadius: BorderRadius.circular(5)),
-            child: Center(child: Container(width: 22, height: 16, decoration: BoxDecoration(border: Border.all(color: const Color(0xFFA16207).withOpacity(0.4)), borderRadius: BorderRadius.circular(3)))),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF0D47A1), Color(0xFF1565C0), Color(0xFF6A1B9A), Color(0xFF8E24AA)],
+                stops: [0.0, 0.35, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
-          // Number
-          Text('•••• •••• •••• $last4', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 15, letterSpacing: 3, fontWeight: FontWeight.w500)),
-          const Spacer(),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('CARD HOLDER', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, letterSpacing: 1.2)),
-              const SizedBox(height: 2),
-              Text(name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-            ]),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text('EXPIRES', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, letterSpacing: 1.2)),
-              const SizedBox(height: 2),
-              Text(expiry, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-            ]),
-          ]),
-        ])),
 
-        // Frozen Overlay
-        if (isFrozen) Positioned.fill(child: Container(
-          decoration: BoxDecoration(color: const Color(0xFF0F172A).withOpacity(0.65), borderRadius: BorderRadius.circular(20)),
-          child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
-            SizedBox(height: 8),
-            Text('Card Frozen', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-          ]),
-        )),
-      ]),
+          // World map dot pattern
+          CustomPaint(size: const Size(double.infinity, 210), painter: _WorldMapPainter()),
+
+          // Purple glow bottom-right
+          Positioned(
+            right: -30, bottom: -40,
+            child: Container(
+              width: 180, height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(colors: [const Color(0xFFAB47BC).withValues(alpha: 0.3), Colors.transparent]),
+              ),
+            ),
+          ),
+
+          // Chip — gold with lines
+          Positioned(left: 24, top: 24, child: Container(
+            width: 46, height: 34,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFFFFD54F), Color(0xFFFFA726), Color(0xFFFFD54F)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE0A800).withValues(alpha: 0.5), width: 0.5),
+            ),
+            child: Stack(children: [
+              Positioned(top: 8, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
+              Positioned(top: 16, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
+              Positioned(top: 24, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
+              Positioned(top: 0, bottom: 0, left: 14, child: Container(width: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.3))),
+              Positioned(top: 0, bottom: 0, left: 30, child: Container(width: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.3))),
+            ]),
+          )),
+
+          // Contactless NFC icon
+          Positioned(left: 78, top: 28, child: Icon(Icons.wifi_rounded, color: Colors.white.withValues(alpha: 0.7), size: 22)),
+
+          // CREDIT CARD text
+          Positioned(right: 24, top: 28, child: Text('CREDIT CARD', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.5))),
+
+          // Card number
+          Positioned(left: 24, top: 80,
+            child: Text(masked, style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.9), fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 2.5,
+              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4)],
+            )),
+          ),
+
+          // Valid From / Expires
+          Positioned(left: 24, bottom: 48, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('VALID', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
+            Text('FROM', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
+          ])),
+          Positioned(left: 52, bottom: 48, child: Text(expiryFormatted, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600))),
+
+          Positioned(left: 100, bottom: 48, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('EXPIRES', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
+            Text('END', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
+          ])),
+          Positioned(left: 138, bottom: 48, child: Text(expiryFormatted, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600))),
+
+          // Card holder name
+          Positioned(left: 24, bottom: 18,
+            child: Text(name.isNotEmpty ? name : 'CARD HOLDER', style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1.5,
+            )),
+          ),
+
+          // Mastercard logo
+          Positioned(right: 20, bottom: 16, child: Row(children: [
+            Container(width: 26, height: 26, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFEB001B).withValues(alpha: 0.85))),
+            Transform.translate(offset: const Offset(-10, 0), child: Container(width: 26, height: 26, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFF79E1B).withValues(alpha: 0.85)))),
+          ])),
+
+          // Frozen overlay
+          if (isFrozen) Positioned.fill(child: Container(
+            decoration: BoxDecoration(color: const Color(0xFF0F172A).withValues(alpha: 0.65), borderRadius: BorderRadius.circular(20)),
+            child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
+              SizedBox(height: 8),
+              Text('Card Frozen', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+            ]),
+          )),
+        ]),
+      ),
     );
   }
 
@@ -304,7 +360,7 @@ class _CardsTabState extends State<CardsTab> {
           Container(
             width: 42, height: 30,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: isVirtual ? [const Color(0xFF475569), const Color(0xFF0F172A)] : [const Color(0xFF10B981), const Color(0xFF059669)]),
+              gradient: const LinearGradient(colors: [Color(0xFF0D47A1), Color(0xFF6A1B9A)]),
               borderRadius: BorderRadius.circular(6),
             ),
           ),
@@ -358,4 +414,57 @@ class _CardsTabState extends State<CardsTab> {
       ]),
     ));
   }
+}
+
+/// World map dot pattern for credit card background
+class _WorldMapPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.08);
+
+    // Seed-based pattern to simulate world map continents
+    final rng = math.Random(42);
+    const dotSize = 2.0;
+    const cols = 40;
+    const rows = 18;
+    final cellW = size.width / cols;
+    final cellH = size.height / rows;
+
+    // Density map — higher values = more dots (simulates land masses)
+    final densityMap = [
+      //  Rough representation: top rows = arctic, middle = continents, bottom = southern
+      [0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0],
+      [0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0],
+      [0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0],
+      [0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+      [0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0],
+      [0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0],
+      [0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0],
+      [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+    ];
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        if (r < densityMap.length && c < densityMap[r].length && densityMap[r][c] == 1) {
+          // Add slight randomness to position
+          final dx = c * cellW + cellW * 0.5 + (rng.nextDouble() - 0.5) * cellW * 0.4;
+          final dy = r * cellH + cellH * 0.5 + (rng.nextDouble() - 0.5) * cellH * 0.4;
+          canvas.drawCircle(Offset(dx, dy), dotSize, paint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
