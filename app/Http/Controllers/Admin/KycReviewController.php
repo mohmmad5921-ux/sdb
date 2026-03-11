@@ -201,7 +201,7 @@ class KycReviewController extends Controller
                 'user_id' => $user->id,
                 'title' => '✅ تم التحقق من هويتك',
                 'body' => 'تمت الموافقة على مستنداتك. يمكنك الآن استخدام جميع خدمات SDB Bank.',
-                'type' => 'kyc_approved',
+                'type' => 'system',
             ]);
         } elseif ($request->action === 'reject') {
             $user->update(['kyc_status' => 'pending']);
@@ -211,7 +211,7 @@ class KycReviewController extends Controller
                 'user_id' => $user->id,
                 'title' => '❌ تم رفض المستند',
                 'body' => 'السبب: ' . ($request->rejection_reason ?? 'غير محدد') . '. يرجى إعادة رفع المستندات.',
-                'type' => 'kyc_rejected',
+                'type' => 'system',
             ]);
         }
 
@@ -294,7 +294,7 @@ class KycReviewController extends Controller
             'user_id' => $user->id,
             'title' => $msg['title'],
             'body' => $msg['body'],
-            'type' => 'kyc_message',
+            'type' => 'system',
         ]);
 
         // Send email notification
@@ -350,7 +350,7 @@ class KycReviewController extends Controller
             'user_id' => $user->id,
             'title' => '✅ تم التحقق من هويتك',
             'body' => 'تمت الموافقة على جميع مستنداتك. مرحباً بك في SDB Bank!',
-            'type' => 'kyc_approved',
+            'type' => 'system',
         ]);
 
         AdminActivityLog::log('kyc.approve_all', 'user', $user->id, [
