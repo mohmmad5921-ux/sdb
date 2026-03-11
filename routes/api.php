@@ -56,6 +56,11 @@ Route::prefix('v1/mobile')->group(function () {
             // Deposit
             Route::post('/deposit', [MobileApiController::class, 'deposit']);
 
+            // Stripe Deposit
+            Route::get('/stripe/config', [\App\Http\Controllers\Api\StripeDepositController::class, 'config']);
+            Route::post('/stripe/create-intent', [\App\Http\Controllers\Api\StripeDepositController::class, 'createIntent']);
+            Route::post('/stripe/confirm', [\App\Http\Controllers\Api\StripeDepositController::class, 'confirmDeposit']);
+
             // Cards
             Route::get('/cards', [MobileApiController::class, 'cards']);
             Route::post('/cards/issue', [MobileApiController::class, 'issueCard']);

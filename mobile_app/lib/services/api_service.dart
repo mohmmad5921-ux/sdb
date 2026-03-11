@@ -110,6 +110,24 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
   }
 
+  // Stripe
+  static Future<Map<String, dynamic>> getStripeConfig() async {
+    final r = await http.get(Uri.parse('$baseUrl/stripe/config'), headers: await _headers());
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+  static Future<Map<String, dynamic>> createStripeIntent(int accountId, double amount) async {
+    final r = await http.post(Uri.parse('$baseUrl/stripe/create-intent'), headers: await _headers(),
+      body: jsonEncode({'account_id': accountId, 'amount': amount}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
+  static Future<Map<String, dynamic>> confirmStripeDeposit(String paymentIntentId, int accountId) async {
+    final r = await http.post(Uri.parse('$baseUrl/stripe/confirm'), headers: await _headers(),
+      body: jsonEncode({'payment_intent_id': paymentIntentId, 'account_id': accountId}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
   // Issue Card
   static Future<Map<String, dynamic>> issueCard(int accountId) async {
     final body = accountId > 0 ? {'account_id': accountId} : <String, dynamic>{};

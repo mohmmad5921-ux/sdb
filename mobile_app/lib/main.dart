@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
@@ -20,6 +21,7 @@ import 'services/push_notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Stripe.publishableKey = 'pk_test_51T5ScmC6o4Je50IeP0X3wvj9LZgDrtb3v6EKMwglmipSWSO6QqPKjcF1Ar6TGjHzcOArefoHkmVpXcgX4LteVk2T00PtXsDSeK';
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
