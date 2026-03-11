@@ -101,12 +101,12 @@ const alertColor = (type) => {
 
       <!-- User Review Queue (Enhanced) -->
       <div v-if="userQueue?.length && filter === 'pending'" class="ky-card mb-4">
-        <h3 class="ky-section-title">📋 طلبات التحقق حسب العميل</h3>
+        <h3 class="ky-section-title">📋 طلبات التحقق حسب العميل ({{ userQueue.length }})</h3>
         <div class="ky-queue">
           <div v-for="u in userQueue" :key="u.user_id"
             :class="['ky-queue-card', u.is_overdue ? 'ky-queue-overdue' : '', u.has_alerts ? 'ky-queue-alert' : '']">
 
-            <!-- Main Row -->
+            <!-- Main Row - Summary -->
             <div class="ky-queue-main" @click="toggleExpand(u.user_id)">
               <div class="flex items-center gap-3">
                 <div :class="['ky-avatar', u.has_alerts ? 'ky-avatar-warn' : '']">{{ u.user_name?.charAt(0) }}</div>
@@ -115,7 +115,11 @@ const alertColor = (type) => {
                     {{ u.user_name }}
                     <span v-if="u.has_alerts" class="ky-alert-badge">⚠️ تنبيه</span>
                   </div>
-                  <div class="ky-queue-email">{{ u.user_email }} <span v-if="u.user_phone">· {{ u.user_phone }}</span></div>
+                  <div class="ky-queue-info-row">
+                    <span v-if="u.country || u.nationality" class="ky-info-tag">🌍 {{ u.country || u.nationality }}</span>
+                    <span v-if="u.user_phone" class="ky-info-tag">📱 {{ u.user_phone }}</span>
+                    <span class="ky-info-tag">📧 {{ u.user_email }}</span>
+                  </div>
                   <div class="ky-queue-meta">مسجل {{ u.registered_ago }} · {{ u.docs_count }} مستند</div>
                 </div>
               </div>
@@ -123,13 +127,58 @@ const alertColor = (type) => {
                 <div class="ky-queue-docs">
                   <span v-for="t in u.doc_types" :key="t" class="ky-doc-tag">{{ docTypeLabels[t] || t }}</span>
                 </div>
-                <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">⏱️ {{ u.hours_waiting }}h</div>
+                <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">⏱️ {{ u.waiting_text || u.hours_waiting + 'h' }}</div>
                 <div class="ky-expand-icon">{{ expandedUser === u.user_id ? '▲' : '▼' }}</div>
               </div>
             </div>
 
             <!-- Expanded Details -->
             <div v-if="expandedUser === u.user_id" class="ky-queue-details">
+
+              <!-- User Info Grid -->
+              <div class="ky-info-grid">
+                <div class="ky-info-card">
+                  <div class="ky-info-label">👤 الاسم الكامل</div>
+                  <div class="ky-info-value">{{ u.user_name || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">📧 البريد الإلكتروني</div>
+                  <div class="ky-info-value">{{ u.user_email || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">📱 الهاتف</div>
+                  <div class="ky-info-value">{{ u.user_phone || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">🌍 الجنسية</div>
+                  <div class="ky-info-value">{{ u.nationality || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">📍 البلد</div>
+                  <div class="ky-info-value">{{ u.country || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">🏙️ المدينة</div>
+                  <div class="ky-info-value">{{ u.city || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">🏠 العنوان</div>
+                  <div class="ky-info-value">{{ u.address || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">🎂 تاريخ الميلاد</div>
+                  <div class="ky-info-value">{{ u.date_of_birth || '—' }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">📅 تاريخ التسجيل</div>
+                  <div class="ky-info-value">{{ u.registered_ago }}</div>
+                </div>
+                <div class="ky-info-card">
+                  <div class="ky-info-label">🔑 آخر دخول</div>
+                  <div class="ky-info-value">{{ u.last_login || 'لم يسجل دخول' }}</div>
+                </div>
+              </div>
+
               <!-- Alerts -->
               <div v-if="u.duplicates?.length" class="ky-alerts-section">
                 <div class="ky-alerts-title">🔍 تنبيهات أمنية</div>
@@ -140,10 +189,20 @@ const alertColor = (type) => {
               </div>
 
               <!-- Documents Preview -->
-              <div class="ky-docs-grid">
-                <div v-for="docId in u.doc_ids" :key="docId" class="ky-doc-preview-card">
-                  <img :src="route('admin.kyc.view', docId)" class="ky-doc-thumb" @error="$event.target.style.display='none'" />
-                  <div class="ky-doc-thumb-label">{{ docTypeLabels[documents.data?.find(d => d.id === docId)?.document_type] || 'مستند' }}</div>
+              <div class="ky-docs-section">
+                <div class="ky-docs-title">📎 المستندات المرفقة</div>
+                <div class="ky-docs-grid">
+                  <div v-for="docId in u.doc_ids" :key="docId" class="ky-doc-preview-card">
+                    <div class="ky-doc-thumb-wrap">
+                      <img :src="route('admin.kyc.view', docId)" class="ky-doc-thumb"
+                        @error="$event.target.parentElement.classList.add('ky-thumb-error')" />
+                      <div class="ky-thumb-placeholder">📄</div>
+                    </div>
+                    <div class="ky-doc-thumb-footer">
+                      <div class="ky-doc-thumb-label">{{ docTypeLabels[documents.data?.find(d => d.id === docId)?.document_type] || 'مستند' }}</div>
+                      <a :href="route('admin.kyc.view', docId)" target="_blank" class="ky-doc-open">عرض ↗</a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -419,4 +478,25 @@ const alertColor = (type) => {
 .ky-page-btn{padding:6px 12px;border-radius:8px;font-size:12px;color:#334155;text-decoration:none;border:1px solid #e2e8f0}.ky-page-btn:hover{border-color:#10b981}
 .ky-page-active{background:#10b981!important;color:#fff!important;border-color:#10b981!important}
 .ky-page-disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+/* Info Tags (summary row) */
+.ky-queue-info-row{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0}
+.ky-info-tag{font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px;font-weight:500}
+
+/* Info Grid (expanded) */
+.ky-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:14px}
+.ky-info-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
+.ky-info-label{font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:3px}
+.ky-info-value{font-size:13px;color:#0f172a;font-weight:600}
+
+/* Docs Section */
+.ky-docs-section{margin-top:14px}
+.ky-docs-title{font-size:13px;font-weight:700;color:#334155;margin-bottom:8px}
+.ky-doc-thumb-wrap{width:100%;height:100px;overflow:hidden;position:relative;background:#f1f5f9;display:flex;align-items:center;justify-content:center}
+.ky-doc-thumb-wrap .ky-doc-thumb{width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
+.ky-thumb-placeholder{position:absolute;font-size:32px;opacity:.3;z-index:0}
+.ky-thumb-error .ky-doc-thumb{display:none!important}
+.ky-thumb-error .ky-thumb-placeholder{opacity:1!important;font-size:40px}
+.ky-doc-thumb-footer{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#fff;border-top:1px solid #e2e8f0}
+.ky-doc-open{font-size:11px;color:#3b82f6;text-decoration:none;font-weight:600}.ky-doc-open:hover{text-decoration:underline}
 </style>

@@ -28,13 +28,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    // DEBUG: Force reset onboarding for testing (REMOVE IN PRODUCTION)
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('onboarding_completed');
 
     // Check if onboarding completed
-    final onboarded = await isOnboardingCompleted();
-    debugPrint('🔎 Onboarding completed: $onboarded');
+    final onboarded = prefs.getBool('onboarding_completed') ?? false;
     if (!onboarded) {
       if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
       return;
