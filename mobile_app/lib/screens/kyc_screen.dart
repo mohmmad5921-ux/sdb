@@ -172,6 +172,16 @@ class _KycScreenState extends State<KycScreen> {
       );
       if (r['success'] == true) {
         setState(() { _step = 6; _kycStatus = 'submitted'; });
+      } else if (r['status'] == 401) {
+        // Token expired — redirect to login
+        await ApiService.clearToken();
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('انتهت الجلسة — يرجى تسجيل الدخول مجدداً'),
+            backgroundColor: Colors.orange,
+          ));
+        }
       } else {
         setState(() { _step = 4; _error = r['data']?['message'] ?? 'فشل الرفع'; });
       }

@@ -234,6 +234,8 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/kyc', [KycReviewController::class, 'index'])->name('kyc');
     Route::post('/kyc/{document}/review', [KycReviewController::class, 'review'])->name('kyc.review');
     Route::get('/kyc/{document}/view', [KycReviewController::class, 'viewDocument'])->name('kyc.view');
+    Route::post('/kyc/user/{user}/message', [KycReviewController::class, 'sendQuickMessage'])->name('kyc.message');
+    Route::post('/kyc/user/{user}/approve-all', [KycReviewController::class, 'approveAll'])->name('kyc.approve-all');
 
     // Support Admin
     Route::get('/support', [SupportAdminController::class, 'index'])->name('support');

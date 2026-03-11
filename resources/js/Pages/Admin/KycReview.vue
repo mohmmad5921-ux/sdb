@@ -13,6 +13,10 @@ const reviewDoc = ref(null);
 const rejectionReason = ref('');
 const previewDoc = ref(null);
 const zoomLevel = ref(1);
+const msgModal = ref(null);
+const msgType = ref('approved');
+const customMsg = ref('');
+const expandedUser = ref(null);
 
 const approve = (doc) => router.post(route('admin.kyc.review', doc.id), { action: 'approve' }, { preserveScroll: true });
 const reject = (doc) => {
@@ -21,8 +25,18 @@ const reject = (doc) => {
     preserveScroll: true, onSuccess: () => { reviewDoc.value = null; rejectionReason.value = ''; }
   });
 };
+const approveAll = (userId) => router.post(route('admin.kyc.approve-all', userId), {}, { preserveScroll: true });
+const sendMessage = (userId) => {
+  router.post(route('admin.kyc.message', userId), {
+    message_type: msgType.value,
+    custom_message: msgType.value === 'custom' ? customMsg.value : null,
+  }, {
+    preserveScroll: true,
+    onSuccess: () => { msgModal.value = null; customMsg.value = ''; msgType.value = 'approved'; }
+  });
+};
 
-const docTypeLabels = { id_front: 'هوية — أمام', id_back: 'هوية — خلف', selfie: 'صورة شخصية', proof_of_address: 'إثبات عنوان', passport: 'جواز سفر' };
+const docTypeLabels = { id_card: 'بطاقة هوية', id_front: 'هوية — أمام', id_back: 'هوية — خلف', selfie: 'صورة شخصية', proof_of_address: 'إثبات عنوان', passport: 'جواز سفر' };
 const statusBadge = { pending: 'ky-badge-yellow', approved: 'ky-badge-green', rejected: 'ky-badge-red' };
 
 const rejectionReasons = [
@@ -39,21 +53,28 @@ const zoomIn = () => { zoomLevel.value = Math.min(zoomLevel.value + 0.25, 3); };
 const zoomOut = () => { zoomLevel.value = Math.max(zoomLevel.value - 0.25, 0.5); };
 const resetZoom = () => { zoomLevel.value = 1; };
 
-// Find matching docs for side-by-side
 const getSideBySide = (doc) => {
   if (!doc?.user_id) return { id: null, selfie: null };
   const allDocs = props.documents?.data || [];
   const userDocs = allDocs.filter(d => d.user_id === doc.user_id);
   return {
-    id: userDocs.find(d => d.document_type === 'id_front' || d.document_type === 'passport'),
+    id: userDocs.find(d => d.document_type === 'id_front' || d.document_type === 'id_card' || d.document_type === 'passport'),
     selfie: userDocs.find(d => d.document_type === 'selfie'),
   };
+};
+
+const toggleExpand = (uid) => { expandedUser.value = expandedUser.value === uid ? null : uid; };
+
+const alertColor = (type) => {
+  if (type === 'suspended' || type === 'similar_suspended') return '#ef4444';
+  if (type === 'closed') return '#f59e0b';
+  return '#3b82f6';
 };
 </script>
 
 <template>
-  <Head title="KYC Review - مراجعة وثائق الهوية" />
-  <AdminLayout title="🪪 مراجعة KYC" subtitle="فحص واعتماد وثائق الهوية">
+  <Head title="KYC Review - مراجعة طلبات التحقق" />
+  <AdminLayout title="🪪 مراجعة KYC" subtitle="فحص واعتماد وثائق الهوية والتحقق من الطلبات">
     <div class="ky-root">
 
       <div v-if="flash.success" class="ky-success">✓ {{ flash.success }}</div>
@@ -78,24 +99,60 @@ const getSideBySide = (doc) => {
         </div>
       </div>
 
-      <!-- User Review Queue -->
+      <!-- User Review Queue (Enhanced) -->
       <div v-if="userQueue?.length && filter === 'pending'" class="ky-card mb-4">
-        <h3 class="ky-section-title">📋 قائمة الانتظار حسب العميل</h3>
+        <h3 class="ky-section-title">📋 طلبات التحقق حسب العميل</h3>
         <div class="ky-queue">
-          <div v-for="u in userQueue" :key="u.user_id" :class="['ky-queue-item', u.is_overdue ? 'ky-queue-overdue' : '']">
-            <div class="flex items-center gap-3">
-              <div class="ky-avatar">{{ u.user_name?.charAt(0) }}</div>
-              <div>
-                <div class="ky-queue-name">{{ u.user_name }}</div>
-                <div class="ky-queue-email">{{ u.user_email }}</div>
+          <div v-for="u in userQueue" :key="u.user_id"
+            :class="['ky-queue-card', u.is_overdue ? 'ky-queue-overdue' : '', u.has_alerts ? 'ky-queue-alert' : '']">
+
+            <!-- Main Row -->
+            <div class="ky-queue-main" @click="toggleExpand(u.user_id)">
+              <div class="flex items-center gap-3">
+                <div :class="['ky-avatar', u.has_alerts ? 'ky-avatar-warn' : '']">{{ u.user_name?.charAt(0) }}</div>
+                <div>
+                  <div class="ky-queue-name">
+                    {{ u.user_name }}
+                    <span v-if="u.has_alerts" class="ky-alert-badge">⚠️ تنبيه</span>
+                  </div>
+                  <div class="ky-queue-email">{{ u.user_email }} <span v-if="u.user_phone">· {{ u.user_phone }}</span></div>
+                  <div class="ky-queue-meta">مسجل {{ u.registered_ago }} · {{ u.docs_count }} مستند</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="ky-queue-docs">
+                  <span v-for="t in u.doc_types" :key="t" class="ky-doc-tag">{{ docTypeLabels[t] || t }}</span>
+                </div>
+                <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">⏱️ {{ u.hours_waiting }}h</div>
+                <div class="ky-expand-icon">{{ expandedUser === u.user_id ? '▲' : '▼' }}</div>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="ky-queue-docs">
-                <span v-for="t in u.doc_types" :key="t" class="ky-doc-tag">{{ docTypeLabels[t] || t }}</span>
+
+            <!-- Expanded Details -->
+            <div v-if="expandedUser === u.user_id" class="ky-queue-details">
+              <!-- Alerts -->
+              <div v-if="u.duplicates?.length" class="ky-alerts-section">
+                <div class="ky-alerts-title">🔍 تنبيهات أمنية</div>
+                <div v-for="(alert, i) in u.duplicates" :key="i" class="ky-alert-item" :style="{borderColor: alertColor(alert.type)}">
+                  <span class="ky-alert-msg">{{ alert.message }}</span>
+                  <Link :href="route('admin.users.show', alert.user_id)" class="ky-alert-link">عرض الحساب →</Link>
+                </div>
               </div>
-              <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">
-                ⏱️ {{ u.hours_waiting }}h
+
+              <!-- Documents Preview -->
+              <div class="ky-docs-grid">
+                <div v-for="docId in u.doc_ids" :key="docId" class="ky-doc-preview-card">
+                  <img :src="route('admin.kyc.view', docId)" class="ky-doc-thumb" @error="$event.target.style.display='none'" />
+                  <div class="ky-doc-thumb-label">{{ docTypeLabels[documents.data?.find(d => d.id === docId)?.document_type] || 'مستند' }}</div>
+                </div>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="ky-quick-actions">
+                <button @click="approveAll(u.user_id)" class="ky-action-btn ky-approve ky-action-lg">✅ اعتماد الكل وفتح الحساب</button>
+                <button @click="msgModal = u; msgType = 'request_docs'" class="ky-action-btn ky-msg-btn">📄 طلب مستندات إضافية</button>
+                <button @click="msgModal = u; msgType = 'approved'" class="ky-action-btn ky-msg-btn">📫 إرسال رسالة</button>
+                <Link :href="route('admin.users.show', u.user_id)" class="ky-action-btn ky-info-btn">👤 ملف العميل</Link>
               </div>
             </div>
           </div>
@@ -158,17 +215,43 @@ const getSideBySide = (doc) => {
           <div class="ky-modal">
             <h3 class="ky-modal-title">❌ رفض المستند</h3>
             <p class="ky-modal-desc">العميل: <strong>{{ reviewDoc.user?.full_name }}</strong> — {{ docTypeLabels[reviewDoc.document_type] }}</p>
-
             <div class="ky-reason-grid">
               <button v-for="r in rejectionReasons" :key="r" @click="rejectionReason = r"
                 :class="['ky-reason-btn', rejectionReason === r ? 'ky-reason-active' : '']">{{ r }}</button>
             </div>
-
             <textarea v-model="rejectionReason" rows="2" class="ky-modal-input mt-3" placeholder="أو اكتب سبب آخر..."></textarea>
-
             <div class="flex gap-3 mt-4">
               <button @click="reject(reviewDoc)" :disabled="!rejectionReason" class="ky-action-btn ky-reject flex-1">❌ تأكيد الرفض</button>
               <button @click="reviewDoc = null" class="ky-action-btn ky-cancel flex-1">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
+      <!-- Quick Message Modal -->
+      <Teleport to="body">
+        <div v-if="msgModal" class="ky-modal-overlay" @click.self="msgModal = null">
+          <div class="ky-modal">
+            <h3 class="ky-modal-title">📫 إرسال رسالة سريعة</h3>
+            <p class="ky-modal-desc">إلى: <strong>{{ msgModal.user_name }}</strong></p>
+
+            <div class="ky-msg-options">
+              <button @click="msgType = 'approved'" :class="['ky-msg-opt', msgType === 'approved' ? 'ky-msg-opt-active' : '']">
+                ✅ وافقنا على فتح الحساب
+              </button>
+              <button @click="msgType = 'request_docs'" :class="['ky-msg-opt', msgType === 'request_docs' ? 'ky-msg-opt-active' : '']">
+                📄 طلب مستندات إضافية
+              </button>
+              <button @click="msgType = 'custom'" :class="['ky-msg-opt', msgType === 'custom' ? 'ky-msg-opt-active' : '']">
+                ✏️ رسالة مخصصة
+              </button>
+            </div>
+
+            <textarea v-if="msgType === 'custom'" v-model="customMsg" rows="3" class="ky-modal-input mt-3" placeholder="اكتب رسالتك..."></textarea>
+
+            <div class="flex gap-3 mt-4">
+              <button @click="sendMessage(msgModal.user_id)" class="ky-action-btn ky-approve flex-1" :disabled="msgType === 'custom' && !customMsg">📫 إرسال</button>
+              <button @click="msgModal = null" class="ky-action-btn ky-cancel flex-1">إلغاء</button>
             </div>
           </div>
         </div>
@@ -189,7 +272,6 @@ const getSideBySide = (doc) => {
               </div>
             </div>
 
-            <!-- Side by Side -->
             <div class="ky-sidebyside">
               <div class="ky-side-panel">
                 <div class="ky-side-label">📄 {{ docTypeLabels[previewDoc.document_type] }}</div>
@@ -237,18 +319,53 @@ const getSideBySide = (doc) => {
 .ky-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px}
 .ky-section-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:14px}
 
-/* Queue */
-.ky-queue{display:flex;flex-direction:column;gap:6px}
-.ky-queue-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e2e8f0;border-radius:12px;transition:all .15s}
-.ky-queue-item:hover{border-color:#cbd5e1;background:#fafbfc}
+/* Enhanced Queue */
+.ky-queue{display:flex;flex-direction:column;gap:8px}
+.ky-queue-card{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;transition:all .2s}
+.ky-queue-card:hover{border-color:#cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .ky-queue-overdue{border-color:#fecaca!important;background:#fef2f2!important}
-.ky-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.ky-queue-alert{border-color:#fde68a!important}
+.ky-queue-main{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;transition:background .15s}
+.ky-queue-main:hover{background:#fafbfc}
+.ky-queue-details{padding:0 16px 16px;border-top:1px solid #f1f5f9}
+
+.ky-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.ky-avatar-warn{background:linear-gradient(135deg,#f59e0b,#ef4444)!important}
 .ky-avatar-sm{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
-.ky-queue-name{font-size:14px;font-weight:600;color:#0f172a}
+.ky-queue-name{font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:6px}
 .ky-queue-email{font-size:12px;color:#64748b}
+.ky-queue-meta{font-size:11px;color:#94a3b8;margin-top:2px}
 .ky-queue-docs{display:flex;gap:4px;flex-wrap:wrap}
 .ky-doc-tag{font-size:10px;background:#f1f5f9;color:#334155;padding:2px 8px;border-radius:6px;font-weight:600}
 .ky-queue-time{font-size:13px;font-weight:700;color:#334155;min-width:60px;text-align:center}
+.ky-expand-icon{font-size:10px;color:#94a3b8;width:20px;text-align:center}
+.ky-alert-badge{font-size:10px;background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:6px;font-weight:700}
+
+/* Alerts */
+.ky-alerts-section{margin-top:12px}
+.ky-alerts-title{font-size:13px;font-weight:700;color:#dc2626;margin-bottom:8px}
+.ky-alert-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fef2f2;border-radius:10px;border-right:3px solid #ef4444;margin-bottom:6px;font-size:13px}
+.ky-alert-msg{color:#7f1d1d;font-weight:600}
+.ky-alert-link{font-size:12px;color:#3b82f6;text-decoration:none;font-weight:600;white-space:nowrap}.ky-alert-link:hover{text-decoration:underline}
+
+/* Doc Thumbs */
+.ky-docs-grid{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.ky-doc-preview-card{width:140px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+.ky-doc-thumb{width:100%;height:90px;object-fit:cover;display:block}
+.ky-doc-thumb-label{padding:5px 8px;font-size:11px;font-weight:600;color:#334155;text-align:center;background:#f8fafc}
+
+/* Quick Actions */
+.ky-quick-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ky-action-lg{padding:10px 20px!important;font-size:14px!important}
+.ky-msg-btn{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}.ky-msg-btn:hover{background:#2563eb;color:#fff}
+.ky-info-btn{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;text-decoration:none}.ky-info-btn:hover{background:#e2e8f0}
+
+/* Message Modal */
+.ky-msg-options{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.ky-msg-opt{padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;text-align:right;cursor:pointer;font-size:13px;font-weight:600;color:#334155;transition:all .15s}
+.ky-msg-opt:hover{border-color:#10b981;background:#f0fdf4}
+.ky-msg-opt-active{border-color:#10b981!important;background:#ecfdf5!important;color:#059669!important}
+
 .ky-time-overdue{color:#dc2626!important;font-weight:800}
 .ky-time-warn{color:#f59e0b}
 .ky-time-ok{color:#10b981}
