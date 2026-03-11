@@ -79,19 +79,12 @@ class _DepositScreenState extends State<DepositScreen> {
               placeholderText: const Color(0xFF9CA3AF),
               icon: const Color(0xFF10B981),
             ),
-            shapes: PaymentSheetShape(
-              borderRadius: 16,
-              borderWidth: 1,
-            ),
             primaryButton: PaymentSheetPrimaryButtonAppearance(
               colors: PaymentSheetPrimaryButtonTheme(
                 light: PaymentSheetPrimaryButtonThemeColors(
                   background: const Color(0xFF10B981),
                   text: Colors.white,
                 ),
-              ),
-              shapes: PaymentSheetPrimaryButtonShape(
-                borderRadius: 14,
               ),
             ),
           ),
