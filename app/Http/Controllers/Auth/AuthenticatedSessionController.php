@@ -80,7 +80,7 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect based on role
         if ($user->role === 'admin') {
-            return redirect()->intended('/sdb-admin/dashboard');
+            return redirect()->intended('/admin/dashboard');
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
