@@ -28,8 +28,19 @@ class _CardsTabState extends State<CardsTab> {
   }
 
   Future<void> _toggleFreeze(int cardId) async {
-    final r = await ApiService.toggleCardFreeze(cardId);
-    if (r['success'] == true) _load();
+    if (cardId == 0) return;
+    try {
+      final r = await ApiService.toggleCardFreeze(cardId);
+      if (mounted) {
+        final msg = r['success'] == true 
+          ? (r['data']?['status'] == 'frozen' ? 'تم تجميد البطاقة ❄️' : 'تم تفعيل البطاقة ✅')
+          : 'فشل: ${r['data']?['message'] ?? 'خطأ غير معروف'}';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: r['success'] == true ? const Color(0xFF10B981) : const Color(0xFFEF4444)));
+        _load();
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ اتصال: $e'), backgroundColor: const Color(0xFFEF4444)));
+    }
   }
 
   // ── Show PIN ──
@@ -160,44 +171,43 @@ class _CardsTabState extends State<CardsTab> {
     if (_cards.isEmpty || _activeIndex >= _cards.length) return;
     final cardId = int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0;
     if (cardId == 0) return;
-    final parentCtx = context;
 
-    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (sheetCtx) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
-        const SizedBox(height: 20),
-        Container(padding: const EdgeInsets.all(16), decoration: const BoxDecoration(color: Color(0xFFFEF2F2), shape: BoxShape.circle), child: const Icon(Icons.delete_forever_rounded, size: 36, color: Color(0xFFEF4444))),
-        const SizedBox(height: 12),
-        const Text('حذف البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
-        const SizedBox(height: 8),
-        const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
-        const SizedBox(height: 24),
-        GestureDetector(
-          onTap: () async {
-            Navigator.pop(sheetCtx);
+    showDialog(context: context, builder: (dCtx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Row(children: [
+        Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 28),
+        SizedBox(width: 8),
+        Text('حذف البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+      ]),
+      content: const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.',
+        style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
+      actions: [
+        TextButton(onTap: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: Color(0xFF9CA3AF)))),
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(dCtx);
             try {
               final r = await ApiService.deleteCard(cardId);
               if (mounted) {
-                ScaffoldMessenger.of(parentCtx).showSnackBar(SnackBar(
-                  content: Text(r['success'] == true ? 'تم حذف البطاقة ✅' : 'فشل: ${r['data']?['message'] ?? 'خطأ'}'),
-                  backgroundColor: r['success'] == true ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                final ok = r['success'] == true;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(ok ? 'تم حذف البطاقة ✅' : 'فشل: ${r['data']?['message'] ?? r.toString()}'),
+                  backgroundColor: ok ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                  duration: const Duration(seconds: 3),
                 ));
-                if (r['success'] == true) { setState(() => _activeIndex = 0); _load(); }
+                if (ok) { setState(() => _activeIndex = 0); _load(); }
               }
             } catch (e) {
-              if (mounted) {
-                ScaffoldMessenger.of(parentCtx).showSnackBar(SnackBar(content: Text('خطأ: $e'), backgroundColor: const Color(0xFFEF4444)));
-              }
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('خطأ: $e'),
+                backgroundColor: const Color(0xFFEF4444),
+                duration: const Duration(seconds: 5),
+              ));
             }
           },
-          child: Container(height: 54, decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(16)),
-            child: const Center(child: Text('حذف نهائياً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+          child: const Text('حذف نهائياً', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
         ),
-        const SizedBox(height: 12),
-        GestureDetector(onTap: () => Navigator.pop(sheetCtx), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
-        const SizedBox(height: 16),
-      ]),
+      ],
     ));
   }
 
