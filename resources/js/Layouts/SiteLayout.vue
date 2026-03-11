@@ -378,18 +378,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </div>
       </div>
       <div class="sn-right">
-        <button @click="toggleNotif" class="sn-bell" :title="isAr?'إشعارات':'Notifications'">🔔<span v-if="hasNewNotif" class="bell-dot"></span></button>
-        <Transition name="dd">
-          <div v-if="showNotif" class="notif-dd">
-            <div class="notif-head">{{ isAr ? 'آخر الأخبار' : 'Latest News' }}</div>
-            <div v-for="n in news" :key="n.t" class="notif-item">
-              <span class="notif-ic">{{ n.ic }}</span>
-              <div class="notif-body"><div class="notif-title">{{ n.t }}</div><div class="notif-desc">{{ n.d }}</div></div>
-              <span class="notif-time">{{ n.time }}</span>
-            </div>
-          </div>
-        </Transition>
-        <button @click="toggleDark" class="sn-dark" :title="isDark?'Light Mode':'Dark Mode'">{{ isDark?'☀️':'🌙' }}</button>
+
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
         <button @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
         <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
