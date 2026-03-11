@@ -5,6 +5,7 @@ import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const lang = inject('lang', ref('ar'));
 const isAr = inject('isAr', computed(() => true));
+const isBiz = inject('isBiz', computed(() => false));
 
 /* ── Countdown ── */
 const launchDate = new Date('2026-03-22T00:00:00');
@@ -63,8 +64,39 @@ onMounted(()=>{
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 
-/* ── i18n ── */
-const t = computed(() => isAr.value ? {
+
+/* ── Business overrides ── */
+const bizAr = {
+  heroTag:'🏢 حلول مصرفية للشركات',
+  h1a:'ادر أعمالك',h1b:'بنظام مصرفي متكامل',
+  heroP:'نت بنك متطور للشركات. تحويلات دولية، محافظ متعددة العملات، وتقارير مالية متقدمة.',
+  howTitle:'ابدأ مع حساب الأعمال في 4 خطوات',howSub:'افتح حسابك التجاري وابدأ بإدارة أعمالك المالية.',
+  steps:[{n:'01',t:'سجّل شركتك',d:'أدخل بيانات الشركة والسجل التجاري.'},{n:'02',t:'فعّل الحساب',d:'تحقق من الهوية واعتمد الحساب.'},{n:'03',t:'أضف المستخدمين',d:'أنشئ حسابات لفريقك مع صلاحيات مخصصة.'},{n:'04',t:'ابدأ التشغيل',d:'استخدم النت بنك وأدر تحويلاتك.'}],
+  featTitle:'أدوات مصرفية متكاملة للأعمال',featSub:'كل ما تحتاجه شركتك في منصة واحدة احترافية',
+  feats:[{ic:'🏢',t:'حسابات متعددة',d:'حسابات منفصلة لكل فرع أو قسم',cl:'feat-amber'},{ic:'📊',t:'تقارير مالية',d:'تقارير وتحليلات متقدمة في الوقت الحقيقي',cl:'feat-blue'},{ic:'💱',t:'صرف عملات',d:'تحويل فوري بين 30+ عملة',cl:'feat-green'},{ic:'🌐',t:'تحويلات SWIFT',d:'تحويلات دولية لـ 170+ دولة',cl:'feat-purple'},{ic:'👥',t:'إدارة الفريق',d:'صلاحيات مخصصة لكل مستخدم',cl:'feat-pink'},{ic:'🖥️',t:'نت بنك',d:'لوحة تحكم ويب متطورة للشركات',cl:'feat-orange'},{ic:'🔐',t:'موافقات متعددة',d:'نظام موافقات لتحويلات آمنة',cl:'feat-cyan'},{ic:'📋',t:'API للأعمال',d:'ربط مباشر مع أنظمة المحاسبة',cl:'feat-rose'}],
+  appTag:'النت بنك',appTitle:'لوحة تحكم متطورة لأعمالك',appSub:'سجّل دخولك عبر الويب وأدر جميع معاملاتك المالية من أي مكان.',
+  appFeats:[{ic:'📊',t:'تقارير متقدمة',d:'تقارير مالية وتحليلات شاملة'},{ic:'👥',t:'إدارة الصلاحيات',d:'صلاحيات مخصصة لكل مستخدم'},{ic:'💱',t:'محافظ متعددة',d:'عملات متعددة في حساب واحد'},{ic:'📋',t:'كشف حساب',d:'تصدير بيانات بصيغ متعددة'},{ic:'🔐',t:'موافقات مزدوجة',d:'نظام أمان للتحويلات الكبيرة'},{ic:'🔗',t:'API ربط',d:'تكامل مع أنظمتك المحاسبية'}],
+  ctaTitle:'ابدأ مع حساب الأعمال',ctaSub:'سجّل شركتك الآن واحصل على نت بنك متكامل للأعمال.',ctaBtn:'افتح حساب أعمال ←',ctaBtn2:'تواصل مع فريق المبيعات',
+  faqTag:'الأسئلة الشائعة',faqTitle:'أسئلة حسابات الأعمال',
+  faqs:[{q:'ما المتطلبات لفتح حساب أعمال؟',a:'السجل التجاري، إثبات هوية المسؤول، ونموذج فتح الحساب.'},{q:'كم يكلف حساب الأعمال؟',a:'الحساب الأساسي مجاني. الباقات المتقدمة تبدأ من €19/شهر.'},{q:'هل يمكن إضافة عدة مستخدمين؟',a:'نعم، مع صلاحيات مختلفة لكل مستخدم.'},{q:'هل يدعم API للربط مع أنظمتنا؟',a:'نعم، نوفر API RESTful كامل.'},{q:'ما هي العملات المدعومة؟',a:'ندعم 30+ عملة مع تحويل فوري.'}],
+};
+const bizEn = {
+  heroTag:'🏢 Business Banking Solutions',
+  h1a:'Run your business',h1b:'with a complete banking system',
+  heroP:'Advanced net banking for businesses. International transfers, multi-currency wallets, and advanced financial reports.',
+  howTitle:'Get started with a business account in 4 steps',howSub:'Open your business account and start managing your finances.',
+  steps:[{n:'01',t:'Register your company',d:'Enter company details and trade license.'},{n:'02',t:'Activate the account',d:'Verify identity and approve the account.'},{n:'03',t:'Add team members',d:'Create accounts for your team with custom permissions.'},{n:'04',t:'Start operating',d:'Use net banking and manage your transfers.'}],
+  featTitle:'Complete banking tools for business',featSub:'Everything your company needs in one professional platform',
+  feats:[{ic:'🏢',t:'Multiple accounts',d:'Separate accounts for each branch or department',cl:'feat-amber'},{ic:'📊',t:'Financial reports',d:'Advanced real-time reports and analytics',cl:'feat-blue'},{ic:'💱',t:'Currency exchange',d:'Instant exchange between 30+ currencies',cl:'feat-green'},{ic:'🌐',t:'SWIFT transfers',d:'International transfers to 170+ countries',cl:'feat-purple'},{ic:'👥',t:'Team management',d:'Custom permissions for each user',cl:'feat-pink'},{ic:'🖥️',t:'Net Banking',d:'Advanced web dashboard for businesses',cl:'feat-orange'},{ic:'🔐',t:'Multi-approval',d:'Approval system for secure transfers',cl:'feat-cyan'},{ic:'📋',t:'Business API',d:'Direct integration with accounting systems',cl:'feat-rose'}],
+  appTag:'NET BANKING',appTitle:'Advanced dashboard for your business',appSub:'Log in via the web and manage all your financial operations from anywhere.',
+  appFeats:[{ic:'📊',t:'Advanced Reports',d:'Comprehensive financial reports and analytics'},{ic:'👥',t:'Permission Management',d:'Custom permissions for each user'},{ic:'💱',t:'Multi Wallets',d:'Multiple currencies in one account'},{ic:'📋',t:'Statements',d:'Export data in multiple formats'},{ic:'🔐',t:'Dual Approval',d:'Security system for large transfers'},{ic:'🔗',t:'API Integration',d:'Connect with your accounting systems'}],
+  ctaTitle:'Start with a Business Account',ctaSub:'Register your company now and get a complete net banking solution.',ctaBtn:'Open business account →',ctaBtn2:'Contact sales team',
+  faqTag:'FAQ',faqTitle:'Business Account Questions',
+  faqs:[{q:'What are the requirements for a business account?',a:'Trade license, responsible person ID, and account opening form.'},{q:'How much does a business account cost?',a:'Basic account is free. Advanced plans start from €19/month.'},{q:'Can I add multiple users?',a:'Yes, with different permissions for each user.'},{q:'Does it support API integration?',a:'Yes, we provide a full RESTful API.'},{q:'Which currencies are supported?',a:'We support 30+ currencies with instant exchange.'}],
+};
+
+/* Final merged translations */
+const tBase = computed(() => isAr.value ? {
   heroTag:'⭐ 4.9 من 100,000+ تقييم',
   h1a:'حوّل أموالك',h1b:'بذكاء وبشكل فوري',
   heroP:'أرسل واستقبل الأموال بسعر الصرف الحقيقي. وفّر حتى 90% مقارنة بالبنوك التقليدية.',
@@ -138,6 +170,12 @@ const t = computed(() => isAr.value ? {
   faqs:[{q:'How do I open an SDB Bank account?',a:'Registration is free and takes 2 minutes.'},{q:'What are the transfer fees?',a:'Our fees start from just 0.3%.'},{q:'How long does a transfer take?',a:'74% of transfers arrive in 20 seconds.'},{q:'Is my money safe?',a:'Yes. AES-256 encryption and 2FA.'},{q:'Which countries are supported?',a:'We support 170+ countries worldwide.'}],
   ctaTitle:'Banking in your pocket',ctaSub:'Download the SDB Bank app and send money from anywhere.',ctaBtn:'Open free account →',ctaBtn2:'Contact us',
   balance:'Total Balance',send:'Send',receive:'Receive',cards:'Cards',more:'More',recentTx:'Recent Transactions',received:'Received',
+});
+const t = computed(() => {
+  const base = tBase.value;
+  if (!isBiz.value) return base;
+  const biz = isAr.value ? bizAr : bizEn;
+  return { ...base, ...biz };
 });
 const stepColors = ['sc-blue','sc-purple','sc-amber','sc-green'];
 const stepBgs = ['sb-blue','sb-purple','sb-amber','sb-green'];
