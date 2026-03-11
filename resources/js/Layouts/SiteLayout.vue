@@ -14,7 +14,7 @@ provide('isAr', isAr);
 /* ─── Segment: Private / Business ─── */
 const segment = ref('private');
 const isBiz = computed(() => segment.value === 'business');
-function setSegment(s) { segment.value = s; }
+function setSegment(s) { segment.value = s; mobileOpen.value = false; window.scrollTo({top:0,behavior:'instant'}); }
 provide('segment', segment);
 provide('isBiz', isBiz);
 
@@ -563,7 +563,8 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
 /* ─── Global Reset ─── */
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-.site{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#0a0a0a;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
+html,body{background:#fff}
+.site{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#0a0a0a;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column;background:#fff}
 .site>main{flex:1}
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}
 .rtl{direction:rtl;text-align:right}
@@ -583,7 +584,7 @@ html{scroll-behavior:smooth}
 @media(max-width:900px){.seg-bar{display:none}.sn{top:0!important}.sn-mobile{top:68px!important}}
 
 /* ─── Nav — V0 Green ─── */
-.sn{position:fixed;top:36px;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.sn{position:fixed;top:36px;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(0,0,0,.04);transition:all .35s cubic-bezier(.16,1,.3,1)}
 .sn.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 20px rgba(0,0,0,.06)}
 
 /* ─── Login Button ─── */

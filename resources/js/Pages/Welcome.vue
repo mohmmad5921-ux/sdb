@@ -186,7 +186,7 @@ const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'1
 </script>
 <template>
 <!-- Business Page -->
-<WelcomeBusiness v-if="isBiz" />
+<WelcomeBusiness v-if="isBiz" key="biz" />
 
 <!-- Personal Page -->
 <template v-else>
