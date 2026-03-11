@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class DashboardTab extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -47,7 +48,9 @@ class _DashboardTabState extends State<DashboardTab> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, bottom: 16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child: Builder(builder: (ctx) {
+            final t = L10n.of(ctx);
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -59,7 +62,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(_greeting(), style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                  Text(_greeting(t), style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
                   Text(name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
                 ])),
                 GestureDetector(
@@ -75,7 +78,52 @@ class _DashboardTabState extends State<DashboardTab> {
                 ),
               ]),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
+
+            // KYC Activation Banner
+            if ((user['kyc_status'] ?? 'pending') != 'verified')
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: () async {
+                    await Navigator.pushNamed(context, '/kyc');
+                    _load(); // Refresh after returning
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)]),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(
+                          (user['kyc_status'] == 'submitted') ? 'حسابك قيد المراجعة' : 'حسابك غير مفعّل',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF92400E)),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          (user['kyc_status'] == 'submitted') ? 'سيتم إشعارك عند اكتمال التحقق' : 'فعّل حسابك بإرسال المستندات المطلوبة',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFFB45309)),
+                        ),
+                      ])),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFFD97706)),
+                    ]),
+                  ),
+                ),
+              ),
+            if ((user['kyc_status'] ?? 'pending') != 'verified')
+              const SizedBox(height: 14),
 
             // Balance Card
             _buildBalanceCard(accounts),
@@ -85,10 +133,10 @@ class _DashboardTabState extends State<DashboardTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                _buildQuickAction(Icons.send_rounded, 'Send', AppTheme.primary, true, () => Navigator.pushNamed(context, '/transfer')),
-                _buildQuickAction(Icons.download_rounded, 'Receive', AppTheme.bgMuted, false, () => _showReceive(accounts)),
-                _buildQuickAction(Icons.add_circle_outline_rounded, 'Add Money', AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/deposit')),
-                _buildQuickAction(Icons.swap_horiz_rounded, 'Exchange', AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/exchange')),
+                _buildQuickAction(Icons.send_rounded, t.send, AppTheme.primary, true, () => Navigator.pushNamed(context, '/transfer')),
+                _buildQuickAction(Icons.download_rounded, t.receive, AppTheme.bgMuted, false, () => _showReceive(accounts, t)),
+                _buildQuickAction(Icons.add_circle_outline_rounded, t.addMoney, AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/deposit')),
+                _buildQuickAction(Icons.swap_horiz_rounded, t.exchange, AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/exchange')),
               ]),
             ),
             const SizedBox(height: 24),
@@ -100,7 +148,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 const Text('My Wallets', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                 GestureDetector(
                   onTap: () => widget.onTabChange?.call(2),
-                  child: Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                  child: Text(t.seeAll, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
                 ),
               ]),
             ),
@@ -123,7 +171,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 const Text('Recent Transactions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                 GestureDetector(
                   onTap: () => widget.onTabChange?.call(3),
-                  child: Text('See all', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+                  child: Text(t.seeAll, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
                 ),
               ]),
             ),
@@ -132,7 +180,8 @@ class _DashboardTabState extends State<DashboardTab> {
               _buildEmptyState()
             else
               ...transactions.take(5).map((tx) => _buildTransactionItem(tx, accounts)),
-          ]),
+          ]);
+          }),
         ),
       ),
     );
@@ -152,7 +201,7 @@ class _DashboardTabState extends State<DashboardTab> {
         decoration: BoxDecoration(
           gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)], begin: Alignment.topLeft, end: Alignment.bottomRight),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 6))],
+          boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Total balance', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -165,7 +214,7 @@ class _DashboardTabState extends State<DashboardTab> {
           Row(children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
               child: const Text('+2.4% this month', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
             ),
             const SizedBox(width: 8),
@@ -186,7 +235,7 @@ class _DashboardTabState extends State<DashboardTab> {
           decoration: BoxDecoration(
             color: isPrimary ? AppTheme.primary : bg,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: isPrimary ? [BoxShadow(color: AppTheme.primary.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 3))] : null,
+            boxShadow: isPrimary ? [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 3))] : null,
           ),
           child: Icon(icon, size: 20, color: isPrimary ? Colors.white : AppTheme.textSecondary),
         ),
@@ -214,7 +263,7 @@ class _DashboardTabState extends State<DashboardTab> {
           color: isActive ? AppTheme.primary : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(14),
           border: isActive ? null : Border.all(color: AppTheme.border),
-          boxShadow: isActive ? [BoxShadow(color: AppTheme.primary.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 3))] : null,
+          boxShadow: isActive ? [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 3))] : null,
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -297,11 +346,11 @@ class _DashboardTabState extends State<DashboardTab> {
   // Helpers
   int min(int a, int b) => a < b ? a : b;
 
-  String _greeting() {
+  String _greeting(AppStrings t) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return t.goodMorning;
+    if (h < 17) return t.goodAfternoon;
+    return t.goodEvening;
   }
 
   String _getInitials(String name) {
@@ -341,7 +390,7 @@ class _DashboardTabState extends State<DashboardTab> {
     } catch (_) { return d; }
   }
 
-  void _showReceive(List<Map<String, dynamic>> accounts) {
+  void _showReceive(List<Map<String, dynamic>> accounts, AppStrings t) {
     final acc = accounts.isNotEmpty ? accounts[_activeWallet] : null;
     final iban = acc?['iban'] ?? acc?['account_number'] ?? 'N/A';
     final currency = acc?['currency']?['code'] ?? 'EUR';

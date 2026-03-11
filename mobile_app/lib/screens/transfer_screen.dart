@@ -63,7 +63,7 @@ class _TransferScreenState extends State<TransferScreen> {
     showDialog(context: context, builder: (_) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 56, height: 56, decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(28)),
+        Container(width: 56, height: 56, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(28)),
           child: const Icon(Icons.check_rounded, size: 32, color: AppTheme.primary)),
         const SizedBox(height: 16),
         const Text('Transfer Complete!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
@@ -129,12 +129,12 @@ class _TransferScreenState extends State<TransferScreen> {
           color: isPrimary ? AppTheme.primary : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(16),
           border: isPrimary ? null : Border.all(color: AppTheme.border),
-          boxShadow: isPrimary ? [BoxShadow(color: AppTheme.primary.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))] : null,
+          boxShadow: isPrimary ? [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))] : null,
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
             width: 32, height: 32,
-            decoration: BoxDecoration(color: isPrimary ? Colors.white.withOpacity(0.2) : AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: isPrimary ? Colors.white.withValues(alpha: 0.2) : AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, size: 16, color: isPrimary ? Colors.white : AppTheme.primary),
           ),
           const SizedBox(height: 12),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'dashboard_tab.dart';
 import 'transfer_screen.dart';
 import 'cards_tab.dart';
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = L10n.of(context);
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
@@ -44,11 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.home_rounded, 'Home'),
-                _buildNavItem(1, Icons.send_rounded, 'Payments'),
-                _buildNavItem(2, Icons.credit_card_rounded, 'Cards'),
-                _buildNavItem(3, Icons.receipt_long_rounded, 'Activity'),
-                _buildNavItem(4, Icons.person_rounded, 'Profile'),
+                _buildNavItem(0, Icons.home_rounded, t.navHome),
+                _buildNavItem(1, Icons.send_rounded, t.navPayments),
+                _buildNavItem(2, Icons.credit_card_rounded, t.navCards),
+                _buildNavItem(3, Icons.receipt_long_rounded, t.navActivity),
+                _buildNavItem(4, Icons.person_rounded, t.navProfile),
               ],
             ),
           ),
@@ -66,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.primary.withOpacity(0.1) : Colors.transparent,
+          color: isActive ? AppTheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

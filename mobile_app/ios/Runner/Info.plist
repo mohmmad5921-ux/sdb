@@ -68,6 +68,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>نحتاج الكاميرا لالتقاط صور مستندات التحقق من الهوية</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>نستخدم Face ID لتسجيل الدخول بشكل آمن وسريع</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>نحتاج الوصول لمعرض الصور لرفع مستندات التحقق من الهوية</string>
 	<key>CFBundleURLTypes</key>

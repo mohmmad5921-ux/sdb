@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class MoreTab extends StatefulWidget {
   const MoreTab({super.key});
@@ -16,7 +17,6 @@ class _MoreTabState extends State<MoreTab> {
   bool _notifications = true;
   bool _biometrics = false;
   bool _twoFactor = false;
-  String _language = 'English';
   String _defaultCurrency = 'EUR';
   final _storage = const FlutterSecureStorage();
   final _auth = LocalAuthentication();
@@ -29,35 +29,38 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   Future<void> _loadPrefs() async {
-    final lang = await _storage.read(key: 'app_language') ?? 'English';
     final curr = await _storage.read(key: 'default_currency') ?? 'EUR';
     final bio = await _storage.read(key: 'biometric_enabled') ?? 'false';
     final notif = await _storage.read(key: 'notifications_enabled') ?? 'true';
-    setState(() {
-      _language = lang;
-      _defaultCurrency = curr;
-      _biometrics = bio == 'true';
-      _notifications = notif == 'true';
-    });
+    if (mounted) {
+      setState(() {
+        _defaultCurrency = curr;
+        _biometrics = bio == 'true';
+        _notifications = notif == 'true';
+      });
+    }
   }
 
   Future<void> _load() async {
     final r = await ApiService.getProfile();
-    if (r['success'] == true) {
-      setState(() { _user = r['data']?['user'] ?? r['data']; _loading = false; });
-    } else {
-      setState(() => _loading = false);
+    if (mounted) {
+      if (r['success'] == true) {
+        setState(() { _user = r['data']?['user'] ?? r['data']; _loading = false; });
+      } else {
+        setState(() => _loading = false);
+      }
     }
   }
 
   Future<void> _logout() async {
+    final t = L10n.of(context);
     final confirm = await showDialog<bool>(context: context, builder: (_) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.w700)),
-      content: const Text('Are you sure you want to sign out?'),
+      title: Text(t.signOut, style: const TextStyle(fontWeight: FontWeight.w700)),
+      content: Text(t.signOutConfirm),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sign Out', style: TextStyle(color: AppTheme.danger))),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(t.signOut, style: const TextStyle(color: AppTheme.danger))),
       ],
     ));
     if (confirm == true) {
@@ -71,50 +74,59 @@ class _MoreTabState extends State<MoreTab> {
       try {
         final can = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
         if (!can) {
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric not available on this device'), backgroundColor: AppTheme.danger));
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric not available'), backgroundColor: AppTheme.danger));
+          }
           return;
         }
         final didAuth = await _auth.authenticate(localizedReason: 'Enable biometric login', options: const AuthenticationOptions(biometricOnly: true));
         if (didAuth) {
           await _storage.write(key: 'biometric_enabled', value: 'true');
-          setState(() => _biometrics = true);
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login enabled ✓'), backgroundColor: AppTheme.primary));
+          if (mounted) {
+            setState(() => _biometrics = true);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login enabled ✓'), backgroundColor: AppTheme.primary));
+          }
         }
-      } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.danger));
-      }
+      } catch (_) {}
     } else {
       await _storage.write(key: 'biometric_enabled', value: 'false');
-      setState(() => _biometrics = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login disabled'), backgroundColor: AppTheme.textSecondary));
+      if (mounted) {
+        setState(() => _biometrics = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login disabled'), backgroundColor: AppTheme.textSecondary));
+      }
     }
   }
 
   Future<void> _toggleNotifications() async {
     final newVal = !_notifications;
     await _storage.write(key: 'notifications_enabled', value: newVal.toString());
-    setState(() => _notifications = newVal);
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(newVal ? 'Notifications enabled ✓' : 'Notifications disabled'),
-      backgroundColor: newVal ? AppTheme.primary : AppTheme.textSecondary,
-    ));
+    if (mounted) {
+      setState(() => _notifications = newVal);
+      final t = L10n.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(newVal ? '${t.notifications} ${t.enabled} ✓' : '${t.notifications} ${t.disabled}'),
+        backgroundColor: newVal ? AppTheme.primary : AppTheme.textSecondary,
+      ));
+    }
   }
 
   void _showLanguagePicker() {
-    final languages = ['English', 'العربية', 'Dansk', 'Deutsch', 'Français', 'Türkçe'];
+    final t = L10n.of(context);
+    final provider = L10n.providerOf(context);
+    final currentLang = provider.isArabic ? 'العربية' : 'English';
+    final languages = ['العربية', 'English'];
+
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Select Language', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text(t.selectLanguage, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 16),
         ...languages.map((l) => ListTile(
           title: Text(l, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-          trailing: _language == l ? const Icon(Icons.check_circle, color: AppTheme.primary, size: 20) : null,
-          onTap: () async {
-            await _storage.write(key: 'app_language', value: l);
-            setState(() => _language = l);
+          trailing: currentLang == l ? const Icon(Icons.check_circle, color: AppTheme.primary, size: 20) : null,
+          onTap: () {
+            provider.setLanguage(l);
             Navigator.pop(context);
-            if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Language set to $l ✓'), backgroundColor: AppTheme.primary));
           },
         )),
       ]),
@@ -122,6 +134,7 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   void _showCurrencyPicker() {
+    final t = L10n.of(context);
     final currencies = [
       {'code': 'EUR', 'name': 'Euro', 'flag': '🇪🇺'},
       {'code': 'USD', 'name': 'US Dollar', 'flag': '🇺🇸'},
@@ -132,7 +145,7 @@ class _MoreTabState extends State<MoreTab> {
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Default Currency', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text(t.defaultCurrency, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 16),
         ...currencies.map((c) => ListTile(
           leading: Text(c['flag']!, style: const TextStyle(fontSize: 22)),
@@ -140,9 +153,11 @@ class _MoreTabState extends State<MoreTab> {
           trailing: _defaultCurrency == c['code'] ? const Icon(Icons.check_circle, color: AppTheme.primary, size: 20) : null,
           onTap: () async {
             await _storage.write(key: 'default_currency', value: c['code']!);
-            setState(() => _defaultCurrency = c['code']!);
-            Navigator.pop(context);
-            if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Currency set to ${c['code']} ✓'), backgroundColor: AppTheme.primary));
+            if (mounted) {
+              setState(() => _defaultCurrency = c['code']!);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.currency}: ${c['code']} ✓'), backgroundColor: AppTheme.primary));
+            }
           },
         )),
       ]),
@@ -150,6 +165,7 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   void _showEditProfile() {
+    final t = L10n.of(context);
     final nameCtrl = TextEditingController(text: _user?['full_name'] ?? '');
     final phoneCtrl = TextEditingController(text: _user?['phone'] ?? '');
     final usernameCtrl = TextEditingController(text: _user?['username'] ?? '');
@@ -157,13 +173,13 @@ class _MoreTabState extends State<MoreTab> {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Edit Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text(t.editProfile, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 20),
-        _editField('Full Name', nameCtrl, Icons.person_outline),
+        _editField(t.fullName, nameCtrl, Icons.person_outline),
         const SizedBox(height: 12),
-        _editField('Username', usernameCtrl, Icons.alternate_email),
+        _editField(t.username, usernameCtrl, Icons.alternate_email),
         const SizedBox(height: 12),
-        _editField('Phone', phoneCtrl, Icons.phone_outlined),
+        _editField(t.phone, phoneCtrl, Icons.phone_outlined),
         const SizedBox(height: 20),
         SizedBox(width: double.infinity, child: ElevatedButton(
           onPressed: () async {
@@ -177,13 +193,13 @@ class _MoreTabState extends State<MoreTab> {
               Navigator.pop(context);
               if (r['success'] == true) {
                 _load();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated ✓'), backgroundColor: AppTheme.primary));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.profileUpdated), backgroundColor: AppTheme.primary));
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(r['data']?['message'] ?? 'Error updating profile'), backgroundColor: AppTheme.danger));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(r['data']?['message'] ?? 'Error'), backgroundColor: AppTheme.danger));
               }
             }
           },
-          child: const Text('Save Changes'),
+          child: Text(t.save),
         )),
       ]),
     ));
@@ -206,6 +222,7 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   void _showChangePassword() {
+    final t = L10n.of(context);
     final currentCtrl = TextEditingController();
     final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
@@ -213,30 +230,30 @@ class _MoreTabState extends State<MoreTab> {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Change Password', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text(t.changePassword, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 20),
-        _editField('Current Password', currentCtrl, Icons.lock_outline),
+        _editField(t.password, currentCtrl, Icons.lock_outline),
         const SizedBox(height: 12),
-        _editField('New Password', newCtrl, Icons.lock_outline),
+        _editField(t.password, newCtrl, Icons.lock_outline),
         const SizedBox(height: 12),
-        _editField('Confirm New Password', confirmCtrl, Icons.lock_outline),
+        _editField(t.confirmPassword, confirmCtrl, Icons.lock_outline),
         const SizedBox(height: 20),
         SizedBox(width: double.infinity, child: ElevatedButton(
           onPressed: () async {
             if (newCtrl.text != confirmCtrl.text) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match'), backgroundColor: AppTheme.danger));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.passwordMismatch), backgroundColor: AppTheme.danger));
               return;
             }
             final r = await ApiService.updateProfile({'current_password': currentCtrl.text, 'password': newCtrl.text, 'password_confirmation': confirmCtrl.text});
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(r['success'] == true ? 'Password changed ✓' : (r['data']?['message'] ?? 'Error')),
+                content: Text(r['success'] == true ? t.passwordChanged : (r['data']?['message'] ?? 'Error')),
                 backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
               ));
             }
           },
-          child: const Text('Change Password'),
+          child: Text(t.changePassword),
         )),
       ]),
     ));
@@ -244,6 +261,9 @@ class _MoreTabState extends State<MoreTab> {
 
   @override
   Widget build(BuildContext context) {
+    final t = L10n.of(context);
+    final provider = L10n.providerOf(context);
+
     if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
     final name = _user?['full_name'] ?? 'User';
     final email = _user?['email'] ?? '';
@@ -253,6 +273,7 @@ class _MoreTabState extends State<MoreTab> {
     final initials = _getInitials(name);
     final joined = _user?['created_at'] ?? '';
     final joinYear = joined.isNotEmpty ? DateTime.tryParse(joined)?.year.toString() ?? '2026' : '2026';
+    final langDisplay = provider.isArabic ? 'العربية' : 'English';
 
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
@@ -290,46 +311,46 @@ class _MoreTabState extends State<MoreTab> {
             ])),
             const SizedBox(height: 16),
 
-            // Stats from real data
+            // Stats
             Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [
-              _buildStat('Member', joinYear),
+              _buildStat(t.member, joinYear),
               const SizedBox(width: 8),
-              _buildStat('KYC', kyc == 'verified' ? '✓' : '⏳'),
+              _buildStat(t.kyc, kyc == 'verified' ? '✓' : '⏳'),
               const SizedBox(width: 8),
-              _buildStat('Currency', _defaultCurrency),
+              _buildStat(t.currency, _defaultCurrency),
             ])),
             const SizedBox(height: 24),
 
             // Account
             _buildSection('ACCOUNT', [
-              _buildRow(Icons.person_outline, 'Personal Information', subtitle: 'Name, email, phone', onTap: _showEditProfile),
-              _buildRow(Icons.alternate_email, 'Username', subtitle: username != null ? '@$username' : 'Set username', onTap: _showEditProfile),
-              _buildRow(Icons.verified_outlined, 'Verification', right: _kycBadge(kyc), onTap: () => Navigator.pushNamed(context, '/kyc')),
+              _buildRow(Icons.person_outline, t.personalInfo, subtitle: '${t.fullName}, ${t.email}', onTap: _showEditProfile),
+              _buildRow(Icons.alternate_email, t.username, subtitle: username != null ? '@$username' : t.username, onTap: _showEditProfile),
+              _buildRow(Icons.verified_outlined, t.verification, right: _kycBadge(kyc), onTap: () => Navigator.pushNamed(context, '/kyc')),
             ]),
             const SizedBox(height: 16),
 
             // Security
             _buildSection('SECURITY', [
-              _buildRow(Icons.fingerprint, 'Biometric Login', subtitle: 'Face ID / Fingerprint', right: _toggle(_biometrics, _toggleBiometric)),
-              _buildRow(Icons.lock_outline, 'Two-Factor Auth', subtitle: 'SMS verification', right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
-              _buildRow(Icons.key, 'Change Password', onTap: _showChangePassword),
+              _buildRow(Icons.fingerprint, t.biometricLogin, subtitle: 'Face ID / Fingerprint', right: _toggle(_biometrics, _toggleBiometric)),
+              _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: 'SMS', right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
+              _buildRow(Icons.key, t.changePassword, onTap: _showChangePassword),
             ]),
             const SizedBox(height: 16),
 
             // Preferences
             _buildSection('PREFERENCES', [
-              _buildRow(Icons.notifications_none, 'Notifications', subtitle: _notifications ? 'Enabled' : 'Disabled', right: _toggle(_notifications, _toggleNotifications)),
-              _buildRow(Icons.language, 'Language', subtitle: _language, onTap: _showLanguagePicker),
-              _buildRow(Icons.attach_money, 'Default Currency', subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
+              _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
+              _buildRow(Icons.language, t.language, subtitle: langDisplay, onTap: _showLanguagePicker),
+              _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
             ]),
             const SizedBox(height: 16),
 
             // Support
             _buildSection('SUPPORT', [
-              _buildRow(Icons.help_outline, 'Help Center', onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Help Center coming soon'), backgroundColor: AppTheme.primary));
+              _buildRow(Icons.help_outline, t.helpCenter, onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.helpCenter} — coming soon'), backgroundColor: AppTheme.primary));
               }),
-              _buildRow(Icons.chat_bubble_outline, 'Contact Support', subtitle: 'support@sdb-bank.com', onTap: () {
+              _buildRow(Icons.chat_bubble_outline, t.contactSupport, subtitle: 'support@sdb-bank.com', onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email: support@sdb-bank.com'), backgroundColor: AppTheme.primary));
               }),
             ]),
@@ -338,11 +359,11 @@ class _MoreTabState extends State<MoreTab> {
             // Sign Out
             Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Container(
               decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
-              child: _buildRow(Icons.logout, 'Sign Out', danger: true, onTap: _logout),
+              child: _buildRow(Icons.logout, t.signOut, danger: true, onTap: _logout),
             )),
             const SizedBox(height: 16),
 
-            Center(child: Text('SDB Bank v1.0.4 · Syrian Digital Bank', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withOpacity(0.6)))),
+            Center(child: Text('SDB Bank v1.0.4 · Syrian Digital Bank', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withValues(alpha: 0.6)))),
           ]),
         ),
       ),
@@ -382,7 +403,7 @@ class _MoreTabState extends State<MoreTab> {
       child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13), child: Row(children: [
         Container(
           width: 34, height: 34,
-          decoration: BoxDecoration(color: danger ? AppTheme.danger.withOpacity(0.1) : AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: danger ? AppTheme.danger.withValues(alpha: 0.1) : AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, size: 16, color: danger ? AppTheme.danger : AppTheme.primary),
         ),
         const SizedBox(width: 12),
@@ -408,7 +429,7 @@ class _MoreTabState extends State<MoreTab> {
           child: Container(
             width: 20, height: 20,
             margin: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]),
           ),
         ),
       ),
@@ -416,11 +437,12 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   Widget _kycBadge(String status) {
+    final t = L10n.of(context);
     final isVerified = status == 'verified';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: (isVerified ? AppTheme.primary : AppTheme.warning).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-      child: Text(isVerified ? 'Verified' : 'Pending', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isVerified ? AppTheme.primary : AppTheme.warning)),
+      decoration: BoxDecoration(color: (isVerified ? AppTheme.primary : AppTheme.warning).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+      child: Text(isVerified ? t.verified : t.pending, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isVerified ? AppTheme.primary : AppTheme.warning)),
     );
   }
 

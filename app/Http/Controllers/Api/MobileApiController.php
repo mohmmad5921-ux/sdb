@@ -138,6 +138,7 @@ class MobileApiController extends Controller
 
         return response()->json([
             'kyc_status' => $user->kyc_status,
+            'full_name' => $user->full_name,
             'documents' => $docs->map(fn($d) => [
                 'id' => $d->id,
                 'type' => $d->document_type,

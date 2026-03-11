@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -18,15 +18,28 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   bool _loading = false;
   bool _verified = false;
   String? _error;
-  String _verificationId = '';
-  int? _resendToken;
   int _countdown = 0;
+  String _countryCode = '963';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCountryCode();
+  }
+
+  Future<void> _loadCountryCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString('user_phone_code');
+    if (code != null && mounted) {
+      setState(() => _countryCode = code.replaceAll('+', ''));
+    }
+  }
 
   @override
   void dispose() {
     _phoneCtrl.dispose();
-    for (var c in _otpCtrls) c.dispose();
-    for (var f in _otpFocus) f.dispose();
+    for (var c in _otpCtrls) { c.dispose(); }
+    for (var f in _otpFocus) { f.dispose(); }
     super.dispose();
   }
 
@@ -36,39 +49,25 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     final phone = _phoneCtrl.text.trim();
     if (phone.isEmpty) { setState(() => _error = 'يرجى إدخال رقم الهاتف'); return; }
 
-    // Ensure it starts with +
     final fullPhone = phone.startsWith('+') ? phone : '+$phone';
 
     setState(() { _loading = true; _error = null; });
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: fullPhone,
-      forceResendingToken: _resendToken,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto-verification (Android only)
-        await _verifyWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() {
-          _loading = false;
-          _error = e.message ?? 'فشل إرسال رمز التحقق';
-        });
-      },
-      codeSent: (String vId, int? resendToken) {
-        setState(() {
-          _verificationId = vId;
-          _resendToken = resendToken;
-          _codeSent = true;
-          _loading = false;
-          _countdown = 60;
-        });
+    try {
+      // Call backend to send OTP
+      final res = await ApiService.post('/auth/send-otp', {'phone': fullPhone});
+      if (res['success'] == true) {
+        setState(() { _codeSent = true; _loading = false; _countdown = 60; });
         _startCountdown();
-      },
-      codeAutoRetrievalTimeout: (String vId) {
-        _verificationId = vId;
-      },
-    );
+      } else {
+        setState(() {
+          _loading = false;
+          _error = res['data']?['message'] ?? 'فشل إرسال رمز التحقق';
+        });
+      }
+    } catch (e) {
+      setState(() { _loading = false; _error = 'خطأ في الاتصال بالسيرفر'; });
+    }
   }
 
   void _startCountdown() async {
@@ -83,31 +82,20 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
     setState(() { _loading = true; _error = null; });
     try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId,
-        smsCode: _otp,
-      );
-      await _verifyWithCredential(credential);
-    } catch (e) {
-      setState(() { _loading = false; _error = 'رمز التحقق غير صحيح'; });
-    }
-  }
-
-  Future<void> _verifyWithCredential(PhoneAuthCredential credential) async {
-    try {
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      setState(() { _verified = true; _loading = false; });
-
-      // Update phone verification status on backend
       final phone = _phoneCtrl.text.trim().startsWith('+') ? _phoneCtrl.text.trim() : '+${_phoneCtrl.text.trim()}';
-      await ApiService.updateProfile({'phone': phone, 'phone_verified': true});
+      final res = await ApiService.post('/auth/verify-otp', {'phone': phone, 'code': _otp});
 
-      if (mounted) {
-        await Future.delayed(const Duration(seconds: 2));
-        if (mounted) Navigator.pop(context, true);
+      if (res['success'] == true) {
+        setState(() { _verified = true; _loading = false; });
+        if (mounted) {
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) Navigator.pop(context, true);
+        }
+      } else {
+        setState(() { _loading = false; _error = res['data']?['message'] ?? 'رمز التحقق غير صحيح'; });
       }
     } catch (e) {
-      setState(() { _loading = false; _error = 'فشل التحقق من الرمز'; });
+      setState(() { _loading = false; _error = 'خطأ في الاتصال بالسيرفر'; });
     }
   }
 
@@ -136,7 +124,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   Widget _buildPhoneInput() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 20),
-      // Icon
       Center(child: Container(
         width: 80, height: 80,
         decoration: BoxDecoration(
@@ -151,7 +138,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5))),
       const SizedBox(height: 32),
 
-      // Phone input
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
@@ -167,7 +153,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
             textDirection: TextDirection.ltr,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, letterSpacing: 1),
             decoration: InputDecoration(
-              hintText: '963 9XX XXX XXX',
+              hintText: '$_countryCode 9XX XXX XXX',
               hintStyle: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.4)),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 18),
@@ -189,12 +175,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       ),
       const SizedBox(height: 24),
 
-      // Send button
       SizedBox(width: double.infinity, height: 54, child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(colors: [Color(0xFF1E5EFF), Color(0xFF3B82F6)]),
-          boxShadow: [BoxShadow(color: const Color(0xFF1E5EFF).withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 6))],
+          gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)]),
+          boxShadow: [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 6))],
         ),
         child: ElevatedButton(
           onPressed: _loading ? null : _sendCode,
@@ -222,7 +207,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5)),
       const SizedBox(height: 32),
 
-      // OTP fields
       Directionality(textDirection: TextDirection.ltr, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(6, (i) =>
         Container(
           width: 48, height: 56,
@@ -262,7 +246,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       ),
       const SizedBox(height: 24),
 
-      // Verify button
       SizedBox(width: double.infinity, height: 54, child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -279,7 +262,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       )),
 
       const SizedBox(height: 20),
-      // Resend
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Text('لم تستلم الرمز؟ ', style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
         GestureDetector(

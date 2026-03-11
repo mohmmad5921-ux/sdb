@@ -105,7 +105,7 @@ class _TransactionsTabState extends State<TransactionsTab> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.receipt_long_rounded, size: 48, color: AppTheme.textMuted.withOpacity(0.3)),
+                    Icon(Icons.receipt_long_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
                     const SizedBox(height: 12),
                     const Text('No transactions found', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
                   ])),
@@ -135,7 +135,7 @@ class _TransactionsTabState extends State<TransactionsTab> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
       child: Container(
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border.withOpacity(0.5))),
+        decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border.withValues(alpha: 0.5))),
         child: Row(children: [
           Container(
             width: 42, height: 42,
@@ -163,13 +163,13 @@ class _TransactionsTabState extends State<TransactionsTab> {
             if (status == 'pending') Container(
               margin: const EdgeInsets.only(top: 3),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: AppTheme.warning.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
               child: const Text('Pending', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.warning)),
             )
             else if (status == 'completed') Container(
               margin: const EdgeInsets.only(top: 3),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
               child: const Text('Done', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.primary)),
             ),
           ]),
