@@ -9,6 +9,7 @@ use App\Models\AdminActivityLog;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -81,7 +82,7 @@ class KycReviewController extends Controller
                         'status' => $d->status,
                         'created' => $d->created_at?->diffForHumans(),
                     ])->values()->toArray(),
-                    'new_since_1h' => $docs->where('created_at', '>=', Carbon::now()->subHour())->count(),
+                    'new_since_1h' => $docs->filter(fn($d) => $d->created_at && $d->created_at->gte(Carbon::now()->subHour()))->count(),
                     'oldest' => $docs->min('created_at'),
                     'waiting_text' => Carbon::parse($docs->min('created_at'))->diffForHumans(),
                     'hours_waiting' => Carbon::parse($docs->min('created_at'))->diffInHours(now()),
@@ -295,6 +296,29 @@ class KycReviewController extends Controller
             'message' => $msg['message'],
             'type' => 'kyc_message',
         ]);
+
+        // Send email notification
+        if ($user->email) {
+            try {
+                Mail::send([], [], function ($mail) use ($user, $msg) {
+                    $htmlBody = '<div style="font-family:Arial,sans-serif;direction:rtl;text-align:right;max-width:600px;margin:0 auto;padding:20px;">'
+                        . '<div style="background:#0f172a;border-radius:12px;padding:24px;margin-bottom:20px;">'
+                        . '<h1 style="color:#fff;font-size:20px;margin:0;">SDB Bank</h1>'
+                        . '</div>'
+                        . '<h2 style="color:#0f172a;font-size:18px;">' . e($msg['title']) . '</h2>'
+                        . '<p style="color:#334155;font-size:14px;line-height:1.8;white-space:pre-line;">' . e($msg['message']) . '</p>'
+                        . '<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;">'
+                        . '<p style="color:#94a3b8;font-size:12px;">SDB Bank — Digital Banking</p>'
+                        . '</div>';
+                    $mail->to($user->email)
+                         ->subject($msg['title'])
+                         ->html($htmlBody);
+                });
+            } catch (\Exception $e) {
+                // Log email failure but don't block the notification
+                \Log::warning('KYC email failed for user ' . $user->id . ': ' . $e->getMessage());
+            }
+        }
 
         AdminActivityLog::log('kyc.message', 'user', $user->id, [
             'message_type' => $request->message_type,
