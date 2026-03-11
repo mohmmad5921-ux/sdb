@@ -19,8 +19,8 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    // Admin login — separate hidden page
-    Route::get('sdb-admin', [AuthenticatedSessionController::class, 'adminLogin'])
+    // Admin login — unique hidden URL (not linked anywhere on site)
+    Route::get('gate/sdb-m5921', [AuthenticatedSessionController::class, 'adminLogin'])
         ->name('admin.login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
