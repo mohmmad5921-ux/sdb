@@ -5,366 +5,527 @@ import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const lang = inject('lang', ref('ar'));
 const isAr = inject('isAr', computed(() => true));
+
+/* ── Countdown ── */
 const launchDate = new Date('2026-03-22T00:00:00');
 const cd = ref({ d:0, h:0, m:0, s:0 });
 let ti;
 function tick(){const x=launchDate-new Date();if(x<=0)return;cd.value={d:Math.floor(x/864e5),h:Math.floor(x%864e5/36e5),m:Math.floor(x%36e5/6e4),s:Math.floor(x%6e4/1e3)}}
+
+/* ── Waitlist ── */
 const em = ref('');const done = ref(false);const emailErr = ref('');const submitting = ref(false);
 async function submitEmail() {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!em.value || !regex.test(em.value)) { emailErr.value = isAr.value ? 'أدخل بريد صحيح' : 'Enter a valid email'; return; }
-  emailErr.value = '';submitting.value = true;
-  try {
-    const res = await fetch('/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify({ email: em.value, source: 'hero' }) });
-    const data = await res.json();
-    if(res.ok && data.success) { done.value = true; } else { emailErr.value = isAr.value ? 'حدث خطأ' : 'Something went wrong'; }
-  } catch(e) { emailErr.value = isAr.value ? 'خطأ بالاتصال' : 'Connection error'; }
-  submitting.value = false;
+  if(!em.value||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)){emailErr.value=isAr.value?'أدخل بريد صحيح':'Enter a valid email';return}
+  emailErr.value='';submitting.value=true;
+  try{const r=await fetch('/waitlist',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||''},body:JSON.stringify({email:em.value,source:'hero'})});const d=await r.json();if(r.ok&&d.success){done.value=true}else{emailErr.value=isAr.value?'حدث خطأ':'Something went wrong'}}catch(e){emailErr.value=isAr.value?'خطأ بالاتصال':'Connection error'}
+  submitting.value=false;
 }
-const cAmt = ref(1000); const cFrom = ref('EUR'); const cTo = ref('SYP');
-const cRates = {EUR:1,USD:1.08,GBP:0.86,SYP:13500,TRY:34.2,AED:3.97,SAR:4.05,DKK:7.46};
-const cResult = computed(() => {const r=(cRates[cTo.value]||1)/(cRates[cFrom.value]||1);const v=cAmt.value*r; return v>=1000?Math.round(v).toLocaleString('en-US'):v.toFixed(2)});
-const cRate = computed(() => {const r=(cRates[cTo.value]||1)/(cRates[cFrom.value]||1);return r>=100?Math.round(r).toLocaleString('en-US'):r.toFixed(4)});
-function swapCurr(){const tmp=cFrom.value;cFrom.value=cTo.value;cTo.value=tmp}
-const counted = ref(false);
-const counters = ref({users:0,countries:0,currencies:0,uptime:0});
-function animateCounters(){if(counted.value)return;counted.value=true;
-  const targets={users:50000,countries:170,currencies:70,uptime:99.9};
-  Object.keys(targets).forEach(k=>{let start=0;const end=targets[k];const dur=2000;const step=16;const inc=end*step/dur;
-    const timer=setInterval(()=>{start+=inc;if(start>=end){counters.value[k]=end;clearInterval(timer)}else{counters.value[k]=Math.floor(start)}},step)})}
+
+/* ── Transfer Widget ── */
+const sendAmt = ref('1,000');
+const exchangeRate = 14250;
+const fee = 2.99;
+const numericAmt = computed(()=> parseFloat(sendAmt.value.replace(/,/g,''))||0);
+const receivedAmt = computed(()=> (numericAmt.value * exchangeRate).toLocaleString());
+function onSendInput(e){const v=e.target.value.replace(/[^0-9]/g,'');sendAmt.value=v?parseInt(v).toLocaleString():''}
+
+/* ── Calculator ── */
+const currencies = [
+  {code:'USD',name:'US Dollar',nameAr:'دولار أمريكي',flag:'🇺🇸',rate:1},
+  {code:'EUR',name:'Euro',nameAr:'يورو',flag:'🇪🇺',rate:0.92},
+  {code:'GBP',name:'British Pound',nameAr:'جنيه إسترليني',flag:'🇬🇧',rate:0.79},
+  {code:'AED',name:'UAE Dirham',nameAr:'درهم إماراتي',flag:'🇦🇪',rate:3.67},
+  {code:'SAR',name:'Saudi Riyal',nameAr:'ريال سعودي',flag:'🇸🇦',rate:3.75},
+  {code:'SYP',name:'Syrian Pound',nameAr:'ليرة سورية',flag:'🇸🇾',rate:14250},
+  {code:'TRY',name:'Turkish Lira',nameAr:'ليرة تركية',flag:'🇹🇷',rate:32.1},
+  {code:'EGP',name:'Egyptian Pound',nameAr:'جنيه مصري',flag:'🇪🇬',rate:50.8},
+];
+const calcAmt = ref('1000');const calcFrom = ref(0);const calcTo = ref(5);
+const showFromDD = ref(false);const showToDD = ref(false);
+const calcResult = computed(()=>{const a=parseFloat(calcAmt.value)||0;return(a*currencies[calcTo.value].rate/currencies[calcFrom.value].rate).toLocaleString(undefined,{maximumFractionDigits:2})});
+const calcFee = computed(()=> ((parseFloat(calcAmt.value)||0)*0.005).toFixed(2));
+const calcRate = computed(()=> (currencies[calcTo.value].rate/currencies[calcFrom.value].rate).toFixed(4));
+function swapCalc(){const t=calcFrom.value;calcFrom.value=calcTo.value;calcTo.value=t}
+function pickFrom(i){calcFrom.value=i;showFromDD.value=false}
+function pickTo(i){calcTo.value=i;showToDD.value=false}
+
+/* ── FAQ ── */
 const faqOpen = ref(-1);
-function toggleFaq(i){faqOpen.value = faqOpen.value === i ? -1 : i}
+function toggleFaq(i){faqOpen.value=faqOpen.value===i?-1:i}
+
+/* ── Scroll Animations ── */
 let obs;
-onMounted(()=>{tick();ti=setInterval(tick,1e3);
-  obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vi');if(x.target.classList.contains('counter-trigger'))animateCounters();if(x.target.hasAttribute('data-stagger')){x.target.querySelectorAll(':scope > *').forEach((ch,i)=>{setTimeout(()=>ch.classList.add('vi'), i*120)})}}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.an,.an-l,.an-r,.an-s,.counter-trigger').forEach(el=>obs.observe(el));
+onMounted(()=>{
+  tick();ti=setInterval(tick,1e3);
+  obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vi');if(x.target.hasAttribute('data-stagger')){x.target.querySelectorAll(':scope > *').forEach((ch,i)=>{setTimeout(()=>ch.classList.add('vi'),i*100)})}}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.an,.an-l,.an-r').forEach(el=>obs.observe(el));
   document.querySelectorAll('[data-stagger]').forEach(p=>{p.querySelectorAll(':scope > *').forEach(ch=>ch.classList.add('an'));obs.observe(p)});
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
+
+/* ── i18n ── */
 const t = computed(() => isAr.value ? {
-  tag:'⭐ 4.9 من 100,000+ تقييم',hd1:'حوّل أموالك',hd2:'بذكاء',
-  sub:'أرسل واستقبل الأموال بسعر الصرف الحقيقي. وفّر حتى 90% مقارنة بالبنوك التقليدية.',
+  heroTag:'⭐ 4.9 من 100,000+ تقييم',
+  h1a:'حوّل أموالك',h1b:'بذكاء وبشكل فوري',
+  heroP:'أرسل واستقبل الأموال بسعر الصرف الحقيقي. وفّر حتى 90% مقارنة بالبنوك التقليدية.',
   days:'يوم',hrs:'ساعة',min:'دقيقة',sec:'ثانية',
-  emailPh:'بريدك الإلكتروني...',notify:'سجّل مبكراً',emailDone:'✓ تم! سنبلغك فور الإطلاق.',
-  cta1:'ابدأ مجاناً',cta2:'شاهد كيف يعمل',
-  heroStats:[{v:'14M+',l:'عميل'},{v:'70+',l:'عملة'},{v:'170+',l:'دولة'}],
-  badges:['⚡ تحويل فوري','🔒 آمن 100%'],
-  convTitle:'💱 حاسبة التحويل',convSend:'ترسل',convGet:'تحصل على',convRate:'السعر:',convBtn:'حوّل الآن ←',
-  howTitle:'أرسل المال في 4 خطوات بسيطة',howSub:'لا تعقيد، لا رسوم خفية. فقط طريقة بسيطة وشفافة.',
+  emailPh:'بريدك الإلكتروني...',notify:'سجّل مبكراً',emailDone:'✨ تم! سنبلغك فور الإطلاق.',
+  twTitle:'حاسبة التحويل',twInstant:'فوري',twSend:'أنت ترسل',twGets:'المستلم يحصل على',twFee:'رسوم',twRate:'سعر الصرف',twTime:'وقت الوصول',twSecs:'خلال ثوانٍ',twCta:'ابدأ التحويل الآن →',
+  partTag:'شركاؤنا',partTitle:'نعمل مع أفضل الشبكات المالية العالمية',
+  partStats:[{v:'50+',l:'شريك مالي'},{v:'200+',l:'دولة مدعومة'},{v:'70+',l:'عملة'},{v:'24/7',l:'دعم متواصل'}],
+  howTag:'كيف يعمل',howTitle:'أرسل المال في 4 خطوات بسيطة',howSub:'لا تعقيد، لا رسوم خفية. فقط طريقة بسيطة وشفافة.',
   steps:[{n:'01',t:'أنشئ حسابك',d:'التسجيل مجاني ويستغرق دقيقتين فقط.'},{n:'02',t:'أضف المستلم',d:'أدخل تفاصيل المستلم وحسابه البنكي.'},{n:'03',t:'اختر المبلغ',d:'شاهد سعر الصرف الحقيقي والرسوم.'},{n:'04',t:'أرسل فوراً',d:'أكد التحويل وسيصل المال خلال ثوانٍ.'}],
   featTag:'المميزات',featTitle:'كل ما تحتاجه في مكان واحد',featSub:'منصة مصرفية متكاملة توفر لك كل الأدوات لإدارة أموالك بذكاء',
-  feats:[{ic:'⚡',t:'تحويلات فورية',d:'74% من التحويلات تصل خلال 20 ثانية'},{ic:'🔒',t:'حماية متقدمة',d:'تشفير على مستوى البنوك'},{ic:'💰',t:'السعر الحقيقي',d:'سعر الصرف بدون إضافات'},{ic:'🌍',t:'170+ دولة',d:'أرسل المال لأي مكان بالعالم'},{ic:'💳',t:'بطاقات ذكية',d:'بطاقات مجانية للدفع والسحب'},{ic:'📱',t:'تطبيق سهل',d:'أدر كل شيء من هاتفك'},{ic:'🕐',t:'دعم 24/7',d:'فريق دعم متاح على مدار الساعة'},{ic:'🐷',t:'وفر أكثر',d:'وفر حتى 90% من الرسوم'}],
+  feats:[{ic:'⚡',t:'تحويلات فورية',d:'74% من التحويلات تصل خلال 20 ثانية',cl:'feat-amber'},{ic:'🔒',t:'حماية متقدمة',d:'تشفير على مستوى البنوك',cl:'feat-blue'},{ic:'💰',t:'السعر الحقيقي',d:'سعر الصرف بدون إضافات',cl:'feat-green'},{ic:'🌍',t:'170+ دولة',d:'أرسل المال لأي مكان بالعالم',cl:'feat-purple'},{ic:'💳',t:'بطاقات ذكية',d:'بطاقات مجانية للدفع والسحب',cl:'feat-pink'},{ic:'📱',t:'تطبيق سهل',d:'أدر كل شيء من هاتفك',cl:'feat-orange'},{ic:'🕐',t:'دعم 24/7',d:'فريق دعم متاح على مدار الساعة',cl:'feat-cyan'},{ic:'🐷',t:'وفر أكثر',d:'وفر حتى 90% من الرسوم',cl:'feat-rose'}],
   compTag:'قارن الأسعار',compTitle:'وفّر حتى 90% من رسوم التحويل',compSub:'البنوك تخفي الرسوم في سعر الصرف. نحن نقدم السعر الحقيقي بشفافية.',
-  compSdb:{n:'SDB Bank',rec:'موصى به',amount:'14,250,000',points:['سعر الصرف الحقيقي','رسوم 2.99$ فقط','يصل خلال ثوانٍ']},
-  compBank:{n:'بنك تقليدي',amount:'13,800,000',less:'- 450,000 أقل',points:['هامش 3-5% مخفي','رسوم 25$+','2-5 أيام عمل']},
-  compWu:{n:'Western Union',amount:'13,500,000',less:'- 750,000 أقل',points:['سعر غير تنافسي +5%','رسوم 35$+','1-3 أيام']},
+  compBest:'الأفضل قيمة',compRec:'موصى به',compGets:'المستلم يحصل على',
+  compSdb:{n:'SDB Bank',amt:'14,250,000',pts:['سعر الصرف الحقيقي','رسوم 2.99$ فقط','يصل خلال ثوانٍ']},
+  compBank:{n:'بنك تقليدي',amt:'13,800,000',less:'- 450,000 أقل',pts:['هامش 3-5% مخفي','رسوم 25$+','2-5 أيام عمل']},
+  compWu:{n:'Western Union',amt:'13,500,000',less:'- 750,000 أقل',pts:['سعر غير تنافسي +5%','رسوم 35$+','1-3 أيام']},
+  calcTag:'حاسبة التحويل',calcTitle:'احسب تحويلك الآن',calcSub:'استخدم حاسبتنا لمعرفة المبلغ الذي سيصل للمستلم.',
+  calcBenefits:[{ic:'📈',t:'سعر الصرف الحقيقي',d:'بدون إضافات مخفية'},{ic:'⚡',t:'تحويل سريع',d:'74% تصل خلال 20 ثانية'},{ic:'🔒',t:'آمن ومضمون',d:'تشفير على مستوى البنوك'}],
+  calcSend:'أنت ترسل',calcGets:'المستلم يحصل على',calcFee:'الرسوم',calcExRate:'سعر الصرف',calcArrival:'وقت الوصول',calcSecs:'خلال ثوانٍ',calcCta:'ابدأ التحويل',
+  appTag:'التطبيق',appTitle:'كل شيء في تطبيق واحد',appSub:'حمّل تطبيقنا وابدأ بإدارة أموالك بطريقة أذكى.',
+  appFeats:[{ic:'🔔',t:'إشعارات فورية',d:'تنبيهات لكل معاملة'},{ic:'👆',t:'مصادقة بيومترية',d:'ادخل بالبصمة أو Face ID'},{ic:'💳',t:'إدارة البطاقات',d:'تحكم كامل في بطاقاتك'},{ic:'📊',t:'تحليل المصاريف',d:'تتبع وحلل إنفاقك'},{ic:'📷',t:'دفع بـ QR',d:'ادفع بمسح رمز QR'},{ic:'💰',t:'محافظ متعددة',d:'أنشئ محافظ بعملات مختلفة'}],
+  globTag:'تغطية عالمية',globTitle:'أرسل المال إلى',globHighlight:'170+ دولة',globSub:'سواء كنت ترسل للعائلة أو تدفع للأعمال، نغطي معظم دول العالم.',globCta:'اكتشف جميع الدول →',globMore:'+162 عملة أخرى',
+  globStats:[{v:'$16B',l:'تحويلات شهرية'},{v:'10M+',l:'معاملة يومية'},{v:'20s',l:'متوسط وقت التحويل'},{v:'0.5%',l:'رسوم منخفضة'}],
+  trustTag:'الأمان والثقة',trustTitle:'آمن في كل خطوة',trustSub:'ملايين العملاء يثقون بنا لنقل أموالهم بأمان',
+  trustItems:[{ic:'🛡️',t:'مرخص ومنظم',d:'مرخص على المستوى الوطني مع 65 ترخيصاً'},{ic:'🔐',t:'أموالك محمية',d:'أموالك محمية في حسابات منفصلة وآمنة'},{ic:'👁️',t:'مكافحة الاحتيال',d:'أكثر من 1,000 خبير أمني و7 مليون فحص يومياً'},{ic:'🏅',t:'تشفير متقدم',d:'نستخدم تشفير 256-bit لحماية جميع بياناتك'}],
+  trustStats:[{v:'14.8M',l:'عميل نشط'},{v:'$16B',l:'تحويلات شهرية'},{v:'99.9%',l:'وقت التشغيل'},{v:'4.9/5',l:'تقييم العملاء'}],
+  secTag:'الأمان والحماية',secTitle:'معتمدون من أعلى الجهات',secMsg:'أموالك محمية بأعلى معايير الأمان العالمية',
+  secBadges:[{ic:'🛡️',t:'PCI DSS',d:'معتمد لمعايير أمان بيانات البطاقات'},{ic:'🔒',t:'SSL 256-bit',d:'تشفير من الدرجة العسكرية'},{ic:'✅',t:'ISO 27001',d:'نظام إدارة أمن المعلومات'},{ic:'🏆',t:'SOC 2 Type II',d:'معايير الأمان والخصوصية'},{ic:'📋',t:'GDPR',d:'متوافق مع قوانين حماية البيانات'},{ic:'🌐',t:'Swift',d:'عضو في شبكة Swift العالمية'}],
   testTag:'آراء العملاء',testTitle:'يثق بنا الملايين',testSub:'اكتشف لماذا يختار عملاؤنا SDB Bank',
   tests:[{n:'أحمد محمد',r:'رجل أعمال',q:'خدمة ممتازة وسريعة. التحويلات تصل في ثوانٍ. أنصح الجميع بتجربة SDB.',a:'A'},{n:'سارة العلي',r:'مهندسة برمجيات',q:'تطبيق سهل ورسوم شفافة. أفضل تجربة مصرفية رقمية.',a:'S'},{n:'محمود حسن',r:'طبيب',q:'أستخدم SDB منذ سنة. الأمان والسرعة لا مثيل لهما.',a:'M'},{n:'نور الدين',r:'مدير مشاريع',q:'وفرت الكثير مقارنة بالبنوك التقليدية.',a:'N'}],
   testStats:[{v:'4.9/5',l:'تقييم App Store'},{v:'100K+',l:'تقييمات'},{v:'14M+',l:'عميل سعيد'},{v:'99%',l:'رضا العملاء'}],
   faqTag:'الأسئلة الشائعة',faqTitle:'كل ما تريد معرفته',
-  faqs:[{q:'كيف أفتح حساب في SDB Bank؟',a:'التسجيل مجاني ويستغرق دقيقتين. كل ما تحتاجه بريدك الإلكتروني وإثبات هوية.'},{q:'ما هي رسوم التحويل؟',a:'رسومنا تبدأ من 0.3% فقط — أقل بكثير من البنوك التقليدية التي تأخذ 3-5%.'},{q:'كم يستغرق التحويل؟',a:'74% من التحويلات تصل خلال 20 ثانية. الباقي خلال ساعات قليلة.'},{q:'هل أموالي آمنة؟',a:'نعم. نستخدم تشفير AES-256 وحماية ثنائية العامل. أموالك محمية بمعايير أوروبية صارمة.'},{q:'ما هي الدول المدعومة؟',a:'ندعم التحويلات إلى 170+ دولة حول العالم بما فيها سوريا والدول العربية.'}],
-  ctaTag:'حمّل التطبيق',ctaTitle:'البنك في جيبك',ctaSub:'حمّل تطبيق SDB Bank وأرسل الأموال من أي مكان. متوفر على iOS و Android.',
-  statsTitle:'أرقام تتحدث.',stat1L:'عميل مسجّل',stat2L:'دولة مدعومة',stat3L:'عملة',stat4L:'وقت تشغيل %',
-  footServices:'خدماتنا',footAbout:'عن SDB',footHelp:'المساعدة',footLegal:'قانوني',
-  footDesc:'نحن نجعل إرسال الأموال للخارج سهلاً وسريعاً وبتكلفة أقل.',
+  faqs:[{q:'كيف أفتح حساب في SDB Bank؟',a:'التسجيل مجاني ويستغرق دقيقتين. كل ما تحتاجه بريدك الإلكتروني وإثبات هوية.'},{q:'ما هي رسوم التحويل؟',a:'رسومنا تبدأ من 0.3% فقط.'},{q:'كم يستغرق التحويل؟',a:'74% من التحويلات تصل خلال 20 ثانية.'},{q:'هل أموالي آمنة؟',a:'نعم. نستخدم تشفير AES-256 وحماية ثنائية.'},{q:'ما هي الدول المدعومة؟',a:'ندعم 170+ دولة حول العالم.'}],
+  ctaTitle:'البنك في جيبك',ctaSub:'حمّل تطبيق SDB Bank وأرسل الأموال من أي مكان.',ctaBtn:'افتح حسابك المجاني ←',ctaBtn2:'تواصل معنا',
+  balance:'إجمالي الرصيد',send:'إرسال',receive:'استلام',cards:'البطاقات',more:'المزيد',recentTx:'المعاملات الأخيرة',received:'تم الاستلام',
 } : {
-  tag:'⭐ 4.9 from 100,000+ reviews',hd1:'Move your money',hd2:'smarter',
-  sub:'Send and receive money at the real exchange rate. Save up to 90% compared to banks.',
+  heroTag:'⭐ 4.9 from 100,000+ reviews',
+  h1a:'Move your money',h1b:'smarter and instantly',
+  heroP:'Send and receive money at the real exchange rate. Save up to 90% compared to banks.',
   days:'Days',hrs:'Hrs',min:'Min',sec:'Sec',
-  emailPh:'Your email...',notify:'Sign up early',emailDone:'✓ Done! We\'ll notify you at launch.',
-  cta1:'Get started free',cta2:'See how it works',
-  heroStats:[{v:'14M+',l:'Customers'},{v:'70+',l:'Currencies'},{v:'170+',l:'Countries'}],
-  badges:['⚡ Instant transfer','🔒 100% secure'],
-  convTitle:'💱 Transfer Calculator',convSend:'You send',convGet:'They get',convRate:'Rate:',convBtn:'Convert now →',
-  howTitle:'Send money in 4 simple steps',howSub:'No complexity, no hidden fees. Just a simple, transparent way.',
+  emailPh:'Your email...',notify:'Sign up early',emailDone:'✨ Done! We\'ll notify you at launch.',
+  twTitle:'Transfer Calculator',twInstant:'Instant',twSend:'You send',twGets:'Recipient gets',twFee:'fee',twRate:'Exchange rate',twTime:'Delivery time',twSecs:'In seconds',twCta:'Start your transfer →',
+  partTag:'OUR PARTNERS',partTitle:'Working with the best global financial networks',
+  partStats:[{v:'50+',l:'Financial Partners'},{v:'200+',l:'Supported Countries'},{v:'70+',l:'Currencies'},{v:'24/7',l:'Support Available'}],
+  howTag:'HOW IT WORKS',howTitle:'Send money in 4 simple steps',howSub:'No complexity, no hidden fees. Just a simple, transparent way.',
   steps:[{n:'01',t:'Create your account',d:'Signing up is free and takes just 2 minutes.'},{n:'02',t:'Add your recipient',d:'Enter recipient details and bank account.'},{n:'03',t:'Choose the amount',d:'See the real exchange rate and fees.'},{n:'04',t:'Send instantly',d:'Confirm and money arrives in seconds.'}],
   featTag:'FEATURES',featTitle:'Everything you need in one place',featSub:'A complete banking platform with all the tools to manage your money smartly',
-  feats:[{ic:'⚡',t:'Instant transfers',d:'74% of transfers arrive in under 20 seconds'},{ic:'🔒',t:'Advanced security',d:'Bank-level encryption and fraud protection'},{ic:'💰',t:'Real exchange rate',d:'We use the real rate with no markup'},{ic:'🌍',t:'170+ countries',d:'Send money almost anywhere in the world'},{ic:'💳',t:'Smart cards',d:'Free cards to pay and withdraw anywhere'},{ic:'📱',t:'Easy app',d:'Manage everything easily from your phone'},{ic:'🕐',t:'24/7 support',d:'Support team available around the clock'},{ic:'🐷',t:'Save more',d:'Save up to 90% compared to banks'}],
+  feats:[{ic:'⚡',t:'Instant transfers',d:'74% of transfers arrive in under 20 seconds',cl:'feat-amber'},{ic:'🔒',t:'Advanced security',d:'Bank-level encryption and fraud protection',cl:'feat-blue'},{ic:'💰',t:'Real exchange rate',d:'We use the real rate with no markup',cl:'feat-green'},{ic:'🌍',t:'170+ countries',d:'Send money almost anywhere in the world',cl:'feat-purple'},{ic:'💳',t:'Smart cards',d:'Free cards to pay and withdraw anywhere',cl:'feat-pink'},{ic:'📱',t:'Easy app',d:'Manage everything easily from your phone',cl:'feat-orange'},{ic:'🕐',t:'24/7 support',d:'Support team available around the clock',cl:'feat-cyan'},{ic:'🐷',t:'Save more',d:'Save up to 90% compared to banks',cl:'feat-rose'}],
   compTag:'COMPARE PRICES',compTitle:'Save up to 90% on transfer fees',compSub:'Banks hide fees in exchange rates. We offer the real rate with complete transparency.',
-  compSdb:{n:'SDB Bank',rec:'Recommended',amount:'14,250,000',points:['Real exchange rate','Only $2.99 fee','Arrives in seconds']},
-  compBank:{n:'Traditional Bank',amount:'13,800,000',less:'- 450,000 SYP less',points:['Marked up rate (+3%)','$25+ fees','2-5 business days']},
-  compWu:{n:'Western Union',amount:'13,500,000',less:'- 750,000 SYP less',points:['Poor rate (+5%)','$35+ fees','1-3 days']},
+  compBest:'BEST VALUE',compRec:'Recommended',compGets:'Recipient gets',
+  compSdb:{n:'SDB Bank',amt:'14,250,000',pts:['Real exchange rate','Only $2.99 fee','Arrives in seconds']},
+  compBank:{n:'Traditional Bank',amt:'13,800,000',less:'- 450,000 SYP less',pts:['Marked up rate (+3%)','$25+ fees','2-5 business days']},
+  compWu:{n:'Western Union',amt:'13,500,000',less:'- 750,000 SYP less',pts:['Poor rate (+5%)','$35+ fees','1-3 days']},
+  calcTag:'CALCULATOR',calcTitle:'Calculate your transfer now',calcSub:'Use our calculator to find out how much the recipient will receive.',
+  calcBenefits:[{ic:'📈',t:'Real exchange rate',d:'No hidden markups on the rate'},{ic:'⚡',t:'Fast transfer',d:'74% of transfers arrive in 20 seconds'},{ic:'🔒',t:'Safe and secure',d:'Bank-level encryption'}],
+  calcSend:'You send',calcGets:'Recipient gets',calcFee:'Fee',calcExRate:'Exchange rate',calcArrival:'Arrival time',calcSecs:'In seconds',calcCta:'Start Transfer',
+  appTag:'THE APP',appTitle:'Everything in One App',appSub:'Download our app and start managing your money smarter and easier than ever.',
+  appFeats:[{ic:'🔔',t:'Instant Notifications',d:'Alerts for every transaction'},{ic:'👆',t:'Biometric Auth',d:'Login with fingerprint or Face ID'},{ic:'💳',t:'Card Management',d:'Full control of your cards'},{ic:'📊',t:'Spending Analytics',d:'Track and analyze your spending'},{ic:'📷',t:'QR Payments',d:'Pay by scanning QR code'},{ic:'💰',t:'Multi Wallets',d:'Create wallets in different currencies'}],
+  globTag:'GLOBAL COVERAGE',globTitle:'Send money to',globHighlight:'170+ countries',globSub:'Whether you\'re sending to family or paying for business, we cover most countries worldwide.',globCta:'Explore all countries →',globMore:'+162 more currencies',
+  globStats:[{v:'$16B',l:'Monthly transfers'},{v:'10M+',l:'Daily transactions'},{v:'20s',l:'Avg. transfer time'},{v:'0.5%',l:'Low fees'}],
+  trustTag:'SECURITY & TRUST',trustTitle:'Safe at every step',trustSub:'Millions trust us to move their money safely',
+  trustItems:[{ic:'🛡️',t:'Licensed & regulated',d:'Regulated nationwide with 65 licences worldwide'},{ic:'🔐',t:'Safeguarded funds',d:'Your money is protected in separate accounts'},{ic:'👁️',t:'Anti-fraud tech',d:'1,000+ security experts and 7M daily checks'},{ic:'🏅',t:'Bank-level encryption',d:'We use 256-bit encryption to protect your data'}],
+  trustStats:[{v:'14.8M',l:'Active customers'},{v:'$16B',l:'Monthly transfers'},{v:'99.9%',l:'Uptime'},{v:'4.9/5',l:'Customer rating'}],
+  secTag:'SECURITY & PROTECTION',secTitle:'Certified by Top Authorities',secMsg:'Your money is protected by the highest global security standards',
+  secBadges:[{ic:'🛡️',t:'PCI DSS',d:'Payment Card Industry Data Security Standard'},{ic:'🔒',t:'SSL 256-bit',d:'Military-grade encryption'},{ic:'✅',t:'ISO 27001',d:'Information Security Management'},{ic:'🏆',t:'SOC 2 Type II',d:'Security & Privacy Standards'},{ic:'📋',t:'GDPR',d:'Data Protection Compliant'},{ic:'🌐',t:'Swift',d:'Swift Network Member'}],
   testTag:'TESTIMONIALS',testTitle:'Trusted by millions',testSub:'Discover why customers choose SDB Bank',
-  tests:[{n:'Ahmad Mohammad',r:'Businessman',q:'Excellent and fast service. Transfers arrive in seconds. I recommend SDB.',a:'A'},{n:'Sara Al-Ali',r:'Software Engineer',q:'Easy to use app with transparent fees. Best digital banking experience.',a:'S'},{n:'Mahmoud Hassan',r:'Doctor',q:'I\'ve been using SDB for a year. Security and speed are unmatched.',a:'M'},{n:'Nour Al-Din',r:'Project Manager',q:'Saved a lot on fees compared to traditional banks.',a:'N'}],
+  tests:[{n:'Ahmad Mohammad',r:'Businessman',q:'Excellent and fast service. Transfers arrive in seconds.',a:'A'},{n:'Sara Al-Ali',r:'Software Engineer',q:'Easy to use app with transparent fees. Best digital banking.',a:'S'},{n:'Mahmoud Hassan',r:'Doctor',q:'I\'ve been using SDB for a year. Security and speed are unmatched.',a:'M'},{n:'Nour Al-Din',r:'Project Manager',q:'Saved a lot on fees compared to traditional banks.',a:'N'}],
   testStats:[{v:'4.9/5',l:'App Store Rating'},{v:'100K+',l:'Reviews'},{v:'14M+',l:'Happy Customers'},{v:'99%',l:'Satisfaction Rate'}],
   faqTag:'FAQ',faqTitle:'Everything you need to know',
-  faqs:[{q:'How do I open an SDB Bank account?',a:'Registration is free and takes 2 minutes. All you need is your email and ID.'},{q:'What are the transfer fees?',a:'Our fees start from just 0.3% — much less than traditional banks charging 3-5%.'},{q:'How long does a transfer take?',a:'74% of transfers arrive in under 20 seconds. The rest within a few hours.'},{q:'Is my money safe?',a:'Yes. We use AES-256 encryption and two-factor authentication. Protected by strict European standards.'},{q:'Which countries are supported?',a:'We support transfers to 170+ countries worldwide including Syria and Arab countries.'}],
-  ctaTag:'DOWNLOAD APP',ctaTitle:'Banking in your pocket',ctaSub:'Download the SDB Bank app and send money from anywhere. Available on iOS and Android.',
-  statsTitle:'Numbers that speak.',stat1L:'Registered users',stat2L:'Countries',stat3L:'Currencies',stat4L:'Uptime %',
-  footServices:'Services',footAbout:'About',footHelp:'Help',footLegal:'Legal',
-  footDesc:'We make sending money abroad easy, fast, and affordable.',
+  faqs:[{q:'How do I open an SDB Bank account?',a:'Registration is free and takes 2 minutes.'},{q:'What are the transfer fees?',a:'Our fees start from just 0.3%.'},{q:'How long does a transfer take?',a:'74% of transfers arrive in 20 seconds.'},{q:'Is my money safe?',a:'Yes. AES-256 encryption and 2FA.'},{q:'Which countries are supported?',a:'We support 170+ countries worldwide.'}],
+  ctaTitle:'Banking in your pocket',ctaSub:'Download the SDB Bank app and send money from anywhere.',ctaBtn:'Open free account →',ctaBtn2:'Contact us',
+  balance:'Total Balance',send:'Send',receive:'Receive',cards:'Cards',more:'More',recentTx:'Recent Transactions',received:'Received',
 });
-const stepColors = ['from-blue-500 to-blue-600','from-purple-500 to-purple-600','from-amber-500 to-orange-500','from-green-500 to-emerald-500'];
-const stepBgs = ['bg-blue-50','bg-purple-50','bg-amber-50','bg-green-50'];
-const testColors = ['from-blue-400 to-blue-500','from-purple-400 to-purple-500','from-green-400 to-green-500','from-orange-400 to-orange-500'];
+const stepColors = ['sc-blue','sc-purple','sc-amber','sc-green'];
+const stepBgs = ['sb-blue','sb-purple','sb-amber','sb-green'];
+const testColors = ['tc-blue','tc-purple','tc-green','tc-orange'];
+const flagGrid = [{f:'🇺🇸',n:'USD'},{f:'🇪🇺',n:'EUR'},{f:'🇬🇧',n:'GBP'},{f:'🇦🇪',n:'AED'},{f:'🇸🇦',n:'SAR'},{f:'🇹🇷',n:'TRY'},{f:'🇯🇴',n:'JOD'},{f:'🇱🇧',n:'LBP'}];
+const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'10%'},{s:'£',top:'60%',left:'8%'},{s:'¥',top:'70%',right:'5%'},{s:'₺',top:'40%',left:'15%'}];
 </script>
 <template>
-<Head :title="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'"><meta :content="isAr?'SDB Bank — الأسرع والأوفر لتحويل الأموال':'SDB Bank — Fastest & cheapest money transfers'" name="description"/></Head>
+<Head :title="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'"/>
 
-<!-- ═══ HERO ═══ -->
-<section class="v-hero"><div class="v-hero-bg"></div><div class="v-hero-circles"><div class="v-circle v-c1"></div><div class="v-circle v-c2"></div><div class="v-circle v-c3"></div></div>
-<div class="sw v-hero-grid">
-  <div class="v-hero-left">
-    <div class="v-badge an">{{ t.tag }}</div>
-    <h1 class="v-h1 an" style="transition-delay:100ms">{{ t.hd1 }}<br><span class="v-h1-em">{{ t.hd2 }}</span></h1>
-    <p class="v-hero-p an" style="transition-delay:200ms">{{ t.sub }}</p>
-    <div class="v-badges an" style="transition-delay:250ms"><span v-for="b in t.badges" :key="b" class="v-mini-badge">{{ b }}</span></div>
-    <div class="v-hero-cd an" style="transition-delay:300ms"><div v-for="(lb,k) in {d:t.days,h:t.hrs,m:t.min,s:t.sec}" :key="k" class="vcd-b"><div class="vcd-n">{{ String(cd[k]).padStart(2,'0') }}</div><div class="vcd-l">{{ lb }}</div></div></div>
-    <div class="v-hero-eml an" style="transition-delay:400ms"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="veml-i" @keyup.enter="submitEmail"/><button @click="submitEmail" class="veml-b">{{ t.notify }}</button></template><div v-else class="veml-ok">✨ {{ t.emailDone }}</div><div v-if="emailErr" class="veml-err">{{ emailErr }}</div></div>
-    <div class="v-hero-stats an" style="transition-delay:500ms"><div v-for="s in t.heroStats" :key="s.l" class="vhs"><div class="vhs-v">{{ s.v }}</div><div class="vhs-l">{{ s.l }}</div></div></div>
+<!-- ═══════════ 1. HERO ═══════════ -->
+<section class="hero"><div class="hero-bg"></div>
+<div class="hero-circles"><div class="hc hc1"></div><div class="hc hc2"></div><div class="hc hc3"></div></div>
+<div class="sw hero-grid">
+  <div class="hero-left">
+    <div class="hero-tag an">{{ t.heroTag }}</div>
+    <h1 class="hero-h1 an" style="transition-delay:.1s">{{ t.h1a }}<br><span class="hero-em">{{ t.h1b }}</span></h1>
+    <p class="hero-p an" style="transition-delay:.2s">{{ t.heroP }}</p>
+    <div class="hero-cd an" style="transition-delay:.3s"><div v-for="(lb,k) in {d:t.days,h:t.hrs,m:t.min,s:t.sec}" :key="k" class="cd-box"><div class="cd-n">{{ String(cd[k]).padStart(2,'0') }}</div><div class="cd-l">{{ lb }}</div></div></div>
+    <div class="hero-eml an" style="transition-delay:.4s"><template v-if="!done"><input v-model="em" type="email" :placeholder="t.emailPh" class="eml-i" @keyup.enter="submitEmail"/><button @click="submitEmail" class="eml-b" :disabled="submitting">{{ t.notify }}</button></template><div v-else class="eml-ok">{{ t.emailDone }}</div><div v-if="emailErr" class="eml-err">{{ emailErr }}</div></div>
   </div>
-  <div class="v-hero-right an-r">
-    <div class="v-conv">
-      <div class="vc-head">{{ t.convTitle }}</div>
-      <div class="vc-field"><label class="vc-lbl">{{ t.convSend }}</label><div class="vc-row"><select v-model="cFrom" class="vc-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><input v-model.number="cAmt" type="number" class="vc-inp"/></div></div>
-      <div class="vc-swap" @click="swapCurr">⇅</div>
-      <div class="vc-field"><label class="vc-lbl">{{ t.convGet }}</label><div class="vc-row"><select v-model="cTo" class="vc-sel"><option v-for="c in Object.keys(cRates)" :key="c" :value="c">{{ c }}</option></select><div class="vc-res">{{ cResult }}</div></div></div>
-      <div class="vc-rate">{{ t.convRate }} 1 {{ cFrom }} = {{ cRate }} {{ cTo }}</div>
-      <Link href="/exchange-rates" class="vc-cta">{{ t.convBtn }}</Link>
+  <!-- Transfer Widget -->
+  <div class="hero-right an-r">
+    <div class="tw-glow"></div>
+    <div class="tw">
+      <div class="tw-head"><h3 class="tw-title">{{ t.twTitle }}</h3><span class="tw-instant">⚡ {{ t.twInstant }}</span></div>
+      <div class="tw-field"><label class="tw-lbl">{{ t.twSend }}</label><div class="tw-row"><input type="text" :value="sendAmt" @input="onSendInput" class="tw-inp" placeholder="0"/><div class="tw-cur">🇺🇸 <span>USD</span></div></div></div>
+      <div class="tw-swap"><div class="tw-swap-circle">↓</div><div class="tw-line"></div></div>
+      <div class="tw-info"><span>✓ {{ fee }} USD {{ t.twFee }}</span><span>1 USD = {{ exchangeRate.toLocaleString() }} SYP</span></div>
+      <div class="tw-field"><label class="tw-lbl">{{ t.twGets }}</label><div class="tw-row tw-row-result"><span class="tw-result">{{ receivedAmt }}</span><div class="tw-cur tw-cur-result">🇸🇾 <span>SYP</span></div></div></div>
+      <div class="tw-delivery"><span>⚡ {{ t.twTime }}</span><span class="tw-bold">{{ t.twSecs }}</span></div>
+      <Link href="/preregister" class="tw-cta">{{ t.twCta }}</Link>
+      <div class="tw-badges"><span>✓ {{ isAr?'مشفر':'Encrypted' }}</span><span>•</span><span>✓ {{ isAr?'آمن':'Secure' }}</span><span>•</span><span>✓ {{ isAr?'مرخص':'Licensed' }}</span></div>
     </div>
   </div>
 </div></section>
 
-<!-- ═══ MARQUEE ═══ -->
-<div class="v-mq"><div class="v-mq-track"><span v-for="(p,i) in ['SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus','SDB Bank','Mastercard','Apple Pay','Google Pay','SWIFT','SEPA','Syria 🇸🇾','Damascus']" :key="i" class="v-mq-i">{{ p }}</span></div></div>
+<!-- ═══════════ 2. PARTNERS ═══════════ -->
+<section class="sec-dark partners-sec">
+  <div class="partners-glow"></div>
+  <div class="sw" style="position:relative;z-index:1">
+    <div class="sec-hdr an"><p class="pill-green">{{ t.partTag }}</p><h3 class="part-title">{{ t.partTitle }}</h3></div>
+    <div class="mq-wrap"><div class="mq-track"><div v-for="(p,i) in ['VISA','Mastercard','SWIFT','Apple Pay','Google Pay','Samsung Pay','VISA','Mastercard','SWIFT','Apple Pay','Google Pay','Samsung Pay','VISA','Mastercard','SWIFT','Apple Pay','Google Pay','Samsung Pay']" :key="i" class="mq-item">{{ p }}</div></div></div>
+    <div class="part-stats an" data-stagger><div v-for="s in t.partStats" :key="s.l" class="pstat"><div class="pstat-v">{{ s.v }}</div><div class="pstat-l">{{ s.l }}</div></div></div>
+  </div>
+</section>
 
-<!-- ═══ HOW IT WORKS ═══ -->
-<section class="v-sec"><div class="sw">
-  <div class="v-sec-hdr an"><span class="v-pill">{{ isAr?'كيف يعمل':'HOW IT WORKS' }}</span><h2 class="v-t2">{{ t.howTitle }}</h2><p class="v-t2-sub">{{ t.howSub }}</p></div>
-  <div class="v-steps" data-stagger><div v-for="(s,i) in t.steps" :key="i" class="v-step">
-    <div class="v-step-num" :class="stepColors[i]">{{ s.n }}</div>
-    <div class="v-step-card" :class="stepBgs[i]"><h3 class="v-step-t">{{ s.t }}</h3><p class="v-step-d">{{ s.d }}</p></div>
-  </div></div>
-</div></section>
-
-<!-- ═══ FEATURES ═══ -->
-<section class="v-sec v-sec-light"><div class="sw">
-  <div class="v-sec-hdr an"><span class="v-pill">{{ t.featTag }}</span><h2 class="v-t2">{{ t.featTitle }}</h2><p class="v-t2-sub">{{ t.featSub }}</p></div>
-  <div class="v-feats" data-stagger><div v-for="f in t.feats" :key="f.t" class="v-feat">
-    <span class="v-feat-ic">{{ f.ic }}</span><h3 class="v-feat-t">{{ f.t }}</h3><p class="v-feat-d">{{ f.d }}</p>
-  </div></div>
-</div></section>
-
-<!-- ═══ COMPARISON ═══ -->
-<section class="v-sec v-sec-green"><div class="sw">
-  <div class="v-sec-hdr an"><span class="v-pill">{{ t.compTag }}</span><h2 class="v-t2">{{ t.compTitle }}</h2><p class="v-t2-sub">{{ t.compSub }}</p></div>
-  <div class="v-comp" data-stagger>
-    <div class="v-comp-card v-comp-best"><div class="v-comp-badge">{{ isAr?'الأفضل قيمة':'BEST VALUE' }}</div><div class="v-comp-logo"><div class="v-comp-sdb-logo">SDB</div><div><h3 class="v-comp-name">{{ t.compSdb.n }}</h3><span class="v-comp-rec">{{ t.compSdb.rec }}</span></div></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-val">{{ t.compSdb.amount }} <small>SYP</small></span></div><ul class="v-comp-pts"><li v-for="p in t.compSdb.points" :key="p"><span class="v-check">✓</span>{{ p }}</li></ul><Link href="/preregister" class="v-comp-cta">{{ isAr?'ابدأ الآن':'Get started' }} →</Link></div>
-    <div class="v-comp-card v-comp-dim"><div class="v-comp-logo"><div class="v-comp-dim-logo">BANK</div><h3 class="v-comp-name-dim">{{ t.compBank.n }}</h3></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-dim">{{ t.compBank.amount }} <small>SYP</small></span><span class="v-comp-less">{{ t.compBank.less }}</span></div><ul class="v-comp-pts-dim"><li v-for="p in t.compBank.points" :key="p"><span class="v-x">✗</span>{{ p }}</li></ul></div>
-    <div class="v-comp-card v-comp-dim"><div class="v-comp-logo"><div class="v-comp-wu-logo">WU</div><h3 class="v-comp-name-dim">{{ t.compWu.n }}</h3></div><div class="v-comp-amt"><span class="v-comp-amt-lbl">{{ isAr?'المستلم يحصل على':'Recipient gets' }}</span><span class="v-comp-amt-dim">{{ t.compWu.amount }} <small>SYP</small></span><span class="v-comp-less">{{ t.compWu.less }}</span></div><ul class="v-comp-pts-dim"><li v-for="p in t.compWu.points" :key="p"><span class="v-x">✗</span>{{ p }}</li></ul></div>
+<!-- ═══════════ 3. HOW IT WORKS ═══════════ -->
+<section class="sec-white"><div class="sw">
+  <div class="sec-hdr an"><span class="pill">{{ t.howTag }}</span><h2 class="t2">{{ t.howTitle }}</h2><p class="t2-sub">{{ t.howSub }}</p></div>
+  <div class="steps-grid" data-stagger><div class="steps-line"></div>
+    <div v-for="(s,i) in t.steps" :key="i" class="step">
+      <div class="step-num" :class="stepColors[i]">{{ s.n }}</div>
+      <div class="step-card" :class="stepBgs[i]"><h3 class="step-t">{{ s.t }}</h3><p class="step-d">{{ s.d }}</p></div>
+    </div>
   </div>
 </div></section>
 
-<!-- ═══ TESTIMONIALS ═══ -->
-<section class="v-sec v-sec-green"><div class="sw">
-  <div class="v-sec-hdr an"><span class="v-pill">{{ t.testTag }}</span><h2 class="v-t2">{{ t.testTitle }}</h2><p class="v-t2-sub">{{ t.testSub }}</p></div>
-  <div class="v-tests" data-stagger><div v-for="(tt,i) in t.tests" :key="i" class="v-test-card">
-    <div class="v-test-top"><span class="v-test-quote">❝</span><div class="v-test-stars">★★★★★</div></div>
-    <p class="v-test-q">"{{ tt.q }}"</p>
-    <div class="v-test-author"><div class="v-test-avatar" :class="testColors[i]">{{ tt.a }}</div><div><div class="v-test-name">{{ tt.n }}</div><div class="v-test-role">{{ tt.r }}</div></div></div>
-  </div></div>
-  <div class="v-test-stats an"><div v-for="s in t.testStats" :key="s.l" class="v-tstat"><div class="v-tstat-v">{{ s.v }}</div><div class="v-tstat-l">{{ s.l }}</div></div></div>
-</div></section>
-
-<!-- ═══ COUNTERS ═══ -->
-<section class="v-sec"><div class="sw">
-  <h2 class="v-t2 tc an">{{ t.statsTitle }}</h2>
-  <div class="v-counters counter-trigger"><div class="vctr"><div class="vctr-v">{{ counters.users >= 50000 ? '50,000+' : counters.users.toLocaleString() }}</div><div class="vctr-l">{{ t.stat1L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.countries }}+</div><div class="vctr-l">{{ t.stat2L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.currencies }}+</div><div class="vctr-l">{{ t.stat3L }}</div></div><div class="vctr"><div class="vctr-v">{{ counters.uptime }}%</div><div class="vctr-l">{{ t.stat4L }}</div></div></div>
-</div></section>
-
-<!-- ═══ FAQ ═══ -->
-<section class="v-sec v-sec-light"><div class="sw" style="max-width:800px">
-  <div class="v-sec-hdr an"><span class="v-pill">{{ t.faqTag }}</span><h2 class="v-t2">{{ t.faqTitle }}</h2></div>
-  <div class="v-faqs an"><div v-for="(f,i) in t.faqs" :key="i" class="v-faq" :class="{open:faqOpen===i}" @click="toggleFaq(i)">
-    <div class="v-faq-q"><span>{{ f.q }}</span><span class="v-faq-arrow">{{ faqOpen===i?'−':'+' }}</span></div>
-    <div class="v-faq-a" v-if="faqOpen===i">{{ f.a }}</div>
+<!-- ═══════════ 4. FEATURES ═══════════ -->
+<section class="sec-white sec-feat-bg"><div class="sec-feat-glow1"></div><div class="sec-feat-glow2"></div><div class="sw" style="position:relative;z-index:1">
+  <div class="sec-hdr an"><span class="pill">{{ t.featTag }}</span><h2 class="t2">{{ t.featTitle }}</h2><p class="t2-sub">{{ t.featSub }}</p></div>
+  <div class="feats-grid" data-stagger><div v-for="f in t.feats" :key="f.t" class="feat" :class="f.cl">
+    <span class="feat-ic">{{ f.ic }}</span><h3 class="feat-t">{{ f.t }}</h3><p class="feat-d">{{ f.d }}</p>
   </div></div>
 </div></section>
 
-<!-- ═══ CTA ═══ -->
-<section class="v-sec v-sec-cta"><div class="sw tc">
-  <div class="v-cta-tag an">{{ t.ctaTag }}</div>
-  <h2 class="v-t2 an" style="color:#163300">{{ t.ctaTitle }}</h2>
-  <p class="v-t2-sub an tc" style="margin:0 auto 32px">{{ t.ctaSub }}</p>
-  <div class="v-cta-row an"><a href="/preregister" class="v-cta-btn">{{ isAr?'افتح حسابك المجاني ←':'Open free account →' }}</a><a href="/support" class="v-cta-btn2">{{ isAr?'تواصل معنا':'Contact us' }}</a></div>
+<!-- ═══════════ 5. SERVICES COMPARISON ═══════════ -->
+<section class="sec-light"><div class="sw">
+  <div class="sec-hdr an"><span class="pill">{{ t.compTag }}</span><h2 class="t2">{{ t.compTitle }}</h2><p class="t2-sub">{{ t.compSub }}</p></div>
+  <div class="comp-grid" data-stagger>
+    <div class="comp-card comp-best"><div class="comp-badge">{{ t.compBest }}</div><div class="comp-logo"><div class="comp-sdb-icon">SDB</div><div><h3 class="comp-name">{{ t.compSdb.n }}</h3><span class="comp-rec">{{ t.compRec }}</span></div></div><div class="comp-amt-box"><span class="comp-amt-lbl">{{ t.compGets }}</span><span class="comp-amt-val">{{ t.compSdb.amt }} <small>SYP</small></span></div><ul class="comp-pts"><li v-for="p in t.compSdb.pts" :key="p"><span class="ck">✓</span>{{ p }}</li></ul><Link href="/preregister" class="comp-cta">{{ isAr?'ابدأ الآن →':'Get started →' }}</Link></div>
+    <div class="comp-card comp-dim"><div class="comp-logo"><div class="comp-dim-icon">BANK</div><h3 class="comp-name-dim">{{ t.compBank.n }}</h3></div><div class="comp-amt-box"><span class="comp-amt-lbl">{{ t.compGets }}</span><span class="comp-amt-dim">{{ t.compBank.amt }} <small>SYP</small></span><span class="comp-less">{{ t.compBank.less }}</span></div><ul class="comp-pts-dim"><li v-for="p in t.compBank.pts" :key="p"><span class="xx">✗</span>{{ p }}</li></ul></div>
+    <div class="comp-card comp-dim"><div class="comp-logo"><div class="comp-wu-icon">WU</div><h3 class="comp-name-dim">{{ t.compWu.n }}</h3></div><div class="comp-amt-box"><span class="comp-amt-lbl">{{ t.compGets }}</span><span class="comp-amt-dim">{{ t.compWu.amt }} <small>SYP</small></span><span class="comp-less">{{ t.compWu.less }}</span></div><ul class="comp-pts-dim"><li v-for="p in t.compWu.pts" :key="p"><span class="xx">✗</span>{{ p }}</li></ul></div>
+  </div>
+</div></section>
+
+<!-- ═══════════ 6. CALCULATOR ═══════════ -->
+<section class="sec-calc"><div class="sec-calc-glow1"></div><div class="sec-calc-glow2"></div><div class="sw" style="position:relative;z-index:1">
+  <div class="calc-grid">
+    <div class="calc-left an-l">
+      <span class="pill">{{ t.calcTag }}</span>
+      <h2 class="t2" style="text-align:start">{{ t.calcTitle }}</h2>
+      <p class="t2-sub" style="text-align:start;margin:0 0 32px">{{ t.calcSub }}</p>
+      <div class="calc-benefits"><div v-for="b in t.calcBenefits" :key="b.t" class="calc-ben"><div class="calc-ben-ic">{{ b.ic }}</div><div><h4 class="calc-ben-t">{{ b.t }}</h4><p class="calc-ben-d">{{ b.d }}</p></div></div></div>
+    </div>
+    <div class="calc-right an-r">
+      <div class="calc-card">
+        <div class="calc-field"><label class="calc-lbl">{{ t.calcSend }}</label><div class="calc-row"><input v-model="calcAmt" type="number" class="calc-inp" placeholder="0"/><div class="calc-dd-wrap" @click="showFromDD=!showFromDD"><span class="calc-flag">{{ currencies[calcFrom].flag }}</span><span class="calc-code">{{ currencies[calcFrom].code }}</span><span class="calc-chev">▾</span>
+          <div v-if="showFromDD" class="calc-dd"><button v-for="(c,i) in currencies" :key="c.code" @click.stop="pickFrom(i)" class="calc-dd-item"><span>{{ c.flag }}</span><span>{{ c.code }}</span><span class="calc-dd-name">{{ isAr?c.nameAr:c.name }}</span></button></div>
+        </div></div></div>
+        <div class="calc-swap-wrap"><button @click="swapCalc" class="calc-swap-btn">⇅</button></div>
+        <div class="calc-field"><label class="calc-lbl">{{ t.calcGets }}</label><div class="calc-row"><div class="calc-result">{{ calcResult }}</div><div class="calc-dd-wrap" @click="showToDD=!showToDD"><span class="calc-flag">{{ currencies[calcTo].flag }}</span><span class="calc-code">{{ currencies[calcTo].code }}</span><span class="calc-chev">▾</span>
+          <div v-if="showToDD" class="calc-dd"><button v-for="(c,i) in currencies" :key="c.code" @click.stop="pickTo(i)" class="calc-dd-item"><span>{{ c.flag }}</span><span>{{ c.code }}</span><span class="calc-dd-name">{{ isAr?c.nameAr:c.name }}</span></button></div>
+        </div></div></div>
+        <div class="calc-details"><div class="calc-det-row"><span>{{ t.calcFee }}</span><span class="calc-det-val">{{ calcFee }} {{ currencies[calcFrom].code }}</span></div><div class="calc-det-row"><span>{{ t.calcExRate }}</span><span class="calc-det-val calc-det-green">1 {{ currencies[calcFrom].code }} = {{ calcRate }} {{ currencies[calcTo].code }}</span></div><div class="calc-det-row calc-det-border"><span>{{ t.calcArrival }}</span><span class="calc-det-val">⚡ {{ t.calcSecs }}</span></div></div>
+        <button class="calc-cta">{{ t.calcCta }}</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══════════ 7. APP FEATURES (dark) ═══════════ -->
+<section class="sec-dark app-sec"><div class="app-glow1"></div><div class="app-glow2"></div><div class="sw app-grid" style="position:relative;z-index:1">
+  <div class="app-left">
+    <div class="app-badge an">{{ t.appTag }}</div>
+    <h2 class="app-title an" style="transition-delay:.1s">{{ t.appTitle }}</h2>
+    <p class="app-sub an" style="transition-delay:.2s">{{ t.appSub }}</p>
+    <div class="app-feats" data-stagger><div v-for="f in t.appFeats" :key="f.t" class="app-feat"><div class="af-ic">{{ f.ic }}</div><div><h4 class="af-t">{{ f.t }}</h4><p class="af-d">{{ f.d }}</p></div></div></div>
+    <div class="app-dl an" style="transition-delay:.5s">
+      <a href="#" class="dl-gplay"><svg class="dl-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg><div><p class="dl-sm">{{ isAr?'متوفر على':'Get it on' }}</p><p class="dl-lg">Google Play</p></div></a>
+      <a href="#" class="dl-apple"><svg class="dl-svg dl-svg-dark" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><div><p class="dl-sm-dark">{{ isAr?'حمّل من':'Download on the' }}</p><p class="dl-lg-dark">App Store</p></div></a>
+    </div>
+  </div>
+  <!-- Phone Mockup -->
+  <div class="app-right an-r">
+    <div class="phone-float-notif"><div class="pfn-ic">✓</div><div><p class="pfn-sm">{{ t.received }}</p><p class="pfn-amt">+$800.00</p></div></div>
+    <div class="phone"><div class="phone-island"></div><div class="phone-screen">
+      <div class="ps-status"><span>9:41</span><div class="ps-batt"></div></div>
+      <div class="ps-content">
+        <p class="ps-bal-lbl">{{ t.balance }}</p><h3 class="ps-bal">$12,485<span>.50</span></h3>
+        <div class="ps-actions"><div v-for="(a,i) in [{ic:'↑',lb:t.send,c:'psa-green'},{ic:'↓',lb:t.receive,c:'psa-blue'},{ic:'⬚',lb:t.cards,c:'psa-purple'},{ic:'•••',lb:t.more,c:'psa-gray'}]" :key="i" class="ps-action"><div class="psa-ic" :class="a.c">{{ a.ic }}</div><span class="psa-lb">{{ a.lb }}</span></div></div>
+        <p class="ps-tx-lbl">{{ t.recentTx }}</p>
+        <div v-for="(tx,i) in [{n:'Netflix',a:'-$15.99',ic:'N',c:'pstx-red'},{n:'Salary',a:'+$3,500',ic:'S',c:'pstx-green',pos:true},{n:'Transfer',a:'-$200',ic:'T',c:'pstx-blue'}]" :key="i" class="ps-tx"><div class="pstx-left"><div class="pstx-ic" :class="tx.c">{{ tx.ic }}</div><span class="pstx-name">{{ tx.n }}</span></div><span class="pstx-amt" :class="{'pstx-pos':tx.pos}">{{ tx.a }}</span></div>
+      </div>
+    </div></div>
+    <div class="phone-float-rating"><span class="pfr-score">4.9</span><span class="pfr-stars">★★★★★</span><span class="pfr-label">App Store</span></div>
+  </div>
+</div></section>
+
+<!-- ═══════════ 8. GLOBAL COVERAGE (dark) ═══════════ -->
+<section class="sec-dark glob-sec"><div class="glob-glow1"></div><div class="glob-glow2"></div>
+  <div v-for="(fs,i) in floatingSymbols" :key="i" class="glob-float" :style="{top:fs.top,left:fs.left,right:fs.right,animationDelay:i*0.5+'s'}">{{ fs.s }}</div>
+  <div class="sw glob-grid" style="position:relative;z-index:1">
+    <div class="glob-left an-l"><span class="pill-green-border">{{ t.globTag }}</span><h2 class="glob-h2">{{ t.globTitle }}<br><span class="glob-hl">{{ t.globHighlight }}</span></h2><p class="glob-p">{{ t.globSub }}</p><Link href="/exchange-rates" class="glob-cta">{{ t.globCta }}</Link></div>
+    <div class="glob-right an-r"><div class="flag-grid" data-stagger><div v-for="c in flagGrid" :key="c.n" class="flag-item"><span class="flag-emoji">{{ c.f }}</span><span class="flag-code">{{ c.n }}</span></div></div><div class="flag-more">{{ t.globMore }}</div></div>
+  </div>
+  <div class="glob-stats an"><div v-for="s in t.globStats" :key="s.l" class="gstat"><p class="gstat-v">{{ s.v }}</p><p class="gstat-l">{{ s.l }}</p></div></div>
+</section>
+
+<!-- ═══════════ 9. TRUST (dark) ═══════════ -->
+<section class="sec-dark trust-sec"><div class="trust-glow1"></div><div class="trust-glow2"></div><div class="trust-grid-bg"></div>
+<div class="sw" style="position:relative;z-index:1">
+  <div class="sec-hdr an"><span class="pill-green-border">{{ t.trustTag }}</span><h2 class="t2" style="color:#fff">{{ t.trustTitle }}</h2><p class="t2-sub" style="color:rgba(255,255,255,.7)">{{ t.trustSub }}</p></div>
+  <div class="trust-grid" data-stagger><div v-for="ti in t.trustItems" :key="ti.t" class="trust-card"><div class="trust-ic-wrap"><span class="trust-ic">{{ ti.ic }}</span></div><div><h3 class="trust-t">{{ ti.t }}</h3><p class="trust-d">{{ ti.d }}</p></div></div></div>
+  <div class="trust-stats an"><div v-for="s in t.trustStats" :key="s.l" class="tstat"><p class="tstat-v">{{ s.v }}</p><p class="tstat-l">{{ s.l }}</p></div></div>
+</div></section>
+
+<!-- ═══════════ 10. SECURITY BADGES ═══════════ -->
+<section class="sec-light"><div class="sw">
+  <div class="sec-hdr an"><span class="pill">{{ t.secTag }}</span><h2 class="t2">{{ t.secTitle }}</h2></div>
+  <div class="sec-badges" data-stagger><div v-for="b in t.secBadges" :key="b.t" class="sbadge"><div class="sbadge-ic">{{ b.ic }}</div><h3 class="sbadge-t">{{ b.t }}</h3><p class="sbadge-d">{{ b.d }}</p></div></div>
+  <p class="sec-trust-msg an">{{ t.secMsg }}</p>
+</div></section>
+
+<!-- ═══════════ 11. TESTIMONIALS ═══════════ -->
+<section class="sec-light"><div class="sw">
+  <div class="sec-hdr an"><span class="pill">{{ t.testTag }}</span><h2 class="t2">{{ t.testTitle }}</h2><p class="t2-sub">{{ t.testSub }}</p></div>
+  <div class="tests-grid" data-stagger><div v-for="(tt,i) in t.tests" :key="i" class="test-card">
+    <div class="test-top"><span class="test-quote">❝</span><span class="test-stars">★★★★★</span></div>
+    <p class="test-q">"{{ tt.q }}"</p>
+    <div class="test-author"><div class="test-avatar" :class="testColors[i]">{{ tt.a }}</div><div><div class="test-name">{{ tt.n }}</div><div class="test-role">{{ tt.r }}</div></div></div>
+  </div></div>
+  <div class="test-stats-bar an"><div v-for="s in t.testStats" :key="s.l" class="ts-item"><div class="ts-v">{{ s.v }}</div><div class="ts-l">{{ s.l }}</div></div></div>
+</div></section>
+
+<!-- ═══════════ 12. FAQ ═══════════ -->
+<section class="sec-white"><div class="sw" style="max-width:800px">
+  <div class="sec-hdr an"><span class="pill">{{ t.faqTag }}</span><h2 class="t2">{{ t.faqTitle }}</h2></div>
+  <div class="faqs an"><div v-for="(f,i) in t.faqs" :key="i" class="faq" :class="{faqOpen:faqOpen===i}" @click="toggleFaq(i)">
+    <div class="faq-q"><span>{{ f.q }}</span><span class="faq-arrow">{{ faqOpen===i?'−':'+' }}</span></div>
+    <div class="faq-a" v-if="faqOpen===i">{{ f.a }}</div>
+  </div></div>
+</div></section>
+
+<!-- ═══════════ 13. CTA ═══════════ -->
+<section class="sec-cta"><div class="sw tc">
+  <h2 class="t2 an">{{ t.ctaTitle }}</h2>
+  <p class="t2-sub an tc" style="margin:0 auto 32px">{{ t.ctaSub }}</p>
+  <div class="cta-row an"><a href="/preregister" class="cta-btn">{{ t.ctaBtn }}</a><a href="/support" class="cta-btn2">{{ t.ctaBtn2 }}</a></div>
 </div></section>
 </template>
 
 <style scoped>
-/* ═══ V0 GREEN DESIGN ═══ */
-:root{--g1:#9FE870;--g2:#163300;--g3:#2D6A00;--g4:#E8F5E0;--g5:#F5F9F3;--g6:#F0FBE8;}
-
-/* HERO */
-.v-hero{padding:160px 0 80px;position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center}
-.v-hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#E8F5E0,#F0FBE8,#fff)}
-.v-hero-circles{position:absolute;inset:0;overflow:hidden}
-.v-circle{position:absolute;border-radius:50%;filter:blur(80px)}
-.v-c1{top:-20%;right:-10%;width:600px;height:600px;background:rgba(159,232,112,.3);animation:pulse 4s ease-in-out infinite}
-.v-c2{bottom:-20%;left:-10%;width:500px;height:500px;background:rgba(159,232,112,.2);animation:pulse 6s ease-in-out infinite}
-.v-c3{top:40%;left:30%;width:300px;height:300px;background:rgba(22,51,0,.05)}
-.v-hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
-.v-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:#163300;border:1px solid rgba(159,232,112,.3);margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.v-h1{font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:900;color:#163300;line-height:1.05;letter-spacing:-.04em;margin-bottom:20px}.rtl .v-h1{letter-spacing:0}
-.v-h1-em{color:#2D6A00;position:relative;display:inline-block}
-.v-hero-p{font-size:18px;color:#555;line-height:1.85;margin-bottom:24px;max-width:500px}
-.v-badges{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
-.v-mini-badge{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.6);backdrop-filter:blur(4px);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;color:#163300}
-.v-hero-cd{display:flex;gap:18px;margin-bottom:28px}
-.vcd-b{text-align:center}.vcd-n{font-size:38px;font-weight:900;color:#163300;line-height:1;font-variant-numeric:tabular-nums}.vcd-l{font-size:10px;color:rgba(22,51,0,.4);margin-top:3px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
-.v-hero-eml{display:flex;gap:0;max-width:420px;border:2px solid #163300;border-radius:999px;overflow:hidden;margin-bottom:28px}
-.veml-i{flex:1;padding:14px 20px;border:none;outline:none;font-size:15px;background:transparent;color:#163300;font-family:inherit}.veml-i::placeholder{color:#aaa}
-.veml-b{padding:14px 28px;background:#163300;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}.veml-b:hover{background:#1e4400}
-.veml-ok{padding:14px;color:#2D6A00;font-weight:700;font-size:14px}.veml-err{font-size:12px;color:#DC2626;font-weight:700;margin-top:6px}
-.rtl .v-hero-eml{flex-direction:row-reverse}
-.v-hero-stats{display:flex;gap:32px}
-.vhs{text-align:center}.vhs-v{font-size:26px;font-weight:900;color:#163300}.vhs-l{font-size:12px;color:#888}
-
-/* CONVERTER */
-.v-conv{background:#fff;border:1px solid rgba(159,232,112,.15);border-radius:24px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.06);position:relative}
-.vc-head{font-size:15px;font-weight:800;color:#163300;margin-bottom:20px;text-align:center}
-.vc-field{margin-bottom:8px}.vc-lbl{font-size:12px;font-weight:700;color:#888;margin-bottom:6px;display:block}
-.vc-row{display:flex;gap:8px;align-items:center}
-.vc-sel{padding:12px;border:1px solid rgba(159,232,112,.15);border-radius:12px;font-size:16px;font-weight:800;color:#163300;background:#F8FAF6;cursor:pointer;font-family:inherit;outline:none;min-width:80px}
-.vc-inp{flex:1;padding:12px;border:1px solid rgba(159,232,112,.15);border-radius:12px;font-size:22px;font-weight:900;color:#163300;outline:none;font-family:inherit;text-align:end;background:#F8FAF6}.vc-inp:focus{border-color:#9FE870}
-.vc-inp::-webkit-inner-spin-button,.vc-inp::-webkit-outer-spin-button{-webkit-appearance:none}.vc-inp{-moz-appearance:textfield}
-.rtl .vc-inp{text-align:start}
-.vc-res{flex:1;padding:12px;background:#F0FBE8;border-radius:12px;font-size:22px;font-weight:900;color:#2D6A00;text-align:end}.rtl .vc-res{text-align:start}
-.vc-swap{text-align:center;font-size:16px;color:rgba(159,232,112,.4);margin:4px 0;cursor:pointer;transition:color .2s}.vc-swap:hover{color:#9FE870}
-.vc-rate{font-size:12px;color:#888;text-align:center;margin:12px 0;font-weight:600}
-.vc-cta{display:block;padding:14px;background:linear-gradient(135deg,#163300,#2D6A00);color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:12px;text-decoration:none;transition:all .2s}.vc-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,51,0,.15)}
-
-/* MARQUEE */
-.v-mq{padding:16px 0;border-top:1px solid rgba(0,0,0,.04);border-bottom:1px solid rgba(0,0,0,.04);overflow:hidden;background:#fafafa}
-.v-mq-track{display:flex;gap:48px;animation:mqs 25s linear infinite;white-space:nowrap}
-.v-mq-i{font-size:13px;font-weight:800;color:rgba(22,51,0,.06);letter-spacing:3px;text-transform:uppercase}
+.sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
+.sec-white{padding:100px 0;background:#fff;position:relative;overflow:hidden}
+.sec-light{padding:100px 0;background:#F5F9F3;position:relative;overflow:hidden}
+.sec-dark{padding:100px 0;background:linear-gradient(135deg,#163300,#1a3d00,#0f2600);position:relative;overflow:hidden;color:#fff}
+.sec-cta{padding:120px 0;background:linear-gradient(135deg,#F0FBE8,#E8F5E0)}
+.sec-hdr{text-align:center;margin-bottom:48px}
+.pill{display:inline-block;padding:6px 16px;background:#E8F5E0;color:#2D6A00;font-size:12px;font-weight:700;border-radius:999px;margin-bottom:12px;letter-spacing:1px}
+.pill-green{display:inline-block;color:#9FE870;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.pill-green-border{display:inline-block;padding:6px 16px;background:rgba(159,232,112,.2);color:#9FE870;font-size:12px;font-weight:700;border-radius:999px;margin-bottom:16px;border:1px solid rgba(159,232,112,.3)}
+.t2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;color:#163300}.rtl .t2{letter-spacing:0}
+.t2-sub{font-size:16px;color:#666;line-height:1.85;max-width:550px;margin:0 auto}
+.hero{padding:160px 0 80px;position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#E8F5E0,#F0FBE8,#fff)}
+.hero-circles{position:absolute;inset:0;overflow:hidden}
+.hc{position:absolute;border-radius:50%;filter:blur(80px)}.hc1{top:-20%;right:-10%;width:600px;height:600px;background:rgba(159,232,112,.3);animation:pulse 4s ease-in-out infinite}.hc2{bottom:-20%;left:-10%;width:500px;height:500px;background:rgba(159,232,112,.2);animation:pulse 6s ease-in-out infinite}.hc3{top:40%;left:30%;width:300px;height:300px;background:rgba(22,51,0,.05)}
+.hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
+.hero-tag{display:inline-flex;background:rgba(255,255,255,.8);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:#163300;border:1px solid rgba(159,232,112,.3);margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.hero-h1{font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:900;color:#163300;line-height:1.05;letter-spacing:-.04em;margin-bottom:20px}.hero-em{color:#2D6A00}
+.hero-p{font-size:18px;color:#555;line-height:1.85;margin-bottom:24px;max-width:500px}
+.hero-cd{display:flex;gap:18px;margin-bottom:28px}
+.cd-box{text-align:center}.cd-n{font-size:38px;font-weight:900;color:#163300;line-height:1;font-variant-numeric:tabular-nums}.cd-l{font-size:10px;color:rgba(22,51,0,.4);margin-top:3px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.hero-eml{display:flex;max-width:420px;border:2px solid #163300;border-radius:999px;overflow:hidden;margin-bottom:28px}
+.eml-i{flex:1;padding:14px 20px;border:none;outline:none;font-size:15px;background:transparent;color:#163300;font-family:inherit}.eml-i::placeholder{color:#aaa}
+.eml-b{padding:14px 28px;background:#163300;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}.eml-b:hover{background:#1e4400}
+.eml-ok{padding:14px;color:#2D6A00;font-weight:700;font-size:14px}.eml-err{font-size:12px;color:#DC2626;font-weight:700;margin-top:6px}
+.rtl .hero-eml{flex-direction:row-reverse}
+.hero-right{position:relative}
+.tw-glow{position:absolute;inset:0;background:linear-gradient(135deg,rgba(159,232,112,.4),rgba(159,232,112,.2));border-radius:36px;filter:blur(40px);transform:scale(.9);opacity:.6}
+.tw{position:relative;background:#fff;border-radius:32px;box-shadow:0 20px 80px rgba(0,0,0,.08);padding:32px;max-width:440px;margin:0 auto;border:1px solid #f0f0f0}
+.tw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.tw-title{font-weight:800;color:#163300;font-size:18px}.tw-instant{background:#F0FDF4;color:#16A34A;font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px}
+.tw-field{margin-bottom:8px}.tw-lbl{font-size:13px;font-weight:600;color:#888;margin-bottom:8px;display:block}
+.tw-row{display:flex;align-items:center;justify-content:space-between;border:2px solid #f0f0f0;border-radius:16px;padding:16px 20px;transition:all .2s}.tw-row:focus-within{border-color:#9FE870;box-shadow:0 0 0 4px rgba(159,232,112,.1)}
+.tw-row-result{background:linear-gradient(to right,#F0FBE8,#E8F5E0);border-color:#9FE870}
+.tw-inp{font-size:28px;font-weight:900;color:#163300;border:none;outline:none;background:transparent;width:100%;font-family:inherit}.tw-inp::-webkit-inner-spin-button,.tw-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+.tw-result{font-size:28px;font-weight:900;color:#163300;flex:1}
+.tw-cur{display:flex;align-items:center;gap:8px;background:#f8f8f8;border-radius:12px;padding:8px 16px;flex-shrink:0;cursor:pointer;transition:background .2s;font-size:18px}.tw-cur:hover{background:#f0f0f0}.tw-cur span{font-weight:700;color:#163300;font-size:14px}
+.tw-cur-result{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tw-swap{position:relative;padding:12px 0;display:flex;align-items:center;justify-content:center}
+.tw-swap-circle{width:40px;height:40px;background:#163300;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;box-shadow:0 4px 12px rgba(22,51,0,.2);z-index:1}
+.tw-line{position:absolute;top:50%;left:0;right:0;height:1px;border-top:1px dashed #e0e0e0}
+.tw-info{display:flex;justify-content:space-between;padding:0 8px;margin-bottom:8px;font-size:13px;color:#888}.tw-info span:first-child{color:#16A34A}
+.tw-delivery{display:flex;justify-content:space-between;padding:12px 16px;background:#f8f8f8;border-radius:12px;margin:16px 0;font-size:13px;color:#888}.tw-bold{font-weight:800;color:#163300}
+.tw-cta{display:block;padding:16px;background:#163300;color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:16px;text-decoration:none;transition:all .2s;margin-bottom:16px}.tw-cta:hover{background:#1e4400;transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,51,0,.15)}
+.tw-badges{display:flex;justify-content:center;gap:8px;font-size:11px;color:#aaa}
+.partners-sec{padding:80px 0}.partners-glow{position:absolute;top:0;left:25%;width:500px;height:500px;background:#9FE870;border-radius:50%;filter:blur(150px);opacity:.3;animation:pulse 4s ease-in-out infinite}
+.part-title{font-size:clamp(1.2rem,2.5vw,1.5rem);color:#fff;font-weight:500;text-align:center}
+.mq-wrap{overflow:hidden;margin:32px 0}.mq-track{display:flex;gap:16px;animation:mqs 20s linear infinite;white-space:nowrap}
+.mq-item{flex-shrink:0;padding:12px 32px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:rgba(255,255,255,.8);font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:background .3s}.mq-item:hover{background:rgba(255,255,255,.2)}
 @keyframes mqs{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-/* SECTIONS */
-.v-sec{padding:100px 0}.v-sec-light{background:#fff}.v-sec-green{background:#F5F9F3}
-.v-sec-cta{padding:120px 0;background:linear-gradient(135deg,#F0FBE8,#E8F5E0)}
-.v-sec-hdr{text-align:center;margin-bottom:48px}.sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.v-pill{display:inline-block;padding:6px 16px;background:#E8F5E0;color:#2D6A00;font-size:12px;font-weight:700;border-radius:999px;margin-bottom:12px;letter-spacing:1px}
-.v-t2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;color:#163300}.rtl .v-t2{letter-spacing:0}
-.v-t2-sub{font-size:16px;color:#666;line-height:1.85;max-width:550px;margin:0 auto}
-
-/* HOW IT WORKS */
-.v-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
-.v-step-num{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:14px;box-shadow:0 8px 20px rgba(0,0,0,.1);transition:all .4s}
-.v-step-num:hover{transform:scale(1.1) rotate(6deg)}
-.v-step-card{border-radius:16px;padding:20px;transition:all .3s}.v-step-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06)}
-.v-step-t{font-size:17px;font-weight:800;color:#163300;margin-bottom:8px}
-.v-step-d{font-size:14px;color:#666;line-height:1.7}
-
-/* FEATURES */
-.v-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.v-feat{padding:24px;background:#fff;border:2px solid #f0f0f0;border-radius:20px;transition:all .4s;cursor:pointer}
-.v-feat:hover{border-color:#9FE870;transform:translateY(-6px);box-shadow:0 16px 40px rgba(159,232,112,.15)}
-.v-feat-ic{font-size:32px;display:block;margin-bottom:12px}
-.v-feat-t{font-size:16px;font-weight:800;color:#163300;margin-bottom:6px}
-.v-feat-d{font-size:13px;color:#666;line-height:1.7}
-
-/* COMPARISON */
-.v-comp{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.v-comp-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;position:relative;transition:all .3s}
-.v-comp-best{border:2px solid #9FE870;box-shadow:0 16px 40px rgba(159,232,112,.15)}
-.v-comp-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);padding:6px 18px;background:linear-gradient(135deg,#163300,#2D6A00);color:#fff;font-size:11px;font-weight:800;border-radius:999px;white-space:nowrap;box-shadow:0 4px 12px rgba(22,51,0,.2)}
-.v-comp-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.v-comp-sdb-logo{width:48px;height:48px;background:linear-gradient(135deg,#9FE870,#7ACC50);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#163300;font-size:13px;box-shadow:0 4px 12px rgba(159,232,112,.3)}
-.v-comp-name{font-weight:800;color:#163300;font-size:16px}.v-comp-rec{font-size:11px;color:#2D6A00}
-.v-comp-dim{opacity:.75;transition:opacity .3s}.v-comp-dim:hover{opacity:1}
-.v-comp-dim-logo{width:48px;height:48px;background:#f0f0f0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#aaa;font-size:12px}
-.v-comp-wu-logo{width:48px;height:48px;background:#FEF9E7;border:1px solid #F59E0B;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#D97706;font-size:12px}
-.v-comp-name-dim{font-weight:800;color:#888;font-size:16px}
-.v-comp-amt{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}
-.v-comp-amt-lbl{display:block;font-size:12px;color:#888;margin-bottom:4px}
-.v-comp-amt-val{font-size:28px;font-weight:900;color:#163300}.v-comp-amt-val small{font-size:14px;color:#888;margin-inline-start:4px}
-.v-comp-amt-dim{font-size:28px;font-weight:900;color:#bbb}.v-comp-amt-dim small{font-size:14px}
-.v-comp-less{display:block;font-size:11px;color:#EF4444;margin-top:2px}
-.v-comp-pts{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:10px}
-.v-comp-pts li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#333}
-.v-check{width:22px;height:22px;background:#E8F5E0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#2D6A00;font-size:12px;font-weight:900;flex-shrink:0}
-.v-comp-pts-dim{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
-.v-comp-pts-dim li{display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa}
-.v-x{width:22px;height:22px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#EF4444;font-size:12px;font-weight:900;flex-shrink:0}
-.v-comp-cta{display:block;padding:14px;background:#163300;color:#fff;text-align:center;border-radius:14px;font-weight:800;font-size:14px;text-decoration:none;transition:all .2s}.v-comp-cta:hover{background:#1e4400;box-shadow:0 8px 20px rgba(22,51,0,.15)}
-
-/* TESTIMONIALS */
-.v-tests{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.v-test-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;transition:all .4s;cursor:pointer}
-.v-test-card:hover{border-color:rgba(159,232,112,.3);box-shadow:0 16px 40px rgba(0,0,0,.06);transform:translateY(-3px)}
-.v-test-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.v-test-quote{font-size:36px;color:rgba(159,232,112,.3);line-height:1;font-weight:900}
-.v-test-stars{color:#F59E0B;font-size:14px;letter-spacing:2px}
-.v-test-q{font-size:16px;color:#333;line-height:1.8;margin-bottom:20px}
-.v-test-author{display:flex;align-items:center;gap:12px}
-.v-test-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;transition:transform .3s}
-.v-test-card:hover .v-test-avatar{transform:scale(1.1)}
-.v-test-name{font-weight:800;color:#163300;font-size:15px}.v-test-role{font-size:12px;color:#888}
-.v-test-stats{margin-top:40px;background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8}
-.v-test-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
-.v-tstat-v{font-size:24px;font-weight:900;color:#163300;margin-bottom:2px}
-.v-tstat-l{font-size:12px;color:#888}
-
-/* COUNTERS */
-.v-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(159,232,112,.1);border:1px solid rgba(159,232,112,.15);border-radius:20px;overflow:hidden}
-.vctr{padding:48px 24px;background:#fff;text-align:center}
-.vctr-v{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#2D6A00;margin-bottom:6px;font-variant-numeric:tabular-nums}
-.vctr-l{font-size:13px;color:#888;font-weight:700}
-
-/* FAQ */
-.v-faqs{display:flex;flex-direction:column;gap:8px}
-.v-faq{background:#fff;border:1px solid #e8e8e8;border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .3s}
-.v-faq:hover,.v-faq.open{border-color:#9FE870;box-shadow:0 4px 16px rgba(159,232,112,.1)}
-.v-faq-q{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:#163300}
-.v-faq-arrow{font-size:20px;color:#9FE870;font-weight:300}
-.v-faq-a{margin-top:12px;font-size:14px;color:#666;line-height:1.8;padding-top:12px;border-top:1px solid #f0f0f0}
-
-/* CTA */
-.v-cta-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:#2D6A00;text-transform:uppercase;margin-bottom:20px}.rtl .v-cta-tag{letter-spacing:0}
-.v-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.v-cta-btn{display:inline-block;padding:18px 48px;background:#163300;color:#fff;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;transition:all .3s}.v-cta-btn:hover{background:#1e4400;transform:translateY(-2px);box-shadow:0 12px 32px rgba(22,51,0,.15)}
-.v-cta-btn2{display:inline-block;padding:18px 48px;background:transparent;color:#163300;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;border:2px solid rgba(22,51,0,.15);transition:all .2s}.v-cta-btn2:hover{border-color:#163300}
-
-/* BG Classes for steps */
-.from-blue-500{background:linear-gradient(135deg,#3B82F6,#2563EB)}.from-purple-500{background:linear-gradient(135deg,#8B5CF6,#7C3AED)}.from-amber-500{background:linear-gradient(135deg,#F59E0B,#EA580C)}.from-green-500{background:linear-gradient(135deg,#22C55E,#10B981)}
-.from-blue-400{background:linear-gradient(135deg,#60A5FA,#3B82F6)}.from-purple-400{background:linear-gradient(135deg,#A78BFA,#8B5CF6)}.from-green-400{background:linear-gradient(135deg,#4ADE80,#22C55E)}.from-orange-400{background:linear-gradient(135deg,#FB923C,#F97316)}
-.bg-blue-50{background:#EFF6FF}.bg-purple-50{background:#F5F3FF}.bg-amber-50{background:#FFFBEB}.bg-green-50{background:#F0FDF4}
-
-/* ANIMATIONS */
+.part-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;margin-top:40px}
+.pstat-v{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:900;color:#9FE870;margin-bottom:4px}.pstat-l{font-size:13px;color:rgba(255,255,255,.7)}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.steps-line{display:none;position:absolute;top:36px;left:10%;right:10%;height:4px;background:linear-gradient(to right,#3B82F6,#8B5CF6,#F59E0B,#22C55E);border-radius:2px}@media(min-width:1024px){.steps-line{display:block}}
+.step-num{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:14px;box-shadow:0 8px 20px rgba(0,0,0,.1);transition:all .4s;position:relative;z-index:1}.step-num:hover{transform:scale(1.1) rotate(6deg)}
+.sc-blue{background:linear-gradient(135deg,#3B82F6,#2563EB)}.sc-purple{background:linear-gradient(135deg,#8B5CF6,#7C3AED)}.sc-amber{background:linear-gradient(135deg,#F59E0B,#EA580C)}.sc-green{background:linear-gradient(135deg,#22C55E,#10B981)}
+.step-card{border-radius:16px;padding:20px;transition:all .3s}.step-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.sb-blue{background:#EFF6FF}.sb-purple{background:#F5F3FF}.sb-amber{background:#FFFBEB}.sb-green{background:#F0FDF4}
+.step-t{font-size:17px;font-weight:800;color:#163300;margin-bottom:8px}.step-d{font-size:14px;color:#666;line-height:1.7}
+.sec-feat-bg{overflow:hidden;position:relative}.sec-feat-glow1{position:absolute;top:0;left:0;width:100%;height:128px;background:linear-gradient(to bottom,#F0FBE8,transparent)}.sec-feat-glow2{position:absolute;bottom:0;right:0;width:384px;height:384px;background:rgba(159,232,112,.1);border-radius:50%;filter:blur(100px)}
+.feats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.feat{padding:24px;background:#fff;border:2px solid #f0f0f0;border-radius:24px;transition:all .4s;cursor:pointer}.feat:hover{border-color:#9FE870;transform:translateY(-6px);box-shadow:0 16px 40px rgba(159,232,112,.15)}
+.feat-ic{font-size:32px;display:block;margin-bottom:12px;transition:transform .3s}.feat:hover .feat-ic{transform:scale(1.15) rotate(6deg)}
+.feat-t{font-size:16px;font-weight:800;color:#163300;margin-bottom:6px;transition:color .3s}.feat:hover .feat-t{color:#2D6A00}
+.feat-d{font-size:13px;color:#666;line-height:1.7}
+.comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.comp-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;position:relative;transition:all .3s}
+.comp-best{border:2px solid #9FE870;box-shadow:0 16px 40px rgba(159,232,112,.15)}
+.comp-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);padding:6px 18px;background:linear-gradient(135deg,#163300,#2D6A00);color:#fff;font-size:11px;font-weight:800;border-radius:999px;white-space:nowrap;box-shadow:0 4px 12px rgba(22,51,0,.2)}
+.comp-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.comp-sdb-icon{width:48px;height:48px;background:linear-gradient(135deg,#9FE870,#7ACC50);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#163300;font-size:13px;box-shadow:0 4px 12px rgba(159,232,112,.3)}
+.comp-name{font-weight:800;color:#163300;font-size:16px}.comp-rec{font-size:11px;color:#2D6A00}
+.comp-dim{opacity:.75;transition:opacity .3s}.comp-dim:hover{opacity:1}
+.comp-dim-icon{width:48px;height:48px;background:#f0f0f0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#aaa;font-size:12px}
+.comp-wu-icon{width:48px;height:48px;background:#FEF9E7;border:1px solid #F59E0B;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#D97706;font-size:12px}
+.comp-name-dim{font-weight:800;color:#888;font-size:16px}
+.comp-amt-box{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f0f0}.comp-amt-lbl{display:block;font-size:12px;color:#888;margin-bottom:4px}
+.comp-amt-val{font-size:28px;font-weight:900;color:#163300}.comp-amt-val small{font-size:14px;color:#888;margin-inline-start:4px}
+.comp-amt-dim{font-size:28px;font-weight:900;color:#bbb}.comp-amt-dim small{font-size:14px}
+.comp-less{display:block;font-size:11px;color:#EF4444;margin-top:2px}
+.comp-pts{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:10px}
+.comp-pts li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#333}
+.ck{width:22px;height:22px;background:#E8F5E0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#2D6A00;font-size:12px;font-weight:900;flex-shrink:0}
+.comp-pts-dim{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.comp-pts-dim li{display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa}
+.xx{width:22px;height:22px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#EF4444;font-size:12px;font-weight:900;flex-shrink:0}
+.comp-cta{display:block;padding:14px;background:#163300;color:#fff;text-align:center;border-radius:14px;font-weight:800;font-size:14px;text-decoration:none;transition:all .2s}.comp-cta:hover{background:#1e4400;box-shadow:0 8px 20px rgba(22,51,0,.15)}
+.sec-calc{padding:100px 0;background:#F8FBF5;position:relative;overflow:hidden}
+.sec-calc-glow1{position:absolute;top:0;right:0;width:600px;height:600px;background:rgba(159,232,112,.1);border-radius:50%;filter:blur(150px)}.sec-calc-glow2{position:absolute;bottom:0;left:0;width:400px;height:400px;background:rgba(22,51,0,.05);border-radius:50%;filter:blur(100px)}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.calc-benefits{display:flex;flex-direction:column;gap:12px}
+.calc-ben{display:flex;align-items:flex-start;gap:16px;padding:16px;background:#fff;border:1px solid #f0f0f0;border-radius:16px}
+.calc-ben-ic{width:48px;height:48px;border-radius:12px;background:#E8F5E0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.calc-ben-t{font-weight:700;color:#163300;margin-bottom:2px;font-size:14px}.calc-ben-d{font-size:13px;color:#888}
+.calc-card{background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(22,51,0,.08);padding:32px;border:1px solid #f0f0f0}
+.calc-field{margin-bottom:8px}.calc-lbl{font-size:12px;font-weight:600;color:#888;margin-bottom:8px;display:block}
+.calc-row{display:flex;gap:12px}
+.calc-inp{flex:1;font-size:28px;font-weight:900;color:#163300;background:#f8f8f8;border:2px solid #f0f0f0;border-radius:16px;padding:16px 20px;outline:none;font-family:inherit;transition:all .2s}.calc-inp:focus{border-color:#9FE870;box-shadow:0 0 0 4px rgba(159,232,112,.15)}
+.calc-inp::-webkit-inner-spin-button,.calc-inp::-webkit-outer-spin-button{-webkit-appearance:none}.calc-inp{-moz-appearance:textfield}
+.calc-result{flex:1;font-size:28px;font-weight:900;color:#163300;background:#E8F5E0;border:2px solid rgba(159,232,112,.3);border-radius:16px;padding:16px 20px}
+.calc-dd-wrap{position:relative;display:flex;align-items:center;gap:8px;background:#f8f8f8;border:2px solid #f0f0f0;border-radius:16px;padding:12px 16px;cursor:pointer;transition:border-color .2s}.calc-dd-wrap:hover{border-color:#ccc}
+.calc-flag{font-size:22px}.calc-code{font-weight:700;color:#163300;font-size:14px}.calc-chev{font-size:12px;color:#888}
+.calc-dd{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.12);border:1px solid #f0f0f0;padding:8px;width:200px;z-index:50;max-height:256px;overflow-y:auto}.rtl .calc-dd{right:auto;left:0}
+.calc-dd-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;width:100%;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:#163300;transition:background .2s}.calc-dd-item:hover{background:#f8f8f8}
+.calc-dd-name{font-size:11px;color:#888;font-weight:400}
+.calc-swap-wrap{display:flex;justify-content:center;margin:-6px 0;position:relative;z-index:2}
+.calc-swap-btn{width:48px;height:48px;background:#9FE870;border:none;border-radius:50%;font-size:18px;font-weight:700;color:#163300;cursor:pointer;box-shadow:0 4px 16px rgba(159,232,112,.3);transition:all .2s}.calc-swap-btn:hover{transform:scale(1.1)}
+.calc-details{background:#f8f8f8;border-radius:16px;padding:20px;margin:20px 0;display:flex;flex-direction:column;gap:10px}
+.calc-det-row{display:flex;justify-content:space-between;font-size:13px;color:#888}.calc-det-val{font-weight:700;color:#163300}.calc-det-green{color:#2D6A00}
+.calc-det-border{padding-top:10px;border-top:1px solid #e8e8e8}
+.calc-cta{width:100%;padding:16px;background:#9FE870;color:#163300;font-size:15px;font-weight:800;border:none;border-radius:16px;cursor:pointer;font-family:inherit;transition:all .2s}.calc-cta:hover{background:#8FD860;box-shadow:0 8px 24px rgba(159,232,112,.3);transform:translateY(-2px)}
+.app-sec{padding:100px 0}.app-glow1{position:absolute;top:0;right:0;width:600px;height:600px;background:rgba(159,232,112,.1);border-radius:50%;filter:blur(150px)}.app-glow2{position:absolute;bottom:0;left:0;width:500px;height:500px;background:rgba(159,232,112,.05);border-radius:50%;filter:blur(120px)}
+.app-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.app-badge{display:inline-block;padding:8px 20px;background:#2d5a00;border-radius:999px;color:#9FE870;font-size:13px;font-weight:700;margin-bottom:24px}
+.app-title{font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:#fff;margin-bottom:16px;line-height:1.1}
+.app-sub{color:rgba(255,255,255,.6);font-size:16px;line-height:1.8;margin-bottom:32px;max-width:500px}
+.app-feats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:32px}
+.app-feat{display:flex;align-items:center;gap:12px;padding:14px;background:rgba(30,77,0,.6);border:1px solid rgba(159,232,112,.1);border-radius:16px;transition:all .3s}.app-feat:hover{border-color:rgba(159,232,112,.3);background:rgba(30,77,0,.8)}
+.af-ic{width:44px;height:44px;border-radius:12px;background:rgba(159,232,112,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:background .3s}.app-feat:hover .af-ic{background:rgba(159,232,112,.3)}
+.af-t{font-weight:700;color:#fff;font-size:13px;margin-bottom:2px}.af-d{font-size:11px;color:rgba(255,255,255,.5)}
+.app-dl{display:flex;gap:12px;flex-wrap:wrap}
+.dl-gplay{display:flex;align-items:center;gap:12px;padding:12px 24px;background:#1e4d00;border:1px solid rgba(159,232,112,.3);border-radius:12px;text-decoration:none;transition:all .2s}.dl-gplay:hover{background:#2d5a00}
+.dl-apple{display:flex;align-items:center;gap:12px;padding:12px 24px;background:#fff;border-radius:12px;text-decoration:none;transition:all .2s}.dl-apple:hover{background:#f8f8f8}
+.dl-svg{width:28px;height:28px;color:#fff;flex-shrink:0}.dl-svg-dark{color:#000}
+.dl-sm{font-size:9px;color:rgba(255,255,255,.5)}.dl-lg{font-size:13px;font-weight:800;color:#fff}
+.dl-sm-dark{font-size:9px;color:#888}.dl-lg-dark{font-size:13px;font-weight:800;color:#111}
+.app-right{position:relative;display:flex;justify-content:center}
+.phone{position:relative;width:300px;background:#1a1a1a;border-radius:52px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.phone-island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:112px;height:32px;background:#000;border-radius:999px;z-index:20}
+.phone-screen{background:linear-gradient(to bottom,#1a3d0c,#0f2506);border-radius:44px;overflow:hidden;aspect-ratio:9/19.5}
+.ps-status{display:flex;justify-content:space-between;align-items:center;padding:20px 40px 12px;font-size:12px;color:rgba(255,255,255,.8);font-weight:600}
+.ps-batt{width:24px;height:12px;border:2px solid rgba(255,255,255,.8);border-radius:3px;position:relative}.ps-batt::after{content:'';position:absolute;inset:2px;width:70%;background:rgba(255,255,255,.8);border-radius:1px}.ps-batt::before{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:6px;background:rgba(255,255,255,.8);border-radius:0 1px 1px 0}
+.ps-content{padding:16px 24px}
+.ps-bal-lbl{color:rgba(255,255,255,.5);font-size:12px;margin-bottom:4px}.ps-bal{font-size:32px;font-weight:900;color:#fff;margin-bottom:28px}.ps-bal span{font-size:20px;color:rgba(255,255,255,.6)}
+.ps-actions{display:flex;justify-content:space-between;margin-bottom:28px}
+.ps-action{display:flex;flex-direction:column;align-items:center;gap:6px}
+.psa-ic{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#9FE870;font-weight:700;font-size:16px}
+.psa-green{background:rgba(45,90,0,.6)}.psa-blue{background:rgba(30,60,120,.6)}.psa-purple{background:rgba(80,40,120,.6)}.psa-gray{background:rgba(60,60,60,.6)}
+.psa-lb{font-size:10px;color:rgba(255,255,255,.5)}
+.ps-tx-lbl{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.ps-tx{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(45,90,0,.3);border-radius:14px;margin-bottom:8px}
+.pstx-left{display:flex;align-items:center;gap:10px}
+.pstx-ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
+.pstx-red{background:#EF4444}.pstx-green{background:#9FE870;color:#163300}.pstx-blue{background:#3B82F6}
+.pstx-name{font-size:13px;font-weight:600;color:#fff}
+.pstx-amt{font-size:13px;font-weight:800;color:#fff}.pstx-pos{color:#9FE870}
+.phone-float-notif{position:absolute;top:-8px;right:-16px;z-index:30;display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.15);animation:float 3s ease-in-out infinite}
+.pfn-ic{width:40px;height:40px;background:#9FE870;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#163300;font-weight:900;font-size:16px}
+.pfn-sm{font-size:10px;color:#888}.pfn-amt{font-size:16px;font-weight:900;color:#111}
+.phone-float-rating{position:absolute;bottom:-20px;right:16px;z-index:20;display:flex;align-items:center;gap:6px;padding:8px 16px;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.pfr-score{font-size:18px;font-weight:900;color:#111}.pfr-stars{color:#F59E0B;font-size:12px;letter-spacing:1px}.pfr-label{font-size:10px;color:#888}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.glob-sec{padding:100px 0}.glob-glow1{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;opacity:.1}.glob-glow2{position:absolute;bottom:0;left:0;width:500px;height:500px;background:rgba(159,232,112,.05);border-radius:50%;filter:blur(120px)}
+.glob-float{position:absolute;width:56px;height:56px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.2);animation:float 4s ease-in-out infinite;z-index:1}
+.glob-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.glob-h2{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px}.glob-hl{color:#9FE870}
+.glob-p{font-size:16px;color:rgba(255,255,255,.7);line-height:1.85;margin-bottom:24px}
+.glob-cta{display:inline-block;padding:14px 32px;background:#9FE870;color:#163300;font-weight:800;font-size:14px;border-radius:999px;text-decoration:none;transition:all .3s;box-shadow:0 4px 16px rgba(159,232,112,.3)}.glob-cta:hover{background:#8FD860;transform:scale(1.05);box-shadow:0 8px 24px rgba(159,232,112,.4)}
+.flag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.flag-item{background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;text-align:center;transition:all .3s;cursor:pointer}.flag-item:hover{background:rgba(255,255,255,.2);border-color:rgba(159,232,112,.3);transform:scale(1.1) translateY(-4px)}
+.flag-emoji{font-size:28px;display:block;margin-bottom:6px;transition:transform .3s}.flag-item:hover .flag-emoji{transform:scale(1.25)}
+.flag-code{font-size:13px;font-weight:700;color:#fff}
+.flag-more{margin-top:12px;padding:12px;background:linear-gradient(to right,rgba(159,232,112,.2),rgba(159,232,112,.1));border:1px solid rgba(159,232,112,.3);border-radius:16px;text-align:center;color:#9FE870;font-weight:700;font-size:14px;cursor:pointer;transition:all .3s}.flag-more:hover{background:linear-gradient(to right,rgba(159,232,112,.3),rgba(159,232,112,.2))}
+.glob-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:32px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:24px;backdrop-filter:blur(8px);margin-top:64px;max-width:1200px;margin-left:auto;margin-right:auto;padding-left:24px;padding-right:24px}
+.gstat{text-align:center}.gstat-v{font-size:clamp(1.5rem,3vw,2.5rem);font-weight:900;color:#9FE870;margin-bottom:4px;transition:transform .3s}.gstat:hover .gstat-v{transform:scale(1.1)}.gstat-l{font-size:13px;color:rgba(255,255,255,.6)}
+.trust-sec{padding:100px 0}.trust-glow1{position:absolute;top:0;right:0;width:600px;height:600px;background:rgba(159,232,112,.1);border-radius:50%;filter:blur(150px);animation:pulse 6s ease-in-out infinite}.trust-glow2{position:absolute;bottom:0;left:0;width:500px;height:500px;background:rgba(159,232,112,.05);border-radius:50%;filter:blur(120px);animation:pulse 8s ease-in-out infinite}
+.trust-grid-bg{position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:48px}
+.trust-card{display:flex;align-items:flex-start;gap:20px;padding:32px;background:rgba(255,255,255,.05);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:24px;transition:all .4s;cursor:pointer}.trust-card:hover{background:rgba(255,255,255,.1);border-color:rgba(159,232,112,.3);transform:translateY(-4px)}
+.trust-ic-wrap{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#9FE870,#7ACC50);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;box-shadow:0 8px 20px rgba(159,232,112,.2);transition:all .4s}.trust-card:hover .trust-ic-wrap{transform:scale(1.1) rotate(3deg)}
+.trust-t{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;transition:color .3s}.trust-card:hover .trust-t{color:#9FE870}
+.trust-d{font-size:14px;color:rgba(255,255,255,.6);line-height:1.7}
+.trust-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tstat{text-align:center;padding:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;transition:all .3s}.tstat:hover{background:rgba(255,255,255,.1);border-color:rgba(159,232,112,.3)}
+.tstat-v{font-size:clamp(1.5rem,3vw,2.5rem);font-weight:900;color:#9FE870;margin-bottom:4px;transition:transform .3s}.tstat:hover .tstat-v{transform:scale(1.1)}
+.tstat-l{font-size:13px;color:rgba(255,255,255,.6)}
+.sec-badges{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.sbadge{text-align:center;padding:24px 16px;background:#fff;border:1px solid #f0f0f0;border-radius:20px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden}.sbadge:hover{border-color:rgba(159,232,112,.5);transform:translateY(-6px);box-shadow:0 12px 32px rgba(159,232,112,.1)}
+.sbadge-ic{font-size:28px;margin-bottom:12px;transition:transform .3s}.sbadge:hover .sbadge-ic{transform:scale(1.15)}
+.sbadge-t{font-weight:800;color:#163300;margin-bottom:4px;font-size:14px}.sbadge-d{font-size:11px;color:#888;line-height:1.5}
+.sec-trust-msg{text-align:center;color:#888;margin-top:40px}
+.tests-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.test-card{background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;transition:all .4s;cursor:pointer}.test-card:hover{border-color:rgba(159,232,112,.3);box-shadow:0 16px 40px rgba(0,0,0,.06);transform:translateY(-3px)}
+.test-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.test-quote{font-size:36px;color:rgba(159,232,112,.3);line-height:1;font-weight:900}.test-stars{color:#F59E0B;font-size:14px;letter-spacing:2px}
+.test-q{font-size:16px;color:#333;line-height:1.8;margin-bottom:20px}
+.test-author{display:flex;align-items:center;gap:12px}
+.test-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;transition:transform .3s;box-shadow:0 4px 12px rgba(0,0,0,.1)}.test-card:hover .test-avatar{transform:scale(1.1)}
+.tc-blue{background:linear-gradient(135deg,#60A5FA,#3B82F6)}.tc-purple{background:linear-gradient(135deg,#A78BFA,#8B5CF6)}.tc-green{background:linear-gradient(135deg,#4ADE80,#22C55E)}.tc-orange{background:linear-gradient(135deg,#FB923C,#F97316)}
+.test-name{font-weight:800;color:#163300;font-size:15px}.test-role{font-size:12px;color:#888}
+.test-stats-bar{margin-top:40px;background:#fff;border-radius:24px;padding:28px;border:1px solid #e8e8e8;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+.ts-v{font-size:24px;font-weight:900;color:#163300;margin-bottom:2px}.ts-l{font-size:12px;color:#888}
+.faqs{display:flex;flex-direction:column;gap:8px}
+.faq{background:#fff;border:1px solid #e8e8e8;border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .3s}.faq:hover,.faqOpen{border-color:#9FE870;box-shadow:0 4px 16px rgba(159,232,112,.1)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:#163300}
+.faq-arrow{font-size:20px;color:#9FE870;font-weight:300;flex-shrink:0;margin-inline-start:16px}
+.faq-a{margin-top:12px;font-size:14px;color:#666;line-height:1.8;padding-top:12px;border-top:1px solid #f0f0f0}
+.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-btn{display:inline-block;padding:18px 48px;background:#163300;color:#fff;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;transition:all .3s}.cta-btn:hover{background:#1e4400;transform:translateY(-2px);box-shadow:0 12px 32px rgba(22,51,0,.15)}
+.cta-btn2{display:inline-block;padding:18px 48px;background:transparent;color:#163300;font-size:16px;font-weight:800;border-radius:999px;text-decoration:none;border:2px solid rgba(22,51,0,.15);transition:all .2s}.cta-btn2:hover{border-color:#163300}
 .an{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
 .an-l{opacity:0;transform:translateX(-40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-l.vi{opacity:1;transform:none}
 .an-r{opacity:0;transform:translateX(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-r.vi{opacity:1;transform:none}
-.an-s{opacity:0;transform:scale(.92);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.an-s.vi{opacity:1;transform:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-  .v-hero-grid{grid-template-columns:1fr;gap:32px;text-align:center}
-  .v-hero-left{display:flex;flex-direction:column;align-items:center}
-  .v-hero-p{text-align:center}
-  .v-hero-stats{justify-content:center}
-  .v-badges{justify-content:center}
-  .v-steps{grid-template-columns:repeat(2,1fr)}
-  .v-feats{grid-template-columns:repeat(2,1fr)}
-  .v-comp{grid-template-columns:1fr}
-  .v-tests{grid-template-columns:1fr}
-  .v-counters{grid-template-columns:repeat(2,1fr)}
-  .v-test-stats{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:600px){
-  .v-hero{padding:120px 0 40px}
-  .v-sec{padding:60px 0}.sw{padding:0 16px}
-  .v-t2{font-size:clamp(1.4rem,6vw,2rem)}
-  .v-steps{grid-template-columns:1fr}
-  .v-feats{grid-template-columns:1fr}
-  .v-counters{grid-template-columns:1fr}
-  .v-test-stats{grid-template-columns:repeat(2,1fr)}
-  .v-hero-cd{flex-wrap:wrap;gap:12px;justify-content:center}
-  .vcd-n{font-size:28px}
-  .v-hero-eml{flex-direction:column!important;border:none!important;border-radius:0!important;overflow:visible!important;gap:10px}
-  .veml-i{border:2px solid #163300!important;border-radius:14px!important;background:#fff}
-  .veml-b{border-radius:14px!important;width:100%}
-  .v-cta-btn,.v-cta-btn2{width:100%;text-align:center;padding:16px}
-  .v-cta-row{flex-direction:column;padding:0 16px}
-}
+@media(max-width:1024px){.sec-badges{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:32px;text-align:center}.hero-left{display:flex;flex-direction:column;align-items:center}.hero-p{text-align:center}.steps-grid{grid-template-columns:repeat(2,1fr)}.feats-grid{grid-template-columns:repeat(2,1fr)}.comp-grid{grid-template-columns:1fr}.tests-grid{grid-template-columns:1fr}.calc-grid{grid-template-columns:1fr}.app-grid{grid-template-columns:1fr}.app-feats{grid-template-columns:1fr}.glob-grid{grid-template-columns:1fr;text-align:center}.glob-left{display:flex;flex-direction:column;align-items:center}.trust-grid{grid-template-columns:1fr}.trust-stats,.glob-stats,.part-stats{grid-template-columns:repeat(2,1fr)}.sec-badges{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.hero{padding:120px 0 40px}.sec-white,.sec-light,.sec-dark,.sec-calc{padding:60px 0}.sw{padding:0 16px}.t2{font-size:clamp(1.4rem,6vw,2rem)}.steps-grid,.feats-grid,.sec-badges{grid-template-columns:1fr}.hero-cd{flex-wrap:wrap;gap:12px;justify-content:center}.cd-n{font-size:28px}.hero-eml{flex-direction:column!important;border:none!important;border-radius:0!important;overflow:visible!important;gap:10px}.eml-i{border:2px solid #163300!important;border-radius:14px!important;background:#fff!important}.eml-b{border-radius:14px!important;width:100%}.cta-btn,.cta-btn2{width:100%;text-align:center;padding:16px}.cta-row{flex-direction:column;padding:0 16px}.phone{width:260px;border-radius:44px}.phone-island{width:96px;height:28px}.phone-float-notif{right:-8px;padding:8px 12px}.flag-grid{grid-template-columns:repeat(2,1fr)}.glob-float{display:none}.test-stats-bar{grid-template-columns:repeat(2,1fr)}.app-dl{flex-direction:column}.trust-card{flex-direction:column;align-items:center;text-align:center}.part-stats{grid-template-columns:repeat(2,1fr);gap:12px}}
 </style>
