@@ -141,6 +141,26 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
+  // Delete Card
+  static Future<Map<String, dynamic>> deleteCard(int cardId) async {
+    final r = await http.delete(Uri.parse('$baseUrl/cards/$cardId'), headers: await _headers());
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+  // Update Card Settings
+  static Future<Map<String, dynamic>> updateCardSettings(int cardId, Map<String, dynamic> settings) async {
+    final r = await http.patch(Uri.parse('$baseUrl/cards/$cardId/settings'), headers: await _headers(), body: jsonEncode(settings));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+  }
+
+  // Download Wallet Pass
+  static Future<dynamic> downloadWalletPass(int cardId) async {
+    try {
+      final r = await http.get(Uri.parse('$baseUrl/cards/$cardId/wallet-pass'), headers: await _headers());
+      return r.statusCode == 200 ? r.bodyBytes : null;
+    } catch (_) { return null; }
+  }
+
   // Notifications
   static Future<Map<String, dynamic>> getNotifications() async {
     final r = await http.get(Uri.parse('$baseUrl/notifications'), headers: await _headers());

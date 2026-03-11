@@ -432,6 +432,20 @@ class MobileApiController extends Controller
         }
     }
 
+    public function deleteCard(Request $request, $cardId)
+    {
+        $card = $request->user()->cards()->findOrFail($cardId);
+        $this->cardService->cancel($card);
+        return response()->json(['message' => 'تم حذف البطاقة بنجاح']);
+    }
+
+    public function updateCardSettings(Request $request, $cardId)
+    {
+        $card = $request->user()->cards()->findOrFail($cardId);
+        $card->update($request->only(['online_payment_enabled', 'contactless_enabled']));
+        return response()->json(['message' => 'تم تحديث الإعدادات', 'card' => $card->fresh()]);
+    }
+
     /* ==================== NOTIFICATIONS ==================== */
 
     public function notifications(Request $request)

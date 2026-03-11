@@ -61,6 +61,7 @@ class _CardsTabState extends State<CardsTab> {
   // ── Card Controls ──
   void _showCardControls() {
     final card = _cards[_activeIndex];
+    final cardId = card['id'] as int? ?? 0;
     bool online = card['online_payment_enabled'] ?? true;
     bool contactless = card['contactless_enabled'] ?? true;
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => StatefulBuilder(
@@ -71,9 +72,15 @@ class _CardsTabState extends State<CardsTab> {
           const SizedBox(height: 20),
           const Text('إعدادات البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
           const SizedBox(height: 24),
-          _controlToggle('الدفع أونلاين', 'السماح بالمعاملات عبر الإنترنت', Icons.language_rounded, online, (v) => setS(() => online = v)),
+          _controlToggle('الدفع أونلاين', 'السماح بالمعاملات عبر الإنترنت', Icons.language_rounded, online, (v) {
+            setS(() => online = v);
+            ApiService.updateCardSettings(cardId, {'online_payment_enabled': v});
+          }),
           const SizedBox(height: 12),
-          _controlToggle('الدفع بدون تلامس', 'السماح بمعاملات NFC', Icons.contactless_rounded, contactless, (v) => setS(() => contactless = v)),
+          _controlToggle('الدفع بدون تلامس', 'السماح بمعاملات NFC', Icons.contactless_rounded, contactless, (v) {
+            setS(() => contactless = v);
+            ApiService.updateCardSettings(cardId, {'contactless_enabled': v});
+          }),
           const SizedBox(height: 12),
           _controlToggle('إشعارات المعاملات', 'إشعار فوري عند كل عملية', Icons.notifications_active_outlined, true, (v) {}),
           const SizedBox(height: 20),
@@ -162,7 +169,18 @@ class _CardsTabState extends State<CardsTab> {
         const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
         const SizedBox(height: 24),
         GestureDetector(
-          onTap: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف البطاقة'), backgroundColor: Color(0xFFEF4444))); _load(); },
+          onTap: () async {
+            Navigator.pop(context);
+            final cardId = _cards[_activeIndex]['id'] as int? ?? 0;
+            final r = await ApiService.deleteCard(cardId);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(r['success'] == true ? 'تم حذف البطاقة ✅' : 'فشل حذف البطاقة'),
+                backgroundColor: r['success'] == true ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+              ));
+              if (r['success'] == true) { setState(() => _activeIndex = 0); _load(); }
+            }
+          },
           child: Container(height: 54, decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(16)),
             child: const Center(child: Text('حذف نهائياً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
         ),
