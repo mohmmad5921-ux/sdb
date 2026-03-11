@@ -67,13 +67,13 @@ class KycReviewController extends Controller
                     'country' => $user->country,
                     'city' => $user->city,
                     'address' => $user->address,
-                    'date_of_birth' => $user->date_of_birth?->toDateString(),
+                    'postal_code' => $user->postal_code,
+                    'date_of_birth' => $user->date_of_birth,
                     'registered_at' => $user->created_at?->toDateTimeString(),
                     'registered_ago' => $user->created_at?->diffForHumans(),
-                    'last_login' => $user->last_login_at?->diffForHumans(),
+                    'last_login' => $user->last_login_at ? Carbon::parse($user->last_login_at)->diffForHumans() : null,
                     'docs_count' => $docs->count(),
                     'doc_types' => $docs->pluck('document_type')->toArray(),
-                    'doc_ids' => $docs->pluck('id')->toArray(),
                     'oldest' => $docs->min('created_at'),
                     'waiting_text' => Carbon::parse($docs->min('created_at'))->diffForHumans(),
                     'hours_waiting' => Carbon::parse($docs->min('created_at'))->diffInHours(now()),
@@ -306,7 +306,12 @@ class KycReviewController extends Controller
 
     public function viewDocument(KycDocument $document)
     {
-        $path = storage_path("app/{$document->file_path}");
+        // Laravel 11 stores in storage/app/private/ by default
+        $path = storage_path("app/private/{$document->file_path}");
+        if (!file_exists($path)) {
+            // Fallback to old path
+            $path = storage_path("app/{$document->file_path}");
+        }
         if (!file_exists($path)) {
             abort(404, 'Document file not found');
         }

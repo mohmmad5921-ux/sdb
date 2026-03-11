@@ -188,24 +188,6 @@ const alertColor = (type) => {
                 </div>
               </div>
 
-              <!-- Documents Preview -->
-              <div class="ky-docs-section">
-                <div class="ky-docs-title">📎 المستندات المرفقة</div>
-                <div class="ky-docs-grid">
-                  <div v-for="docId in u.doc_ids" :key="docId" class="ky-doc-preview-card">
-                    <div class="ky-doc-thumb-wrap">
-                      <img :src="route('admin.kyc.view', docId)" class="ky-doc-thumb"
-                        @error="$event.target.parentElement.classList.add('ky-thumb-error')" />
-                      <div class="ky-thumb-placeholder">📄</div>
-                    </div>
-                    <div class="ky-doc-thumb-footer">
-                      <div class="ky-doc-thumb-label">{{ docTypeLabels[documents.data?.find(d => d.id === docId)?.document_type] || 'مستند' }}</div>
-                      <a :href="route('admin.kyc.view', docId)" target="_blank" class="ky-doc-open">عرض ↗</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Quick Actions -->
               <div class="ky-quick-actions">
                 <button @click="approveAll(u.user_id)" class="ky-action-btn ky-approve ky-action-lg">✅ اعتماد الكل وفتح الحساب</button>
