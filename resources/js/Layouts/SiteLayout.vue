@@ -11,6 +11,13 @@ function toggleLang() { lang.value = lang.value === 'ar' ? 'en' : 'ar'; }
 provide('lang', lang);
 provide('isAr', isAr);
 
+/* ─── Segment: Private / Business ─── */
+const segment = ref('private');
+const isBiz = computed(() => segment.value === 'business');
+function setSegment(s) { segment.value = s; }
+provide('segment', segment);
+provide('isBiz', isBiz);
+
 /* ─── Dark Mode ─── */
 const isDark = ref(false);
 function toggleDark() { isDark.value = !isDark.value; localStorage.setItem('sdb-dark', isDark.value ? '1' : '0'); }
@@ -55,6 +62,16 @@ function toggleNotif() { showNotif.value = !showNotif.value; hasNewNotif.value =
 const showWidget = ref(false);
 const widgetRate = ref('13,500');
 function closeAll() { activeMenu.value = null; }
+
+/* ─── App Download Modal (for Private segment login) ─── */
+const showAppModal = ref(false);
+function handleLogin() {
+  if (isBiz.value) {
+    window.location.href = '/login';
+  } else {
+    showAppModal.value = true;
+  }
+}
 
 /* Close on scroll + sticky header + progress + back-to-top */
 const scrolled = ref(false);
@@ -328,6 +345,16 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress" :style="{width: scrollProgress+'%'}"></div>
 
+  <!-- Segment Toggle Bar -->
+  <div class="seg-bar">
+    <div class="sw seg-bar-inner">
+      <div class="seg-toggle">
+        <button class="seg-btn" :class="{active:segment==='private'}" @click="setSegment('private')">{{ isAr ? 'خاص' : 'Private' }}</button>
+        <button class="seg-btn" :class="{active:segment==='business'}" @click="setSegment('business')">{{ isAr ? 'أعمال' : 'Business' }}</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Nav -->
   <nav class="sn" :class="{scrolled}">
     <div class="sw">
@@ -364,6 +391,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </Transition>
         <button @click="toggleDark" class="sn-dark" :title="isDark?'Light Mode':'Dark Mode'">{{ isDark?'☀️':'🌙' }}</button>
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
+        <button @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
         <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
         <button @click="mobileOpen=!mobileOpen" class="sn-hamburger">
           <span></span><span></span><span></span>
@@ -387,6 +415,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </template>
       </div>
     </div>
+    <button @click="handleLogin(); mobileOpen=false" class="sn-mob-link" style="color:#2D6A00;font-weight:800;background:none;border:none;border-bottom:1px solid rgba(22,51,0,.06);width:100%;text-align:start;font-size:16px;cursor:pointer;font-family:inherit">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
     <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ t.cta }}</Link>
   </div>
   </Transition>
@@ -406,6 +435,30 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <!-- Back to Top -->
   <Transition name="btt">
     <button v-if="showTop" class="back-top" @click="scrollToTop" :title="isAr?'العودة للأعلى':'Back to top'">↑</button>
+  </Transition>
+
+  <!-- Get the App Modal (Personal users) -->
+  <Transition name="modal">
+  <div v-if="showAppModal" class="app-modal-overlay" @click.self="showAppModal=false">
+    <div class="app-modal-card">
+      <button class="app-modal-close" @click="showAppModal=false">×</button>
+      <img src="/images/sdb-logo-new.png" alt="SDB" class="app-modal-logo"/>
+      <h2 class="app-modal-title">{{ isAr ? 'حمّل تطبيق SDB Bank' : 'Get the SDB Bank app' }}</h2>
+      <p class="app-modal-desc">{{ isAr ? 'سجّل دخولك من التطبيق. حمّله الآن من المتجر.' : 'Log in from the app. Download it now from your store.' }}</p>
+      <div class="app-modal-stores">
+        <a href="#" class="app-store-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <div><small>{{ isAr ? 'حمّل من' : 'Download on the' }}</small><strong>App Store</strong></div>
+        </a>
+        <a href="#" class="app-store-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+          <div><small>{{ isAr ? 'متوفر على' : 'Get it on' }}</small><strong>Google Play</strong></div>
+        </a>
+      </div>
+      <p class="app-modal-hint">{{ isAr ? 'العملاء الأفراد يسجّلون الدخول حصراً من التطبيق' : 'Personal customers log in exclusively via the app' }}</p>
+      <button class="app-modal-biz-link" @click="showAppModal=false; setSegment('business')">{{ isAr ? 'لديك حساب أعمال؟ سجّل دخول من هنا' : 'Have a business account? Log in here' }} →</button>
+    </div>
+  </div>
   </Transition>
 
   <!-- Cookie Consent -->
@@ -505,9 +558,20 @@ html{scroll-behavior:smooth}
 .rtl{direction:rtl;text-align:right}
 .rtl .text-center{text-align:center}
 
+/* ─── Segment Toggle Bar ─── */
+.seg-bar{position:fixed;top:0;left:0;right:0;z-index:100;height:36px;background:#163300;display:flex;align-items:center}
+.seg-bar-inner{display:flex;justify-content:flex-end;width:100%}
+.seg-toggle{display:flex;gap:0;background:rgba(255,255,255,.1);border-radius:6px;padding:3px}
+.seg-btn{padding:4px 20px;font-size:12px;font-weight:700;border:none;background:none;color:rgba(255,255,255,.6);cursor:pointer;border-radius:4px;font-family:inherit;transition:all .2s;letter-spacing:.5px}
+.seg-btn.active{background:#9FE870;color:#163300}
+.seg-btn:hover:not(.active){color:#fff}
+
 /* ─── Nav — V0 Green ─── */
-.sn{position:fixed;top:0;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.sn{position:fixed;top:36px;left:0;right:0;z-index:99;height:68px;display:flex;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:none;transition:all .35s cubic-bezier(.16,1,.3,1)}
 .sn.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 20px rgba(0,0,0,.06)}
+
+/* ─── Login Button ─── */
+.sn-login{font-size:14px;font-weight:700;color:#163300;border:2px solid #163300;padding:8px 22px;border-radius:999px;text-decoration:none;transition:all .2s;white-space:nowrap}.sn-login:hover{background:#163300;color:#fff}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
 .sn-logo{text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center}
 .sn-logo-img{height:42px;width:auto}
@@ -542,7 +606,7 @@ html{scroll-behavior:smooth}
 @keyframes mmIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* Mobile nav */
-.sn-mobile{position:fixed;top:68px;left:0;right:0;bottom:0;background:#fff;padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(159,232,112,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sn-mobile{position:fixed;top:104px;left:0;right:0;bottom:0;background:#fff;padding:20px 24px;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(159,232,112,.15);z-index:98;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .mob-slide-enter-active,.mob-slide-leave-active{transition:all .3s cubic-bezier(.16,1,.3,1)}
 .mob-slide-enter-from,.mob-slide-leave-to{opacity:0;transform:translateY(-12px)}
 .sn-mob-link{font-size:16px;color:#163300;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(22,51,0,.06);font-weight:600}
@@ -594,8 +658,8 @@ html{scroll-behavior:smooth}
   .cookie-accept,.cookie-decline{flex:1;padding:10px 16px;font-size:13px}
   .toast-container{right:12px;left:12px;top:76px}
   .toast-item{min-width:auto}
-  .sn{height:60px}
-  .sn-mobile{top:60px}
+  .sn{height:60px;top:36px}
+  .sn-mobile{top:96px}
   .sn-logo{font-size:24px}
   .sn-cta{font-size:12px;padding:8px 16px}
   .sn-lang{font-size:12px;padding:6px 12px}
@@ -773,4 +837,21 @@ html{scroll-behavior:smooth}
 .dark .cur-pair{color:#e0e0e0}
 .dark .cur-row:hover{background:rgba(255,255,255,.03)}
 .dark .cur-trigger{background:linear-gradient(135deg,#1a1a2e,#0C4A6E)}
+
+/* ─── Get the App Modal ─── */
+.app-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);z-index:10003;display:flex;align-items:center;justify-content:center;padding:24px}
+.app-modal-card{background:#fff;border-radius:28px;padding:48px 40px;text-align:center;max-width:420px;width:100%;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.2);animation:modalBounce .4s cubic-bezier(.16,1,.3,1)}
+.app-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:28px;color:#aaa;cursor:pointer;padding:4px;line-height:1;transition:color .2s}.app-modal-close:hover{color:#333}
+.rtl .app-modal-close{right:auto;left:16px}
+.app-modal-logo{height:48px;margin-bottom:20px}
+.app-modal-title{font-size:24px;font-weight:900;color:#163300;margin-bottom:10px;letter-spacing:-.02em}
+.app-modal-desc{font-size:15px;color:#666;line-height:1.7;margin-bottom:28px}
+.app-modal-stores{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+.app-store-btn{display:flex;align-items:center;gap:10px;padding:12px 20px;background:#163300;border-radius:12px;color:#fff;text-decoration:none;transition:all .2s}.app-store-btn:hover{background:#1e4400;transform:translateY(-2px);box-shadow:0 4px 16px rgba(22,51,0,.2)}
+.app-store-btn small{display:block;font-size:9px;color:rgba(255,255,255,.6);font-weight:400}
+.app-store-btn strong{display:block;font-size:14px;font-weight:800}
+.app-modal-hint{font-size:12px;color:#999;margin-bottom:16px}
+.app-modal-biz-link{background:none;border:none;color:#2D6A00;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:color .2s;padding:0}.app-modal-biz-link:hover{color:#163300;text-decoration:underline}
+.dark .app-modal-card{background:#1a1a2e}.dark .app-modal-title{color:#e0e0e0}.dark .app-modal-desc{color:rgba(255,255,255,.5)}
+@media(max-width:600px){.app-modal-card{padding:36px 24px}.app-modal-stores{flex-direction:column}.app-store-btn{justify-content:center}}
 </style>
