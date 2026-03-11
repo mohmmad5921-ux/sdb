@@ -423,34 +423,46 @@ class MobileApiController extends Controller
 
     public function toggleCardFreeze(Request $request, $cardId)
     {
-        $card = $request->user()->cards()->findOrFail($cardId);
-
-        if ($card->isActive()) {
-            $this->cardService->freeze($card);
-            return response()->json(['message' => 'Card frozen', 'status' => 'frozen']);
-        } else {
-            $this->cardService->unfreeze($card);
-            return response()->json(['message' => 'Card activated', 'status' => 'active']);
+        try {
+            $card = $request->user()->cards()->findOrFail($cardId);
+            if ($card->isActive()) {
+                $this->cardService->freeze($card);
+                return response()->json(['message' => 'Card frozen', 'status' => 'frozen']);
+            } else {
+                $this->cardService->unfreeze($card);
+                return response()->json(['message' => 'Card activated', 'status' => 'active']);
+            }
+        } catch (\Exception $e) {
+            \Log::error('toggleCardFreeze error: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
     public function deleteCard(Request $request, $cardId)
     {
-        $card = $request->user()->cards()->findOrFail($cardId);
         try {
-            $this->cardService->cancel($card);
+            $card = $request->user()->cards()->findOrFail($cardId);
+            // Try Stripe cancel but don't block on failure
+            try { $this->cardService->cancel($card); } catch (\Exception $e) {}
+            // Force delete from database
+            $card->forceDelete();
+            return response()->json(['message' => 'تم حذف البطاقة بنجاح', 'success' => true]);
         } catch (\Exception $e) {
-            // Ignore Stripe errors on cancel
+            \Log::error('deleteCard error: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-        $card->delete();
-        return response()->json(['message' => 'تم حذف البطاقة بنجاح']);
     }
 
     public function updateCardSettings(Request $request, $cardId)
     {
-        $card = $request->user()->cards()->findOrFail($cardId);
-        $card->update($request->only(['online_payment_enabled', 'contactless_enabled']));
-        return response()->json(['message' => 'تم تحديث الإعدادات', 'card' => $card->fresh()]);
+        try {
+            $card = $request->user()->cards()->findOrFail($cardId);
+            $card->update($request->only(['online_payment_enabled', 'contactless_enabled']));
+            return response()->json(['message' => 'تم تحديث الإعدادات', 'card' => $card->fresh()]);
+        } catch (\Exception $e) {
+            \Log::error('updateCardSettings error: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /* ==================== NOTIFICATIONS ==================== */

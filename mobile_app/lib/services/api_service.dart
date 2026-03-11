@@ -143,7 +143,7 @@ class ApiService {
 
   // Delete Card
   static Future<Map<String, dynamic>> deleteCard(int cardId) async {
-    final r = await http.delete(Uri.parse('$baseUrl/cards/$cardId'), headers: await _headers());
+    final r = await http.post(Uri.parse('$baseUrl/cards/$cardId/delete'), headers: await _headers());
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
