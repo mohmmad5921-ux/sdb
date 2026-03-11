@@ -432,7 +432,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   </Transition>
 
   <!-- Page Content -->
-  <main>
+  <main class="site-main">
     <slot />
   </main>
 
@@ -563,9 +563,11 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
 /* ─── Global Reset ─── */
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
+#app{background:#fff;position:relative;z-index:1}
 html,body{background:#fff}
 .site{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#0a0a0a;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column;background:#fff}
 .site>main{flex:1}
+.site-main{background:#fff;position:relative;z-index:1}
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}
 .rtl{direction:rtl;text-align:right}
 .rtl .text-center{text-align:center}
