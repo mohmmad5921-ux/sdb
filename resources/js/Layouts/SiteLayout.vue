@@ -14,7 +14,7 @@ provide('isAr', isAr);
 /* ─── Segment: Private / Business ─── */
 const segment = ref('private');
 const isBiz = computed(() => segment.value === 'business');
-function setSegment(s) { segment.value = s; mobileOpen.value = false; window.scrollTo({top:0,behavior:'instant'}); }
+function setSegment(s) { segment.value = s; mobileOpen.value = false; window.scrollTo({top:0,behavior:'instant'}); if(typeof localStorage!=='undefined') localStorage.setItem('sdb_segment',s); }
 provide('segment', segment);
 provide('isBiz', isBiz);
 
@@ -381,7 +381,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
 
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
         <button v-if="isBiz" @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
-        <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
+        <Link :href="isBiz ? '/preregister?type=business' : '/preregister'" class="sn-cta">{{ t.cta }}</Link>
         <button @click="mobileOpen=!mobileOpen" class="sn-hamburger">
           <span></span><span></span><span></span>
         </button>
@@ -426,7 +426,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       <Link href="/about" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'🏢 عن الشركة':'🏢 About Us' }}</Link>
       <Link href="/support" class="sn-mob-link" @click="mobileOpen=false">{{ isAr?'📞 الدعم':'📞 Support' }}</Link>
       <button @click="handleLogin(); mobileOpen=false" class="sn-mob-link" style="color:#2D6A00;font-weight:800;background:none;border:none;border-bottom:1px solid rgba(22,51,0,.06);width:100%;text-align:start;font-size:16px;cursor:pointer;font-family:inherit">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
-      <Link href="/preregister" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ isAr?'افتح حساب أعمال ←':'Open Business Account →' }}</Link>
+      <Link href="/preregister?type=business" class="sn-cta sn-mob-cta" @click="mobileOpen=false">{{ isAr?'افتح حساب أعمال ←':'Open Business Account →' }}</Link>
     </template>
   </div>
   </Transition>

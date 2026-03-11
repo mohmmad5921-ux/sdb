@@ -107,7 +107,7 @@ const t = computed(() => isAr.value ? {
       <h1 class="bz-h1">{{ t.h1a }}<br><span class="bz-h1-em">{{ t.h1b }}</span></h1>
       <p class="bz-hero-p">{{ t.heroP }}</p>
       <div class="bz-hero-actions">
-        <Link href="/preregister" class="bz-btn-primary">{{ t.cta1 }}</Link>
+        <Link href="/preregister?type=business" class="bz-btn-primary">{{ t.cta1 }}</Link>
         <Link href="/login" class="bz-btn-outline">{{ t.cta2 }}</Link>
       </div>
       <div class="bz-hero-cd bn">
@@ -200,7 +200,7 @@ const t = computed(() => isAr.value ? {
         <ul class="bz-plan-feats">
           <li v-for="f in p.feats" :key="f">✓ {{ f }}</li>
         </ul>
-        <Link href="/preregister" class="bz-plan-cta" :class="{primary:p.popular}">{{ p.cta }}</Link>
+        <Link href="/preregister?type=business" class="bz-plan-cta" :class="{primary:p.popular}">{{ p.cta }}</Link>
       </div>
     </div>
   </div>
@@ -262,7 +262,7 @@ const t = computed(() => isAr.value ? {
     <h2 class="bz-cta-title">{{ t.ctaTitle }}</h2>
     <p class="bz-cta-sub">{{ t.ctaSub }}</p>
     <div class="bz-cta-actions">
-      <Link href="/preregister" class="bz-btn-primary bz-btn-lg">{{ t.ctaBtn }}</Link>
+      <Link href="/preregister?type=business" class="bz-btn-primary bz-btn-lg">{{ t.ctaBtn }}</Link>
       <Link href="/contact" class="bz-btn-outline-dark bz-btn-lg">{{ t.ctaBtn2 }}</Link>
     </div>
     <div class="bz-cta-email">

@@ -4,7 +4,10 @@ import { inject, ref, computed, watch } from 'vue';
 
 const lang = ref('ar');
 const isAr = computed(() => lang.value === 'ar');
-const isBiz = inject('isBiz', computed(() => false));
+
+/* Detect business mode from URL ?type=business or localStorage */
+const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+const isBiz = ref(urlParams?.get('type') === 'business' || (typeof localStorage !== 'undefined' && localStorage.getItem('sdb_segment') === 'business'));
 
 const form = useForm({ full_name:'', email:'', phone:'', country:'', governorate:'', employment:'', referral:'', account_type:'personal' });
 const bizForm = useForm({ company_name:'', registration_number:'', company_type:'', authorized_person:'', email:'', phone:'', country:'', referral:'', account_type:'business' });
