@@ -38,20 +38,25 @@ class CardService
         // 1. Create or get Stripe cardholder
         $cardholderId = $user->stripe_cardholder_id;
         if (!$cardholderId) {
+            $address = [
+                'line1' => $user->address ?: 'N/A',
+                'city' => $user->city ?: 'Copenhagen',
+                'country' => $user->country ?: 'DK',
+                'postal_code' => $user->postal_code ?: '1000',
+            ];
+            // Only include state if non-empty (Stripe rejects empty strings)
+            if (!empty($user->state)) {
+                $address['state'] = $user->state;
+            }
+
             $cardholder = $this->stripe->issuing->cardholders->create([
-                'name' => $user->full_name,
+                'name' => $user->full_name ?: 'Card Holder',
                 'email' => $user->email,
-                'phone_number' => $user->phone,
+                'phone_number' => $user->phone ?: '+4500000000',
                 'status' => 'active',
                 'type' => 'individual',
                 'billing' => [
-                    'address' => [
-                        'line1' => $user->address ?? 'N/A',
-                        'city' => $user->city ?? 'Copenhagen',
-                        'state' => $user->state ?? '',
-                        'country' => $user->country ?? 'DK',
-                        'postal_code' => $user->postal_code ?? '1000',
-                    ],
+                    'address' => $address,
                 ],
             ]);
             $cardholderId = $cardholder->id;
