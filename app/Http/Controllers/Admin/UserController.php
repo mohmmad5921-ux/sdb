@@ -125,15 +125,15 @@ class UserController extends Controller
                 \App\Models\Notification::create([
                     'user_id' => $user->id,
                     'title' => 'تم تفعيل حسابك ✅',
-                    'message' => 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.',
-                    'type' => 'kyc_approved',
+                    'body' => 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.',
+                    'type' => 'system',
                 ]);
             } elseif ($request->kyc_status === 'rejected') {
                 \App\Models\Notification::create([
                     'user_id' => $user->id,
                     'title' => 'يرجى تحديث مستنداتك ⚠️',
-                    'message' => 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.',
-                    'type' => 'kyc_rejected',
+                    'body' => 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.',
+                    'type' => 'security',
                 ]);
             }
         } catch (\Exception $e) {}
@@ -199,8 +199,8 @@ class UserController extends Controller
             \App\Models\Notification::create([
                 'user_id' => $user->id,
                 'title' => 'رسالة من الإدارة',
-                'message' => $request->note,
-                'type' => 'admin_notice',
+                'body' => $request->note,
+                'type' => 'system',
             ]);
         } catch (\Exception $e) {
         }
@@ -242,8 +242,8 @@ class UserController extends Controller
                 \App\Models\Notification::create([
                     'user_id' => $user->id,
                     'title' => $request->title,
-                    'message' => $request->message,
-                    'type' => 'broadcast',
+                    'body' => $request->message,
+                    'type' => 'promotion',
                 ]);
                 $count++;
             } catch (\Exception $e) {
