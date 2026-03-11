@@ -48,4 +48,8 @@ return [
         'team_id' => env('APPLE_WALLET_TEAM_ID', '7YL3972NBW'),
     ],
 
+    'firebase' => [
+        'server_key' => env('FIREBASE_SERVER_KEY'),
+    ],
+
 ];

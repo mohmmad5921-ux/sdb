@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
+import '../services/push_notification_service.dart';
 import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -38,6 +39,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     }
 
     final loggedIn = await ApiService.isLoggedIn();
+    if (loggedIn) {
+      PushNotificationService.initialize();
+    }
     if (mounted) Navigator.pushReplacementNamed(context, loggedIn ? '/home' : '/login');
   }
 

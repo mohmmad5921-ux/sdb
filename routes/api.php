@@ -65,6 +65,9 @@ Route::prefix('v1/mobile')->group(function () {
             // Notifications
             Route::get('/notifications', [MobileApiController::class, 'notifications']);
             Route::post('/notifications/{notification}/read', [MobileApiController::class, 'markNotificationRead']);
+
+            // FCM Push Token
+            Route::post('/fcm-token', [MobileApiController::class, 'updateFcmToken']);
         }
     );
 });

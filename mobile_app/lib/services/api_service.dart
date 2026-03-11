@@ -129,6 +129,11 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
+  // FCM Token
+  static Future<void> updateFcmToken(String token) async {
+    await http.post(Uri.parse('$baseUrl/fcm-token'), headers: await _headers(), body: jsonEncode({'fcm_token': token}));
+  }
+
   // Profile
   static Future<Map<String, dynamic>> getProfile() async {
     final r = await http.get(Uri.parse('$baseUrl/profile'), headers: await _headers());

@@ -36,6 +36,7 @@ class User extends Authenticatable
         'referred_by',
         'customer_number',
         'stripe_cardholder_id',
+        'fcm_token',
     ];
 
     protected static function booted(): void

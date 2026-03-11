@@ -8,6 +8,7 @@ use App\Models\KycDocument;
 use App\Models\AdminActivityLog;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -323,6 +324,9 @@ class KycReviewController extends Controller
                 \Log::warning('KYC email failed for user ' . $user->id . ': ' . $e->getMessage());
             }
         }
+
+        // Send push notification
+        FcmService::sendToUser($user->id, $msg['title'], $msg['body']);
 
         AdminActivityLog::log('kyc.message', 'user', $user->id, [
             'message_type' => $request->message_type,
