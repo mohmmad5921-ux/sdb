@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { inject, ref, computed, onMounted, onUnmounted } from 'vue';
 import SiteLayout from '@/Layouts/SiteLayout.vue';
+import WelcomeBusiness from '@/Pages/WelcomeBusiness.vue';
 defineOptions({ layout: SiteLayout });
 const lang = inject('lang', ref('ar'));
 const isAr = inject('isAr', computed(() => true));
@@ -184,6 +185,11 @@ const flagGrid = [{f:'🇺🇸',n:'USD'},{f:'🇪🇺',n:'EUR'},{f:'🇬🇧',n:
 const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'10%'},{s:'£',top:'60%',left:'8%'},{s:'¥',top:'70%',right:'5%'},{s:'₺',top:'40%',left:'15%'}];
 </script>
 <template>
+<!-- Business Page -->
+<WelcomeBusiness v-if="isBiz" />
+
+<!-- Personal Page -->
+<template v-else>
 <Head :title="isAr?'SDB Bank — أول بنك إلكتروني سوري':'SDB Bank — First Syrian Digital Bank'"/>
 
 <!-- ═══════════ 1. HERO ═══════════ -->
@@ -356,6 +362,7 @@ const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'1
   <p class="t2-sub an tc" style="margin:0 auto 32px">{{ t.ctaSub }}</p>
   <div class="cta-row an"><a href="/preregister" class="cta-btn">{{ t.ctaBtn }}</a><a href="/support" class="cta-btn2">{{ t.ctaBtn2 }}</a></div>
 </div></section>
+</template><!-- end v-else personal page -->
 </template>
 
 <style scoped>
