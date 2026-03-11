@@ -5,7 +5,7 @@ import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
 const t = computed(() => isAr.value ? {
-  title:'بطاقة Standard — SDB Bank',tag:'Standard',color:'#0EA5E9',
+  title:'بطاقة Standard — SDB Bank',tag:'Standard',color:'#9FE870',
   heroH:'بطاقة Standard.',heroEm:'مجانية للأبد.',
   heroP:'كل ما تحتاجه للبدء — بطاقة ماستركارد افتراضية فورية، تحويلات مجانية، وصرف عملات بأسعار حقيقية. بدون رسوم شهرية.',
   price:'مجاني',priceNote:'للأبد — بدون رسوم مخفية',
@@ -21,7 +21,7 @@ const t = computed(() => isAr.value ? {
   upgradeBtn:'اكتشف Plus ←',upgradeBtnAll:'قارن كل الباقات',
   ctaTitle:'ابدأ مجاناً',ctaSub:'Standard مجاني للأبد. بدون شروط.',ctaBtn:'افتح حسابك ←',
 } : {
-  title:'Standard Card — SDB Bank',tag:'Standard',color:'#0EA5E9',
+  title:'Standard Card — SDB Bank',tag:'Standard',color:'#9FE870',
   heroH:'Standard Card.',heroEm:'Free forever.',
   heroP:'Everything you need to start — instant virtual Mastercard, free transfers, and real exchange rates. No monthly fees.',
   price:'Free',priceNote:'Forever — no hidden fees',
@@ -40,7 +40,7 @@ const t = computed(() => isAr.value ? {
 </script>
 <template>
 <Head :title="t.title" />
-<section class="p-hero" :style="{background:'linear-gradient(135deg,#075985,#0284C7,'+t.color+')'}"><div class="sw tc"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><div class="price-box"><span class="price-v">{{ t.price }}</span><span class="price-n">{{ t.priceNote }}</span></div><a href="/preregister" class="hero-btn">{{ t.heroBtn }}</a></div></section>
+<section class="p-hero" :style="{background:'linear-gradient(135deg,#075985,#2D6A00,'+t.color+')'}"><div class="sw tc"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><div class="price-box"><span class="price-v">{{ t.price }}</span><span class="price-n">{{ t.priceNote }}</span></div><a href="/preregister" class="hero-btn">{{ t.heroBtn }}</a></div></section>
 <section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.inclTitle }}</h2><div class="incl-grid"><div v-for="i in t.incl" :key="i" class="incl-i">✓ {{ i }}</div></div></div></section>
 <section class="sec sec-alt"><div class="sw"><h2 class="t2 tc">{{ t.limitsTitle }}</h2><div class="g4"><div v-for="l in t.limits" :key="l.l" class="lim"><div class="lim-v">{{ l.v }}</div><div class="lim-l">{{ l.l }}</div></div></div></div></section>
 <section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.notInclTitle }}</h2><div class="not-grid"><div v-for="n in t.notIncl" :key="n" class="not-i">✗ {{ n }}</div></div></div></section>
@@ -49,26 +49,26 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.sec{padding:80px 0}.sec-alt{background:#F0F9FF}.sec-sky{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
-.t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:48px}.t2-w{color:#fff}.t2-em{color:#0EA5E9}
+.sec{padding:80px 0}.sec-alt{background:#F5F9F3}.sec-sky{background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
+.t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:48px}.t2-w{color:#fff}.t2-em{color:#9FE870}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:540px}.t2-sub-w{color:rgba(255,255,255,.4)}
 .p-hero{padding:160px 0 80px;color:#fff}
 .p-hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:20px}
-.p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:16px}.p-hero-em{color:#BAE6FD}
+.p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:16px}.p-hero-em{color:#E8F5E0}
 .p-hero-p{font-size:17px;color:rgba(255,255,255,.5);max-width:560px;margin:0 auto 28px;line-height:1.8}
 .price-box{margin-bottom:28px}.price-v{font-size:48px;font-weight:900;color:#fff}.price-n{display:block;font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
-.hero-btn{display:inline-block;padding:16px 44px;background:#fff;color:#0C4A6E;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.hero-btn:hover{transform:translateY(-2px)}
+.hero-btn{display:inline-block;padding:16px 44px;background:#fff;color:#163300;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.hero-btn:hover{transform:translateY(-2px)}
 .incl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.incl-i{padding:16px 20px;background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:12px;font-size:13px;font-weight:600;color:#0C4A6E}
+.incl-i{padding:16px 20px;background:#fff;border:1px solid rgba(159,232,112,.08);border-radius:12px;font-size:13px;font-weight:600;color:#163300}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.lim{padding:28px;background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:16px;text-align:center}
-.lim-v{font-size:28px;font-weight:900;color:#0EA5E9;margin-bottom:4px}.lim-l{font-size:12px;color:rgba(10,10,10,.4)}
+.lim{padding:28px;background:#fff;border:1px solid rgba(159,232,112,.08);border-radius:16px;text-align:center}
+.lim-v{font-size:28px;font-weight:900;color:#9FE870;margin-bottom:4px}.lim-l{font-size:12px;color:rgba(10,10,10,.4)}
 .not-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:800px;margin:0 auto}
 .not-i{padding:12px 16px;font-size:13px;color:rgba(10,10,10,.3);border-bottom:1px solid rgba(10,10,10,.04)}
 .cta-row{display:flex;gap:16px;justify-content:center}
-.link-btn-lg{font-size:15px;font-weight:700;color:#0EA5E9;text-decoration:none;padding:12px 28px;border:2px solid rgba(14,165,233,.15);border-radius:12px;transition:all .2s}.link-btn-lg:hover{border-color:#0EA5E9;background:rgba(14,165,233,.04)}
-.link-sec{color:rgba(10,10,10,.3);border-color:rgba(10,10,10,.08)}.link-sec:hover{color:#0C4A6E;border-color:rgba(10,10,10,.15)}
-.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#0C4A6E;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
+.link-btn-lg{font-size:15px;font-weight:700;color:#9FE870;text-decoration:none;padding:12px 28px;border:2px solid rgba(159,232,112,.15);border-radius:12px;transition:all .2s}.link-btn-lg:hover{border-color:#9FE870;background:rgba(159,232,112,.04)}
+.link-sec{color:rgba(10,10,10,.3);border-color:rgba(10,10,10,.08)}.link-sec:hover{color:#163300;border-color:rgba(10,10,10,.15)}
+.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#163300;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
 .sec-hdr{margin-bottom:0}
 @media(max-width:768px){.incl-grid,.not-grid{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}}
 </style>

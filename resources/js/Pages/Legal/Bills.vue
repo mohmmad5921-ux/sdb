@@ -86,23 +86,23 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.sec{padding:80px 0}.sec-alt{background:#F0F9FF}.sec-sky{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
+.sec{padding:80px 0}.sec-alt{background:#F5F9F3}.sec-sky{background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
 .t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:48px}.t2-w{color:#fff}
 .t2-sub{font-size:16px;line-height:1.8;max-width:540px}.t2-sub-w{color:rgba(255,255,255,.4)}
-.p-hero{padding:160px 0 60px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
+.p-hero{padding:160px 0 60px;background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
 .p-hero-tag{font-size:11px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:24px}
-.p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:16px}.p-hero-em{color:#7DD3FC}
+.p-hero-h{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:16px}.p-hero-em{color:#9FE870}
 .p-hero-p{font-size:17px;color:rgba(255,255,255,.5);max-width:560px;margin:0 auto;line-height:1.8}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.bill-c{padding:24px;background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:16px;text-align:center;transition:all .3s;position:relative}.bill-c:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,165,233,.06)}
-.bill-ic{font-size:28px;display:block;margin-bottom:10px}.bill-t{font-size:14px;font-weight:800;color:#0C4A6E;margin-bottom:6px}.bill-d{font-size:11.5px;color:rgba(10,10,10,.4);line-height:1.7;margin-bottom:10px}
-.bill-st{font-size:10px;font-weight:800;color:#0EA5E9;background:rgba(14,165,233,.06);padding:4px 10px;border-radius:6px}
-.step-c{padding:32px;background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:18px;text-align:center}
-.step-n{font-size:48px;font-weight:900;color:rgba(14,165,233,.1);line-height:1;margin-bottom:12px}
-.step-t{font-size:16px;font-weight:800;color:#0C4A6E;margin-bottom:6px}.step-d{font-size:13px;color:rgba(10,10,10,.4);line-height:1.7}
-.feat-c{padding:24px;background:#fff;border:1px solid rgba(14,165,233,.08);border-radius:16px;text-align:center}
-.feat-ic{font-size:24px;display:block;margin-bottom:8px}.feat-t{font-size:14px;font-weight:800;color:#0C4A6E;margin-bottom:6px}.feat-d{font-size:12px;color:rgba(10,10,10,.4);line-height:1.7}
-.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#0C4A6E;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
+.bill-c{padding:24px;background:#fff;border:1px solid rgba(159,232,112,.08);border-radius:16px;text-align:center;transition:all .3s;position:relative}.bill-c:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(159,232,112,.06)}
+.bill-ic{font-size:28px;display:block;margin-bottom:10px}.bill-t{font-size:14px;font-weight:800;color:#163300;margin-bottom:6px}.bill-d{font-size:11.5px;color:rgba(10,10,10,.4);line-height:1.7;margin-bottom:10px}
+.bill-st{font-size:10px;font-weight:800;color:#9FE870;background:rgba(159,232,112,.06);padding:4px 10px;border-radius:6px}
+.step-c{padding:32px;background:#fff;border:1px solid rgba(159,232,112,.08);border-radius:18px;text-align:center}
+.step-n{font-size:48px;font-weight:900;color:rgba(159,232,112,.1);line-height:1;margin-bottom:12px}
+.step-t{font-size:16px;font-weight:800;color:#163300;margin-bottom:6px}.step-d{font-size:13px;color:rgba(10,10,10,.4);line-height:1.7}
+.feat-c{padding:24px;background:#fff;border:1px solid rgba(159,232,112,.08);border-radius:16px;text-align:center}
+.feat-ic{font-size:24px;display:block;margin-bottom:8px}.feat-t{font-size:14px;font-weight:800;color:#163300;margin-bottom:6px}.feat-d{font-size:12px;color:rgba(10,10,10,.4);line-height:1.7}
+.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#163300;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
 @media(max-width:768px){.g3{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}}
 </style>

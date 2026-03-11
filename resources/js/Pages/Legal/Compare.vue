@@ -79,25 +79,25 @@ const t = computed(() => isAr.value ? {
 </div></section>
 </template>
 <style scoped>
-.hero{padding:160px 0 80px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
+.hero{padding:160px 0 80px;background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
 .hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:24px}
-.t2{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:16px;color:#0C4A6E}.t2-em{color:#0EA5E9}
-.hero .t2{color:#fff}.hero .t2-em{color:#E0F2FE}
+.t2{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:16px;color:#163300}.t2-em{color:#9FE870}
+.hero .t2{color:#fff}.hero .t2-em{color:#E8F5E0}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.6);line-height:1.85}.hero .t2-sub{color:rgba(255,255,255,.7)}
-.sec{padding:80px 0}.sec-cta{padding:100px 0;background:linear-gradient(135deg,#F0F9FF,#E0F2FE)}
+.sec{padding:80px 0}.sec-cta{padding:100px 0;background:linear-gradient(135deg,#F5F9F3,#E8F5E0)}
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:20px;border:1px solid rgba(14,165,233,.08);box-shadow:0 8px 32px rgba(0,0,0,.04)}
+.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:20px;border:1px solid rgba(159,232,112,.08);box-shadow:0 8px 32px rgba(0,0,0,.04)}
 .cmp-table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
-.cmp-table thead{background:linear-gradient(135deg,#0C4A6E,#0369A1)}
+.cmp-table thead{background:linear-gradient(135deg,#163300,#1a3d00)}
 .cmp-table th{padding:16px 20px;color:#fff;font-weight:800;font-size:14px;text-align:center;white-space:nowrap}
 .cmp-table th:first-child{text-align:start}
-.cmp-sdb{background:rgba(14,165,233,.3)!important;color:#E0F2FE!important}
-.cmp-table td{padding:14px 20px;border-bottom:1px solid rgba(14,165,233,.04);text-align:center;color:rgba(10,10,10,.7)}
-.cmp-feat{font-weight:700;color:#0C4A6E;text-align:start;white-space:nowrap}
-.cmp-sdb-cell{background:rgba(14,165,233,.03);color:#0284C7;font-weight:700}
-.cmp-table tbody tr:hover{background:rgba(14,165,233,.02)}
-.verdict{margin-top:32px;padding:24px;background:linear-gradient(135deg,rgba(14,165,233,.05),rgba(14,165,233,.02));border-radius:16px;font-size:15px;color:#0C4A6E;font-weight:600;line-height:1.8;text-align:center;border:1px solid rgba(14,165,233,.08)}
-.cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s;margin-top:16px}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.2)}
+.cmp-sdb{background:rgba(159,232,112,.3)!important;color:#E8F5E0!important}
+.cmp-table td{padding:14px 20px;border-bottom:1px solid rgba(159,232,112,.04);text-align:center;color:rgba(10,10,10,.7)}
+.cmp-feat{font-weight:700;color:#163300;text-align:start;white-space:nowrap}
+.cmp-sdb-cell{background:rgba(159,232,112,.03);color:#2D6A00;font-weight:700}
+.cmp-table tbody tr:hover{background:rgba(159,232,112,.02)}
+.verdict{margin-top:32px;padding:24px;background:linear-gradient(135deg,rgba(159,232,112,.05),rgba(159,232,112,.02));border-radius:16px;font-size:15px;color:#163300;font-weight:600;line-height:1.8;text-align:center;border:1px solid rgba(159,232,112,.08)}
+.cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#2D6A00,#9FE870);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s;margin-top:16px}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(159,232,112,.2)}
 .an{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
 @media(max-width:768px){
   .hero{padding:130px 0 50px}

@@ -70,7 +70,7 @@ const t = computed(() => isAr.value ? {
 .sec{padding:80px 0}.sw{max-width:800px;margin:0 auto;padding:0 24px}.tc{text-align:center}
 .status-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.04);border:1px solid rgba(16,185,129,.08)}
 .status-row{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid rgba(16,185,129,.04)}.status-row:last-child{border:none}
-.status-name{font-size:14px;font-weight:600;color:#0C4A6E}
+.status-name{font-size:14px;font-weight:600;color:#163300}
 .status-badge{padding:4px 14px;border-radius:50px;font-size:12px;font-weight:800}
 .st-operational{background:rgba(16,185,129,.08);color:#059669}
 .st-degraded{background:rgba(245,158,11,.08);color:#D97706}

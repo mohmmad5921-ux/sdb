@@ -59,7 +59,7 @@ const t = computed(() => isAr.value ? {
 </template>
 <style scoped>
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.sec{padding:80px 0}.sec-alt{background:#F0F9FF}.sec-sky{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
+.sec{padding:80px 0}.sec-alt{background:#F5F9F3}.sec-sky{background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
 .t2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:48px}.t2-w{color:#fff}.t2-em{color:#7C3AED}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.35);line-height:1.8;max-width:540px}.t2-sub-w{color:rgba(255,255,255,.4)}
 .p-hero{padding:160px 0 80px;background:linear-gradient(135deg,#4C1D95,#6D28D9,#7C3AED);color:#fff}
@@ -78,6 +78,6 @@ const t = computed(() => isAr.value ? {
 .cta-row{display:flex;gap:16px;justify-content:center}
 .link-btn-lg{font-size:15px;font-weight:700;color:#7C3AED;text-decoration:none;padding:12px 28px;border:2px solid rgba(124,58,237,.15);border-radius:12px;transition:all .2s}.link-btn-lg:hover{border-color:#7C3AED;background:rgba(124,58,237,.04)}
 .link-sec{color:rgba(10,10,10,.3);border-color:rgba(10,10,10,.08)}.link-sec:hover{color:#4C1D95;border-color:rgba(10,10,10,.15)}
-.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#0C4A6E;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
+.cta-btn{display:inline-block;padding:16px 44px;background:#fff;color:#163300;font-size:15px;font-weight:800;border-radius:12px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px)}
 @media(max-width:768px){.incl-grid{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}}
 </style>

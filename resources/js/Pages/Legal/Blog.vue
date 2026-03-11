@@ -65,20 +65,20 @@ const t = computed(() => isAr.value ? {
 </div></section>
 </template>
 <style scoped>
-.hero{padding:160px 0 80px;background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 50%,#0EA5E9 100%);color:#fff}
+.hero{padding:160px 0 80px;background:linear-gradient(135deg,#163300 0%,#1a3d00 50%,#9FE870 100%);color:#fff}
 .hero-tag{font-size:12px;font-weight:800;letter-spacing:3px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:24px}
-.t2{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:16px;color:#0C4A6E}.t2-em{color:#0EA5E9}
-.hero .t2{color:#fff}.hero .t2-em{color:#E0F2FE}
+.t2{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:16px;color:#163300}.t2-em{color:#9FE870}
+.hero .t2{color:#fff}.hero .t2-em{color:#E8F5E0}
 .t2-sub{font-size:16px;color:rgba(10,10,10,.6);line-height:1.85;max-width:520px}.hero .t2-sub{color:rgba(255,255,255,.7)}
-.sec{padding:80px 0}.sec-cta{padding:100px 0;background:linear-gradient(135deg,#F0F9FF,#E0F2FE)}
+.sec{padding:80px 0}.sec-cta{padding:100px 0;background:linear-gradient(135deg,#F5F9F3,#E8F5E0)}
 .sw{max-width:1200px;margin:0 auto;padding:0 24px}.tc{text-align:center}
-.soon-badge{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#0EA5E9,#0284C7);color:#fff;font-size:14px;font-weight:800;border-radius:50px;margin-bottom:24px}
+.soon-badge{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#9FE870,#2D6A00);color:#fff;font-size:14px;font-weight:800;border-radius:50px;margin-bottom:24px}
 .topics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
 .topic-c{padding:28px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:16px;text-align:center;transition:all .3s}.topic-c:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.04)}
 .topic-ic{font-size:32px;display:block;margin-bottom:12px}
-.topic-t{font-size:15px;font-weight:800;color:#0C4A6E;margin-bottom:6px}
+.topic-t{font-size:15px;font-weight:800;color:#163300;margin-bottom:6px}
 .topic-d{font-size:13px;color:rgba(10,10,10,.5);line-height:1.7}
-.cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#0284C7,#0EA5E9);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.2)}
+.cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,#2D6A00,#9FE870);color:#fff;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:all .2s}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(159,232,112,.2)}
 .an{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.an.vi{opacity:1;transform:none}
 @media(max-width:768px){
   .hero{padding:130px 0 50px}
