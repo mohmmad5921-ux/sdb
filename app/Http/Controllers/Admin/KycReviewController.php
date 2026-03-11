@@ -75,6 +75,13 @@ class KycReviewController extends Controller
                     'preferred_language' => $user->preferred_language ?? 'ar',
                     'docs_count' => $docs->count(),
                     'doc_types' => $docs->pluck('document_type')->toArray(),
+                    'documents_detail' => $docs->map(fn($d) => [
+                        'id' => $d->id,
+                        'type' => $d->document_type,
+                        'status' => $d->status,
+                        'created' => $d->created_at?->diffForHumans(),
+                    ])->values()->toArray(),
+                    'new_since_1h' => $docs->where('created_at', '>=', Carbon::now()->subHour())->count(),
                     'oldest' => $docs->min('created_at'),
                     'waiting_text' => Carbon::parse($docs->min('created_at'))->diffForHumans(),
                     'hours_waiting' => Carbon::parse($docs->min('created_at'))->diffInHours(now()),

@@ -101,21 +101,25 @@ const alertColor = (type) => {
         </div>
       </div>
 
-      <!-- User Review Queue (Enhanced) -->
+      <!-- User Review Queue -->
       <div v-if="userQueue?.length && filter === 'pending'" class="ky-card mb-4">
         <h3 class="ky-section-title">📋 طلبات التحقق حسب العميل ({{ userQueue.length }})</h3>
         <div class="ky-queue">
           <div v-for="u in userQueue" :key="u.user_id"
-            :class="['ky-queue-card', u.is_overdue ? 'ky-queue-overdue' : '', u.has_alerts ? 'ky-queue-alert' : '']">
+            :class="['ky-queue-card', u.is_overdue ? 'ky-queue-overdue' : '', u.has_alerts ? 'ky-queue-alert' : '']"
+            @click="expandedUser = u">
 
-            <!-- Main Row - Summary -->
-            <div class="ky-queue-main" @click="toggleExpand(u.user_id)">
+            <div class="ky-queue-main">
               <div class="flex items-center gap-3">
-                <div :class="['ky-avatar', u.has_alerts ? 'ky-avatar-warn' : '']">{{ u.user_name?.charAt(0) }}</div>
+                <div class="ky-avatar-wrap">
+                  <div :class="['ky-avatar', u.has_alerts ? 'ky-avatar-warn' : '']">{{ u.user_name?.charAt(0) }}</div>
+                  <div v-if="u.new_since_1h > 0" class="ky-new-badge">{{ u.new_since_1h }}</div>
+                </div>
                 <div>
                   <div class="ky-queue-name">
                     {{ u.user_name }}
                     <span v-if="u.has_alerts" class="ky-alert-badge">⚠️ تنبيه</span>
+                    <span v-if="u.new_since_1h > 0" class="ky-new-tag">🔴 جديد</span>
                   </div>
                   <div class="ky-queue-info-row">
                     <span v-if="u.country || u.nationality" class="ky-info-tag">🌍 {{ u.country || u.nationality }}</span>
@@ -130,77 +134,108 @@ const alertColor = (type) => {
                   <span v-for="t in u.doc_types" :key="t" class="ky-doc-tag">{{ docTypeLabels[t] || t }}</span>
                 </div>
                 <div :class="['ky-queue-time', u.is_overdue ? 'ky-time-overdue' : '']">⏱️ {{ u.waiting_text || u.hours_waiting + 'h' }}</div>
-                <div class="ky-expand-icon">{{ expandedUser === u.user_id ? '▲' : '▼' }}</div>
-              </div>
-            </div>
-
-            <!-- Expanded Details -->
-            <div v-if="expandedUser === u.user_id" class="ky-queue-details">
-
-              <!-- User Info Grid -->
-              <div class="ky-info-grid">
-                <div class="ky-info-card">
-                  <div class="ky-info-label">👤 الاسم الكامل</div>
-                  <div class="ky-info-value">{{ u.user_name || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">📧 البريد الإلكتروني</div>
-                  <div class="ky-info-value">{{ u.user_email || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">📱 الهاتف</div>
-                  <div class="ky-info-value">{{ u.user_phone || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">🌍 الجنسية</div>
-                  <div class="ky-info-value">{{ u.nationality || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">📍 البلد</div>
-                  <div class="ky-info-value">{{ u.country || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">🏙️ المدينة</div>
-                  <div class="ky-info-value">{{ u.city || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">🏠 العنوان</div>
-                  <div class="ky-info-value">{{ u.address || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">🎂 تاريخ الميلاد</div>
-                  <div class="ky-info-value">{{ u.date_of_birth || '—' }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">📅 تاريخ التسجيل</div>
-                  <div class="ky-info-value">{{ u.registered_ago }}</div>
-                </div>
-                <div class="ky-info-card">
-                  <div class="ky-info-label">🔑 آخر دخول</div>
-                  <div class="ky-info-value">{{ u.last_login || 'لم يسجل دخول' }}</div>
-                </div>
-              </div>
-
-              <!-- Alerts -->
-              <div v-if="u.duplicates?.length" class="ky-alerts-section">
-                <div class="ky-alerts-title">🔍 تنبيهات أمنية</div>
-                <div v-for="(alert, i) in u.duplicates" :key="i" class="ky-alert-item" :style="{borderColor: alertColor(alert.type)}">
-                  <span class="ky-alert-msg">{{ alert.message }}</span>
-                  <Link :href="route('admin.users.show', alert.user_id)" class="ky-alert-link">عرض الحساب →</Link>
-                </div>
-              </div>
-
-              <!-- Quick Actions -->
-              <div class="ky-quick-actions">
-                <button @click="approveAll(u.user_id)" class="ky-action-btn ky-approve ky-action-lg">✅ اعتماد الكل وفتح الحساب</button>
-                <button @click="msgModal = u; msgType = 'request_docs'" class="ky-action-btn ky-msg-btn">📄 طلب مستندات إضافية</button>
-                <button @click="msgModal = u; msgType = 'approved'" class="ky-action-btn ky-msg-btn">📫 إرسال رسالة</button>
-                <Link :href="route('admin.users.show', u.user_id)" class="ky-action-btn ky-info-btn">👤 ملف العميل</Link>
+                <div class="ky-expand-icon">→</div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Applicant Detail Modal -->
+      <Teleport to="body">
+        <div v-if="expandedUser" class="ky-modal-overlay" @click.self="expandedUser = null">
+          <div class="ky-detail-modal">
+            <!-- Header -->
+            <div class="ky-detail-header">
+              <div class="flex items-center gap-3">
+                <div :class="['ky-avatar ky-avatar-lg', expandedUser.has_alerts ? 'ky-avatar-warn' : '']">{{ expandedUser.user_name?.charAt(0) }}</div>
+                <div>
+                  <h2 class="ky-detail-name">{{ expandedUser.user_name }}</h2>
+                  <div class="ky-queue-info-row">
+                    <span v-if="expandedUser.country || expandedUser.nationality" class="ky-info-tag">🌍 {{ expandedUser.country || expandedUser.nationality }}</span>
+                    <span class="ky-info-tag">📧 {{ expandedUser.user_email }}</span>
+                    <span v-if="expandedUser.user_phone" class="ky-info-tag">📱 {{ expandedUser.user_phone }}</span>
+                    <span class="ky-info-tag">📅 مسجل {{ expandedUser.registered_ago }}</span>
+                  </div>
+                </div>
+              </div>
+              <button @click="expandedUser = null" class="ky-close-btn">✕</button>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="ky-info-grid">
+              <div class="ky-info-card">
+                <div class="ky-info-label">👤 الاسم الكامل</div>
+                <div class="ky-info-value">{{ expandedUser.user_name || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">📧 البريد الإلكتروني</div>
+                <div class="ky-info-value">{{ expandedUser.user_email || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">📱 الهاتف</div>
+                <div class="ky-info-value">{{ expandedUser.user_phone || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">🌍 الجنسية</div>
+                <div class="ky-info-value">{{ expandedUser.nationality || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">📍 البلد</div>
+                <div class="ky-info-value">{{ expandedUser.country || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">🏙️ المدينة</div>
+                <div class="ky-info-value">{{ expandedUser.city || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">🏠 العنوان</div>
+                <div class="ky-info-value">{{ expandedUser.address || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">🎂 تاريخ الميلاد</div>
+                <div class="ky-info-value">{{ expandedUser.date_of_birth || '—' }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">📅 تاريخ التسجيل</div>
+                <div class="ky-info-value">{{ expandedUser.registered_ago }}</div>
+              </div>
+              <div class="ky-info-card">
+                <div class="ky-info-label">🔑 آخر دخول</div>
+                <div class="ky-info-value">{{ expandedUser.last_login || 'لم يسجل دخول' }}</div>
+              </div>
+            </div>
+
+            <!-- Documents List -->
+            <div class="ky-docs-list-section">
+              <h4 class="ky-sub-title">📎 المستندات المرفقة ({{ expandedUser.docs_count }})</h4>
+              <div class="ky-docs-list">
+                <div v-for="doc in expandedUser.documents_detail" :key="doc.id" class="ky-doc-row">
+                  <span class="ky-doc-type-icon">{{ doc.type === 'selfie' ? '🤳' : doc.type === 'passport' ? '📘' : '🪪' }}</span>
+                  <span class="ky-doc-type-name">{{ docTypeLabels[doc.type] || doc.type }}</span>
+                  <span class="ky-doc-created">{{ doc.created }}</span>
+                  <a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ky-action-btn ky-view-doc">👁️ عرض المستند</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alerts -->
+            <div v-if="expandedUser.duplicates?.length" class="ky-alerts-section">
+              <div class="ky-alerts-title">🔍 تنبيهات أمنية</div>
+              <div v-for="(alert, i) in expandedUser.duplicates" :key="i" class="ky-alert-item" :style="{borderColor: alertColor(alert.type)}">
+                <span class="ky-alert-msg">{{ alert.message }}</span>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="ky-detail-actions">
+              <button @click="approveAll(expandedUser.user_id); expandedUser = null" class="ky-action-btn ky-approve ky-action-lg">✅ اعتماد الكل وفتح الحساب</button>
+              <button @click="msgModal = expandedUser; msgType = 'request_docs'" class="ky-action-btn ky-msg-btn">📄 طلب مستندات إضافية</button>
+              <button @click="msgModal = expandedUser; msgType = 'approved'" class="ky-action-btn ky-msg-btn">📫 إرسال رسالة</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
 
       <!-- Rejection Modal -->
       <Teleport to="body">
@@ -448,4 +483,30 @@ const alertColor = (type) => {
 .ky-doctype-item:has(input:checked){border-color:#10b981;background:#ecfdf5}
 .ky-checkbox{accent-color:#10b981;width:16px;height:16px}
 .ky-lang-badge{font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px;margin-right:8px;font-weight:600}
+
+/* Detail Modal */
+.ky-detail-modal{background:#fff;border-radius:20px;padding:28px;max-width:750px;width:95%;max-height:90vh;overflow-y:auto}
+.ky-detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
+.ky-detail-name{font-size:20px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.ky-close-btn{width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#94a3b8;transition:all .15s;flex-shrink:0}.ky-close-btn:hover{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+.ky-avatar-lg{width:52px!important;height:52px!important;font-size:20px!important}
+
+/* New Docs Badge */
+.ky-avatar-wrap{position:relative;flex-shrink:0}
+.ky-new-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;animation:ky-pulse 2s infinite}
+.ky-new-tag{font-size:10px;background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:5px;font-weight:700;animation:ky-pulse 2s infinite}
+@keyframes ky-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Documents List */
+.ky-docs-list-section{margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9}
+.ky-sub-title{font-size:14px;font-weight:700;color:#334155;margin-bottom:10px}
+.ky-docs-list{display:flex;flex-direction:column;gap:6px}
+.ky-doc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px}
+.ky-doc-type-icon{font-size:20px;flex-shrink:0}
+.ky-doc-type-name{font-size:13px;font-weight:600;color:#0f172a;flex:1}
+.ky-doc-created{font-size:11px;color:#94a3b8;flex-shrink:0}
+.ky-view-doc{font-size:12px;padding:5px 12px;background:#ecfdf5;color:#059669;border-radius:8px;text-decoration:none;white-space:nowrap}.ky-view-doc:hover{background:#10b981;color:#fff}
+
+/* Detail Actions */
+.ky-detail-actions{display:flex;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;flex-wrap:wrap}
 </style>
