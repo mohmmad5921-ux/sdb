@@ -127,6 +127,9 @@ const alertColor = (type) => {
                     <span class="ky-info-tag">📧 {{ u.user_email }}</span>
                   </div>
                   <div class="ky-queue-meta">مسجل {{ u.registered_ago }} · {{ u.docs_count }} مستند</div>
+                  <div v-if="u.last_message" class="ky-last-msg">
+                    ✉️ {{ u.last_message.title }}
+                  </div>
                 </div>
               </div>
               <div class="flex items-center gap-3">
@@ -509,4 +512,7 @@ const alertColor = (type) => {
 
 /* Detail Actions */
 .ky-detail-actions{display:flex;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;flex-wrap:wrap}
+
+/* Last Message Sent */
+.ky-last-msg{font-size:11px;color:#6366f1;background:#eef2ff;padding:2px 8px;border-radius:6px;margin-top:4px;font-weight:600;display:inline-block}
 </style>

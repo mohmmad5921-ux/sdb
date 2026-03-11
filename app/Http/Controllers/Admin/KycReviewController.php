@@ -87,6 +87,10 @@ class KycReviewController extends Controller
                     'waiting_text' => Carbon::parse($docs->min('created_at'))->diffForHumans(),
                     'hours_waiting' => Carbon::parse($docs->min('created_at'))->diffInHours(now()),
                     'is_overdue' => Carbon::parse($docs->min('created_at'))->diffInHours(now()) > 48,
+                    'last_message' => Notification::where('user_id', $userId)
+                        ->where('type', 'system')
+                        ->orderByDesc('created_at')
+                        ->first(['title', 'body', 'created_at'])?->toArray(),
                     'duplicates' => $duplicates,
                     'has_alerts' => count($duplicates) > 0,
                 ];
