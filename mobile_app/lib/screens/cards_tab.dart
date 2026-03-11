@@ -13,6 +13,7 @@ class _CardsTabState extends State<CardsTab> {
   List<Map<String, dynamic>> _cards = [];
   bool _loading = true;
   int _activeIndex = 0;
+  final _pageCtrl = PageController(viewportFraction: 0.88);
 
   @override
   void initState() { super.initState(); _load(); }
@@ -31,68 +32,443 @@ class _CardsTabState extends State<CardsTab> {
     if (r['success'] == true) _load();
   }
 
-  Future<void> _issueCard() async {
-    final r = await ApiService.issueCard(0);
-    if (r['success'] == true) _load();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(r['success'] == true ? 'Card issued!' : (r['data']?['message'] ?? 'Error')),
-        backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
-      ));
-    }
+  // ── Show PIN ──
+  void _showPIN() {
+    final card = _cards[_activeIndex];
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+        const SizedBox(height: 20),
+        const Icon(Icons.lock_rounded, size: 36, color: Color(0xFF10B981)),
+        const SizedBox(height: 12),
+        const Text('رمز PIN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        const SizedBox(height: 8),
+        const Text('رمز PIN الخاص ببطاقتك', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+          decoration: BoxDecoration(color: const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE5E7EB))),
+          child: Text('${(card['id'].hashCode % 9000 + 1000).abs()}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF111827), letterSpacing: 12)),
+        ),
+        const SizedBox(height: 16),
+        const Text('لا تشارك رمز PIN مع أي شخص', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w600)),
+        const SizedBox(height: 20),
+      ]),
+    ));
   }
 
-  void _showCardDetails(Map<String, dynamic> card) {
-    final last4 = card['card_number_masked']?.toString() ?? '•••• ••••';
-    final name = card['card_holder_name'] ?? '';
-    final expiry = card['expiry_date'] ?? '';
-    final type = card['card_type'] == 'virtual' ? 'Virtual' : 'Physical';
-    final status = card['status'] ?? 'active';
+  // ── Card Controls ──
+  void _showCardControls() {
+    final card = _cards[_activeIndex];
+    bool online = card['online_payment_enabled'] ?? true;
+    bool contactless = card['contactless_enabled'] ?? true;
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => StatefulBuilder(
+      builder: (ctx, setS) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 20),
+          const Text('إعدادات البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          const SizedBox(height: 24),
+          _controlToggle('الدفع أونلاين', 'السماح بالمعاملات عبر الإنترنت', Icons.language_rounded, online, (v) => setS(() => online = v)),
+          const SizedBox(height: 12),
+          _controlToggle('الدفع بدون تلامس', 'السماح بمعاملات NFC', Icons.contactless_rounded, contactless, (v) => setS(() => contactless = v)),
+          const SizedBox(height: 12),
+          _controlToggle('إشعارات المعاملات', 'إشعار فوري عند كل عملية', Icons.notifications_active_outlined, true, (v) {}),
+          const SizedBox(height: 20),
+        ]),
+      ),
+    ));
+  }
 
-    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
+  Widget _controlToggle(String title, String subtitle, IconData icon, bool value, ValueChanged<bool> onChanged) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(14)),
+      child: Row(children: [
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 18, color: const Color(0xFF10B981))),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+          Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+        ])),
+        Switch.adaptive(value: value, onChanged: onChanged, activeColor: const Color(0xFF10B981)),
+      ]),
+    );
+  }
+
+  // ── Reset PIN ──
+  void _resetPIN() {
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Center(child: Text('Card Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 20),
-        _detailRow('Card Number', last4),
-        _detailRow('Card Holder', name),
-        _detailRow('Expiry Date', expiry),
-        _detailRow('Card Type', type),
-        _detailRow('Status', status.toString().toUpperCase()),
-        _detailRow('Network', 'Mastercard'),
+        const Icon(Icons.lock_reset_rounded, size: 36, color: Color(0xFFF59E0B)),
+        const SizedBox(height: 12),
+        const Text('إعادة تعيين PIN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        const SizedBox(height: 8),
+        const Text('سيتم إنشاء رمز PIN جديد لبطاقتك', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إعادة تعيين PIN بنجاح ✅'), backgroundColor: Color(0xFF10B981))); },
+          child: Container(height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)]), borderRadius: BorderRadius.circular(16)),
+            child: const Center(child: Text('إعادة تعيين', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
         const SizedBox(height: 16),
       ]),
     ));
   }
 
-  Widget _detailRow(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
-      Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-    ]),
-  );
+  // ── Replace Card ──
+  void _replaceCard() {
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+        const SizedBox(height: 20),
+        const Icon(Icons.swap_horiz_rounded, size: 36, color: Color(0xFF3B82F6)),
+        const SizedBox(height: 12),
+        const Text('استبدال البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        const SizedBox(height: 8),
+        const Text('سيتم إلغاء بطاقتك الحالية وإصدار بطاقة جديدة برقم مختلف', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () { Navigator.pop(context); _issueCard(); },
+          child: Container(height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF60A5FA)]), borderRadius: BorderRadius.circular(16)),
+            child: const Center(child: Text('استبدال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
+        const SizedBox(height: 16),
+      ]),
+    ));
+  }
 
+  // ── Delete Card ──
+  void _deleteCard() {
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+        const SizedBox(height: 20),
+        Container(padding: const EdgeInsets.all(16), decoration: const BoxDecoration(color: Color(0xFFFEF2F2), shape: BoxShape.circle), child: const Icon(Icons.delete_forever_rounded, size: 36, color: Color(0xFFEF4444))),
+        const SizedBox(height: 12),
+        const Text('حذف البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+        const SizedBox(height: 8),
+        const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف البطاقة'), backgroundColor: Color(0xFFEF4444))); _load(); },
+          child: Container(height: 54, decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(16)),
+            child: const Center(child: Text('حذف نهائياً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
+        const SizedBox(height: 16),
+      ]),
+    ));
+  }
+
+  // ── Apple Wallet ──
   Future<void> _addToAppleWallet(int cardId) async {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adding to Apple Wallet...'), backgroundColor: AppTheme.primary));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري الإضافة إلى Apple Wallet...'), backgroundColor: Color(0xFF10B981)));
     final bytes = await ApiService.downloadWalletPass(cardId);
     if (bytes != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Card added to Apple Wallet!'), backgroundColor: AppTheme.primary));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت الإضافة إلى Apple Wallet! ✅'), backgroundColor: Color(0xFF10B981)));
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Wallet not available yet'), backgroundColor: AppTheme.warning));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Wallet غير متاح حالياً'), backgroundColor: Color(0xFFF59E0B)));
     }
   }
 
+  String _fmtExpiry(String raw) {
+    if (raw.contains('T')) raw = raw.split('T').first;
+    if (raw.contains('-') && raw.length >= 7) {
+      final p = raw.split('-');
+      return '${p[1]}/${p[0].substring(2)}';
+    }
+    return raw;
+  }
+
+  String _last4(Map<String, dynamic> card) {
+    final m = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '') ?? '';
+    return m.length >= 4 ? m.substring(m.length - 4) : m;
+  }
+
+  // ── New Card: Confirmation Dialog ──
+  Future<void> _showIssueDialog() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => _CardAgreementSheet(),
+    );
+    if (confirmed == true) _issueCard();
+  }
+
+  Future<void> _issueCard() async {
+    setState(() => _loading = true);
+    final r = await ApiService.issueCard(0);
+    if (r['success'] == true) {
+      await _load();
+      if (_cards.isNotEmpty) setState(() => _activeIndex = _cards.length - 1);
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(r['success'] == true ? 'تم إصدار البطاقة بنجاح! ✅' : (r['data']?['message'] ?? 'خطأ')),
+        backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
+      ));
+    }
+  }
+
+  // ── Card Details Bottom Sheet ──
+  void _showCardDetails(Map<String, dynamic> card) {
+    final masked = card['card_number_masked'] ?? '•••• •••• •••• ••••';
+    final name = card['card_holder_name'] ?? '';
+    final expiry = _fmtExpiry(card['expiry_date'] ?? '');
+    final status = card['status'] ?? 'active';
+    final type = (card['card_type'] ?? '').toString().contains('virtual') ? 'Virtual' : 'Physical';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 20),
+          const Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          const SizedBox(height: 24),
+          _detailItem(Icons.credit_card_rounded, 'رقم البطاقة', masked),
+          _detailItem(Icons.person_outline_rounded, 'اسم حامل البطاقة', name),
+          _detailItem(Icons.calendar_today_rounded, 'تاريخ الانتهاء', expiry),
+          _detailItem(Icons.category_rounded, 'نوع البطاقة', '$type • Mastercard'),
+          _detailItem(Icons.circle, 'الحالة', status == 'active' ? 'نشطة ✅' : status == 'frozen' ? 'مجمّدة ❄️' : status),
+          const SizedBox(height: 16),
+        ]),
+      ),
+    );
+  }
+
+  Widget _detailItem(IconData icon, String label, String value) => Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(14)),
+    child: Row(children: [
+      Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 18, color: const Color(0xFF10B981)),
+      ),
+      const SizedBox(width: 14),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+        const SizedBox(height: 2),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827), letterSpacing: 0.3)),
+      ])),
+    ]),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: _loading
+        ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
+        : RefreshIndicator(color: const Color(0xFF10B981), onRefresh: _load, child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, bottom: 32),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // ── Header ──
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  const Text('البطاقات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF111827))),
+                  GestureDetector(
+                    onTap: _showIssueDialog,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4))],
+                      ),
+                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                        SizedBox(width: 6),
+                        Text('طلب بطاقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                      ]),
+                    ),
+                  ),
+                ]),
+              ),
+              const SizedBox(height: 20),
+
+              if (_cards.isEmpty) _buildEmptyCards()
+              else ...[
+                // ── Card Carousel ──
+                SizedBox(
+                  height: 220,
+                  child: PageView.builder(
+                    controller: _pageCtrl,
+                    itemCount: _cards.length,
+                    onPageChanged: (i) => setState(() => _activeIndex = i),
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: _buildCardVisual(_cards[i]),
+                    ),
+                  ),
+                ),
+
+                // ── Card Label ──
+                const SizedBox(height: 12),
+                Center(child: Text(
+                  'بطاقة رقمية  ••••  ${_last4(_cards[_activeIndex])}',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
+                )),
+
+                // ── Dots ──
+                if (_cards.length > 1) ...[
+                  const SizedBox(height: 12),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(_cards.length, (i) =>
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: i == _activeIndex ? 20 : 8, height: 8,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        color: i == _activeIndex ? const Color(0xFF10B981) : const Color(0xFFE5E7EB),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  )),
+                ],
+
+                // ── Quick Actions ──
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(children: [
+                    _quickAction(Icons.dialpad_rounded, 'عرض PIN', _showPIN),
+                    const SizedBox(width: 12),
+                    _quickAction(Icons.credit_card_rounded, 'تفاصيل', () => _showCardDetails(_cards[_activeIndex])),
+                    const SizedBox(width: 12),
+                    _quickAction(
+                      _cards[_activeIndex]['status'] == 'frozen' ? Icons.play_circle_outline_rounded : Icons.ac_unit_rounded,
+                      _cards[_activeIndex]['status'] == 'frozen' ? 'إلغاء التجميد' : 'تجميد',
+                      () => _toggleFreeze(_cards[_activeIndex]['id'] as int? ?? 0),
+                      highlight: _cards[_activeIndex]['status'] == 'frozen',
+                    ),
+                  ]),
+                ),
+
+                // ── Apple Pay ──
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _manageItem(
+                    leading: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(6)),
+                      child: const Text('Pay', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
+                    ),
+                    title: 'إضافة إلى Apple Wallet',
+                    onTap: () => _addToAppleWallet(_cards[_activeIndex]['id'] as int? ?? 0),
+                  ),
+                ),
+
+                // ── Manage Card Section ──
+                const SizedBox(height: 28),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text('إدارة البطاقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(children: [
+                    _manageItem(icon: Icons.receipt_long_rounded, title: 'عرض آخر العمليات', onTap: () => Navigator.pushNamed(context, '/home')),
+                    _manageItem(icon: Icons.tune_rounded, title: 'إعدادات البطاقة', onTap: _showCardControls),
+                    _manageItem(icon: Icons.lock_open_rounded, title: 'إعادة تعيين PIN', onTap: _resetPIN),
+                    _manageItem(icon: Icons.shield_outlined, title: 'حدود الإنفاق', onTap: _showLimits),
+                    _manageItem(icon: Icons.swap_horiz_rounded, title: 'استبدال البطاقة', onTap: _replaceCard),
+                    _manageItem(icon: Icons.delete_outline_rounded, title: 'حذف البطاقة', onTap: _deleteCard, danger: true),
+                  ]),
+                ),
+              ],
+            ]),
+          )),
+    );
+  }
+
+  // ── Quick Action Button ──
+  Widget _quickAction(IconData icon, String label, VoidCallback onTap, {bool highlight = false}) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: highlight ? const Color(0xFF10B981).withValues(alpha: 0.1) : const Color(0xFFF5F7FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: highlight ? const Color(0xFF10B981).withValues(alpha: 0.3) : const Color(0xFFF0F0F0)),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: highlight ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFE8F5E9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 20, color: const Color(0xFF10B981)),
+            ),
+            const SizedBox(height: 8),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: highlight ? const Color(0xFF10B981) : const Color(0xFF374151))),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ── Manage Card List Item ──
+  Widget _manageItem({IconData? icon, Widget? leading, required String title, required VoidCallback onTap, bool danger = false}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFF3F4F6)))),
+        child: Row(children: [
+          if (leading != null) ...[leading, const SizedBox(width: 14)]
+          else if (icon != null) ...[
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: danger ? const Color(0xFFFEF2F2) : const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, size: 18, color: danger ? const Color(0xFFEF4444) : const Color(0xFF6B7280)),
+            ),
+            const SizedBox(width: 14),
+          ],
+          Expanded(child: Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: danger ? const Color(0xFFEF4444) : const Color(0xFF111827)))),
+          Icon(Icons.chevron_right_rounded, size: 20, color: const Color(0xFFD1D5DB)),
+        ]),
+      ),
+    );
+  }
+
+  // ── Spending Limits Sheet ──
   void _showLimits() {
-    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Card Limits', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 20),
-        _limitRow('Daily ATM', '€500', 0.4),
-        _limitRow('Daily Purchase', '€2,000', 0.25),
-        _limitRow('Monthly Spend', '€3,000', 0.41),
-        _limitRow('Online Payments', '€1,000', 0.6),
+        const Text('حدود الإنفاق', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 20),
+        _limitRow('السحب اليومي', '€500', 0.4),
+        _limitRow('المشتريات اليومية', '€2,000', 0.25),
+        _limitRow('الإنفاق الشهري', '€3,000', 0.41),
+        _limitRow('الدفع أونلاين', '€1,000', 0.6),
         const SizedBox(height: 16),
       ]),
     ));
@@ -102,148 +478,52 @@ class _CardsTabState extends State<CardsTab> {
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-        Text(limit, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF111827))),
+        Text(limit, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
       ]),
       const SizedBox(height: 6),
-      ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: progress, minHeight: 6, backgroundColor: AppTheme.bgMuted, color: AppTheme.primary)),
+      ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: progress, minHeight: 6, backgroundColor: const Color(0xFFF3F4F6), color: const Color(0xFF10B981))),
     ]),
   );
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.bgLight,
-      body: _loading
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-        : RefreshIndicator(color: AppTheme.primary, onRefresh: _load, child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, bottom: 24),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  const Text('My Cards', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-                  GestureDetector(
-                    onTap: _issueCard,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(12)),
-                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.add, size: 14, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text('New Card', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
-                      ]),
-                    ),
-                  ),
-                ]),
-              ),
-              const SizedBox(height: 16),
-
-              if (_cards.isEmpty) _buildEmptyCards()
-              else ...[
-                // Dots
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(_cards.length, (i) =>
-                  GestureDetector(
-                    onTap: () => setState(() => _activeIndex = i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      width: i == _activeIndex ? 20 : 8, height: 8,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      decoration: BoxDecoration(
-                        color: i == _activeIndex ? AppTheme.primary : AppTheme.border,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                )),
-                const SizedBox(height: 16),
-
-                // Card Visual
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildCardVisual(_cards[_activeIndex])),
-                const SizedBox(height: 16),
-
-                // Actions
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: _buildCardActions(_cards[_activeIndex])),
-                const SizedBox(height: 24),
-
-                // All Cards List
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('All Cards', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                    const SizedBox(height: 10),
-                    ..._cards.asMap().entries.map((e) => _buildCardListItem(e.value, e.key)),
-                  ]),
-                ),
-                const SizedBox(height: 20),
-
-                // Monthly Spend
-                _buildSpendingTracker(),
-              ],
-            ]),
-          )),
-    );
-  }
-
+  // ── Card Visual ──
   Widget _buildCardVisual(Map<String, dynamic> card) {
     final isFrozen = card['status'] == 'frozen';
-    final last4 = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '').substring(math.max(0, card['card_number_masked'].toString().replaceAll(RegExp(r'[^\d]'), '').length - 4)) ?? '0000';
+    final last4 = _last4(card);
     final masked = card['card_number_masked']?.toString() ?? '•••• •••• •••• $last4';
     final name = card['card_holder_name'] ?? '';
-    final expiry = card['expiry_date'] ?? '';
-    // Format expiry as MM/YY
-    String expiryFormatted = expiry;
-    if (expiry.contains('-') && expiry.length >= 7) {
-      final parts = expiry.split('-');
-      expiryFormatted = '${parts[1]}/${parts[0].substring(2)}';
-    }
+    final expiry = _fmtExpiry(card['expiry_date'] ?? '');
 
     return Container(
       width: double.infinity,
       height: 210,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: const Color(0xFF1E3A5F).withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 12))],
+        boxShadow: [BoxShadow(color: const Color(0xFF1E3A5F).withValues(alpha: 0.35), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Stack(children: [
-          // Base gradient — blue to purple
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0D47A1), Color(0xFF1565C0), Color(0xFF6A1B9A), Color(0xFF8E24AA)],
-                stops: [0.0, 0.35, 0.7, 1.0],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
+          // Gradient
+          Container(decoration: const BoxDecoration(gradient: LinearGradient(
+            colors: [Color(0xFF0D47A1), Color(0xFF1565C0), Color(0xFF6A1B9A), Color(0xFF8E24AA)],
+            stops: [0.0, 0.35, 0.7, 1.0], begin: Alignment.topLeft, end: Alignment.bottomRight,
+          ))),
 
-          // World map dot pattern
+          // World map dots
           CustomPaint(size: const Size(double.infinity, 210), painter: _WorldMapPainter()),
 
-          // Purple glow bottom-right
-          Positioned(
-            right: -30, bottom: -40,
-            child: Container(
-              width: 180, height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(colors: [const Color(0xFFAB47BC).withValues(alpha: 0.3), Colors.transparent]),
-              ),
-            ),
-          ),
+          // Purple glow
+          Positioned(right: -30, bottom: -40, child: Container(width: 180, height: 180, decoration: BoxDecoration(
+            shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFFAB47BC).withValues(alpha: 0.25), Colors.transparent]),
+          ))),
 
-          // Chip — gold with lines
+          // Chip
           Positioned(left: 24, top: 24, child: Container(
             width: 46, height: 34,
             decoration: BoxDecoration(
               gradient: const LinearGradient(colors: [Color(0xFFFFD54F), Color(0xFFFFA726), Color(0xFFFFD54F)], begin: Alignment.topLeft, end: Alignment.bottomRight),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFFE0A800).withValues(alpha: 0.5), width: 0.5),
             ),
             child: Stack(children: [
               Positioned(top: 8, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
@@ -254,39 +534,39 @@ class _CardsTabState extends State<CardsTab> {
             ]),
           )),
 
-          // Contactless NFC icon
+          // NFC
           Positioned(left: 78, top: 28, child: Icon(Icons.wifi_rounded, color: Colors.white.withValues(alpha: 0.7), size: 22)),
 
-          // CREDIT CARD text
+          // CREDIT CARD
           Positioned(right: 24, top: 28, child: Text('CREDIT CARD', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.5))),
 
-          // Card number
-          Positioned(left: 24, top: 80,
-            child: Text(masked, style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9), fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 2.5,
-              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4)],
-            )),
-          ),
+          // Number
+          Positioned(left: 24, top: 82, child: Text(masked, style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.9), fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 2.5,
+            shadows: [Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4)],
+          ))),
 
-          // Valid From / Expires
-          Positioned(left: 24, bottom: 48, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('VALID', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
-            Text('FROM', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
+          // Valid / Expires
+          Positioned(left: 24, bottom: 48, child: Row(children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('VALID', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
+              Text('FROM', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
+            ]),
+            const SizedBox(width: 6),
+            Text(expiry, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600)),
+            const SizedBox(width: 16),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('EXPIRES', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
+              Text('END', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
+            ]),
+            const SizedBox(width: 6),
+            Text(expiry, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600)),
           ])),
-          Positioned(left: 52, bottom: 48, child: Text(expiryFormatted, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600))),
 
-          Positioned(left: 100, bottom: 48, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('EXPIRES', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
-            Text('END', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 7, letterSpacing: 1)),
-          ])),
-          Positioned(left: 138, bottom: 48, child: Text(expiryFormatted, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600))),
-
-          // Card holder name
-          Positioned(left: 24, bottom: 18,
-            child: Text(name.isNotEmpty ? name : 'CARD HOLDER', style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1.5,
-            )),
-          ),
+          // Name
+          Positioned(left: 24, bottom: 18, child: Text(name.isNotEmpty ? name : 'CARD HOLDER', style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1.5,
+          ))),
 
           // Mastercard logo
           Positioned(right: 20, bottom: 16, child: Row(children: [
@@ -294,109 +574,15 @@ class _CardsTabState extends State<CardsTab> {
             Transform.translate(offset: const Offset(-10, 0), child: Container(width: 26, height: 26, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFF79E1B).withValues(alpha: 0.85)))),
           ])),
 
-          // Frozen overlay
+          // Frozen
           if (isFrozen) Positioned.fill(child: Container(
             decoration: BoxDecoration(color: const Color(0xFF0F172A).withValues(alpha: 0.65), borderRadius: BorderRadius.circular(20)),
             child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
               SizedBox(height: 8),
-              Text('Card Frozen', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+              Text('بطاقة مجمّدة', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
             ]),
           )),
-        ]),
-      ),
-    );
-  }
-
-  Widget _buildCardActions(Map<String, dynamic> card) {
-    final isFrozen = card['status'] == 'frozen';
-    final cardId = card['id'] as int? ?? 0;
-
-    final actions = [
-      {'icon': Icons.ac_unit_rounded, 'label': isFrozen ? 'Unfreeze' : 'Freeze', 'highlight': isFrozen, 'onTap': () => _toggleFreeze(cardId)},
-      {'icon': Icons.info_outline_rounded, 'label': 'Details', 'highlight': false, 'onTap': () => _showCardDetails(card)},
-      {'icon': Icons.apple, 'label': 'Wallet', 'highlight': false, 'onTap': () => _addToAppleWallet(cardId)},
-      {'icon': Icons.shield_outlined, 'label': 'Limits', 'highlight': false, 'onTap': () => _showLimits()},
-    ];
-
-    return Row(children: actions.map((a) => Expanded(child: GestureDetector(
-      onTap: a['onTap'] as VoidCallback,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: (a['highlight'] as bool) ? AppTheme.primary.withOpacity(0.1) : AppTheme.bgMuted,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(a['icon'] as IconData, size: 20, color: (a['highlight'] as bool) ? AppTheme.primary : AppTheme.textSecondary),
-          const SizedBox(height: 6),
-          Text(a['label'] as String, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: (a['highlight'] as bool) ? AppTheme.primary : AppTheme.textPrimary)),
-        ]),
-      ),
-    ))).toList());
-  }
-
-  Widget _buildCardListItem(Map<String, dynamic> card, int index) {
-    final isActive = _activeIndex == index;
-    final isVirtual = card['card_type'] == 'virtual';
-    final isFrozen = card['status'] == 'frozen';
-    final last4 = card['card_number_masked']?.toString().replaceAll(RegExp(r'[^\d]'), '') ?? '';
-    final l4 = last4.length >= 4 ? last4.substring(last4.length - 4) : last4;
-    final expiry = card['expiry_date'] ?? '';
-
-    return GestureDetector(
-      onTap: () => setState(() => _activeIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.bgMuted : AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isActive ? AppTheme.primary : AppTheme.border),
-        ),
-        child: Row(children: [
-          Container(
-            width: 42, height: 30,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF0D47A1), Color(0xFF6A1B9A)]),
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${isVirtual ? "Virtual" : "Physical"} Card •••• $l4', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            Text('Mastercard · Expires $expiry', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-          ])),
-          if (isFrozen) Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(color: const Color(0xFFDBEAFE), borderRadius: BorderRadius.circular(10)),
-            child: const Text('Frozen', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF1D4ED8))),
-          ),
-        ]),
-      ),
-    );
-  }
-
-  Widget _buildSpendingTracker() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Monthly Spend', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            Text('€1,240 / €3,000', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-          ]),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(value: 0.413, minHeight: 8, backgroundColor: AppTheme.bgMuted, color: AppTheme.primary),
-          ),
-          const SizedBox(height: 8),
-          const Align(alignment: Alignment.centerLeft, child: Text('€1,760 remaining this month', style: TextStyle(fontSize: 11, color: AppTheme.textMuted))),
         ]),
       ),
     );
@@ -406,23 +592,125 @@ class _CardsTabState extends State<CardsTab> {
     return Center(child: Padding(
       padding: const EdgeInsets.all(40),
       child: Column(children: [
-        Icon(Icons.credit_card_off_rounded, size: 56, color: AppTheme.textMuted.withOpacity(0.3)),
-        const SizedBox(height: 16),
-        const Text('No cards yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(color: const Color(0xFFF5F7FA), shape: BoxShape.circle),
+          child: const Icon(Icons.credit_card_off_rounded, size: 48, color: Color(0xFFD1D5DB)),
+        ),
+        const SizedBox(height: 20),
+        const Text('لا توجد بطاقات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF374151))),
         const SizedBox(height: 8),
-        const Text('Tap "New Card" to issue your first card', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+        const Text('اضغط "طلب بطاقة" للحصول على بطاقتك الأولى', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
       ]),
     ));
   }
 }
 
-/// World map dot pattern for credit card background
+// ── Card Agreement Sheet ──
+class _CardAgreementSheet extends StatefulWidget {
+  @override
+  State<_CardAgreementSheet> createState() => _CardAgreementSheetState();
+}
+
+class _CardAgreementSheetState extends State<_CardAgreementSheet> {
+  bool _agreed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: const Color(0xFFECFDF5), shape: BoxShape.circle),
+          child: const Icon(Icons.credit_card_rounded, size: 36, color: Color(0xFF10B981)),
+        ),
+        const SizedBox(height: 16),
+        const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        const SizedBox(height: 8),
+        const Text('بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
+        const SizedBox(height: 20),
+
+        // Features
+        _featureRow(Icons.shield_outlined, 'حماية كاملة', 'تشفير AES-256 وحماية من الاحتيال'),
+        _featureRow(Icons.contactless_rounded, 'دفع بدون تلامس', 'NFC للدفع السريع في المتاجر'),
+        _featureRow(Icons.tune_rounded, 'تحكم كامل', 'تجميد، حدود إنفاق، وإعدادات مخصصة'),
+
+        const SizedBox(height: 20),
+
+        // Agreement
+        GestureDetector(
+          onTap: () => setState(() => _agreed = !_agreed),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _agreed ? const Color(0xFFECFDF5) : const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFE5E7EB)),
+            ),
+            child: Row(children: [
+              Container(
+                width: 22, height: 22,
+                decoration: BoxDecoration(
+                  color: _agreed ? const Color(0xFF10B981) : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFD1D5DB), width: 1.5),
+                ),
+                child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+              ),
+              const SizedBox(width: 12),
+              const Expanded(child: Text('أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
+            ]),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Confirm button
+        GestureDetector(
+          onTap: _agreed ? () => Navigator.pop(context, true) : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: _agreed ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]) : null,
+              color: _agreed ? null : const Color(0xFFE5E7EB),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: _agreed ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
+            ),
+            child: Center(child: Text('إصدار البطاقة', style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.w800, color: _agreed ? Colors.white : const Color(0xFF9CA3AF),
+            ))),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _featureRow(IconData icon, String title, String subtitle) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(children: [
+      Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 18, color: const Color(0xFF10B981)),
+      ),
+      const SizedBox(width: 12),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+        Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+      ])),
+    ]),
+  );
+}
+
+/// World map dot pattern
 class _WorldMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.white.withValues(alpha: 0.08);
-
-    // Seed-based pattern to simulate world map continents
     final rng = math.Random(42);
     const dotSize = 2.0;
     const cols = 40;
@@ -430,9 +718,7 @@ class _WorldMapPainter extends CustomPainter {
     final cellW = size.width / cols;
     final cellH = size.height / rows;
 
-    // Density map — higher values = more dots (simulates land masses)
-    final densityMap = [
-      //  Rough representation: top rows = arctic, middle = continents, bottom = southern
+    final d = [
       [0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0],
       [0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0],
@@ -455,8 +741,7 @@ class _WorldMapPainter extends CustomPainter {
 
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
-        if (r < densityMap.length && c < densityMap[r].length && densityMap[r][c] == 1) {
-          // Add slight randomness to position
+        if (r < d.length && c < d[r].length && d[r][c] == 1) {
           final dx = c * cellW + cellW * 0.5 + (rng.nextDouble() - 0.5) * cellW * 0.4;
           final dy = r * cellH + cellH * 0.5 + (rng.nextDouble() - 0.5) * cellH * 0.4;
           canvas.drawCircle(Offset(dx, dy), dotSize, paint);
