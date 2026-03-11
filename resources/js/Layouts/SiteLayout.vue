@@ -656,12 +656,13 @@ html{scroll-behavior:smooth}
   .cookie-accept,.cookie-decline{flex:1;padding:10px 16px;font-size:13px}
   .toast-container{right:12px;left:12px;top:76px}
   .toast-item{min-width:auto}
-  .sn{height:60px;top:36px}
-  .sn-mobile{top:96px}
+  .sn{height:60px;top:0}
+  .sn-mobile{top:60px}
   .sn-logo{font-size:24px}
   .sn-cta{font-size:12px;padding:8px 16px}
-  .sn-lang{font-size:12px;padding:6px 12px}
-  .sn-dark{font-size:12px;padding:4px 8px}
+  .sn-lang{font-size:13px;padding:7px 14px;border-width:2px}
+  .sn-hamburger span{width:24px;height:3px}
+  .sn-hamburger{gap:5px;padding:6px}
 }
 
 /* ─── Dark Mode Toggle ─── */
