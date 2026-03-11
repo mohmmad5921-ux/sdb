@@ -61,7 +61,7 @@ class _CardsTabState extends State<CardsTab> {
   // ── Card Controls ──
   void _showCardControls() {
     final card = _cards[_activeIndex];
-    final cardId = card['id'] as int? ?? 0;
+    final cardId = int.tryParse(card['id'].toString()) ?? 0;
     bool online = card['online_payment_enabled'] ?? true;
     bool contactless = card['contactless_enabled'] ?? true;
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => StatefulBuilder(
@@ -157,7 +157,12 @@ class _CardsTabState extends State<CardsTab> {
 
   // ── Delete Card ──
   void _deleteCard() {
-    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => Padding(
+    if (_cards.isEmpty || _activeIndex >= _cards.length) return;
+    final cardId = int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0;
+    if (cardId == 0) return;
+    final parentCtx = context;
+
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (sheetCtx) => Padding(
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
@@ -170,22 +175,27 @@ class _CardsTabState extends State<CardsTab> {
         const SizedBox(height: 24),
         GestureDetector(
           onTap: () async {
-            Navigator.pop(context);
-            final cardId = _cards[_activeIndex]['id'] as int? ?? 0;
-            final r = await ApiService.deleteCard(cardId);
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(r['success'] == true ? 'تم حذف البطاقة ✅' : 'فشل حذف البطاقة'),
-                backgroundColor: r['success'] == true ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
-              ));
-              if (r['success'] == true) { setState(() => _activeIndex = 0); _load(); }
+            Navigator.pop(sheetCtx);
+            try {
+              final r = await ApiService.deleteCard(cardId);
+              if (mounted) {
+                ScaffoldMessenger.of(parentCtx).showSnackBar(SnackBar(
+                  content: Text(r['success'] == true ? 'تم حذف البطاقة ✅' : 'فشل: ${r['data']?['message'] ?? 'خطأ'}'),
+                  backgroundColor: r['success'] == true ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                ));
+                if (r['success'] == true) { setState(() => _activeIndex = 0); _load(); }
+              }
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(parentCtx).showSnackBar(SnackBar(content: Text('خطأ: $e'), backgroundColor: const Color(0xFFEF4444)));
+              }
             }
           },
           child: Container(height: 54, decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(16)),
             child: const Center(child: Text('حذف نهائياً', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
         ),
         const SizedBox(height: 12),
-        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
+        GestureDetector(onTap: () => Navigator.pop(sheetCtx), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
         const SizedBox(height: 16),
       ]),
     ));
@@ -376,7 +386,7 @@ class _CardsTabState extends State<CardsTab> {
                     _quickAction(
                       _cards[_activeIndex]['status'] == 'frozen' ? Icons.play_circle_outline_rounded : Icons.ac_unit_rounded,
                       _cards[_activeIndex]['status'] == 'frozen' ? 'إلغاء التجميد' : 'تجميد',
-                      () => _toggleFreeze(_cards[_activeIndex]['id'] as int? ?? 0),
+                      () => _toggleFreeze(int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0),
                       highlight: _cards[_activeIndex]['status'] == 'frozen',
                     ),
                   ]),
@@ -393,7 +403,7 @@ class _CardsTabState extends State<CardsTab> {
                       child: const Text('Pay', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
                     ),
                     title: 'إضافة إلى Apple Wallet',
-                    onTap: () => _addToAppleWallet(_cards[_activeIndex]['id'] as int? ?? 0),
+                    onTap: () => _addToAppleWallet(int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0),
                   ),
                 ),
 
