@@ -118,6 +118,26 @@ class UserController extends Controller
         if ($request->kyc_status === 'verified' && $user->status === 'pending') {
             $user->update(['status' => 'active']);
         }
+
+        // Send notification to customer
+        try {
+            if ($request->kyc_status === 'verified') {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'title' => 'تم تفعيل حسابك ✅',
+                    'message' => 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.',
+                    'type' => 'kyc_approved',
+                ]);
+            } elseif ($request->kyc_status === 'rejected') {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'title' => 'يرجى تحديث مستنداتك ⚠️',
+                    'message' => 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.',
+                    'type' => 'kyc_rejected',
+                ]);
+            }
+        } catch (\Exception $e) {}
+
         AdminActivityLog::log('user.kyc_update', 'user', $user->id, ['old' => $old, 'new' => $request->kyc_status, 'user_name' => $user->full_name]);
         return back()->with('success', 'تم تحديث حالة KYC');
     }
