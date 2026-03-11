@@ -380,7 +380,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
       <div class="sn-right">
 
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
-        <button @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
+        <button v-if="isBiz" @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
         <Link href="/preregister" class="sn-cta">{{ t.cta }}</Link>
         <button @click="mobileOpen=!mobileOpen" class="sn-hamburger">
           <span></span><span></span><span></span>
@@ -640,6 +640,8 @@ html{scroll-behavior:smooth}
 @media(max-width:900px){
   .sn-links{display:none}
   .sn-hamburger{display:flex}
+  .sn-login{display:none!important}
+  .sn-cta{display:none}
   .sf-top{grid-template-columns:1fr 1fr;gap:28px}
   .sf-brand{grid-column:1/-1}
 }
