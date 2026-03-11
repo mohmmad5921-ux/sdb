@@ -72,6 +72,7 @@ class KycReviewController extends Controller
                     'registered_at' => $user->created_at?->toDateTimeString(),
                     'registered_ago' => $user->created_at?->diffForHumans(),
                     'last_login' => $user->last_login_at ? Carbon::parse($user->last_login_at)->diffForHumans() : null,
+                    'preferred_language' => $user->preferred_language ?? 'ar',
                     'docs_count' => $docs->count(),
                     'doc_types' => $docs->pluck('document_type')->toArray(),
                     'oldest' => $docs->min('created_at'),
@@ -238,19 +239,43 @@ class KycReviewController extends Controller
         $request->validate([
             'message_type' => 'required|in:approved,request_docs,custom',
             'custom_message' => 'nullable|string|max:500',
+            'doc_types' => 'nullable|array',
         ]);
+
+        $lang = $user->preferred_language ?? 'ar';
+        $isAr = $lang === 'ar';
+
+        // Build document types list for request_docs
+        $docTypeNames = [
+            'id_front' => $isAr ? 'الهوية (أمام)' : 'ID Card (Front)',
+            'id_back' => $isAr ? 'الهوية (خلف)' : 'ID Card (Back)',
+            'passport' => $isAr ? 'جواز السفر' : 'Passport',
+            'selfie' => $isAr ? 'صورة شخصية' : 'Selfie Photo',
+            'proof_of_address' => $isAr ? 'إثبات عنوان' : 'Proof of Address',
+        ];
+
+        $docList = '';
+        if ($request->message_type === 'request_docs' && $request->doc_types) {
+            $names = array_map(fn($t) => $docTypeNames[$t] ?? $t, $request->doc_types);
+            $docList = "\n" . implode("\n", array_map(fn($n) => "• {$n}", $names));
+        }
 
         $messages = [
             'approved' => [
-                'title' => '✅ تمت الموافقة على حسابك',
-                'message' => 'مرحباً! تم التحقق من هويتك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.',
+                'title' => $isAr ? '✅ تمت الموافقة على حسابك' : '✅ Your Account Has Been Approved',
+                'message' => $isAr
+                    ? 'مرحباً! تم التحقق من هويتك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.'
+                    : 'Hello! Your identity has been verified. You can now use all SDB Bank services.',
             ],
             'request_docs' => [
-                'title' => '📄 مطلوب مستندات إضافية',
-                'message' => 'نحتاج إلى مستندات إضافية لإكمال عملية التحقق. يرجى رفع المستندات المطلوبة في أقرب وقت.',
+                'title' => $isAr ? '📄 مطلوب مستندات إضافية' : '📄 Additional Documents Required',
+                'message' => ($isAr
+                    ? 'نحتاج إلى مستندات إضافية لإكمال عملية التحقق. يرجى رفع المستندات التالية:'
+                    : 'We need additional documents to complete verification. Please upload the following:')
+                    . $docList,
             ],
             'custom' => [
-                'title' => '📫 رسالة من SDB Bank',
+                'title' => $isAr ? '📫 رسالة من SDB Bank' : '📫 Message from SDB Bank',
                 'message' => $request->custom_message ?? '',
             ],
         ];
@@ -266,6 +291,7 @@ class KycReviewController extends Controller
 
         AdminActivityLog::log('kyc.message', 'user', $user->id, [
             'message_type' => $request->message_type,
+            'doc_types' => $request->doc_types,
             'customer' => $user->full_name,
         ]);
 

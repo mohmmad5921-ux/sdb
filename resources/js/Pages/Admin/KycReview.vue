@@ -17,6 +17,7 @@ const msgModal = ref(null);
 const msgType = ref('approved');
 const customMsg = ref('');
 const expandedUser = ref(null);
+const selectedDocTypes = ref([]);
 
 const approve = (doc) => router.post(route('admin.kyc.review', doc.id), { action: 'approve' }, { preserveScroll: true });
 const reject = (doc) => {
@@ -30,9 +31,10 @@ const sendMessage = (userId) => {
   router.post(route('admin.kyc.message', userId), {
     message_type: msgType.value,
     custom_message: msgType.value === 'custom' ? customMsg.value : null,
+    doc_types: msgType.value === 'request_docs' ? selectedDocTypes.value : null,
   }, {
     preserveScroll: true,
-    onSuccess: () => { msgModal.value = null; customMsg.value = ''; msgType.value = 'approved'; }
+    onSuccess: () => { msgModal.value = null; customMsg.value = ''; msgType.value = 'approved'; selectedDocTypes.value = []; }
   });
 };
 
@@ -200,56 +202,6 @@ const alertColor = (type) => {
         </div>
       </div>
 
-      <!-- Documents Table -->
-      <div class="ky-card">
-        <h3 class="ky-section-title">📄 المستندات</h3>
-        <div class="overflow-x-auto">
-          <table class="ky-table">
-            <thead><tr>
-              <th>العميل</th><th>نوع المستند</th><th>الملف</th><th>وقت الانتظار</th><th>الحالة</th><th>إجراء</th>
-            </tr></thead>
-            <tbody>
-              <tr v-for="doc in documents.data" :key="doc.id" :class="{ 'ky-row-overdue': doc.hours_elapsed > 48 && doc.status === 'pending' }">
-                <td>
-                  <Link :href="route('admin.users.show', doc.user?.id)" class="flex items-center gap-2">
-                    <div class="ky-avatar-sm">{{ doc.user?.full_name?.charAt(0) }}</div>
-                    <div><div class="font-semibold text-[#0f172a] text-sm">{{ doc.user?.full_name }}</div><div class="text-xs text-[#64748b]">{{ doc.user?.email }}</div></div>
-                  </Link>
-                </td>
-                <td><span class="ky-doc-badge">{{ docTypeLabels[doc.document_type] || doc.document_type }}</span></td>
-                <td>
-                  <div class="flex gap-2">
-                    <a :href="route('admin.kyc.view', doc.id)" target="_blank" class="ky-view-btn">👁️ عرض</a>
-                    <button @click="previewDoc = doc; zoomLevel = 1" class="ky-view-btn ky-zoom-btn">🔍 تكبير</button>
-                  </div>
-                </td>
-                <td>
-                  <span :class="['ky-time-badge', doc.hours_elapsed > 48 ? 'ky-time-overdue' : doc.hours_elapsed > 24 ? 'ky-time-warn' : 'ky-time-ok']">
-                    ⏱️ {{ doc.time_elapsed_text }}
-                  </span>
-                </td>
-                <td><span :class="statusBadge[doc.status]" class="ky-badge">{{ doc.status }}</span></td>
-                <td>
-                  <div v-if="doc.status === 'pending'" class="flex gap-2">
-                    <button @click="approve(doc)" class="ky-action-btn ky-approve">✅ اعتماد</button>
-                    <button @click="reviewDoc = doc" class="ky-action-btn ky-reject">❌ رفض</button>
-                  </div>
-                  <div v-else class="text-xs text-[#64748b]">{{ doc.reviewer?.full_name || '—' }}</div>
-                </td>
-              </tr>
-              <tr v-if="!documents.data?.length"><td colspan="6" class="py-12 text-center text-[#94a3b8]">لا توجد مستندات</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="documents.links?.length > 3" class="ky-pagination">
-          <Link v-for="link in documents.links" :key="link.label" :href="link.url || '#'"
-            :class="['ky-page-btn', link.active ? 'ky-page-active' : '', !link.url ? 'ky-page-disabled' : '']"
-            v-html="link.label"></Link>
-        </div>
-      </div>
-
       <!-- Rejection Modal -->
       <Teleport to="body">
         <div v-if="reviewDoc" class="ky-modal-overlay" @click.self="reviewDoc = null">
@@ -274,7 +226,10 @@ const alertColor = (type) => {
         <div v-if="msgModal" class="ky-modal-overlay" @click.self="msgModal = null">
           <div class="ky-modal">
             <h3 class="ky-modal-title">📫 إرسال رسالة سريعة</h3>
-            <p class="ky-modal-desc">إلى: <strong>{{ msgModal.user_name }}</strong></p>
+            <p class="ky-modal-desc">
+              إلى: <strong>{{ msgModal.user_name }}</strong>
+              <span class="ky-lang-badge">{{ msgModal.preferred_language === 'ar' ? '🇸🇾 عربي' : msgModal.preferred_language === 'da' ? '🇩🇰 دنماركي' : '🇬🇧 إنجليزي' }}</span>
+            </p>
 
             <div class="ky-msg-options">
               <button @click="msgType = 'approved'" :class="['ky-msg-opt', msgType === 'approved' ? 'ky-msg-opt-active' : '']">
@@ -288,10 +243,23 @@ const alertColor = (type) => {
               </button>
             </div>
 
+            <!-- Doc Type Checkboxes (for request_docs) -->
+            <div v-if="msgType === 'request_docs'" class="ky-doctype-section">
+              <div class="ky-doctype-title">📋 حدد المستندات المطلوبة:</div>
+              <div class="ky-doctype-grid">
+                <label v-for="(label, key) in { id_front: '🪪 الهوية (أمام)', id_back: '🪪 الهوية (خلف)', passport: '📘 جواز السفر', selfie: '🤳 صورة شخصية', proof_of_address: '📍 إثبات عنوان' }"
+                  :key="key" class="ky-doctype-item">
+                  <input type="checkbox" :value="key" v-model="selectedDocTypes" class="ky-checkbox" />
+                  <span>{{ label }}</span>
+                </label>
+              </div>
+            </div>
+
             <textarea v-if="msgType === 'custom'" v-model="customMsg" rows="3" class="ky-modal-input mt-3" placeholder="اكتب رسالتك..."></textarea>
 
             <div class="flex gap-3 mt-4">
-              <button @click="sendMessage(msgModal.user_id)" class="ky-action-btn ky-approve flex-1" :disabled="msgType === 'custom' && !customMsg">📫 إرسال</button>
+              <button @click="sendMessage(msgModal.user_id)" class="ky-action-btn ky-approve flex-1"
+                :disabled="(msgType === 'custom' && !customMsg) || (msgType === 'request_docs' && !selectedDocTypes.length)">📫 إرسال</button>
               <button @click="msgModal = null" class="ky-action-btn ky-cancel flex-1">إلغاء</button>
             </div>
           </div>
@@ -471,14 +439,13 @@ const alertColor = (type) => {
 .ky-info-label{font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:3px}
 .ky-info-value{font-size:13px;color:#0f172a;font-weight:600}
 
-/* Docs Section */
-.ky-docs-section{margin-top:14px}
-.ky-docs-title{font-size:13px;font-weight:700;color:#334155;margin-bottom:8px}
-.ky-doc-thumb-wrap{width:100%;height:100px;overflow:hidden;position:relative;background:#f1f5f9;display:flex;align-items:center;justify-content:center}
-.ky-doc-thumb-wrap .ky-doc-thumb{width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
-.ky-thumb-placeholder{position:absolute;font-size:32px;opacity:.3;z-index:0}
-.ky-thumb-error .ky-doc-thumb{display:none!important}
-.ky-thumb-error .ky-thumb-placeholder{opacity:1!important;font-size:40px}
-.ky-doc-thumb-footer{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#fff;border-top:1px solid #e2e8f0}
-.ky-doc-open{font-size:11px;color:#3b82f6;text-decoration:none;font-weight:600}.ky-doc-open:hover{text-decoration:underline}
+/* Doc Type Checkboxes */
+.ky-doctype-section{margin-top:12px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px}
+.ky-doctype-title{font-size:13px;font-weight:700;color:#334155;margin-bottom:8px}
+.ky-doctype-grid{display:flex;flex-direction:column;gap:6px}
+.ky-doctype-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;color:#334155;font-weight:500;transition:all .15s;background:#fff}
+.ky-doctype-item:hover{border-color:#10b981;background:#f0fdf4}
+.ky-doctype-item:has(input:checked){border-color:#10b981;background:#ecfdf5}
+.ky-checkbox{accent-color:#10b981;width:16px;height:16px}
+.ky-lang-badge{font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px;margin-right:8px;font-weight:600}
 </style>
