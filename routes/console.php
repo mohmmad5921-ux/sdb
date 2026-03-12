@@ -16,3 +16,6 @@ Schedule::call(function () {
     \Illuminate\Support\Facades\Mail::to('admin@sdb.sy')
         ->send(new \App\Mail\DailyAdminReport());
 })->dailyAt('08:00');
+
+// Fetch live exchange rates every hour
+Schedule::command('rates:fetch')->hourly();

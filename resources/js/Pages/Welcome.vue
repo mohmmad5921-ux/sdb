@@ -25,14 +25,14 @@ async function submitEmail() {
 
 /* ── Transfer Widget ── */
 const sendAmt = ref('1,000');
-const exchangeRate = 14250;
+const exchangeRate = ref(14250);
 const fee = 2.99;
 const numericAmt = computed(()=> parseFloat(sendAmt.value.replace(/,/g,''))||0);
-const receivedAmt = computed(()=> (numericAmt.value * exchangeRate).toLocaleString());
+const receivedAmt = computed(()=> (numericAmt.value * exchangeRate.value).toLocaleString());
 function onSendInput(e){const v=e.target.value.replace(/[^0-9]/g,'');sendAmt.value=v?parseInt(v).toLocaleString():''}
 
 /* ── Calculator ── */
-const currencies = [
+const currencies = ref([
   {code:'USD',name:'US Dollar',nameAr:'دولار أمريكي',flag:'🇺🇸',rate:1},
   {code:'EUR',name:'Euro',nameAr:'يورو',flag:'🇪🇺',rate:0.92},
   {code:'GBP',name:'British Pound',nameAr:'جنيه إسترليني',flag:'🇬🇧',rate:0.79},
@@ -41,13 +41,42 @@ const currencies = [
   {code:'SYP',name:'Syrian Pound',nameAr:'ليرة سورية',flag:'🇸🇾',rate:14250},
   {code:'TRY',name:'Turkish Lira',nameAr:'ليرة تركية',flag:'🇹🇷',rate:32.1},
   {code:'EGP',name:'Egyptian Pound',nameAr:'جنيه مصري',flag:'🇪🇬',rate:50.8},
-];
+]);
 const calcAmt = ref('1000');const calcFrom = ref(0);const calcTo = ref(5);
 const showFromDD = ref(false);const showToDD = ref(false);
-const calcResult = computed(()=>{const a=parseFloat(calcAmt.value)||0;return(a*currencies[calcTo.value].rate/currencies[calcFrom.value].rate).toLocaleString(undefined,{maximumFractionDigits:2})});
+const calcResult = computed(()=>{const a=parseFloat(calcAmt.value)||0;return(a*currencies.value[calcTo.value].rate/currencies.value[calcFrom.value].rate).toLocaleString(undefined,{maximumFractionDigits:2})});
 const calcFee = computed(()=> ((parseFloat(calcAmt.value)||0)*0.005).toFixed(2));
-const calcRate = computed(()=> (currencies[calcTo.value].rate/currencies[calcFrom.value].rate).toFixed(4));
+const calcRate = computed(()=> (currencies.value[calcTo.value].rate/currencies.value[calcFrom.value].rate).toFixed(4));
 function swapCalc(){const t=calcFrom.value;calcFrom.value=calcTo.value;calcTo.value=t}
+
+/* ── Fetch live rates ── */
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/public/rates');
+    const data = await res.json();
+    if (data.rates) {
+      const r = data.rates;
+      // Update currencies array with live rates (all vs USD)
+      const usdPerEur = r.USD || 1.08;
+      const updMap = {
+        USD: 1,
+        EUR: (r.EUR || 1) / usdPerEur,
+        GBP: (r.GBP || 0.86) / usdPerEur,
+        AED: (r.AED || 3.97) / usdPerEur,
+        SAR: (r.SAR || 4.05) / usdPerEur,
+        SYP: (r.SYP || 13500) / usdPerEur,
+        TRY: (r.TRY || 34.2) / usdPerEur,
+        EGP: (r.EGP || 53.2) / usdPerEur,
+      };
+      currencies.value = currencies.value.map(c => ({
+        ...c,
+        rate: updMap[c.code] !== undefined ? parseFloat(updMap[c.code].toFixed(4)) : c.rate,
+      }));
+      // Update transfer widget rate (1 USD = X SYP)
+      exchangeRate.value = Math.round((r.SYP || 13500) / usdPerEur);
+    }
+  } catch (e) { /* fallback to hardcoded */ }
+});
 function pickFrom(i){calcFrom.value=i;showFromDD.value=false}
 function pickTo(i){calcTo.value=i;showToDD.value=false}
 

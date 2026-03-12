@@ -504,9 +504,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('قريباً', style: TextStyle(color: Colors.white)),
+          content: Text('سجّل حساب جديد أو استخدم بريدك الإلكتروني للدخول'),
           backgroundColor: AppTheme.primary,
-          duration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 2),
         ));
       },
       child: Container(

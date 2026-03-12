@@ -4,6 +4,7 @@ import 'package:local_auth/local_auth.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MoreTab extends StatefulWidget {
   const MoreTab({super.key});
@@ -17,7 +18,7 @@ class _MoreTabState extends State<MoreTab> {
   bool _notifications = true;
   bool _biometrics = false;
   bool _twoFactor = false;
-  String _defaultCurrency = 'EUR';
+  String _defaultCurrency = 'SYP';
   final _storage = const FlutterSecureStorage();
   final _auth = LocalAuthentication();
 
@@ -29,7 +30,7 @@ class _MoreTabState extends State<MoreTab> {
   }
 
   Future<void> _loadPrefs() async {
-    final curr = await _storage.read(key: 'default_currency') ?? 'EUR';
+    final curr = await _storage.read(key: 'default_currency') ?? 'SYP';
     final bio = await _storage.read(key: 'biometric_enabled') ?? 'false';
     final notif = await _storage.read(key: 'notifications_enabled') ?? 'true';
     if (mounted) {
@@ -136,9 +137,9 @@ class _MoreTabState extends State<MoreTab> {
   void _showCurrencyPicker() {
     final t = L10n.of(context);
     final currencies = [
+      {'code': 'SYP', 'name': 'الليرة السورية', 'flag': '🇸🇾'},
       {'code': 'EUR', 'name': 'Euro', 'flag': '🇪🇺'},
       {'code': 'USD', 'name': 'US Dollar', 'flag': '🇺🇸'},
-      {'code': 'SYP', 'name': 'Syrian Pound', 'flag': '🇸🇾'},
       {'code': 'GBP', 'name': 'British Pound', 'flag': '🇬🇧'},
       {'code': 'DKK', 'name': 'Danish Krone', 'flag': '🇩🇰'},
     ];
@@ -322,23 +323,24 @@ class _MoreTabState extends State<MoreTab> {
             const SizedBox(height: 24),
 
             // Account
-            _buildSection('ACCOUNT', [
+            _buildSection(t.sectionAccount, [
               _buildRow(Icons.person_outline, t.personalInfo, subtitle: '${t.fullName}, ${t.email}', onTap: _showEditProfile),
               _buildRow(Icons.alternate_email, t.username, subtitle: username != null ? '@$username' : t.username, onTap: _showEditProfile),
               _buildRow(Icons.verified_outlined, t.verification, right: _kycBadge(kyc), onTap: () => Navigator.pushNamed(context, '/kyc')),
+              _buildRow(Icons.qr_code_rounded, t.myQrCode, subtitle: t.scanToPayMe, onTap: () => Navigator.pushNamed(context, '/qr')),
             ]),
             const SizedBox(height: 16),
 
             // Security
-            _buildSection('SECURITY', [
-              _buildRow(Icons.fingerprint, t.biometricLogin, subtitle: 'Face ID / Fingerprint', right: _toggle(_biometrics, _toggleBiometric)),
-              _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: 'SMS', right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
+            _buildSection(t.sectionSecurity, [
+              _buildRow(Icons.fingerprint, t.biometricLogin, subtitle: t.biometricSubtitle, right: _toggle(_biometrics, _toggleBiometric)),
+              _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: t.twoFactorSubtitle, right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
               _buildRow(Icons.key, t.changePassword, onTap: _showChangePassword),
             ]),
             const SizedBox(height: 16),
 
             // Preferences
-            _buildSection('PREFERENCES', [
+            _buildSection(t.sectionPreferences, [
               _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
               _buildRow(Icons.language, t.language, subtitle: langDisplay, onTap: _showLanguagePicker),
               _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
@@ -346,12 +348,15 @@ class _MoreTabState extends State<MoreTab> {
             const SizedBox(height: 16),
 
             // Support
-            _buildSection('SUPPORT', [
-              _buildRow(Icons.help_outline, t.helpCenter, onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t.helpCenter} — coming soon'), backgroundColor: AppTheme.primary));
+            _buildSection(t.sectionSupport, [
+              _buildRow(Icons.help_outline, t.helpCenter, onTap: () => Navigator.pushNamed(context, '/help')),
+              _buildRow(Icons.chat_bubble_outline, t.contactSupport, subtitle: 'support@sdb-bank.com', onTap: () async {
+                final uri = Uri(scheme: 'mailto', path: 'support@sdb-bank.com', queryParameters: {'subject': 'SDB Bank - ${t.contactSupport}'});
+                if (await canLaunchUrl(uri)) await launchUrl(uri);
               }),
-              _buildRow(Icons.chat_bubble_outline, t.contactSupport, subtitle: 'support@sdb-bank.com', onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email: support@sdb-bank.com'), backgroundColor: AppTheme.primary));
+              _buildRow(Icons.call_outlined, t.phone, subtitle: '+45 71 99 77 07', onTap: () async {
+                final uri = Uri(scheme: 'tel', path: '+4571997707');
+                if (await canLaunchUrl(uri)) await launchUrl(uri);
               }),
             ]),
             const SizedBox(height: 16),

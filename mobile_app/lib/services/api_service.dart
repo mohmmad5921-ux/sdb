@@ -221,5 +221,22 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
   }
 
+  // Contacts
+  static Future<Map<String, dynamic>> checkContacts(List<String> phones) async {
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/contacts/check'), headers: await _headers(), body: jsonEncode({'phones': phones}));
+      return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
+    } catch (_) {
+      return {'success': false, 'data': {'members': []}};
+    }
+  }
+
+  static Future<Map<String, dynamic>> sendByPhone(String phone, double amount, String currency) async {
+    final r = await http.post(Uri.parse('$baseUrl/transfer/by-phone'), headers: await _headers(), body: jsonEncode({
+      'phone': phone, 'amount': amount, 'currency': currency,
+    }));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

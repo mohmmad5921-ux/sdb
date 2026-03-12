@@ -2,7 +2,35 @@
 
 use App\Http\Controllers\Api\MobileApiController;
 use App\Http\Controllers\Api\PaymentApiController;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+
+// Public exchange rates (no auth needed, cached)
+Route::get('/public/rates', function () {
+    $rates = Cache::get('live_rates');
+    $updated = Cache::get('live_rates_updated');
+
+    if (!$rates) {
+        // Fallback hardcoded rates if cache is empty
+        $rates = [
+            'EUR' => 1, 'USD' => 1.08, 'GBP' => 0.86, 'DKK' => 7.46,
+            'SEK' => 11.2, 'NOK' => 11.5, 'CHF' => 0.96, 'TRY' => 34.2,
+            'AED' => 3.97, 'SAR' => 4.05, 'KWD' => 0.33, 'QAR' => 3.93,
+            'BHD' => 0.41, 'OMR' => 0.42, 'JOD' => 0.77, 'EGP' => 53.2,
+            'LBP' => 96800, 'IQD' => 1415, 'SYP' => 13500,
+            'CAD' => 1.47, 'AUD' => 1.65, 'JPY' => 162,
+        ];
+        $updated = null;
+    }
+
+    return response()->json([
+        'base' => 'EUR',
+        'rates' => $rates,
+        'updated_at' => $updated,
+        'is_live' => $updated !== null,
+    ])->header('Access-Control-Allow-Origin', '*')
+      ->header('Cache-Control', 'public, max-age=300');
+});
 
 // Payment Gateway API (merchant API key auth)
 Route::prefix('v1')->group(function () {

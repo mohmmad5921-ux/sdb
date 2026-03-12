@@ -16,6 +16,8 @@ import 'screens/phone_verification_screen.dart';
 import 'screens/kyc_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/help_screen.dart';
+import 'screens/contacts_screen.dart';
+import 'screens/qr_profile_screen.dart';
 import 'services/push_notification_service.dart';
 
 void main() async {
@@ -83,6 +85,8 @@ class _SDBAppState extends State<SDBApp> {
           '/phone-verify': (_) => const PhoneVerificationScreen(),
           '/kyc': (_) => const KycScreen(),
           '/help': (_) => const HelpScreen(),
+          '/contacts': (_) => const ContactsScreen(),
+          '/qr': (_) => const QrProfileScreen(),
         },
       ),
     );

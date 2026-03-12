@@ -135,6 +135,53 @@ class AppStrings {
   final String appName;
   final String appSubtitle;
 
+  // Section Headers
+  final String sectionAccount;
+  final String sectionSecurity;
+  final String sectionPreferences;
+  final String sectionSupport;
+  final String biometricSubtitle;
+  final String twoFactorSubtitle;
+  final String comingSoon;
+
+  // Contacts
+  final String contacts;
+  final String sdbMember;
+  final String inviteToSdb;
+  final String sendViaPhone;
+  final String noContactsFound;
+  final String searchContacts;
+  final String inviteMessage;
+
+  // QR Code
+  final String myQrCode;
+  final String scanQr;
+  final String shareQr;
+  final String scanToPayMe;
+
+  // Cards extra
+  final String cardDetails;
+  final String cardSettings;
+  final String resetPin;
+  final String replaceCard;
+  final String deleteCard;
+  final String spendingLimits;
+  final String requestCard;
+  final String digitalCard;
+  final String viewPin;
+  final String freeze;
+  final String unfreeze;
+
+  // Transfer extras
+  final String scheduled;
+  final String exchangeRate;
+  final String continueBtn;
+  final String transferFee;
+  final String free;
+  final String arrives;
+  final String instantly;
+  final String confirmSend;
+
   const AppStrings({
     required this.welcomeBack,
     required this.createAccount,
@@ -244,6 +291,43 @@ class AppStrings {
     required this.verifyIdentity,
     required this.appName,
     required this.appSubtitle,
+    required this.sectionAccount,
+    required this.sectionSecurity,
+    required this.sectionPreferences,
+    required this.sectionSupport,
+    required this.biometricSubtitle,
+    required this.twoFactorSubtitle,
+    required this.comingSoon,
+    required this.contacts,
+    required this.sdbMember,
+    required this.inviteToSdb,
+    required this.sendViaPhone,
+    required this.noContactsFound,
+    required this.searchContacts,
+    required this.inviteMessage,
+    required this.myQrCode,
+    required this.scanQr,
+    required this.shareQr,
+    required this.scanToPayMe,
+    required this.cardDetails,
+    required this.cardSettings,
+    required this.resetPin,
+    required this.replaceCard,
+    required this.deleteCard,
+    required this.spendingLimits,
+    required this.requestCard,
+    required this.digitalCard,
+    required this.viewPin,
+    required this.freeze,
+    required this.unfreeze,
+    required this.scheduled,
+    required this.exchangeRate,
+    required this.continueBtn,
+    required this.transferFee,
+    required this.free,
+    required this.arrives,
+    required this.instantly,
+    required this.confirmSend,
   });
 }
 
@@ -356,6 +440,43 @@ const enStrings = AppStrings(
   verifyIdentity: 'Verify Identity',
   appName: 'SDB Bank',
   appSubtitle: 'Syrian Digital Bank',
+  sectionAccount: 'ACCOUNT',
+  sectionSecurity: 'SECURITY',
+  sectionPreferences: 'PREFERENCES',
+  sectionSupport: 'SUPPORT',
+  biometricSubtitle: 'Face ID / Fingerprint',
+  twoFactorSubtitle: 'SMS',
+  comingSoon: 'Coming soon',
+  contacts: 'Contacts',
+  sdbMember: 'SDB Member',
+  inviteToSdb: 'Invite to SDB',
+  sendViaPhone: 'Send via phone',
+  noContactsFound: 'No contacts found',
+  searchContacts: 'Search contacts...',
+  inviteMessage: 'Join SDB Bank — the first Syrian digital bank! Download the app: https://sdb-bank.com/download',
+  myQrCode: 'My QR Code',
+  scanQr: 'Scan QR',
+  shareQr: 'Share QR',
+  scanToPayMe: 'Scan to pay me',
+  cardDetails: 'Card Details',
+  cardSettings: 'Card Settings',
+  resetPin: 'Reset PIN',
+  replaceCard: 'Replace Card',
+  deleteCard: 'Delete Card',
+  spendingLimits: 'Spending Limits',
+  requestCard: 'Request Card',
+  digitalCard: 'Digital Card',
+  viewPin: 'View PIN',
+  freeze: 'Freeze',
+  unfreeze: 'Unfreeze',
+  scheduled: 'Scheduled',
+  exchangeRate: 'Exchange Rate',
+  continueBtn: 'Continue',
+  transferFee: 'Transfer Fee',
+  free: 'Free',
+  arrives: 'Arrives',
+  instantly: 'Instantly',
+  confirmSend: 'Confirm & Send',
 );
 
 const arStrings = AppStrings(
@@ -467,6 +588,43 @@ const arStrings = AppStrings(
   verifyIdentity: 'تحقق من هويتك',
   appName: 'SDB Bank',
   appSubtitle: 'بنك سوريا الرقمي',
+  sectionAccount: 'الحساب',
+  sectionSecurity: 'الأمان',
+  sectionPreferences: 'التفضيلات',
+  sectionSupport: 'الدعم',
+  biometricSubtitle: 'بصمة الوجه / الإصبع',
+  twoFactorSubtitle: 'رسالة SMS',
+  comingSoon: 'قريباً',
+  contacts: 'جهات الاتصال',
+  sdbMember: 'عضو SDB',
+  inviteToSdb: 'دعوة إلى SDB',
+  sendViaPhone: 'إرسال عبر الهاتف',
+  noContactsFound: 'لم يتم العثور على جهات اتصال',
+  searchContacts: 'بحث في جهات الاتصال...',
+  inviteMessage: 'انضم إلى SDB Bank — أول بنك إلكتروني سوري! حمّل التطبيق: https://sdb-bank.com/download',
+  myQrCode: 'رمز QR الخاص بي',
+  scanQr: 'مسح QR',
+  shareQr: 'مشاركة QR',
+  scanToPayMe: 'امسح للدفع لي',
+  cardDetails: 'تفاصيل البطاقة',
+  cardSettings: 'إعدادات البطاقة',
+  resetPin: 'إعادة تعيين PIN',
+  replaceCard: 'استبدال البطاقة',
+  deleteCard: 'حذف البطاقة',
+  spendingLimits: 'حدود الإنفاق',
+  requestCard: 'طلب بطاقة',
+  digitalCard: 'بطاقة رقمية',
+  viewPin: 'عرض PIN',
+  freeze: 'تجميد',
+  unfreeze: 'إلغاء التجميد',
+  scheduled: 'مجدولة',
+  exchangeRate: 'سعر الصرف',
+  continueBtn: 'متابعة',
+  transferFee: 'رسوم التحويل',
+  free: 'مجاني',
+  arrives: 'يصل',
+  instantly: 'فوري',
+  confirmSend: 'تأكيد وإرسال',
 );
 
 /// Provider to manage locale across the app

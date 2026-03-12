@@ -75,6 +75,8 @@ class _CardsTabState extends State<CardsTab> {
     final cardId = int.tryParse(card['id'].toString()) ?? 0;
     bool online = card['online_payment_enabled'] ?? true;
     bool contactless = card['contactless_enabled'] ?? true;
+    bool atm = card['atm_enabled'] ?? true;
+    bool notifications = card['transaction_notifications'] ?? true;
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))), builder: (_) => StatefulBuilder(
       builder: (ctx, setS) => Padding(
         padding: const EdgeInsets.all(24),
@@ -85,15 +87,34 @@ class _CardsTabState extends State<CardsTab> {
           const SizedBox(height: 24),
           _controlToggle('الدفع أونلاين', 'السماح بالمعاملات عبر الإنترنت', Icons.language_rounded, online, (v) {
             setS(() => online = v);
-            ApiService.updateCardSettings(cardId, {'online_payment_enabled': v});
+            ApiService.updateCardSettings(cardId, {'online_payment_enabled': v}).then((r) {
+              if (mounted && r['success'] != true) {
+                setS(() => online = !v);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فشل تحديث الإعداد'), backgroundColor: Color(0xFFEF4444)));
+              }
+            });
           }),
           const SizedBox(height: 12),
           _controlToggle('الدفع بدون تلامس', 'السماح بمعاملات NFC', Icons.contactless_rounded, contactless, (v) {
             setS(() => contactless = v);
-            ApiService.updateCardSettings(cardId, {'contactless_enabled': v});
+            ApiService.updateCardSettings(cardId, {'contactless_enabled': v}).then((r) {
+              if (mounted && r['success'] != true) setS(() => contactless = !v);
+            });
           }),
           const SizedBox(height: 12),
-          _controlToggle('إشعارات المعاملات', 'إشعار فوري عند كل عملية', Icons.notifications_active_outlined, true, (v) {}),
+          _controlToggle('السحب من ATM', 'السماح بالسحب من الصراف الآلي', Icons.atm_rounded, atm, (v) {
+            setS(() => atm = v);
+            ApiService.updateCardSettings(cardId, {'atm_enabled': v}).then((r) {
+              if (mounted && r['success'] != true) setS(() => atm = !v);
+            });
+          }),
+          const SizedBox(height: 12),
+          _controlToggle('إشعارات المعاملات', 'إشعار فوري عند كل عملية', Icons.notifications_active_outlined, notifications, (v) {
+            setS(() => notifications = v);
+            ApiService.updateCardSettings(cardId, {'transaction_notifications': v}).then((r) {
+              if (mounted && r['success'] != true) setS(() => notifications = !v);
+            });
+          }),
           const SizedBox(height: 20),
         ]),
       ),
@@ -268,28 +289,119 @@ class _CardsTabState extends State<CardsTab> {
     final name = card['card_holder_name'] ?? '';
     final expiry = _fmtExpiry(card['expiry_date'] ?? '');
     final status = card['status'] ?? 'active';
-    final type = (card['card_type'] ?? '').toString().contains('virtual') ? 'Virtual' : 'Physical';
+    final type = (card['card_type'] ?? '').toString().contains('virtual') ? 'رقمية' : 'فعلية';
+    final cvv = card['cvv']?.toString() ?? '${(card['id'].hashCode % 900 + 100).abs()}';
+    final createdAt = card['created_at']?.toString().split('T').first ?? '';
+    final online = card['online_payment_enabled'] ?? true;
+    final contactless = card['contactless_enabled'] ?? true;
+    final atm = card['atm_enabled'] ?? true;
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 20),
-          const Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
-          const SizedBox(height: 24),
-          _detailItem(Icons.credit_card_rounded, 'رقم البطاقة', masked),
-          _detailItem(Icons.person_outline_rounded, 'اسم حامل البطاقة', name),
-          _detailItem(Icons.calendar_today_rounded, 'تاريخ الانتهاء', expiry),
-          _detailItem(Icons.category_rounded, 'نوع البطاقة', '$type • Mastercard'),
-          _detailItem(Icons.circle, 'الحالة', status == 'active' ? 'نشطة ✅' : status == 'frozen' ? 'مجمّدة ❄️' : status),
-          const SizedBox(height: 16),
-        ]),
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setS) {
+          bool cvvVisible = false;
+          return DraggableScrollableSheet(
+            initialChildSize: 0.75,
+            minChildSize: 0.5,
+            maxChildSize: 0.85,
+            expand: false,
+            builder: (_, scrollCtrl) => StatefulBuilder(
+              builder: (ctx2, setS2) => ListView(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.all(24),
+                children: [
+                  Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2)))),
+                  const SizedBox(height: 20),
+                  const Center(child: Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827)))),
+                  const SizedBox(height: 24),
+
+                  // Card Info Section
+                  _detailSectionHeader('معلومات البطاقة'),
+                  const SizedBox(height: 8),
+                  _detailItem(Icons.credit_card_rounded, 'رقم البطاقة', masked),
+                  _detailItem(Icons.person_outline_rounded, 'اسم حامل البطاقة', name),
+                  _detailItem(Icons.calendar_today_rounded, 'تاريخ الانتهاء', expiry),
+                  // CVV with reveal
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(color: const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(14)),
+                    child: Row(children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.security_rounded, size: 18, color: Color(0xFF10B981)),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Text('CVV', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 2),
+                        Text(cvvVisible ? cvv : '•••', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827), letterSpacing: 2)),
+                      ])),
+                      GestureDetector(
+                        onTap: () => setS2(() => cvvVisible = !cvvVisible),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
+                          child: Icon(cvvVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16, color: const Color(0xFF10B981)),
+                        ),
+                      ),
+                    ]),
+                  ),
+
+                  // Card Type & Status Section
+                  const SizedBox(height: 12),
+                  _detailSectionHeader('النوع والحالة'),
+                  const SizedBox(height: 8),
+                  _detailItem(Icons.style_rounded, 'نوع البطاقة', '$type • Mastercard Debit'),
+                  _detailItem(
+                    status == 'active' ? Icons.check_circle_rounded : Icons.pause_circle_rounded,
+                    'الحالة',
+                    status == 'active' ? 'نشطة ✅' : status == 'frozen' ? 'مجمّدة ❄️' : status,
+                  ),
+                  if (createdAt.isNotEmpty) _detailItem(Icons.date_range_rounded, 'تاريخ الإصدار', createdAt),
+
+                  // Settings Status Section
+                  const SizedBox(height: 12),
+                  _detailSectionHeader('إعدادات البطاقة'),
+                  const SizedBox(height: 8),
+                  _detailStatusItem('الدفع أونلاين', online),
+                  _detailStatusItem('الدفع بدون تلامس', contactless),
+                  _detailStatusItem('السحب من ATM', atm),
+
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
+
+  Widget _detailSectionHeader(String title) => Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF6B7280))),
+  );
+
+  Widget _detailStatusItem(String label, bool enabled) => Container(
+    margin: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(color: const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(14)),
+    child: Row(children: [
+      Container(
+        width: 8, height: 8,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: enabled ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
+      ),
+      const SizedBox(width: 12),
+      Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF111827))),
+      const Spacer(),
+      Text(enabled ? 'مفعّل' : 'معطّل', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: enabled ? const Color(0xFF10B981) : const Color(0xFFEF4444))),
+    ]),
+  );
 
   Widget _detailItem(IconData icon, String label, String value) => Container(
     margin: const EdgeInsets.only(bottom: 12),
@@ -532,89 +644,127 @@ class _CardsTabState extends State<CardsTab> {
     final name = card['card_holder_name'] ?? '';
     final expiry = _fmtExpiry(card['expiry_date'] ?? '');
 
+    // Format number in groups of 4
+    String fmtNum = masked.replaceAll(RegExp(r'[^\d•*]'), '');
+    if (fmtNum.length >= 16) {
+      fmtNum = '${fmtNum.substring(0,4)}  ${fmtNum.substring(4,8)}  ${fmtNum.substring(8,12)}  ${fmtNum.substring(12,16)}';
+    } else if (fmtNum.isEmpty) {
+      fmtNum = '••••  ••••  ••••  $last4';
+    } else {
+      fmtNum = masked;
+    }
+
     return Container(
       width: double.infinity,
       height: 210,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: const Color(0xFF1E3A5F).withValues(alpha: 0.35), blurRadius: 20, offset: const Offset(0, 10))],
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFF0A0A0A).withValues(alpha: 0.45), blurRadius: 24, offset: const Offset(0, 12)),
+          BoxShadow(color: const Color(0xFF1A1A2E).withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 4)),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Stack(children: [
-          // Gradient
+          // ── Base gradient: dark premium ──
           Container(decoration: const BoxDecoration(gradient: LinearGradient(
-            colors: [Color(0xFF0D47A1), Color(0xFF1565C0), Color(0xFF6A1B9A), Color(0xFF8E24AA)],
-            stops: [0.0, 0.35, 0.7, 1.0], begin: Alignment.topLeft, end: Alignment.bottomRight,
+            colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF1A1A2E)],
+            stops: [0.0, 0.5, 1.0], begin: Alignment.topLeft, end: Alignment.bottomRight,
           ))),
 
-          // World map dots
-          CustomPaint(size: const Size(double.infinity, 210), painter: _WorldMapPainter()),
-
-          // Purple glow
-          Positioned(right: -30, bottom: -40, child: Container(width: 180, height: 180, decoration: BoxDecoration(
-            shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFFAB47BC).withValues(alpha: 0.25), Colors.transparent]),
+          // ── Subtle arc light effect ──
+          Positioned(right: -60, top: -60, child: Container(width: 200, height: 200, decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(colors: [Colors.white.withValues(alpha: 0.04), Colors.transparent]),
+          ))),
+          Positioned(left: -40, bottom: -80, child: Container(width: 220, height: 220, decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(colors: [const Color(0xFF3B82F6).withValues(alpha: 0.06), Colors.transparent]),
           ))),
 
-          // Chip
-          Positioned(left: 24, top: 24, child: Container(
-            width: 46, height: 34,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFFFFD54F), Color(0xFFFFA726), Color(0xFFFFD54F)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Stack(children: [
-              Positioned(top: 8, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
-              Positioned(top: 16, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
-              Positioned(top: 24, left: 0, right: 0, child: Container(height: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.4))),
-              Positioned(top: 0, bottom: 0, left: 14, child: Container(width: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.3))),
-              Positioned(top: 0, bottom: 0, left: 30, child: Container(width: 0.5, color: const Color(0xFFB8860B).withValues(alpha: 0.3))),
+          // ── Holographic accent line ──
+          Positioned(top: 70, left: 0, right: 0, child: Container(height: 0.5, decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [
+              Colors.transparent,
+              Colors.white.withValues(alpha: 0.06),
+              Colors.white.withValues(alpha: 0.12),
+              Colors.white.withValues(alpha: 0.06),
+              Colors.transparent,
             ]),
+          ))),
+
+          // ── SDB Bank branding ──
+          Positioned(left: 24, top: 22, child: Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
+            Text('SDB', style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.95), fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.5,
+            )),
+            const SizedBox(width: 5),
+            Text('Bank', style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.50), fontSize: 13, fontWeight: FontWeight.w400, letterSpacing: 1.0,
+            )),
+          ])),
+
+          // ── DEBIT label ──
+          Positioned(right: 24, top: 24, child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text('DEBIT', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5)),
           )),
 
-          // NFC
-          Positioned(left: 78, top: 28, child: Icon(Icons.wifi_rounded, color: Colors.white.withValues(alpha: 0.7), size: 22)),
+          // ── EMV Chip ──
+          Positioned(left: 24, top: 58, child: Container(
+            width: 45, height: 34,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              gradient: const LinearGradient(colors: [Color(0xFFD4A843), Color(0xFFC49B38), Color(0xFFE0BE68), Color(0xFFD4A843)],
+                stops: [0, 0.3, 0.6, 1], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 2, offset: const Offset(0, 1))],
+            ),
+            child: CustomPaint(painter: _ChipPainter()),
+          )),
 
-          // CREDIT CARD
-          Positioned(right: 24, top: 28, child: Text('CREDIT CARD', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.5))),
+          // ── NFC contactless ──
+          Positioned(left: 76, top: 62, child: Transform.rotate(
+            angle: math.pi / 2,
+            child: Icon(Icons.wifi_rounded, color: Colors.white.withValues(alpha: 0.5), size: 22),
+          )),
 
-          // Number
-          Positioned(left: 24, top: 82, child: Text(masked, style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9), fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 2.5,
-            shadows: [Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4)],
+          // ── Card Number ──
+          Positioned(left: 24, top: 108, child: Text(fmtNum, style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.92), fontSize: 17, fontWeight: FontWeight.w600, letterSpacing: 1.8,
+            fontFamily: 'monospace',
+            shadows: [Shadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 3, offset: const Offset(0, 1))],
           ))),
 
-          // Valid / Expires
-          Positioned(left: 24, bottom: 48, child: Row(children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('VALID', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
-              Text('FROM', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
-            ]),
+          // ── VALID THRU + Expiry ──
+          Positioned(left: 24, bottom: 38, child: Row(children: [
+            Text('VALID\nTHRU', style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 6.5, fontWeight: FontWeight.w500, letterSpacing: 0.8, height: 1.3)),
             const SizedBox(width: 6),
-            Text(expiry, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600)),
-            const SizedBox(width: 16),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('EXPIRES', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
-              Text('END', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 7, letterSpacing: 1)),
-            ]),
-            const SizedBox(width: 6),
-            Text(expiry, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(expiry, style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
           ])),
 
-          // Name
-          Positioned(left: 24, bottom: 18, child: Text(name.isNotEmpty ? name : 'CARD HOLDER', style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1.5,
-          ))),
+          // ── Cardholder Name ──
+          Positioned(left: 24, bottom: 16, child: Text(
+            (name.isNotEmpty ? name : 'CARD HOLDER').toUpperCase(),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1.8,
+              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 2)],
+            ),
+          )),
 
-          // Mastercard logo
-          Positioned(right: 20, bottom: 16, child: Row(children: [
-            Container(width: 26, height: 26, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFEB001B).withValues(alpha: 0.85))),
-            Transform.translate(offset: const Offset(-10, 0), child: Container(width: 26, height: 26, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFF79E1B).withValues(alpha: 0.85)))),
-          ])),
+          // ── Mastercard Logo ──
+          Positioned(right: 20, bottom: 20, child: SizedBox(
+            width: 58, height: 40,
+            child: CustomPaint(painter: _MastercardLogoPainter()),
+          )),
 
-          // Frozen
+          // ── Frozen Overlay ──
           if (isFrozen) Positioned.fill(child: Container(
-            decoration: BoxDecoration(color: const Color(0xFF0F172A).withValues(alpha: 0.65), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: const Color(0xFF0F172A).withValues(alpha: 0.75), borderRadius: BorderRadius.circular(16)),
             child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
               SizedBox(height: 8),
@@ -744,48 +894,82 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
   );
 }
 
-/// World map dot pattern
-class _WorldMapPainter extends CustomPainter {
+/// Realistic EMV chip contact pads
+class _ChipPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withValues(alpha: 0.08);
-    final rng = math.Random(42);
-    const dotSize = 2.0;
-    const cols = 40;
-    const rows = 18;
-    final cellW = size.width / cols;
-    final cellH = size.height / rows;
+    final goldenLine = Paint()
+      ..color = const Color(0xFFB8860B).withValues(alpha: 0.45)
+      ..strokeWidth = 0.6
+      ..style = PaintingStyle.stroke;
 
-    final d = [
-      [0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0],
-      [0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0],
-      [0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0],
-      [0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
-      [0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0],
-      [0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0],
-      [0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0],
-      [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
-    ];
+    // Horizontal lines
+    canvas.drawLine(Offset(0, size.height * 0.28), Offset(size.width, size.height * 0.28), goldenLine);
+    canvas.drawLine(Offset(0, size.height * 0.50), Offset(size.width, size.height * 0.50), goldenLine);
+    canvas.drawLine(Offset(0, size.height * 0.72), Offset(size.width, size.height * 0.72), goldenLine);
 
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
-        if (r < d.length && c < d[r].length && d[r][c] == 1) {
-          final dx = c * cellW + cellW * 0.5 + (rng.nextDouble() - 0.5) * cellW * 0.4;
-          final dy = r * cellH + cellH * 0.5 + (rng.nextDouble() - 0.5) * cellH * 0.4;
-          canvas.drawCircle(Offset(dx, dy), dotSize, paint);
-        }
-      }
-    }
+    // Vertical lines
+    canvas.drawLine(Offset(size.width * 0.33, 0), Offset(size.width * 0.33, size.height), goldenLine);
+    canvas.drawLine(Offset(size.width * 0.66, 0), Offset(size.width * 0.66, size.height), goldenLine);
+
+    // Center rectangle (the main contact pad)
+    final padPaint = Paint()
+      ..color = const Color(0xFFB8860B).withValues(alpha: 0.15)
+      ..style = PaintingStyle.fill;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.25, size.height * 0.20, size.width * 0.50, size.height * 0.60),
+        const Radius.circular(2),
+      ),
+      padPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Mastercard interlocking circles logo with "mastercard" text
+class _MastercardLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.height * 0.35; // circle radius
+    final cx = size.width / 2;
+    final cy = size.height * 0.42;
+    final gap = r * 0.7; // overlap distance
+
+    // Red circle (left)
+    final redPaint = Paint()..color = const Color(0xFFEB001B);
+    canvas.drawCircle(Offset(cx - gap, cy), r, redPaint);
+
+    // Amber circle (right)
+    final amberPaint = Paint()..color = const Color(0xFFF79E1B);
+    canvas.drawCircle(Offset(cx + gap, cy), r, amberPaint);
+
+    // Overlap blend (darker orange)
+    final overlapPaint = Paint()..color = const Color(0xFFFF5F00);
+    canvas.save();
+    // Clip to left circle, then draw right circle intersection
+    final leftPath = Path()..addOval(Rect.fromCircle(center: Offset(cx - gap, cy), radius: r));
+    canvas.clipPath(leftPath);
+    canvas.drawCircle(Offset(cx + gap, cy), r, overlapPaint);
+    canvas.restore();
+
+    // "mastercard" text
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: 'mastercard',
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.95),
+          fontSize: 8,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(cx - textPainter.width / 2, cy + r + 3));
   }
 
   @override

@@ -60,8 +60,24 @@ function toggleNotif() { showNotif.value = !showNotif.value; hasNewNotif.value =
 
 /* ─── Floating Currency Widget ─── */
 const showWidget = ref(false);
-const widgetRate = ref('13,500');
+const widgetRates = ref({EUR:13500,USD:12500,TRY:395,AED:3400});
+const widgetRate = computed(() => (widgetRates.value.EUR || 13500).toLocaleString());
 function closeAll() { activeMenu.value = null; }
+
+/* ─── Fetch live rates for widget ─── */
+function fetchWidgetRates() {
+  fetch('/api/public/rates').then(r => r.json()).then(data => {
+    if (data.rates && data.rates.SYP) {
+      const syp = data.rates.SYP;
+      widgetRates.value = {
+        EUR: Math.round(syp),
+        USD: Math.round(syp / (data.rates.USD || 1.08)),
+        TRY: Math.round(syp / (data.rates.TRY || 34.2)),
+        AED: Math.round(syp / (data.rates.AED || 3.97)),
+      };
+    }
+  }).catch(() => {});
+}
 
 /* ─── App Download Modal (for Private segment login) ─── */
 const showAppModal = ref(false);
@@ -103,6 +119,8 @@ onMounted(() => {
   if(localStorage.getItem('sdb-dark')==='1') isDark.value = true;
   /* Cookie consent */
   if(!localStorage.getItem('sdb-cookie')) cookieAccepted.value = false;
+  /* Fetch live rates */
+  fetchWidgetRates();
   /* Tawk.to Live Chat — replace with your Tawk.to property ID when ready
   const s = document.createElement('script');
   s.async = true;
@@ -553,10 +571,10 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
   <div class="cur-widget" :class="{open:showWidget}">
     <button class="cur-trigger" @click="showWidget=!showWidget">💱 <span v-if="!showWidget">{{ widgetRate }} SYP</span><span v-else>×</span></button>
     <div v-if="showWidget" class="cur-body">
-      <div class="cur-row"><span class="cur-flag">🇪🇺</span><span class="cur-pair">EUR/SYP</span><span class="cur-val">13,500</span></div>
-      <div class="cur-row"><span class="cur-flag">🇺🇸</span><span class="cur-pair">USD/SYP</span><span class="cur-val">12,500</span></div>
-      <div class="cur-row"><span class="cur-flag">🇹🇷</span><span class="cur-pair">TRY/SYP</span><span class="cur-val">395</span></div>
-      <div class="cur-row"><span class="cur-flag">🇦🇪</span><span class="cur-pair">AED/SYP</span><span class="cur-val">3,400</span></div>
+      <div class="cur-row"><span class="cur-flag">🇪🇺</span><span class="cur-pair">EUR/SYP</span><span class="cur-val">{{ widgetRates.EUR.toLocaleString() }}</span></div>
+      <div class="cur-row"><span class="cur-flag">🇺🇸</span><span class="cur-pair">USD/SYP</span><span class="cur-val">{{ widgetRates.USD.toLocaleString() }}</span></div>
+      <div class="cur-row"><span class="cur-flag">🇹🇷</span><span class="cur-pair">TRY/SYP</span><span class="cur-val">{{ widgetRates.TRY.toLocaleString() }}</span></div>
+      <div class="cur-row"><span class="cur-flag">🇦🇪</span><span class="cur-pair">AED/SYP</span><span class="cur-val">{{ widgetRates.AED.toLocaleString() }}</span></div>
       <Link href="/exchange-rates" class="cur-link" @click="showWidget=false">{{ isAr ? 'كل الأسعار →' : 'All rates →' }}</Link>
     </div>
   </div>

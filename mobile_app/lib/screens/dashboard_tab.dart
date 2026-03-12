@@ -145,7 +145,7 @@ class _DashboardTabState extends State<DashboardTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                const Text('My Wallets', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                Text(t.myWallets, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                 GestureDetector(
                   onTap: () => widget.onTabChange?.call(2),
                   child: Text(t.seeAll, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
@@ -168,7 +168,7 @@ class _DashboardTabState extends State<DashboardTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                const Text('Recent Transactions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                Text(t.recentTransactions, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                 GestureDetector(
                   onTap: () => widget.onTabChange?.call(3),
                   child: Text(t.seeAll, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
@@ -188,6 +188,7 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Widget _buildBalanceCard(List<Map<String, dynamic>> accounts) {
+    final t = L10n.of(context);
     final wallet = accounts.isNotEmpty && _activeWallet < accounts.length ? accounts[_activeWallet] : null;
     final balance = wallet?['balance'] ?? 0;
     final currency = wallet?['currency']?['code'] ?? 'EUR';
@@ -204,7 +205,7 @@ class _DashboardTabState extends State<DashboardTab> {
           boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Total balance', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
+          Text(t.totalBalance, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
           const SizedBox(height: 4),
           Text(
             '$symbol${_formatNumber(balance)}',
@@ -215,10 +216,10 @@ class _DashboardTabState extends State<DashboardTab> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
-              child: const Text('+2.4% this month', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
+              child: Text(t.thisMonth, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
             ),
             const SizedBox(width: 8),
-            Text('$currency account', style: const TextStyle(color: Colors.white60, fontSize: 11)),
+            Text('${t.account} $currency', style: const TextStyle(color: Colors.white60, fontSize: 11)),
           ]),
         ]),
       ),
@@ -283,6 +284,7 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> tx, List<Map<String, dynamic>> accounts) {
+    final t = L10n.of(context);
     final accountIds = accounts.map((a) => a['id']).toSet();
     final isIncoming = accountIds.contains(tx['to_account_id']);
     final amount = (tx['amount'] ?? 0).toDouble();
@@ -324,7 +326,7 @@ class _DashboardTabState extends State<DashboardTab> {
               margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(color: AppTheme.warning.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-              child: const Text('Pending', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.warning)),
+              child: Text(t.pending, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.warning)),
             ),
           ]),
         ]),
@@ -333,12 +335,13 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Widget _buildEmptyState() {
+    final t = L10n.of(context);
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Center(child: Column(children: [
         Icon(Icons.receipt_long_rounded, size: 48, color: AppTheme.textMuted.withOpacity(0.3)),
         const SizedBox(height: 12),
-        const Text('No transactions yet', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+        Text(t.noTransactions, style: const TextStyle(fontSize: 14, color: AppTheme.textMuted)),
       ])),
     );
   }
@@ -380,7 +383,7 @@ class _DashboardTabState extends State<DashboardTab> {
       final dt = DateTime.parse(d);
       final now = DateTime.now();
       if (dt.day == now.day && dt.month == now.month && dt.year == now.year) {
-        return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+        return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
       }
       final yesterday = now.subtract(const Duration(days: 1));
       if (dt.day == yesterday.day && dt.month == yesterday.month && dt.year == yesterday.year) {
@@ -397,7 +400,7 @@ class _DashboardTabState extends State<DashboardTab> {
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Receive Money', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text(t.receiveMoneyTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 20),
         Container(
           width: 100, height: 100,
@@ -405,7 +408,7 @@ class _DashboardTabState extends State<DashboardTab> {
           child: const Icon(Icons.qr_code_2, size: 60, color: AppTheme.primary),
         ),
         const SizedBox(height: 16),
-        const Text('Your Account Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text(t.yourAccountDetails, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
@@ -413,17 +416,17 @@ class _DashboardTabState extends State<DashboardTab> {
           decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
           child: Column(children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('Account', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(t.account, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
               Text(iban, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
             ]),
             const SizedBox(height: 8),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('Currency', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(t.currency, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
               Text(currency, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
             ]),
             const SizedBox(height: 8),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('Bank', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+              Text(t.bank, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
               const Text('SDB Bank', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
             ]),
           ]),
@@ -432,7 +435,7 @@ class _DashboardTabState extends State<DashboardTab> {
         SizedBox(width: double.infinity, child: ElevatedButton.icon(
           onPressed: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account details copied ✓'), backgroundColor: AppTheme.primary)); },
           icon: const Icon(Icons.copy, size: 16),
-          label: const Text('Copy Details'),
+          label: Text(t.copyDetails),
         )),
       ]),
     ));

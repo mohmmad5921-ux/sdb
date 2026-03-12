@@ -67,11 +67,13 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>نحتاج الكاميرا لالتقاط صور مستندات التحقق من الهوية</string>
+	<string>نحتاج الكاميرا لالتقاط صور التحقق ومسح رموز QR</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>نستخدم Face ID لتسجيل الدخول بشكل آمن وسريع</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>نحتاج الوصول لمعرض الصور لرفع مستندات التحقق من الهوية</string>
+	<key>NSContactsUsageDescription</key>
+	<string>للعثور على أصدقائك المشتركين في SDB Bank وإرسال الأموال لهم</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

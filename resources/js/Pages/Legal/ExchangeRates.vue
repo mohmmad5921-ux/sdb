@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { inject, computed, ref } from 'vue';
+import { inject, computed, ref, onMounted } from 'vue';
 import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
@@ -30,8 +30,23 @@ const curs = [
   {c:'AUD',f:'🇦🇺',n:'دولار أسترالي',en:'Australian Dollar'},
   {c:'JPY',f:'🇯🇵',n:'ين ياباني',en:'Japanese Yen'},
 ];
-/* Rates vs EUR */
-const ratesVsEUR = {SYP:13500,EUR:1,USD:1.08,GBP:0.86,DKK:7.46,SEK:11.2,NOK:11.5,CHF:0.96,TRY:34.2,AED:3.97,SAR:4.05,KWD:0.33,QAR:3.93,BHD:0.41,OMR:0.42,JOD:0.77,EGP:53.2,LBP:96800,IQD:1415,CAD:1.47,AUD:1.65,JPY:162};
+
+/* Rates vs EUR — fetched live from API */
+const ratesVsEUR = ref({SYP:13500,EUR:1,USD:1.08,GBP:0.86,DKK:7.46,SEK:11.2,NOK:11.5,CHF:0.96,TRY:34.2,AED:3.97,SAR:4.05,KWD:0.33,QAR:3.93,BHD:0.41,OMR:0.42,JOD:0.77,EGP:53.2,LBP:96800,IQD:1415,CAD:1.47,AUD:1.65,JPY:162});
+const isLive = ref(false);
+const updatedAt = ref(null);
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/public/rates');
+    const data = await res.json();
+    if (data.rates) {
+      ratesVsEUR.value = data.rates;
+      isLive.value = data.is_live || false;
+      updatedAt.value = data.updated_at;
+    }
+  } catch (e) { /* fallback to hardcoded */ }
+});
 
 const fromCur = ref('EUR');
 const toCur = ref('SYP');
@@ -40,8 +55,8 @@ const showFromDD = ref(false);
 const showToDD = ref(false);
 
 const rate = computed(() => {
-  const fr = ratesVsEUR[fromCur.value]||1;
-  const to = ratesVsEUR[toCur.value]||1;
+  const fr = ratesVsEUR.value[fromCur.value]||1;
+  const to = ratesVsEUR.value[toCur.value]||1;
   return to/fr;
 });
 const toAmt = computed(() => {
@@ -80,7 +95,7 @@ const popularPairs = [
   {from:'USD',to:'TRY',f1:'🇺🇸',f2:'🇹🇷'},{from:'EUR',to:'DKK',f1:'🇪🇺',f2:'🇩🇰'},
   {from:'GBP',to:'EUR',f1:'🇬🇧',f2:'🇪🇺'},{from:'USD',to:'JPY',f1:'🇺🇸',f2:'🇯🇵'},
 ];
-function pairRate(from,to){ return ((ratesVsEUR[to]||1)/(ratesVsEUR[from]||1)); }
+function pairRate(from,to){ return ((ratesVsEUR.value[to]||1)/(ratesVsEUR.value[from]||1)); }
 function fmtRate(r){ return r >= 100 ? Math.round(r).toLocaleString('en-US') : r >= 1 ? r.toFixed(4) : r.toFixed(6); }
 function pickPair(from,to){ fromCur.value=from; toCur.value=to; fromAmt.value=1000; window.scrollTo({top:0,behavior:'smooth'}); }
 

@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { inject, computed, ref } from 'vue';
+import { inject, computed, ref, onMounted } from 'vue';
 import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
@@ -8,15 +8,35 @@ const isAr = inject('isAr', computed(() => true));
 /* ─── SYP Live Rates (new lira after removing 2 zeros) ─── */
 const amt = ref(1000);
 const selCur = ref('USD');
-const sypRates = {
+const sypRates = ref({
   USD:138,EUR:150,GBP:174,TRY:4.02,AED:37.5,SAR:36.8,
   KWD:449,QAR:37.9,BHD:366,OMR:358,JOD:195,EGP:2.83,
   LBP:0.0015,IQD:0.1054,DKK:20.1,SEK:13.4,NOK:13.0,
-  CHF:156,CAD:102,AUD:91,JPY:0.93,GBP:174
-};
-const curList = Object.keys(sypRates);
-const converted = computed(() => (amt.value * sypRates[selCur.value]).toFixed(2));
-const reverseConverted = computed(() => (amt.value / sypRates[selCur.value]).toFixed(2));
+  CHF:156,CAD:102,AUD:91,JPY:0.93
+});
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/public/rates');
+    const data = await res.json();
+    if (data.rates && data.rates.SYP) {
+      const sypPerEur = data.rates.SYP / 100; // new lira (after removing 2 zeros)
+      const derived = {};
+      for (const [code, eurRate] of Object.entries(data.rates)) {
+        if (code !== 'SYP' && sypRates.value[code] !== undefined) {
+          derived[code] = parseFloat((sypPerEur / eurRate).toFixed(4));
+        }
+      }
+      if (Object.keys(derived).length > 5) {
+        sypRates.value = { ...sypRates.value, ...derived };
+      }
+    }
+  } catch (e) { /* fallback to hardcoded */ }
+});
+
+const curList = Object.keys(sypRates.value);
+const converted = computed(() => (amt.value * (sypRates.value[selCur.value] || 1)).toFixed(2));
+const reverseConverted = computed(() => (amt.value / (sypRates.value[selCur.value] || 1)).toFixed(2));
 
 const t = computed(() => isAr.value ? {
   title:'الليرة السورية الجديدة — SDB Bank',tag:'🇸🇾 الليرة السورية الجديدة',
