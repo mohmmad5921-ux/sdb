@@ -8,7 +8,6 @@ const isAr = inject('isAr', computed(() => true));
 /* ─── Converter Logic ─── */
 const amount = ref('');
 const direction = ref('old'); // 'old' = old→new, 'new' = new→old
-const history = ref(JSON.parse(localStorage.getItem('lirtna_history') || '[]'));
 
 const result = computed(() => {
   const n = parseFloat(amount.value.replace(/,/g, '')) || 0;
@@ -89,27 +88,6 @@ const chartMax = computed(() => {
   return Math.max(...breakdown.value.map(b => b.count));
 });
 
-/* ─── History ─── */
-function addToHistory() {
-  const n = parseFloat(amount.value.replace(/,/g, '')) || 0;
-  if (n === 0) return;
-  const entry = {
-    id: Date.now(),
-    amount: n,
-    result: result.value,
-    direction: direction.value,
-    date: new Date().toLocaleString('ar-SY'),
-  };
-  history.value.unshift(entry);
-  if (history.value.length > 50) history.value = history.value.slice(0, 50);
-  localStorage.setItem('lirtna_history', JSON.stringify(history.value));
-}
-
-function clearHistory() {
-  history.value = [];
-  localStorage.removeItem('lirtna_history');
-}
-
 function shareResult() {
   const n = parseFloat(amount.value.replace(/,/g, '')) || 0;
   if (n === 0) return;
@@ -126,12 +104,7 @@ function shareResult() {
 const copied = ref(false);
 
 /* ─── Tab ─── */
-const tab = ref('convert'); // convert, history, info
-
-/* ─── Auto save when converting ─── */
-watch(result, (v) => {
-  if (v > 0 && amount.value) addToHistory();
-}, { flush: 'post' });
+const tab = ref('convert'); // convert, info
 
 /* ─── Swap direction ─── */
 function swap() {
@@ -148,7 +121,6 @@ const t = computed(() => isAr.value ? {
   heroEm: 'حوّل بسهولة.',
   heroP: 'محوّل الليرة السورية بين القديم والجديد — سريع، دقيق، واحترافي. مع تفصيل الفئات النقدية وعرض المبلغ كتابةً.',
   tabConvert: 'تحويل',
-  tabHistory: 'سجل العمليات',
   tabInfo: 'معلومات',
   enterAmount: 'أدخل المبلغ',
   oldLira: 'ليرة قديمة',
@@ -165,10 +137,6 @@ const t = computed(() => isAr.value ? {
   copied: 'تم النسخ ✓',
   bill: 'ورقة',
   bills: 'أوراق',
-  histEmpty: 'لا توجد عمليات سابقة',
-  histClear: 'مسح السجل',
-  from: 'من',
-  to: 'إلى',
   infoTitle: 'كل ما تحتاج معرفته',
   infoCards: [
     { ic: '🔢', t: 'ما هو مسح الصفرين؟', d: 'تم حذف صفرين من العملة السورية. 100,000 ليرة قديمة = 1,000 ليرة جديدة. القيمة الشرائية لا تتغير.' },
@@ -188,7 +156,6 @@ const t = computed(() => isAr.value ? {
   heroEm: 'Convert with ease.',
   heroP: 'Convert Syrian Lira between old and new denominations — fast, accurate, and professional. With banknote breakdown and amount in words.',
   tabConvert: 'Convert',
-  tabHistory: 'History',
   tabInfo: 'Info',
   enterAmount: 'Enter amount',
   oldLira: 'Old Lira',
@@ -205,10 +172,6 @@ const t = computed(() => isAr.value ? {
   copied: 'Copied ✓',
   bill: 'bill',
   bills: 'bills',
-  histEmpty: 'No previous conversions',
-  histClear: 'Clear History',
-  from: 'From',
-  to: 'To',
   infoTitle: 'Everything you need to know',
   infoCards: [
     { ic: '🔢', t: 'What is redenomination?', d: 'Two zeros were removed from Syrian currency. 100,000 old lira = 1,000 new lira. Purchasing power remains the same.' },
@@ -237,7 +200,6 @@ const t = computed(() => isAr.value ? {
 <section class="sec"><div class="sw">
   <div class="lr-tabs">
     <button :class="['lr-tab', tab === 'convert' && 'lr-tab-on']" @click="tab='convert'">{{ t.tabConvert }}</button>
-    <button :class="['lr-tab', tab === 'history' && 'lr-tab-on']" @click="tab='history'">{{ t.tabHistory }}</button>
     <button :class="['lr-tab', tab === 'info' && 'lr-tab-on']" @click="tab='info'">{{ t.tabInfo }}</button>
   </div>
 
@@ -307,27 +269,6 @@ const t = computed(() => isAr.value ? {
     </div>
   </div>
 
-  <!-- ═══════ HISTORY TAB ═══════ -->
-  <div v-if="tab === 'history'">
-    <div v-if="!history.length" class="lr-empty">
-      <div class="lr-empty-ic">📋</div>
-      <p>{{ t.histEmpty }}</p>
-    </div>
-    <div v-else>
-      <div class="lr-hist-actions">
-        <button class="lr-clear" @click="clearHistory">{{ t.histClear }} 🗑️</button>
-      </div>
-      <div class="lr-hist-list">
-        <div v-for="h in history" :key="h.id" class="lr-hist-card">
-          <div class="lr-hist-dir">{{ h.direction === 'old' ? '📜→🆕' : '🆕→📜' }}</div>
-          <div class="lr-hist-body">
-            <div class="lr-hist-amt">{{ h.amount.toLocaleString() }} <span class="lr-hist-muted">→</span> {{ h.result.toLocaleString() }} {{ t.syr }}</div>
-            <div class="lr-hist-date">{{ h.date }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ═══════ INFO TAB ═══════ -->
   <div v-if="tab === 'info'">
