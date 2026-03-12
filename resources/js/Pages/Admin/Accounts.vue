@@ -13,7 +13,17 @@ const applyFilter = () => router.get(route('admin.accounts'), { search: search.v
 
 const adjustForm = useForm({ amount: '', type: 'credit', reason: '' });
 const adjustingAccount = ref(null);
-const openAdjust = (account) => { adjustingAccount.value = account; adjustForm.reset(); };
+const userAccounts = ref([]);
+const openAdjust = (account) => {
+  adjustingAccount.value = account;
+  adjustForm.reset();
+  // Find all accounts for the same user
+  userAccounts.value = props.accounts.data.filter(a => a.user?.id === account.user?.id);
+};
+const switchAdjustAccount = (accountId) => {
+  const found = userAccounts.value.find(a => a.id == accountId);
+  if (found) adjustingAccount.value = found;
+};
 const submitAdjust = () => adjustForm.post(route('admin.accounts.adjust', adjustingAccount.value.id), { onSuccess: () => { adjustingAccount.value = null; adjustForm.reset(); } });
 const updateStatus = (account, status) => { if (status === 'closed' && !confirm('هل أنت متأكد من إغلاق هذا الحساب نهائياً؟')) return; router.patch(route('admin.accounts.status', account.id), { status }); };
 
@@ -125,8 +135,15 @@ const fmtM = (a) => { if (a >= 1000000) return (a/1000000).toFixed(1) + 'M'; if 
         <div v-if="adjustingAccount" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="adjustingAccount = null">
           <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200" style="direction:rtl">
             <h3 class="text-xl font-bold text-[#0f172a] mb-1">💰 تعديل رصيد</h3>
-            <p class="text-[#475569] text-sm mb-2">{{ adjustingAccount.user?.full_name }} — {{ adjustingAccount.currency?.code }}</p>
-            <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm"><span class="text-[#475569]">الرصيد الحالي: </span><span class="font-bold text-[#1E5EFF]">{{ fmt(adjustingAccount.balance, adjustingAccount.currency?.symbol) }}</span></div>
+            <p class="text-[#475569] text-sm mb-2">{{ adjustingAccount.user?.full_name }}</p>
+            <!-- Account/Currency Selector -->
+            <div v-if="userAccounts.length > 1" class="mb-3">
+              <label class="block text-xs text-[#475569] mb-1">اختر الحساب / العملة</label>
+              <select :value="adjustingAccount.id" @change="switchAdjustAccount($event.target.value)" class="aa-modal-input">
+                <option v-for="ua in userAccounts" :key="ua.id" :value="ua.id">{{ ua.currency?.code }} — {{ ua.currency?.symbol }} {{ Number(ua.balance).toLocaleString('en-US', {minimumFractionDigits:2}) }} — {{ ua.account_number }}</option>
+              </select>
+            </div>
+            <div class="p-3 bg-[#F0F4FF] rounded-xl mb-4 text-sm"><span class="text-[#475569]">الرصيد الحالي: </span><span class="font-bold text-[#1E5EFF]">{{ fmt(adjustingAccount.balance, adjustingAccount.currency?.symbol) }}</span> <span class="text-xs text-[#475569]">({{ adjustingAccount.currency?.code }})</span></div>
             <form @submit.prevent="submitAdjust" class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div><label class="block text-xs text-[#475569] mb-1">النوع</label><select v-model="adjustForm.type" class="aa-modal-input"><option value="credit">➕ إضافة (Credit)</option><option value="debit">➖ خصم (Debit)</option></select></div>

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'dashboard_tab.dart';
-import 'transfer_screen.dart';
-import 'cards_tab.dart';
-import 'transactions_tab.dart';
+import 'wallet_tab.dart';
+import 'betal_tab.dart';
+import 'insights_tab.dart';
 import 'more_tab.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,25 +16,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  late final List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      DashboardTab(onTabChange: (i) => setState(() => _currentIndex = i)),
-      const TransferScreen(embedded: true),
-      const CardsTab(),
-      const TransactionsTab(),
-      const MoreTab(),
-    ];
+  Widget _getScreen(int index) {
+    switch (index) {
+      case 0: return DashboardTab(onTabChange: (i) => setState(() => _currentIndex = i));
+      case 1: return const WalletTab();
+      case 2: return const BetalTab();
+      case 3: return const InsightsTab();
+      case 4: return const MoreTab();
+      default: return const SizedBox.shrink();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = L10n.of(context);
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: _getScreen(_currentIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppTheme.bgCard,
@@ -47,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(0, Icons.home_rounded, t.navHome),
-                _buildNavItem(1, Icons.send_rounded, t.navPayments),
-                _buildNavItem(2, Icons.credit_card_rounded, t.navCards),
-                _buildNavItem(3, Icons.receipt_long_rounded, t.navActivity),
+                _buildNavItem(1, Icons.account_balance_wallet_rounded, 'Wallet'),
+                _buildNavItem(2, Icons.swap_vert_rounded, t.navPayments),
+                _buildNavItem(3, Icons.insights_rounded, 'Insights'),
                 _buildNavItem(4, Icons.person_rounded, t.navProfile),
               ],
             ),

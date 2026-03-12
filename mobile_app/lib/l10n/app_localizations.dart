@@ -52,6 +52,8 @@ class AppStrings {
   final String bank;
   final String copyDetails;
   final String detailsCopied;
+  final String newStr;
+  final String details;
 
   // Bottom Nav
   final String navHome;
@@ -229,6 +231,8 @@ class AppStrings {
     required this.bank,
     required this.copyDetails,
     required this.detailsCopied,
+    required this.newStr,
+    required this.details,
     required this.navHome,
     required this.navPayments,
     required this.navCards,
@@ -378,6 +382,8 @@ const enStrings = AppStrings(
   bank: 'Bank',
   copyDetails: 'Copy Details',
   detailsCopied: 'Account details copied ✓',
+  newStr: 'New',
+  details: 'Details',
   navHome: 'Home',
   navPayments: 'Payments',
   navCards: 'Cards',
@@ -526,6 +532,8 @@ const arStrings = AppStrings(
   bank: 'البنك',
   copyDetails: 'نسخ التفاصيل',
   detailsCopied: 'تم نسخ تفاصيل الحساب ✓',
+  newStr: 'جديد',
+  details: 'تفاصيل',
   navHome: 'الرئيسية',
   navPayments: 'التحويلات',
   navCards: 'البطاقات',

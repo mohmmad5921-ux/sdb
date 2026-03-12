@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import 'card_detail_page.dart';
 
 class CardsTab extends StatefulWidget {
   const CardsTab({super.key});
@@ -176,7 +177,7 @@ class _CardsTabState extends State<CardsTab> {
         const Text('سيتم إلغاء بطاقتك الحالية وإصدار بطاقة جديدة برقم مختلف', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
         const SizedBox(height: 24),
         GestureDetector(
-          onTap: () { Navigator.pop(context); _issueCard(); },
+          onTap: () { Navigator.pop(context); _showIssueDialog(); },
           child: Container(height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF60A5FA)]), borderRadius: BorderRadius.circular(16)),
             child: const Center(child: Text('استبدال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
         ),
@@ -259,18 +260,21 @@ class _CardsTabState extends State<CardsTab> {
 
   // ── New Card: Confirmation Dialog ──
   Future<void> _showIssueDialog() async {
-    final confirmed = await showModalBottomSheet<bool>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _CardAgreementSheet(),
+      builder: (_) => _CardAgreementSheet(existingCards: _cards),
     );
-    if (confirmed == true) _issueCard();
+    if (result != null) {
+      final walletId = result['wallet_id'] as int;
+      _issueCard(walletId);
+    }
   }
 
-  Future<void> _issueCard() async {
+  Future<void> _issueCard(int walletId) async {
     setState(() => _loading = true);
-    final r = await ApiService.issueCard(0);
+    final r = await ApiService.issueCard(walletId);
     if (r['success'] == true) {
       await _load();
       if (_cards.isNotEmpty) setState(() => _activeIndex = _cards.length - 1);
@@ -457,22 +461,43 @@ class _CardsTabState extends State<CardsTab> {
               ),
               const SizedBox(height: 20),
 
-              if (_cards.isEmpty) _buildEmptyCards()
-              else ...[
-                // ── Card Carousel ──
+              // ── Card Carousel (with + card at end) ──
+              ...[
                 SizedBox(
                   height: 220,
                   child: PageView.builder(
                     controller: _pageCtrl,
-                    itemCount: _cards.length,
-                    onPageChanged: (i) => setState(() => _activeIndex = i),
-                    itemBuilder: (_, i) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: _buildCardVisual(_cards[i]),
-                    ),
+                    itemCount: _cards.length + 1, // +1 for the add card
+                    onPageChanged: (i) => setState(() => _activeIndex = i < _cards.length ? i : _activeIndex),
+                    itemBuilder: (_, i) {
+                      // Last item = add card placeholder
+                      if (i >= _cards.length) {
+                        return GestureDetector(
+                          onTap: _showIssueDialog,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: _buildAddCardPlaceholder(),
+                          ),
+                        );
+                      }
+                      return GestureDetector(
+                        onTap: () async {
+                          await Navigator.push(context, MaterialPageRoute(
+                            builder: (_) => CardDetailPage(card: _cards[i]),
+                          ));
+                          _load();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: _buildCardVisual(_cards[i]),
+                        ),
+                      );
+                    },
                   ),
                 ),
 
+                // Show card details and actions only when cards exist
+                if (_cards.isNotEmpty) ...[
                 // ── Card Label ──
                 const SizedBox(height: 12),
                 Center(child: Text(
@@ -547,6 +572,7 @@ class _CardsTabState extends State<CardsTab> {
                     _manageItem(icon: Icons.delete_outline_rounded, title: 'حذف البطاقة', onTap: _deleteCard, danger: true),
                   ]),
                 ),
+                ], // end if (_cards.isNotEmpty)
               ],
             ]),
           )),
@@ -776,104 +802,225 @@ class _CardsTabState extends State<CardsTab> {
     );
   }
 
-  Widget _buildEmptyCards() {
-    return Center(child: Padding(
-      padding: const EdgeInsets.all(40),
-      child: Column(children: [
+  // ── Card-shaped "+" placeholder (like Lunar's Tilføj ny) ──
+  Widget _buildAddCardPlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 220,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFF3F4F6),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+      ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: const Color(0xFFF5F7FA), shape: BoxShape.circle),
-          child: const Icon(Icons.credit_card_off_rounded, size: 48, color: Color(0xFFD1D5DB)),
+          width: 52, height: 52,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFE5E7EB)),
+          ),
+          child: const Icon(Icons.add_rounded, size: 28, color: Color(0xFF9CA3AF)),
         ),
-        const SizedBox(height: 20),
-        const Text('لا توجد بطاقات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF374151))),
-        const SizedBox(height: 8),
-        const Text('اضغط "طلب بطاقة" للحصول على بطاقتك الأولى', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
+        const SizedBox(height: 10),
+        const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
       ]),
-    ));
+    );
   }
 }
 
-// ── Card Agreement Sheet ──
+// ── Card Agreement Sheet (with wallet selection + design picker) ──
 class _CardAgreementSheet extends StatefulWidget {
+  final List<Map<String, dynamic>> existingCards;
+  const _CardAgreementSheet({required this.existingCards});
   @override
   State<_CardAgreementSheet> createState() => _CardAgreementSheetState();
 }
 
 class _CardAgreementSheetState extends State<_CardAgreementSheet> {
   bool _agreed = false;
+  CardDesign _selectedDesign = CardDesign.marble;
+  List<Map<String, dynamic>> _wallets = [];
+  int? _selectedWalletId;
+  bool _loadingWallets = true;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWallets();
+  }
+
+  Future<void> _loadWallets() async {
+    final r = await ApiService.getAccounts();
+    if (r['success'] == true) {
+      final accounts = List<Map<String, dynamic>>.from(r['data']?['accounts'] ?? []);
+      // Filter out wallets that already have a card
+      final usedAccountIds = widget.existingCards.map((c) => c['account_id']?.toString()).whereType<String>().toSet();
+      final available = accounts.where((a) => !usedAccountIds.contains(a['id']?.toString())).toList();
+      setState(() {
+        _wallets = accounts;
+        _loadingWallets = false;
+        if (available.isNotEmpty) {
+          _selectedWalletId = int.tryParse(available.first['id'].toString());
+        }
+      });
+    } else {
+      setState(() => _loadingWallets = false);
+    }
+  }
+
+  bool _walletHasCard(int walletId) {
+    return widget.existingCards.any((c) => c['account_id']?.toString() == walletId.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 24),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: const Color(0xFFECFDF5), shape: BoxShape.circle),
-          child: const Icon(Icons.credit_card_rounded, size: 36, color: Color(0xFF10B981)),
-        ),
-        const SizedBox(height: 16),
-        const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
-        const SizedBox(height: 8),
-        const Text('بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
-        const SizedBox(height: 20),
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: const Color(0xFFECFDF5), shape: BoxShape.circle),
+            child: const Icon(Icons.credit_card_rounded, size: 36, color: Color(0xFF10B981)),
+          ),
+          const SizedBox(height: 16),
+          const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          const SizedBox(height: 8),
+          const Text('بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
+          const SizedBox(height: 20),
 
-        // Features
-        _featureRow(Icons.shield_outlined, 'حماية كاملة', 'تشفير AES-256 وحماية من الاحتيال'),
-        _featureRow(Icons.contactless_rounded, 'دفع بدون تلامس', 'NFC للدفع السريع في المتاجر'),
-        _featureRow(Icons.tune_rounded, 'تحكم كامل', 'تجميد، حدود إنفاق، وإعدادات مخصصة'),
-
-        const SizedBox(height: 20),
-
-        // Agreement
-        GestureDetector(
-          onTap: () => setState(() => _agreed = !_agreed),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: _agreed ? const Color(0xFFECFDF5) : const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFE5E7EB)),
-            ),
-            child: Row(children: [
-              Container(
-                width: 22, height: 22,
-                decoration: BoxDecoration(
-                  color: _agreed ? const Color(0xFF10B981) : Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFD1D5DB), width: 1.5),
+          // ── Wallet Selection ──
+          Align(alignment: Alignment.centerRight, child: Text('ربط البطاقة بالمحفظة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
+          const SizedBox(height: 8),
+          if (_loadingWallets)
+            const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(color: Color(0xFF10B981), strokeWidth: 2))
+          else if (_wallets.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(12)),
+              child: const Row(children: [
+                Icon(Icons.warning_rounded, size: 18, color: Color(0xFFEF4444)),
+                SizedBox(width: 8),
+                Expanded(child: Text('لا توجد محافظ متاحة', style: TextStyle(fontSize: 13, color: Color(0xFFEF4444)))),
+              ]),
+            )
+          else ...[
+            ..._wallets.map((w) {
+              final id = int.tryParse(w['id'].toString()) ?? 0;
+              final hasCard = _walletHasCard(id);
+              final isSelected = _selectedWalletId == id;
+              final currency = w['currency'] ?? '';
+              final balance = w['balance']?.toString() ?? '0';
+              final name = w['name'] ?? 'محفظة $currency';
+              return GestureDetector(
+                onTap: hasCard ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('⚠️ كل محفظة يحق لها بطاقة واحدة فقط'),
+                    backgroundColor: Color(0xFFEF4444),
+                  ));
+                } : () => setState(() => _selectedWalletId = id),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: hasCard ? const Color(0xFFF9FAFB) : (isSelected ? const Color(0xFFECFDF5) : Colors.white),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: hasCard ? const Color(0xFFE5E7EB) : (isSelected ? const Color(0xFF10B981) : const Color(0xFFE5E7EB)), width: isSelected ? 2 : 1),
+                  ),
+                  child: Row(children: [
+                    Container(
+                      width: 22, height: 22,
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF10B981) : Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: isSelected ? const Color(0xFF10B981) : const Color(0xFFD1D5DB), width: 1.5),
+                      ),
+                      child: isSelected ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: hasCard ? const Color(0xFF9CA3AF) : const Color(0xFF111827))),
+                      Text('$balance $currency', style: TextStyle(fontSize: 11, color: hasCard ? const Color(0xFFD1D5DB) : const Color(0xFF9CA3AF))),
+                    ])),
+                    if (hasCard) Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(8)),
+                      child: const Text('يوجد بطاقة', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w600)),
+                    ),
+                  ]),
                 ),
-                child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+              );
+            }),
+          ],
+          const SizedBox(height: 16),
+
+          // ── Card Design Picker ──
+          CardDesignPicker(
+            selected: _selectedDesign,
+            onChanged: (d) => setState(() => _selectedDesign = d),
+          ),
+          const SizedBox(height: 16),
+
+          // Features
+          _featureRow(Icons.shield_outlined, 'حماية كاملة', 'تشفير AES-256 وحماية من الاحتيال'),
+          _featureRow(Icons.contactless_rounded, 'دفع بدون تلامس', 'NFC للدفع السريع في المتاجر'),
+          _featureRow(Icons.tune_rounded, 'تحكم كامل', 'تجميد، حدود إنفاق، وإعدادات مخصصة'),
+
+          const SizedBox(height: 16),
+
+          // Agreement
+          GestureDetector(
+            onTap: () => setState(() => _agreed = !_agreed),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _agreed ? const Color(0xFFECFDF5) : const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFE5E7EB)),
               ),
-              const SizedBox(width: 12),
-              const Expanded(child: Text('أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
-            ]),
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Confirm button
-        GestureDetector(
-          onTap: _agreed ? () => Navigator.pop(context, true) : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 54,
-            decoration: BoxDecoration(
-              gradient: _agreed ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]) : null,
-              color: _agreed ? null : const Color(0xFFE5E7EB),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: _agreed ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
+              child: Row(children: [
+                Container(
+                  width: 22, height: 22,
+                  decoration: BoxDecoration(
+                    color: _agreed ? const Color(0xFF10B981) : Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: _agreed ? const Color(0xFF10B981) : const Color(0xFFD1D5DB), width: 1.5),
+                  ),
+                  child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+                ),
+                const SizedBox(width: 12),
+                const Expanded(child: Text('أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
+              ]),
             ),
-            child: Center(child: Text('إصدار البطاقة', style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w800, color: _agreed ? Colors.white : const Color(0xFF9CA3AF),
-            ))),
           ),
-        ),
-      ]),
+
+          const SizedBox(height: 20),
+
+          // Confirm button
+          GestureDetector(
+            onTap: (_agreed && _selectedWalletId != null) ? () => Navigator.pop(context, {'wallet_id': _selectedWalletId, 'design': _selectedDesign.name}) : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 54,
+              decoration: BoxDecoration(
+                gradient: (_agreed && _selectedWalletId != null) ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]) : null,
+                color: (_agreed && _selectedWalletId != null) ? null : const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: (_agreed && _selectedWalletId != null) ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
+              ),
+              child: Center(child: Text('إصدار البطاقة', style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w800, color: (_agreed && _selectedWalletId != null) ? Colors.white : const Color(0xFF9CA3AF),
+              ))),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ]),
+      ),
     );
   }
 

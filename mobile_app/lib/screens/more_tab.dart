@@ -285,40 +285,70 @@ class _MoreTabState extends State<MoreTab> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, bottom: 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Profile header
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [
-              GestureDetector(
-                onTap: _showEditProfile,
-                child: Stack(children: [
-                  Container(
-                    width: 60, height: 60,
-                    decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(30)),
-                    child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700))),
+            // Close button (Lunar: X at top-left)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () => Navigator.maybePop(context),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(18)),
+                    child: const Icon(Icons.close_rounded, size: 20, color: AppTheme.textSecondary),
                   ),
-                  Positioned(bottom: 0, right: 0, child: Container(
-                    width: 20, height: 20,
-                    decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.bgLight, width: 2)),
-                    child: const Icon(Icons.edit, size: 10, color: Colors.white),
-                  )),
-                ]),
+                ),
               ),
-              const SizedBox(width: 14),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                if (username != null) Text('@$username', style: const TextStyle(fontSize: 13, color: AppTheme.primary, fontWeight: FontWeight.w500)),
-                Text(email, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
-                if (phone.isNotEmpty) Text(phone, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-              ])),
-            ])),
+            ),
             const SizedBox(height: 16),
 
-            // Stats
+            // Profile header (Lunar style: centered pink avatar + name)
+            Center(child: Column(children: [
+              Container(
+                width: 80, height: 80,
+                decoration: BoxDecoration(color: const Color(0xFFF9A8D4), borderRadius: BorderRadius.circular(40)),
+                child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700))),
+              ),
+              const SizedBox(height: 12),
+              Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              GestureDetector(
+                onTap: _showEditProfile,
+                child: Text(t.editProfile, style: const TextStyle(fontSize: 13, color: AppTheme.primary, fontWeight: FontWeight.w500)),
+              ),
+            ])),
+            const SizedBox(height: 20),
+
+            // Two info cards side by side (Lunar: "Din pakke" + "Rentesats")
             Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [
-              _buildStat(t.member, joinYear),
-              const SizedBox(width: 8),
-              _buildStat(t.kyc, kyc == 'verified' ? '✓' : '⏳'),
-              const SizedBox(width: 8),
-              _buildStat(t.currency, _defaultCurrency),
+              Expanded(child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text(t.member, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                    Container(
+                      width: 28, height: 28,
+                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                      child: const Icon(Icons.card_giftcard_rounded, size: 14, color: AppTheme.primary),
+                    ),
+                  ]),
+                  const SizedBox(height: 8),
+                  const Text('Premium', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                ]),
+              )),
+              const SizedBox(width: 10),
+              Expanded(child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Text(t.kyc, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                    _kycBadge(kyc),
+                  ]),
+                  const SizedBox(height: 8),
+                  Text(kyc == 'verified' ? t.verified : t.pending, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                ]),
+              )),
             ])),
             const SizedBox(height: 24),
 
