@@ -38,70 +38,84 @@ const pendingKyc = computed(() => page.props.auth?.admin_stats?.pending_kyc || 0
 const newUsersToday = computed(() => page.props.auth?.admin_stats?.new_users_today || 0);
 const notifCount = computed(() => pendingKyc.value + newUsersToday.value);
 
-const sideLinks = [
-  { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
-  { label: 'KPIs حية', icon: '⚡', route: 'admin.live-kpi' },
-  // Core Banking
-  { label: 'العملاء', icon: '👥', route: 'admin.users' },
-  { label: 'الحسابات', icon: '🏦', route: 'admin.accounts' },
-  { label: 'البطاقات', icon: '💳', route: 'admin.cards' },
-  { label: 'المعاملات', icon: '💸', route: 'admin.transactions' },
-  { label: 'KYC', icon: '🪪', route: 'admin.kyc' },
-  { label: 'العملات', icon: '💱', route: 'admin.currencies' },
-  { label: 'تصنيف العملاء', icon: '🏷️', route: 'admin.tags' },
-  // Operations
-  { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
-  // Business Accounts
-  { label: 'لوحة الشركات', icon: '🏢', route: 'admin.businesses.dashboard' },
-  { label: 'حسابات الشركات', icon: '🏗️', route: 'admin.businesses.index' },
-  { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
-  { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
-  { label: 'الدعم', icon: '🎧', route: 'admin.support' },
-  { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
-  { label: 'سجل التواصل', icon: '📧', route: 'admin.communications' },
-  { label: 'الحسابات المجمّدة', icon: '🧊', route: 'admin.frozen' },
-  { label: 'طلبات خاصة', icon: '📋', route: 'admin.special-requests' },
-  { label: 'جدولة المهام', icon: '📅', route: 'admin.tasks' },
-  // Finance
-  { label: 'الرسوم', icon: '💰', route: 'admin.fees' },
-  { label: 'أسعار الصرف', icon: '📈', route: 'admin.rates' },
-  { label: 'العروض والكوبونات', icon: '🎁', route: 'admin.promotions' },
-  { label: 'حدود الحسابات', icon: '🔒', route: 'admin.limits' },
-  // Analytics & Compliance
-  { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
-  { label: 'تقارير PDF', icon: '📄', route: 'admin.pdf-reports' },
-  { label: 'مركز التقارير', icon: '📑', route: 'admin.report-center' },
-  { label: 'تحليل الإيرادات', icon: '💹', route: 'admin.revenue' },
-  { label: 'تحليل المستخدمين', icon: '🧑‍💻', route: 'admin.user-analytics' },
-  { label: 'الاحتفاظ بالعملاء', icon: '🔄', route: 'admin.retention' },
-  { label: 'خريطة العملاء', icon: '🗺️', route: 'admin.customer-map' },
-  // Security & Compliance
-  { label: 'كشف الاحتيال AI', icon: '🛡️', route: 'admin.fraud' },
-  { label: 'مكافحة غسيل الأموال', icon: '🏛️', route: 'admin.aml' },
-  { label: 'مراقبة المعاملات', icon: '📡', route: 'admin.transaction-monitor' },
-  { label: 'إدارة المخاطر', icon: '⚠️', route: 'admin.risk-dashboard' },
-  { label: 'سجل التحقق', icon: '🔐', route: 'admin.verification-logs' },
-  { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
-  { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
-  { label: 'المخاطر', icon: '⚠️', route: 'admin.risk' },
-  // Marketing
-  { label: 'الإحالات', icon: '🔗', route: 'admin.referrals' },
-  { label: 'حملات البريد', icon: '📨', route: 'admin.campaigns' },
-  { label: 'قوالب البريد', icon: '✉️', route: 'admin.email-templates' },
-  // System & Data
-  { label: 'إدارة المحتوى', icon: '📝', route: 'admin.cms' },
-  { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
-  { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
-  { label: 'التكاملات الخارجية', icon: '🔌', route: 'admin.integrations' },
-  { label: 'إدارة البيانات', icon: '🗄️', route: 'admin.data-management' },
-  { label: 'أمان الأدمن', icon: '🔐', route: 'admin.security' },
-  { label: 'الجلسات النشطة', icon: '🔍', route: 'admin.sessions' },
-  { label: 'IP Whitelist', icon: '🛡️', route: 'admin.ip-whitelist' },
-  { label: 'سجل التغييرات', icon: '📜', route: 'admin.changelog' },
-  { label: 'التنبيهات الذكية', icon: '🚨', route: 'admin.alerts' },
-  { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
-  { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
+const sideGroups = [
+  { label: 'نظرة عامة', links: [
+    { label: 'لوحة التحكم', icon: '📊', route: 'admin.dashboard' },
+    { label: 'KPIs حية', icon: '⚡', route: 'admin.live-kpi' },
+    { label: 'التنبيهات', icon: '🚨', route: 'admin.alerts' },
+  ]},
+  { label: 'إدارة العملاء', links: [
+    { label: 'العملاء', icon: '👥', route: 'admin.users' },
+    { label: 'الحسابات', icon: '🏦', route: 'admin.accounts' },
+    { label: 'البطاقات', icon: '💳', route: 'admin.cards' },
+    { label: 'المعاملات', icon: '💸', route: 'admin.transactions' },
+    { label: 'KYC', icon: '🪪', route: 'admin.kyc' },
+    { label: 'تصنيف العملاء', icon: '🏷️', route: 'admin.tags' },
+    { label: 'الحسابات المجمّدة', icon: '🧊', route: 'admin.frozen' },
+  ]},
+  { label: 'الأعمال والشركات', links: [
+    { label: 'لوحة الشركات', icon: '🏢', route: 'admin.businesses.dashboard' },
+    { label: 'حسابات الشركات', icon: '🏗️', route: 'admin.businesses.index' },
+    { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
+    { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
+  ]},
+  { label: 'الدعم والتواصل', links: [
+    { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
+    { label: 'الدعم', icon: '🎧', route: 'admin.support' },
+    { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
+    { label: 'سجل التواصل', icon: '📧', route: 'admin.communications' },
+    { label: 'طلبات خاصة', icon: '📋', route: 'admin.special-requests' },
+  ]},
+  { label: 'المالية والتحليلات', links: [
+    { label: 'العملات', icon: '💱', route: 'admin.currencies' },
+    { label: 'أسعار الصرف', icon: '📈', route: 'admin.rates' },
+    { label: 'الرسوم', icon: '💰', route: 'admin.fees' },
+    { label: 'حدود الحسابات', icon: '🔒', route: 'admin.limits' },
+    { label: 'العروض والكوبونات', icon: '🎁', route: 'admin.promotions' },
+    { label: 'التحليلات', icon: '📊', route: 'admin.analytics' },
+    { label: 'تحليل الإيرادات', icon: '💹', route: 'admin.revenue' },
+    { label: 'تحليل المستخدمين', icon: '🧑‍💻', route: 'admin.user-analytics' },
+    { label: 'الاحتفاظ بالعملاء', icon: '🔄', route: 'admin.retention' },
+    { label: 'خريطة العملاء', icon: '🗺️', route: 'admin.customer-map' },
+  ]},
+  { label: 'التقارير', links: [
+    { label: 'تقارير PDF', icon: '📄', route: 'admin.pdf-reports' },
+    { label: 'مركز التقارير', icon: '📑', route: 'admin.report-center' },
+    { label: 'التقارير', icon: '📋', route: 'admin.reports' },
+  ]},
+  { label: 'الأمان والامتثال', links: [
+    { label: 'كشف الاحتيال AI', icon: '🛡️', route: 'admin.fraud' },
+    { label: 'مكافحة غسيل الأموال', icon: '🏛️', route: 'admin.aml' },
+    { label: 'مراقبة المعاملات', icon: '📡', route: 'admin.transaction-monitor' },
+    { label: 'إدارة المخاطر', icon: '⚠️', route: 'admin.risk-dashboard' },
+    { label: 'سجل التحقق', icon: '🔐', route: 'admin.verification-logs' },
+    { label: 'التدقيق', icon: '📋', route: 'admin.audit-logs' },
+    { label: 'الامتثال', icon: '🛡️', route: 'admin.compliance' },
+    { label: 'المخاطر', icon: '⚠️', route: 'admin.risk' },
+  ]},
+  { label: 'التسويق', links: [
+    { label: 'الإحالات', icon: '🔗', route: 'admin.referrals' },
+    { label: 'حملات البريد', icon: '📨', route: 'admin.campaigns' },
+    { label: 'قوالب البريد', icon: '✉️', route: 'admin.email-templates' },
+    { label: 'قائمة الانتظار', icon: '📩', route: 'admin.waitlist' },
+  ]},
+  { label: 'النظام', links: [
+    { label: 'إدارة المحتوى', icon: '📝', route: 'admin.cms' },
+    { label: 'إدارة التطبيق', icon: '📱', route: 'admin.app-management' },
+    { label: 'حالة API', icon: '🌐', route: 'admin.api-status' },
+    { label: 'التكاملات', icon: '🔌', route: 'admin.integrations' },
+    { label: 'إدارة البيانات', icon: '🗄️', route: 'admin.data-management' },
+    { label: 'جدولة المهام', icon: '📅', route: 'admin.tasks' },
+    { label: 'أمان الأدمن', icon: '🔐', route: 'admin.security' },
+    { label: 'الجلسات النشطة', icon: '🔍', route: 'admin.sessions' },
+    { label: 'IP Whitelist', icon: '🛡️', route: 'admin.ip-whitelist' },
+    { label: 'سجل التغييرات', icon: '📜', route: 'admin.changelog' },
+    { label: 'الإعدادات', icon: '⚙️', route: 'admin.settings' },
+  ]},
 ];
+
+// Keep flat list for backward compatibility
+const sideLinks = sideGroups.flatMap(g => g.links);
 
 const isActive = (r) => {
   try {
@@ -122,12 +136,16 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
         <span v-if="sidebarOpen" class="adl-logo-text">لوحة الإدارة</span>
       </div>
       <nav class="adl-nav">
-        <Link v-for="l in sideLinks" :key="l.route" :href="route(l.route)"
-          :class="['adl-nav-item', isActive(l.route) ? 'adl-nav-active' : '']">
-          <span class="adl-nav-icon">{{ l.icon }}</span>
-          <span v-if="sidebarOpen" class="adl-nav-label">{{ l.label }}</span>
-          <span v-if="sidebarOpen && l.route === 'admin.kyc' && pendingKyc > 0" class="adl-nav-badge">{{ pendingKyc }}</span>
-        </Link>
+        <template v-for="(g, gi) in sideGroups" :key="gi">
+          <div v-if="sidebarOpen" class="adl-nav-group">{{ g.label }}</div>
+          <div v-else class="adl-nav-sep"></div>
+          <Link v-for="l in g.links" :key="l.route" :href="route(l.route)"
+            :class="['adl-nav-item', isActive(l.route) ? 'adl-nav-active' : '']">
+            <span class="adl-nav-icon">{{ l.icon }}</span>
+            <span v-if="sidebarOpen" class="adl-nav-label">{{ l.label }}</span>
+            <span v-if="sidebarOpen && l.route === 'admin.kyc' && pendingKyc > 0" class="adl-nav-badge">{{ pendingKyc }}</span>
+          </Link>
+        </template>
       </nav>
       <!-- Logout -->
       <div class="adl-nav-bottom">
@@ -245,6 +263,15 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
 .adl-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
 .adl-nav-label { white-space: nowrap; }
 .adl-nav-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: auto; }
+.adl-nav-group {
+  font-size: 10px; font-weight: 800; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 16px 14px 6px;
+  margin-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+.adl-nav-group:first-child { border-top: none; margin-top: 0; padding-top: 8px; }
+.adl-nav-sep { height: 1px; background: #f1f5f9; margin: 6px 8px; }
 .adl-nav-bottom { padding: 10px; border-top: 1px solid #e2e8f0; }
 .adl-logout { color: #dc2626 !important; }
 .adl-logout:hover { background: #fef2f2 !important; }

@@ -35,10 +35,17 @@ onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 /* ── Global currency (injected from SiteLayout) ── */
 const userCurrency = inject('userCurrency', ref({code:'EUR',symbol:'€',flag:'🇪🇺',rate:1}));
 const convertPrice = inject('convertPrice', v => v);
-const localPrice = computed(() => {
-  if (userCurrency.value.code === 'EUR') return null;
-  return '≈ ' + convertPrice(49) + ' ' + userCurrency.value.code + '/';
-});
+
+/* Dynamic pricing based on user currency */
+function priceLabel(eurAmount) {
+  const cc = userCurrency.value.code;
+  const sym = userCurrency.value.symbol;
+  if (cc === 'EUR') return '€' + eurAmount;
+  return sym + convertPrice(eurAmount);
+}
+function periodLabel() {
+  return isAr.value ? '/شهر' : '/mo';
+}
 
 /* ── i18n ── */
 const t = computed(() => isAr.value ? {
@@ -205,7 +212,6 @@ const t = computed(() => isAr.value ? {
         <h3 class="bz-plan-name">{{ p.name }}</h3>
         <p class="bz-plan-desc">{{ p.desc }}</p>
         <div class="bz-plan-price">{{ p.price }}<span v-if="p.period" class="bz-plan-period">{{ p.period }}</span></div>
-        <div v-if="p.popular && localPrice" class="bz-plan-local">{{ localPrice }}</div>
         <ul class="bz-plan-feats">
           <li v-for="f in p.feats" :key="f">✓ {{ f }}</li>
         </ul>
