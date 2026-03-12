@@ -20,6 +20,9 @@ import 'screens/contacts_screen.dart';
 import 'screens/qr_profile_screen.dart';
 import 'services/push_notification_service.dart';
 
+/// Global navigator key for push notification navigation
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -62,6 +65,7 @@ class _SDBAppState extends State<SDBApp> {
       strings: _localeProvider.strings,
       provider: _localeProvider,
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'SDB Banking',
         theme: AppTheme.darkTheme,

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../main.dart' show navigatorKey;
 import 'api_service.dart';
 
 class PushNotificationService {
@@ -67,16 +68,27 @@ class PushNotificationService {
         _sendTokenToServer(newToken, apnsToken: newApns);
       });
 
-      // Handle foreground messages
+      // Handle foreground messages — show a snackbar/banner
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         debugPrint('🔔 Foreground message: ${message.notification?.title}');
-        // Could show a local notification here
+        _showInAppNotification(message);
       });
 
-      // Handle background/terminated message taps
+      // Handle notification tap when app is in background
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         debugPrint('🔔 Message opened app: ${message.notification?.title}');
+        _navigateToNotifications();
       });
+
+      // Handle notification tap when app was terminated
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        debugPrint('🔔 App launched from notification: ${initialMessage.notification?.title}');
+        // Delay navigation to allow app to finish initializing
+        Future.delayed(const Duration(seconds: 2), () {
+          _navigateToNotifications();
+        });
+      }
 
     } catch (e) {
       debugPrint('🔔 Push init error: $e');
@@ -93,5 +105,63 @@ class PushNotificationService {
       debugPrint('🔔 Failed to send FCM token: $e');
     }
   }
-}
 
+  /// Navigate to the notifications screen
+  static void _navigateToNotifications() {
+    try {
+      final nav = navigatorKey.currentState;
+      if (nav != null) {
+        nav.pushNamed('/notifications');
+        debugPrint('🔔 Navigated to /notifications');
+      } else {
+        debugPrint('🔔 Navigator not available yet');
+      }
+    } catch (e) {
+      debugPrint('🔔 Navigation error: $e');
+    }
+  }
+
+  /// Show an in-app notification banner when a message arrives while app is open
+  static void _showInAppNotification(RemoteMessage message) {
+    final nav = navigatorKey.currentState;
+    if (nav == null) return;
+
+    final context = nav.context;
+    final title = message.notification?.title ?? 'SDB';
+    final body = message.notification?.body ?? '';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: GestureDetector(
+          onTap: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            _navigateToNotifications();
+          },
+          child: Row(
+            children: [
+              const Icon(Icons.notifications_active, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
+                    if (body.isNotEmpty)
+                      Text(body, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.white70, size: 20),
+            ],
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF1A3A5C),
+        duration: const Duration(seconds: 5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      ),
+    );
+  }
+}

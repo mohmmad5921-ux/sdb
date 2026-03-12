@@ -103,6 +103,10 @@ Route::prefix('v1/mobile')->group(function () {
 
             // FCM Push Token
             Route::post('/fcm-token', [MobileApiController::class, 'updateFcmToken']);
+
+            // Wallets
+            Route::get('/wallets/available', [MobileApiController::class, 'availableWallets']);
+            Route::post('/wallets/open', [MobileApiController::class, 'openWallet']);
         }
     );
 });

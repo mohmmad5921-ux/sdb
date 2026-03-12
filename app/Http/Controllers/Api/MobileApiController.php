@@ -78,11 +78,31 @@ class MobileApiController extends Controller
             'role' => 'customer',
         ]);
 
-        // Create default EUR + USD accounts
-        $eur = Currency::where('code', 'EUR')->first();
-        $usd = Currency::where('code', 'USD')->first();
-        if ($eur) $this->accountService->createAccount($user, $eur, true);
-        if ($usd) $this->accountService->createAccount($user, $usd);
+        // Country-to-currency mapping
+        $countryToCurrency = [
+            'DK' => 'DKK', 'SE' => 'SEK', 'GB' => 'GBP', 'US' => 'USD',
+            'TR' => 'TRY', 'SY' => 'SYP', 'DE' => 'EUR', 'FR' => 'EUR',
+            'NL' => 'EUR', 'IT' => 'EUR', 'ES' => 'EUR', 'AT' => 'EUR',
+            'BE' => 'EUR', 'FI' => 'EUR', 'IE' => 'EUR', 'PT' => 'EUR',
+            'GR' => 'EUR', 'LU' => 'EUR',
+        ];
+
+        // Detect country from phone prefix or nationality
+        $countryCode = $this->detectCountry($request->phone, $request->nationality ?? null);
+        $defaultCurrencyCode = $countryToCurrency[$countryCode] ?? 'EUR';
+
+        // 1. Create default account in user's country currency
+        $defaultCurrency = Currency::where('code', $defaultCurrencyCode)->first() 
+                         ?? Currency::where('code', 'EUR')->first();
+        if ($defaultCurrency) {
+            $this->accountService->createAccount($user, $defaultCurrency, true);
+        }
+
+        // 2. Always create SYP account (unless already the default)
+        if ($defaultCurrencyCode !== 'SYP') {
+            $syp = Currency::where('code', 'SYP')->first();
+            if ($syp) $this->accountService->createAccount($user, $syp);
+        }
 
         $token = $user->createToken($request->device_name)->plainTextToken;
 
@@ -533,23 +553,84 @@ class MobileApiController extends Controller
         ]);
     }
 
+
+    /* ==================== WALLETS ==================== */
+
+    public function openWallet(Request $request)
+    {
+        $request->validate(['currency_code' => 'required|string|max:5']);
+        $user = $request->user();
+        $currency = Currency::where('code', strtoupper($request->currency_code))
+                           ->where('is_active', true)->where('type', 'fiat')->first();
+
+        if (!$currency) return response()->json(['message' => 'Currency not available'], 404);
+
+        $existing = Account::where('user_id', $user->id)->where('currency_id', $currency->id)->first();
+        if ($existing) return response()->json(['message' => 'You already have a ' . $currency->code . ' wallet'], 409);
+
+        $account = $this->accountService->createAccount($user, $currency);
+        return response()->json([
+            'message' => $currency->code . ' wallet created',
+            'account' => [
+                'id' => $account->id, 'account_number' => $account->account_number,
+                'iban' => $account->iban, 'balance' => '0.00',
+                'currency' => ['code' => $currency->code, 'name' => $currency->name,
+                    'name_ar' => $currency->name_ar, 'symbol' => $currency->symbol, 'flag_icon' => $currency->flag_icon],
+            ],
+        ], 201);
+    }
+
+    public function availableWallets(Request $request)
+    {
+        $existingIds = Account::where('user_id', $request->user()->id)->pluck('currency_id')->toArray();
+        $available = Currency::where('is_active', true)->where('type', 'fiat')
+            ->whereNotIn('id', $existingIds)->orderBy('sort_order')->get()
+            ->map(fn($c) => ['code' => $c->code, 'name' => $c->name, 'name_ar' => $c->name_ar,
+                'symbol' => $c->symbol, 'flag_icon' => $c->flag_icon]);
+        return response()->json(['currencies' => $available]);
+    }
+
     private function formatUser($user): array
     {
         return [
-            'id' => $user->id,
-            'full_name' => $user->full_name,
-            'username' => $user->username,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'status' => $user->status,
-            'kyc_status' => $user->kyc_status,
-            'nationality' => $user->nationality,
+            'id' => $user->id, 'full_name' => $user->full_name,
+            'username' => $user->username, 'email' => $user->email,
+            'phone' => $user->phone, 'status' => $user->status,
+            'kyc_status' => $user->kyc_status, 'nationality' => $user->nationality,
             'date_of_birth' => $user->date_of_birth?->toDateString(),
-            'address' => $user->address,
-            'city' => $user->city,
-            'country' => $user->country,
-            'preferred_language' => $user->preferred_language,
+            'address' => $user->address, 'city' => $user->city,
+            'country' => $user->country, 'preferred_language' => $user->preferred_language,
             'role' => $user->role,
         ];
+    }
+
+    private function detectCountry(?string $phone, ?string $nationality): string
+    {
+        $phonePrefixes = [
+            '+45' => 'DK', '+46' => 'SE', '+44' => 'GB', '+1' => 'US',
+            '+90' => 'TR', '+963' => 'SY', '+49' => 'DE', '+33' => 'FR',
+            '+31' => 'NL', '+39' => 'IT', '+34' => 'ES', '+43' => 'AT',
+            '+32' => 'BE', '+358' => 'FI', '+353' => 'IE', '+351' => 'PT',
+            '+30' => 'GR', '+352' => 'LU', '+47' => 'NO', '+48' => 'PL',
+            '+961' => 'LB', '+962' => 'JO', '+964' => 'IQ', '+20' => 'EG',
+        ];
+
+        if ($phone) {
+            $phone = preg_replace('/\s+/', '', $phone);
+            foreach (collect($phonePrefixes)->sortByDesc(fn($v, $k) => strlen($k)) as $prefix => $country) {
+                if (str_starts_with($phone, $prefix)) return $country;
+            }
+        }
+
+        $nationalityMap = [
+            'Syrian' => 'SY', 'سوري' => 'SY', 'Danish' => 'DK', 'دنماركي' => 'DK',
+            'Swedish' => 'SE', 'Turkish' => 'TR', 'British' => 'GB', 'American' => 'US',
+        ];
+        if ($nationality) {
+            foreach ($nationalityMap as $nat => $country) {
+                if (stripos($nationality, $nat) !== false) return $country;
+            }
+        }
+        return 'EU';
     }
 }
