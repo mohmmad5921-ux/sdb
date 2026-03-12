@@ -22,17 +22,13 @@ class FcmService
         $projectId = self::getProjectId();
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ])->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
+            $payload = [
                 'message' => [
                     'token' => $fcmToken,
                     'notification' => [
                         'title' => $title,
                         'body' => $body,
                     ],
-                    'data' => array_map('strval', $data),
                     'android' => [
                         'priority' => 'high',
                         'notification' => ['sound' => 'default'],
@@ -46,7 +42,17 @@ class FcmService
                         ],
                     ],
                 ],
-            ]);
+            ];
+
+            // Only include data field if non-empty (empty array breaks FCM)
+            if (!empty($data)) {
+                $payload['message']['data'] = array_map('strval', $data);
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ])->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", $payload);
 
             if ($response->successful()) {
                 Log::info('FCM: Push sent successfully');

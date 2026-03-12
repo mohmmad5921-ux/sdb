@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -169,7 +170,30 @@ class ApiService {
 
   // FCM Token
   static Future<void> updateFcmToken(String token) async {
-    await http.post(Uri.parse('$baseUrl/fcm-token'), headers: await _headers(), body: jsonEncode({'fcm_token': token}));
+    try {
+      final headers = await _headers();
+      debugPrint('🔔 Sending FCM token to server...');
+      debugPrint('🔔 Auth header present: ${headers.containsKey('Authorization')}');
+      final r = await http.post(
+        Uri.parse('$baseUrl/fcm-token'),
+        headers: headers,
+        body: jsonEncode({'fcm_token': token}),
+      );
+      debugPrint('🔔 FCM token update response: ${r.statusCode} - ${r.body}');
+      if (r.statusCode != 200) {
+        // Retry after delay (auth token might not be stored yet)
+        await Future.delayed(const Duration(seconds: 3));
+        final retryHeaders = await _headers();
+        final r2 = await http.post(
+          Uri.parse('$baseUrl/fcm-token'),
+          headers: retryHeaders,
+          body: jsonEncode({'fcm_token': token}),
+        );
+        debugPrint('🔔 FCM token retry response: ${r2.statusCode} - ${r2.body}');
+      }
+    } catch (e) {
+      debugPrint('🔔 FCM token update error: $e');
+    }
   }
 
   // Profile

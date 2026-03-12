@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'api_service.dart';
@@ -22,11 +23,29 @@ class PushNotificationService {
         return;
       }
 
+      // On iOS, wait for APNS token before getting FCM token
+      if (Platform.isIOS) {
+        String? apnsToken;
+        for (int i = 0; i < 10; i++) {
+          apnsToken = await _fcm.getAPNSToken();
+          if (apnsToken != null) break;
+          debugPrint('🔔 Waiting for APNS token... attempt ${i + 1}');
+          await Future.delayed(const Duration(seconds: 1));
+        }
+        if (apnsToken == null) {
+          debugPrint('🔔 APNS token not available after 10s — push may not work');
+        } else {
+          debugPrint('🔔 APNS token ready');
+        }
+      }
+
       // Get FCM token
       final token = await _fcm.getToken();
       if (token != null) {
         debugPrint('🔔 FCM Token: ${token.substring(0, 20)}...');
         await _sendTokenToServer(token);
+      } else {
+        debugPrint('🔔 FCM Token is null');
       }
 
       // Listen for token refresh
@@ -61,3 +80,4 @@ class PushNotificationService {
     }
   }
 }
+

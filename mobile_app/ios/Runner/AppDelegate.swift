@@ -1,6 +1,8 @@
 import Flutter
 import UIKit
 import PassKit
+import FirebaseCore
+import FirebaseMessaging
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -8,6 +10,9 @@ import PassKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    
+    // Register for remote notifications
+    application.registerForRemoteNotifications()
     
     // Set up PassKit method channel
     if let controller = window?.rootViewController as? FlutterViewController {
@@ -68,6 +73,12 @@ import PassKit
     } catch {
       result(FlutterError(code: "PASS_ERROR", message: "Invalid pass: \(error.localizedDescription)", details: "\(error)"))
     }
+  }
+
+  // Forward APNS token to Firebase
+  override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
