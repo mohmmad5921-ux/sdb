@@ -169,6 +169,18 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body)};
   }
 
+  // Wallets
+  static Future<Map<String, dynamic>> getAvailableWallets() async {
+    final r = await http.get(Uri.parse('$baseUrl/wallets/available'), headers: await _headers());
+    return {'success': r.statusCode == 200, ...jsonDecode(r.body)};
+  }
+
+  static Future<Map<String, dynamic>> openWallet(String currencyCode) async {
+    final r = await http.post(Uri.parse('$baseUrl/wallets/open'),
+      headers: await _headers(), body: jsonEncode({'currency_code': currencyCode}));
+    return {'success': r.statusCode == 201, ...jsonDecode(r.body)};
+  }
+
   // FCM Token
   static Future<void> updateFcmToken(String token, {String? platform, String? apnsToken}) async {
     try {

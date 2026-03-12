@@ -158,8 +158,11 @@ class _DashboardTabState extends State<DashboardTab> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: accounts.length,
-                itemBuilder: (_, i) => _buildWalletCard(accounts[i], i),
+                itemCount: accounts.length + 1, // +1 for Add Wallet card
+                itemBuilder: (_, i) {
+                  if (i < accounts.length) return _buildWalletCard(accounts[i], i);
+                  return _buildAddWalletCard();
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -278,6 +281,120 @@ class _DashboardTabState extends State<DashboardTab> {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isActive ? Colors.white : AppTheme.textPrimary),
             overflow: TextOverflow.ellipsis,
           ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildAddWalletCard() {
+    return GestureDetector(
+      onTap: _showOpenWalletSheet,
+      child: Container(
+        width: 80,
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3), style: BorderStyle.solid),
+        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.add_rounded, size: 18, color: AppTheme.primary),
+          ),
+          const SizedBox(height: 6),
+          Text('محفظة', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: AppTheme.primary)),
+        ]),
+      ),
+    );
+  }
+
+  void _showOpenWalletSheet() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.bgLight,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return FutureBuilder<Map<String, dynamic>>(
+          future: ApiService.getAvailableWallets(),
+          builder: (ctx, snap) {
+            if (!snap.hasData) {
+              return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
+            }
+            final currencies = List<Map<String, dynamic>>.from(snap.data?['currencies'] ?? []);
+            if (currencies.isEmpty) {
+              return SizedBox(height: 200, child: Center(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.check_circle_outline, size: 40, color: AppTheme.primary),
+                  const SizedBox(height: 12),
+                  const Text('لديك جميع المحافظ المتاحة', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+                ]),
+              ));
+            }
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Container(width: 36, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 16),
+                const Text('فتح محفظة جديدة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                const SizedBox(height: 4),
+                const Text('اختر العملة', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                const SizedBox(height: 16),
+                ...currencies.map((c) => _buildCurrencyOption(c)),
+                const SizedBox(height: 8),
+              ]),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCurrencyOption(Map<String, dynamic> currency) {
+    final flag = currency['flag_icon'] ?? '🏳';
+    final code = currency['code'] ?? '';
+    final name = currency['name_ar'] ?? currency['name'] ?? '';
+    final symbol = currency['symbol'] ?? '';
+
+    return GestureDetector(
+      onTap: () async {
+        Navigator.pop(context);
+        setState(() => _loading = true);
+        final result = await ApiService.openWallet(code);
+        if (result['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('تم فتح محفظة $code بنجاح ✓'), backgroundColor: AppTheme.primary),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'حدث خطأ'), backgroundColor: Colors.red),
+          );
+        }
+        _load();
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.border),
+        ),
+        child: Row(children: [
+          Text(flag, style: const TextStyle(fontSize: 24)),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(code, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            Text(name, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+          ])),
+          Text(symbol, style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
+          const SizedBox(width: 8),
+          Icon(Icons.add_circle_outline, color: AppTheme.primary, size: 22),
         ]),
       ),
     );
