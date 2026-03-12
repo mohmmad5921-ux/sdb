@@ -25,7 +25,7 @@ const t = computed(() => isAr.value ? {
   plansTitle:'باقات الأعمال',
   plans:[
     {n:'Starter',p:'مجاني',c:'#9FE870',f:['حساب + IBAN','بطاقة واحدة','€5,000 تحويل/شهر','تقارير أساسية','دعم بريدي']},
-    {n:'Growth',p:'€19/شهر',c:'#7C3AED',f:['10 بطاقات موظف','€50,000 تحويل/شهر','فواتير إلكترونية','تقارير متقدمة','دعم أولوية']},
+    {n:'Growth',p:'€49/شهر',c:'#7C3AED',f:['10 بطاقات موظف','€50,000 تحويل/شهر','فواتير إلكترونية','تقارير متقدمة','دعم أولوية']},
     {n:'Enterprise',p:'€49/شهر',c:'#B45309',f:['50 بطاقة موظف','€200,000 تحويل/شهر','API كامل + Webhooks','مدير حساب مخصص','دعم 24/7 + SLA']},
   ],
   useCases:'قصص نجاح',
@@ -63,7 +63,7 @@ const t = computed(() => isAr.value ? {
   plansTitle:'Business Plans',
   plans:[
     {n:'Starter',p:'Free',c:'#9FE870',f:['Account + IBAN','1 card','€5,000 transfers/mo','Basic reports','Email support']},
-    {n:'Growth',p:'€19/mo',c:'#7C3AED',f:['10 employee cards','€50,000 transfers/mo','E-invoicing','Advanced reports','Priority support']},
+    {n:'Growth',p:'€49/mo',c:'#7C3AED',f:['10 employee cards','€50,000 transfers/mo','E-invoicing','Advanced reports','Priority support']},
     {n:'Enterprise',p:'€49/mo',c:'#B45309',f:['50 employee cards','€200,000 transfers/mo','Full API + Webhooks','Dedicated manager','24/7 support + SLA']},
   ],
   useCases:'Success Stories',

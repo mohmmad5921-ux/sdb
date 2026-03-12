@@ -185,7 +185,7 @@ const bizAr = {
   appFeats:[{ic:'📊',t:'تقارير متقدمة',d:'تقارير مالية وتحليلات شاملة'},{ic:'👥',t:'إدارة الصلاحيات',d:'صلاحيات مخصصة لكل مستخدم'},{ic:'💱',t:'محافظ متعددة',d:'عملات متعددة في حساب واحد'},{ic:'📋',t:'كشف حساب',d:'تصدير بيانات بصيغ متعددة'},{ic:'🔐',t:'موافقات مزدوجة',d:'نظام أمان للتحويلات الكبيرة'},{ic:'🔗',t:'API ربط',d:'تكامل مع أنظمتك المحاسبية'}],
   ctaTitle:'ابدأ مع حساب الأعمال',ctaSub:'سجّل شركتك الآن واحصل على نت بنك متكامل للأعمال.',ctaBtn:'افتح حساب أعمال ←',ctaBtn2:'تواصل مع فريق المبيعات',
   faqTag:'الأسئلة الشائعة',faqTitle:'أسئلة حسابات الأعمال',
-  faqs:[{q:'ما المتطلبات لفتح حساب أعمال؟',a:'السجل التجاري، إثبات هوية المسؤول، ونموذج فتح الحساب.'},{q:'كم يكلف حساب الأعمال؟',a:'الحساب الأساسي مجاني. الباقات المتقدمة تبدأ من €19/شهر.'},{q:'هل يمكن إضافة عدة مستخدمين؟',a:'نعم، مع صلاحيات مختلفة لكل مستخدم.'},{q:'هل يدعم API للربط مع أنظمتنا؟',a:'نعم، نوفر API RESTful كامل.'},{q:'ما هي العملات المدعومة؟',a:'ندعم 30+ عملة مع تحويل فوري.'}],
+  faqs:[{q:'ما المتطلبات لفتح حساب أعمال؟',a:'السجل التجاري، إثبات هوية المسؤول، ونموذج فتح الحساب.'},{q:'كم يكلف حساب الأعمال؟',a:'الحساب الأساسي مجاني. الباقات المتقدمة تبدأ من €49/شهر.'},{q:'هل يمكن إضافة عدة مستخدمين؟',a:'نعم، مع صلاحيات مختلفة لكل مستخدم.'},{q:'هل يدعم API للربط مع أنظمتنا؟',a:'نعم، نوفر API RESTful كامل.'},{q:'ما هي العملات المدعومة؟',a:'ندعم 30+ عملة مع تحويل فوري.'}],
 };
 const bizEn = {
   heroTag:'🏢 Business Banking Solutions',
@@ -199,7 +199,7 @@ const bizEn = {
   appFeats:[{ic:'📊',t:'Advanced Reports',d:'Comprehensive financial reports and analytics'},{ic:'👥',t:'Permission Management',d:'Custom permissions for each user'},{ic:'💱',t:'Multi Wallets',d:'Multiple currencies in one account'},{ic:'📋',t:'Statements',d:'Export data in multiple formats'},{ic:'🔐',t:'Dual Approval',d:'Security system for large transfers'},{ic:'🔗',t:'API Integration',d:'Connect with your accounting systems'}],
   ctaTitle:'Start with a Business Account',ctaSub:'Register your company now and get a complete net banking solution.',ctaBtn:'Open business account →',ctaBtn2:'Contact sales team',
   faqTag:'FAQ',faqTitle:'Business Account Questions',
-  faqs:[{q:'What are the requirements for a business account?',a:'Trade license, responsible person ID, and account opening form.'},{q:'How much does a business account cost?',a:'Basic account is free. Advanced plans start from €19/month.'},{q:'Can I add multiple users?',a:'Yes, with different permissions for each user.'},{q:'Does it support API integration?',a:'Yes, we provide a full RESTful API.'},{q:'Which currencies are supported?',a:'We support 30+ currencies with instant exchange.'}],
+  faqs:[{q:'What are the requirements for a business account?',a:'Trade license, responsible person ID, and account opening form.'},{q:'How much does a business account cost?',a:'Basic account is free. Advanced plans start from €49/month.'},{q:'Can I add multiple users?',a:'Yes, with different permissions for each user.'},{q:'Does it support API integration?',a:'Yes, we provide a full RESTful API.'},{q:'Which currencies are supported?',a:'We support 30+ currencies with instant exchange.'}],
 };
 
 /* Final merged translations */

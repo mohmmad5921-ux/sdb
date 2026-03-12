@@ -29,8 +29,47 @@ onMounted(()=>{
   tick();ti=setInterval(tick,1e3);
   obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vi')}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
   document.querySelectorAll('.bn').forEach(el=>obs.observe(el));
+  detectLocalCur();
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
+
+/* ── Local currency detection ── */
+const userCur = ref({code:'EUR',symbol:'€',rate:1});
+const localPrice = computed(() => {
+  if (userCur.value.code === 'EUR') return null;
+  const p = Math.round(49 * userCur.value.rate);
+  return `≈ ${p.toLocaleString()} ${userCur.value.code}`;
+});
+
+const tzCurMap = {
+  'America/New_York':{code:'USD',symbol:'$'},'America/Chicago':{code:'USD',symbol:'$'},
+  'America/Los_Angeles':{code:'USD',symbol:'$'},'America/Toronto':{code:'CAD',symbol:'CA$'},
+  'Europe/London':{code:'GBP',symbol:'£'},'Europe/Dublin':{code:'GBP',symbol:'£'},
+  'Europe/Copenhagen':{code:'DKK',symbol:'kr'},'Europe/Stockholm':{code:'SEK',symbol:'kr'},
+  'Europe/Oslo':{code:'NOK',symbol:'kr'},'Europe/Zurich':{code:'CHF',symbol:'CHF'},
+  'Europe/Istanbul':{code:'TRY',symbol:'₺'},
+  'Asia/Dubai':{code:'AED',symbol:'AED'},'Asia/Riyadh':{code:'SAR',symbol:'SAR'},
+  'Asia/Kuwait':{code:'KWD',symbol:'KWD'},'Asia/Doha':{code:'QAR',symbol:'QAR'},
+  'Africa/Cairo':{code:'EGP',symbol:'EGP'},'Asia/Damascus':{code:'SYP',symbol:'SYP'},
+  'Asia/Baghdad':{code:'IQD',symbol:'IQD'},'Asia/Amman':{code:'JOD',symbol:'JOD'},
+  'Asia/Tokyo':{code:'JPY',symbol:'¥'},'Australia/Sydney':{code:'AUD',symbol:'A$'},
+};
+
+function detectLocalCur() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const found = tzCurMap[tz];
+    if (found && found.code !== 'EUR') {
+      userCur.value = { ...found, rate: 1 };
+      // Fetch live rate
+      fetch('/api/public/rates').then(r=>r.json()).then(data=>{
+        if (data.rates && data.rates[found.code]) {
+          userCur.value.rate = data.rates[found.code];
+        }
+      }).catch(()=>{});
+    }
+  } catch(e) {}
+}
 
 /* ── i18n ── */
 const t = computed(() => isAr.value ? {
@@ -52,7 +91,7 @@ const t = computed(() => isAr.value ? {
   pricingTag:'الباقات',pricingTitle:'اختر الباقة المناسبة لشركتك',
   plans:[
     {name:'أساسي',price:'مجاناً',period:'',desc:'للشركات الناشئة',feats:['حساب أعمال واحد','مستخدم واحد','تحويلات محلية','كشف حساب شهري','دعم عبر البريد'],cta:'ابدأ مجاناً',popular:false},
-    {name:'احترافي',price:'€19',period:'/شهر',desc:'للشركات المتوسطة',feats:['3 حسابات أعمال','5 مستخدمين','تحويلات SWIFT','تقارير متقدمة','API كامل','دعم اولوية'],cta:'ابدأ تجربة مجانية',popular:true},
+    {name:'احترافي',price:'€49',period:'/شهر',desc:'للشركات المتوسطة',feats:['3 حسابات أعمال','5 مستخدمين','تحويلات SWIFT','تقارير متقدمة','API كامل','دعم اولوية'],cta:'ابدأ تجربة مجانية',popular:true},
     {name:'مؤسسي',price:'مخصص',period:'',desc:'للمؤسسات الكبيرة',feats:['حسابات غير محدودة','مستخدمين غير محدودين','تحويلات بدون حدود','مدير حساب مخصص','SLA مضمون','تكامل مخصص'],cta:'تواصل معنا',popular:false},
   ],
   stepsTag:'كيف تبدأ',stepsTitle:'افتح حسابك في 4 خطوات',
@@ -60,7 +99,7 @@ const t = computed(() => isAr.value ? {
   secTitle:'أمان على مستوى المؤسسات',secSub:'معايير أمان عالمية لحماية أموال شركتك',
   secItems:[{ic:'🔐',t:'تشفير AES-256'},{ic:'🛡️',t:'PCI DSS معتمد'},{ic:'✅',t:'ISO 27001'},{ic:'🏆',t:'SOC 2 Type II'},{ic:'📋',t:'GDPR متوافق'},{ic:'🌐',t:'شبكة SWIFT'}],
   faqTag:'أسئلة شائعة',faqTitle:'الأسئلة الأكثر تكراراً',
-  faqs:[{q:'ما المتطلبات لفتح حساب أعمال؟',a:'السجل التجاري، إثبات هوية المسؤول، ونموذج فتح الحساب.'},{q:'كم يكلف حساب الأعمال؟',a:'الحساب الأساسي مجاني. الباقات المتقدمة تبدأ من €19/شهر.'},{q:'هل يمكن إضافة عدة مستخدمين؟',a:'نعم، مع صلاحيات مختلفة لكل مستخدم.'},{q:'هل يدعم API للربط مع أنظمتنا؟',a:'نعم، نوفر API RESTful كامل مع وثائق شاملة.'},{q:'ما هي العملات المدعومة؟',a:'ندعم 30+ عملة مع تحويل فوري بسعر الصرف الحقيقي.'}],
+  faqs:[{q:'ما المتطلبات لفتح حساب أعمال؟',a:'السجل التجاري، إثبات هوية المسؤول، ونموذج فتح الحساب.'},{q:'كم يكلف حساب الأعمال؟',a:'الحساب الأساسي مجاني. الباقات المتقدمة تبدأ من €49/شهر.'},{q:'هل يمكن إضافة عدة مستخدمين؟',a:'نعم، مع صلاحيات مختلفة لكل مستخدم.'},{q:'هل يدعم API للربط مع أنظمتنا؟',a:'نعم، نوفر API RESTful كامل مع وثائق شاملة.'},{q:'ما هي العملات المدعومة؟',a:'ندعم 30+ عملة مع تحويل فوري بسعر الصرف الحقيقي.'}],
   ctaTitle:'ابدأ مع SDB Business',ctaSub:'افتح حساب أعمالك اليوم واحصل على نت بنك احترافي.',ctaBtn:'افتح حساب أعمال ←',ctaBtn2:'تحدث مع فريق المبيعات',
 } : {
   badge:'🏢 Business Banking Solutions',
@@ -81,7 +120,7 @@ const t = computed(() => isAr.value ? {
   pricingTag:'PRICING',pricingTitle:'Choose the right plan for your business',
   plans:[
     {name:'Starter',price:'Free',period:'',desc:'For startups',feats:['1 business account','1 user','Local transfers','Monthly statement','Email support'],cta:'Start for free',popular:false},
-    {name:'Professional',price:'€19',period:'/mo',desc:'For growing businesses',feats:['3 business accounts','5 users','SWIFT transfers','Advanced reports','Full API','Priority support'],cta:'Start free trial',popular:true},
+    {name:'Professional',price:'€49',period:'/mo',desc:'For growing businesses',feats:['3 business accounts','5 users','SWIFT transfers','Advanced reports','Full API','Priority support'],cta:'Start free trial',popular:true},
     {name:'Enterprise',price:'Custom',period:'',desc:'For large institutions',feats:['Unlimited accounts','Unlimited users','Unlimited transfers','Dedicated manager','Guaranteed SLA','Custom integration'],cta:'Contact us',popular:false},
   ],
   stepsTag:'HOW TO START',stepsTitle:'Open your account in 4 steps',
@@ -89,7 +128,7 @@ const t = computed(() => isAr.value ? {
   secTitle:'Enterprise-grade Security',secSub:'Global security standards to protect your company\'s money',
   secItems:[{ic:'🔐',t:'AES-256 Encryption'},{ic:'🛡️',t:'PCI DSS Certified'},{ic:'✅',t:'ISO 27001'},{ic:'🏆',t:'SOC 2 Type II'},{ic:'📋',t:'GDPR Compliant'},{ic:'🌐',t:'SWIFT Network'}],
   faqTag:'FAQ',faqTitle:'Frequently Asked Questions',
-  faqs:[{q:'What are the requirements for a business account?',a:'Trade license, responsible person ID, and account opening form.'},{q:'How much does a business account cost?',a:'The starter account is free. Advanced plans start from €19/month.'},{q:'Can I add multiple users?',a:'Yes, with different permissions for each user.'},{q:'Does it support API integration?',a:'Yes, we provide a full RESTful API with comprehensive documentation.'},{q:'Which currencies are supported?',a:'We support 30+ currencies with instant exchange at the real rate.'}],
+  faqs:[{q:'What are the requirements for a business account?',a:'Trade license, responsible person ID, and account opening form.'},{q:'How much does a business account cost?',a:'The starter account is free. Advanced plans start from €49/month.'},{q:'Can I add multiple users?',a:'Yes, with different permissions for each user.'},{q:'Does it support API integration?',a:'Yes, we provide a full RESTful API with comprehensive documentation.'},{q:'Which currencies are supported?',a:'We support 30+ currencies with instant exchange at the real rate.'}],
   ctaTitle:'Start with SDB Business',ctaSub:'Open your business account today and get professional net banking.',ctaBtn:'Open business account →',ctaBtn2:'Talk to sales',
 });
 </script>
@@ -197,6 +236,7 @@ const t = computed(() => isAr.value ? {
         <h3 class="bz-plan-name">{{ p.name }}</h3>
         <p class="bz-plan-desc">{{ p.desc }}</p>
         <div class="bz-plan-price">{{ p.price }}<span v-if="p.period" class="bz-plan-period">{{ p.period }}</span></div>
+        <div v-if="p.popular && localPrice" class="bz-plan-local">{{ localPrice }}</div>
         <ul class="bz-plan-feats">
           <li v-for="f in p.feats" :key="f">✓ {{ f }}</li>
         </ul>
@@ -368,6 +408,7 @@ const t = computed(() => isAr.value ? {
 .bz-plan-desc{font-size:13px;color:#8a9a7e;margin-bottom:20px}
 .bz-plan-price{font-size:44px;font-weight:900;color:#2D6A00;margin-bottom:24px}
 .bz-plan-period{font-size:16px;font-weight:500;color:#8a9a7e}
+.bz-plan-local{font-size:14px;color:#2D6A00;font-weight:600;margin-top:-16px;margin-bottom:16px;opacity:.7}
 .bz-plan-feats{list-style:none;padding:0;text-align:start;margin-bottom:28px}
 .bz-plan-feats li{padding:10px 0;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;color:#5a6b4e}
 .bz-plan-cta{display:block;padding:14px;background:rgba(45,106,0,.04);border:1px solid rgba(45,106,0,.12);color:#2D6A00;font-size:14px;font-weight:700;border-radius:12px;text-decoration:none;text-align:center;transition:all .2s}
