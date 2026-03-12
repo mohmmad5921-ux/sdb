@@ -23,6 +23,95 @@ const isDark = ref(false);
 function toggleDark() { isDark.value = !isDark.value; localStorage.setItem('sdb-dark', isDark.value ? '1' : '0'); }
 provide('isDark', isDark);
 
+/* ─── Global Currency System ─── */
+const allCurrencies = [
+  {code:'EUR',symbol:'€',flag:'🇪🇺'},{code:'USD',symbol:'$',flag:'🇺🇸'},
+  {code:'GBP',symbol:'£',flag:'🇬🇧'},{code:'DKK',symbol:'kr',flag:'🇩🇰'},
+  {code:'SEK',symbol:'kr',flag:'🇸🇪'},{code:'NOK',symbol:'kr',flag:'🇳🇴'},
+  {code:'CHF',symbol:'CHF',flag:'🇨🇭'},{code:'TRY',symbol:'₺',flag:'🇹🇷'},
+  {code:'AED',symbol:'AED',flag:'🇦🇪'},{code:'SAR',symbol:'SAR',flag:'🇸🇦'},
+  {code:'KWD',symbol:'KWD',flag:'🇰🇼'},{code:'QAR',symbol:'QAR',flag:'🇶🇦'},
+  {code:'JOD',symbol:'JOD',flag:'🇯🇴'},{code:'EGP',symbol:'EGP',flag:'🇪🇬'},
+  {code:'SYP',symbol:'SYP',flag:'🇸🇾'},{code:'IQD',symbol:'IQD',flag:'🇮🇶'},
+  {code:'LBP',symbol:'LBP',flag:'🇱🇧'},{code:'CAD',symbol:'CA$',flag:'🇨🇦'},
+  {code:'AUD',symbol:'A$',flag:'🇦🇺'},{code:'JPY',symbol:'¥',flag:'🇯🇵'},
+];
+const liveRates = ref({}); // rates vs EUR from API
+const userCurrency = ref({code:'EUR',symbol:'€',flag:'🇪🇺',rate:1});
+const showCurPicker = ref(false);
+
+function convertPrice(eurAmount) {
+  const r = userCurrency.value.rate || 1;
+  const val = eurAmount * r;
+  if (val >= 1000) return Math.round(val).toLocaleString();
+  if (val >= 1) return val.toFixed(2);
+  return val.toFixed(4);
+}
+function formatPriceWithSymbol(eurAmount) {
+  return convertPrice(eurAmount) + ' ' + userCurrency.value.code;
+}
+
+function setUserCurrency(code) {
+  const c = allCurrencies.find(x => x.code === code);
+  if (!c) return;
+  const rate = liveRates.value[code] || 1;
+  userCurrency.value = { ...c, rate };
+  showCurPicker.value = false;
+  localStorage.setItem('sdb-currency', code);
+}
+
+const tzToCur = {
+  'America/New_York':'USD','America/Chicago':'USD','America/Denver':'USD','America/Los_Angeles':'USD',
+  'America/Toronto':'CAD','America/Vancouver':'CAD',
+  'Europe/London':'GBP','Europe/Dublin':'GBP',
+  'Europe/Berlin':'EUR','Europe/Paris':'EUR','Europe/Rome':'EUR','Europe/Madrid':'EUR',
+  'Europe/Amsterdam':'EUR','Europe/Brussels':'EUR','Europe/Vienna':'EUR',
+  'Europe/Copenhagen':'DKK','Europe/Stockholm':'SEK','Europe/Oslo':'NOK','Europe/Zurich':'CHF',
+  'Europe/Istanbul':'TRY',
+  'Asia/Dubai':'AED','Asia/Riyadh':'SAR','Asia/Kuwait':'KWD','Asia/Doha':'QAR',
+  'Asia/Bahrain':'BHD','Asia/Muscat':'OMR','Asia/Amman':'JOD',
+  'Africa/Cairo':'EGP','Asia/Damascus':'SYP','Asia/Baghdad':'IQD','Asia/Beirut':'LBP',
+  'Asia/Tokyo':'JPY','Australia/Sydney':'AUD',
+};
+
+function initCurrency() {
+  // 1. Fetch live rates
+  fetch('/api/public/rates').then(r => r.json()).then(data => {
+    if (data.rates) {
+      liveRates.value = data.rates;
+      // Update widget rates too
+      if (data.rates.SYP) {
+        const syp = data.rates.SYP;
+        widgetRates.value = {
+          EUR: Math.round(syp),
+          USD: Math.round(syp / (data.rates.USD || 1.08)),
+          TRY: Math.round(syp / (data.rates.TRY || 34.2)),
+          AED: Math.round(syp / (data.rates.AED || 3.97)),
+        };
+      }
+      // 2. Detect or restore currency
+      const saved = localStorage.getItem('sdb-currency');
+      let code = saved;
+      if (!code) {
+        try { code = tzToCur[Intl.DateTimeFormat().resolvedOptions().timeZone]; } catch(e) {}
+      }
+      if (code && code !== 'EUR') {
+        const c = allCurrencies.find(x => x.code === code);
+        if (c) {
+          userCurrency.value = { ...c, rate: data.rates[code] || 1 };
+          if (!saved) localStorage.setItem('sdb-currency', code);
+        }
+      }
+    }
+  }).catch(() => {});
+}
+
+provide('userCurrency', userCurrency);
+provide('liveRates', liveRates);
+provide('convertPrice', convertPrice);
+provide('formatPriceWithSymbol', formatPriceWithSymbol);
+provide('allCurrencies', allCurrencies);
+
 /* ─── Cookie Consent ─── */
 const cookieAccepted = ref(true);
 
@@ -119,8 +208,8 @@ onMounted(() => {
   if(localStorage.getItem('sdb-dark')==='1') isDark.value = true;
   /* Cookie consent */
   if(!localStorage.getItem('sdb-cookie')) cookieAccepted.value = false;
-  /* Fetch live rates */
-  fetchWidgetRates();
+  /* Fetch live rates + detect currency */
+  initCurrency();
   /* Tawk.to Live Chat — replace with your Tawk.to property ID when ready
   const s = document.createElement('script');
   s.async = true;
@@ -400,7 +489,12 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         </div>
       </div>
       <div class="sn-right">
-
+        <div class="sn-cur-wrap" style="position:relative">
+          <button @click="showCurPicker=!showCurPicker" class="sn-lang" style="gap:4px">{{ userCurrency.flag }} {{ userCurrency.code }} <span style="font-size:8px;opacity:.4">▾</span></button>
+          <div v-if="showCurPicker" class="sn-cur-dd" @click.stop>
+            <div v-for="c in allCurrencies" :key="c.code" class="sn-cur-item" :class="{'sn-cur-active':c.code===userCurrency.code}" @click="setUserCurrency(c.code)">{{ c.flag }} <span>{{ c.code }}</span></div>
+          </div>
+        </div>
         <button @click="toggleLang" class="sn-lang">{{ isAr ? 'EN' : 'عربي' }}</button>
         <button v-if="isBiz" @click="handleLogin" class="sn-login">{{ isAr ? 'تسجيل الدخول' : 'Log in' }}</button>
         <Link :href="isBiz ? '/preregister?type=business' : '/preregister'" class="sn-cta">{{ t.cta }}</Link>
@@ -625,7 +719,11 @@ html,body{background:#fff}
 .sn-arr{font-size:10px;opacity:.7;transition:transform .2s}
 .sn-active .sn-arr{transform:rotate(180deg);opacity:.8}
 .sn-right{display:flex;align-items:center;gap:10px}
-.sn-lang{font-size:14px;font-weight:700;color:#163300;background:rgba(159,232,112,.1);border:1.5px solid rgba(159,232,112,.3);padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit}.sn-lang:hover{background:rgba(159,232,112,.2);border-color:rgba(159,232,112,.5)}
+.sn-lang{font-size:14px;font-weight:700;color:#163300;background:rgba(159,232,112,.1);border:1.5px solid rgba(159,232,112,.3);padding:8px 18px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center}.sn-lang:hover{background:rgba(159,232,112,.2);border-color:rgba(159,232,112,.5)}
+.sn-cur-dd{position:absolute;top:calc(100% + 6px);right:0;min-width:160px;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.12);padding:6px;z-index:200;max-height:300px;overflow-y:auto}
+.rtl .sn-cur-dd{right:auto;left:0}
+.sn-cur-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;transition:background .15s}.sn-cur-item:hover{background:rgba(159,232,112,.08)}.sn-cur-item span{font-weight:700;font-size:13px;color:#163300}
+.sn-cur-active{background:rgba(159,232,112,.12)!important;font-weight:800}
 .sn-cta{font-size:14px;font-weight:800;color:#fff;background:#163300;padding:10px 24px;border-radius:999px;text-decoration:none;transition:all .2s;border:none;white-space:nowrap;box-shadow:0 2px 8px rgba(22,51,0,.15)}.sn-cta:hover{background:#1e4400;transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,51,0,.2)}
 .sn-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
 .sn-hamburger span{width:22px;height:2px;background:#163300;border-radius:2px;transition:all .2s}

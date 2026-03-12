@@ -29,47 +29,16 @@ onMounted(()=>{
   tick();ti=setInterval(tick,1e3);
   obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vi')}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
   document.querySelectorAll('.bn').forEach(el=>obs.observe(el));
-  detectLocalCur();
 });
 onUnmounted(()=>{clearInterval(ti);obs?.disconnect()});
 
-/* ── Local currency detection ── */
-const userCur = ref({code:'EUR',symbol:'€',rate:1});
+/* ── Global currency (injected from SiteLayout) ── */
+const userCurrency = inject('userCurrency', ref({code:'EUR',symbol:'€',flag:'🇪🇺',rate:1}));
+const convertPrice = inject('convertPrice', v => v);
 const localPrice = computed(() => {
-  if (userCur.value.code === 'EUR') return null;
-  const p = Math.round(49 * userCur.value.rate);
-  return `≈ ${p.toLocaleString()} ${userCur.value.code}`;
+  if (userCurrency.value.code === 'EUR') return null;
+  return '≈ ' + convertPrice(49) + ' ' + userCurrency.value.code + '/';
 });
-
-const tzCurMap = {
-  'America/New_York':{code:'USD',symbol:'$'},'America/Chicago':{code:'USD',symbol:'$'},
-  'America/Los_Angeles':{code:'USD',symbol:'$'},'America/Toronto':{code:'CAD',symbol:'CA$'},
-  'Europe/London':{code:'GBP',symbol:'£'},'Europe/Dublin':{code:'GBP',symbol:'£'},
-  'Europe/Copenhagen':{code:'DKK',symbol:'kr'},'Europe/Stockholm':{code:'SEK',symbol:'kr'},
-  'Europe/Oslo':{code:'NOK',symbol:'kr'},'Europe/Zurich':{code:'CHF',symbol:'CHF'},
-  'Europe/Istanbul':{code:'TRY',symbol:'₺'},
-  'Asia/Dubai':{code:'AED',symbol:'AED'},'Asia/Riyadh':{code:'SAR',symbol:'SAR'},
-  'Asia/Kuwait':{code:'KWD',symbol:'KWD'},'Asia/Doha':{code:'QAR',symbol:'QAR'},
-  'Africa/Cairo':{code:'EGP',symbol:'EGP'},'Asia/Damascus':{code:'SYP',symbol:'SYP'},
-  'Asia/Baghdad':{code:'IQD',symbol:'IQD'},'Asia/Amman':{code:'JOD',symbol:'JOD'},
-  'Asia/Tokyo':{code:'JPY',symbol:'¥'},'Australia/Sydney':{code:'AUD',symbol:'A$'},
-};
-
-function detectLocalCur() {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const found = tzCurMap[tz];
-    if (found && found.code !== 'EUR') {
-      userCur.value = { ...found, rate: 1 };
-      // Fetch live rate
-      fetch('/api/public/rates').then(r=>r.json()).then(data=>{
-        if (data.rates && data.rates[found.code]) {
-          userCur.value.rate = data.rates[found.code];
-        }
-      }).catch(()=>{});
-    }
-  } catch(e) {}
-}
 
 /* ── i18n ── */
 const t = computed(() => isAr.value ? {
