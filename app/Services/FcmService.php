@@ -94,9 +94,11 @@ class FcmService
             $sa = json_decode(file_get_contents($saPath), true);
             $now = time();
 
-            // Build JWT
-            $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'RS256']));
-            $payload = base64_encode(json_encode([
+            // Build JWT (requires URL-safe base64)
+            $b64url = fn($data) => rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+
+            $header = $b64url(json_encode(['typ' => 'JWT', 'alg' => 'RS256']));
+            $payload = $b64url(json_encode([
                 'iss' => $sa['client_email'],
                 'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
                 'aud' => 'https://oauth2.googleapis.com/token',
@@ -106,7 +108,7 @@ class FcmService
 
             $signInput = $header . '.' . $payload;
             openssl_sign($signInput, $signature, $sa['private_key'], OPENSSL_ALGO_SHA256);
-            $jwt = $signInput . '.' . base64_encode($signature);
+            $jwt = $signInput . '.' . $b64url($signature);
 
             // Exchange JWT for access token
             $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
@@ -115,6 +117,7 @@ class FcmService
             ]);
 
             if ($response->successful()) {
+                Log::info('FCM: OAuth2 token obtained successfully');
                 return $response->json('access_token');
             }
 
