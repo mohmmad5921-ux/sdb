@@ -181,6 +181,13 @@ class ApiService {
     return {'success': r.statusCode == 201, ...jsonDecode(r.body)};
   }
 
+  // AI Chat
+  static Future<Map<String, dynamic>> aiChat(String message, List<Map<String, String>> history) async {
+    final r = await http.post(Uri.parse('$baseUrl/ai-chat'),
+      headers: await _headers(), body: jsonEncode({'message': message, 'history': history}));
+    return {'success': r.statusCode == 200, ...jsonDecode(r.body)};
+  }
+
   // FCM Token
   static Future<void> updateFcmToken(String token, {String? platform, String? apnsToken}) async {
     try {

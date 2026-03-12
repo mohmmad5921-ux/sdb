@@ -137,6 +137,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 _buildQuickAction(Icons.download_rounded, t.receive, AppTheme.bgMuted, false, () => _showReceive(accounts, t)),
                 _buildQuickAction(Icons.add_circle_outline_rounded, t.addMoney, AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/deposit')),
                 _buildQuickAction(Icons.swap_horiz_rounded, t.exchange, AppTheme.bgMuted, false, () => Navigator.pushNamed(context, '/exchange')),
+                _buildQuickAction(Icons.smart_toy_rounded, 'SDB AI', const Color(0xFF8B5CF6), true, () => Navigator.pushNamed(context, '/ai-chat')),
               ]),
             ),
             const SizedBox(height: 24),

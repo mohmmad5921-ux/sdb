@@ -633,4 +633,109 @@ class MobileApiController extends Controller
         }
         return 'EU';
     }
+
+    /* ==================== AI CHAT ==================== */
+
+    public function aiChat(Request $request)
+    {
+        $request->validate(['message' => 'required|string|max:2000']);
+        $user = $request->user();
+
+        // Build user context (only their own data)
+        $accounts = $user->accounts()->with('currency')->get();
+        $recentTx = Transaction::where(function ($q) use ($accounts) {
+            $ids = $accounts->pluck('id');
+            $q->whereIn('from_account_id', $ids)->orWhereIn('to_account_id', $ids);
+        })->latest()->take(10)->get();
+
+        $cards = Card::where('user_id', $user->id)->get();
+
+        $context = [
+            'user_name' => $user->full_name ?? ($user->first_name . ' ' . $user->last_name),
+            'kyc_status' => $user->kyc_status ?? 'pending',
+            'accounts' => $accounts->map(fn($a) => [
+                'currency' => $a->currency->code ?? '',
+                'balance' => $a->balance,
+                'iban' => $a->iban,
+            ])->toArray(),
+            'recent_transactions' => $recentTx->map(fn($tx) => [
+                'type' => $tx->type,
+                'amount' => $tx->amount,
+                'currency' => $tx->currency->code ?? '',
+                'status' => $tx->status,
+                'description' => $tx->description,
+                'date' => $tx->created_at?->format('Y-m-d H:i'),
+            ])->toArray(),
+            'cards' => $cards->map(fn($c) => [
+                'type' => $c->type,
+                'last4' => $c->last_four ?? substr($c->card_number ?? '', -4),
+                'status' => $c->is_frozen ? 'frozen' : 'active',
+            ])->toArray(),
+        ];
+
+        $accountsJson = json_encode($context['accounts'], JSON_UNESCAPED_UNICODE);
+        $txJson = json_encode($context['recent_transactions'], JSON_UNESCAPED_UNICODE);
+        $cardsJson = json_encode($context['cards'], JSON_UNESCAPED_UNICODE);
+        $userName = $context['user_name'];
+        $kycStatus = $context['kyc_status'];
+
+        $systemPrompt = <<<PROMPT
+أنت "SDB AI" — المساعد الذكي لعملاء بنك SDB الرقمي.
+أنت تتحدث مع العميل: {$userName}
+
+## بيانات العميل الحالية:
+- حالة التحقق: {$kycStatus}
+- المحافظ: {$accountsJson}
+- آخر المعاملات: {$txJson}
+- البطاقات: {$cardsJson}
+
+## تعليماتك:
+- أجب بالعربية دائماً وبأسلوب ودود
+- ساعد العميل بأسئلته عن حسابه: الرصيد، المعاملات، البطاقات، KYC
+- لا تكشف بيانات حساسة كاملة (مثل IBAN كاملاً) — اعرض آخر 4 أرقام فقط
+- إذا سأل عن شيء خارج حسابه، أجبه بشكل عام عن خدمات البنك
+- اذا سأل عن رصيده أو محافظه، اعرضها بشكل مرتب وجميل
+- كن مختصراً ومفيداً
+- استخدم إيموجي
+- لا تذكر أنك تستخدم Gemini — أنت "SDB AI"
+PROMPT;
+
+        $reply = \App\Services\GeminiService::chat(
+            $request->message,
+            $request->input('history', []),
+            null // context is in system prompt
+        );
+
+        // Override system prompt for this call
+        $apiKey = config('services.gemini.api_key');
+        if ($apiKey) {
+            $contents = [];
+            foreach ($request->input('history', []) as $msg) {
+                $contents[] = [
+                    'role' => $msg['role'] === 'assistant' ? 'model' : 'user',
+                    'parts' => [['text' => $msg['content']]],
+                ];
+            }
+            $contents[] = ['role' => 'user', 'parts' => [['text' => $request->message]]];
+
+            $models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+            foreach ($models as $model) {
+                $response = \Illuminate\Support\Facades\Http::timeout(30)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                    [
+                        'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
+                        'contents' => $contents,
+                        'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 1024],
+                    ]
+                );
+                if ($response->successful()) {
+                    $reply = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? $reply;
+                    break;
+                }
+                if ($response->status() !== 429) break;
+            }
+        }
+
+        return response()->json(['reply' => $reply]);
+    }
 }

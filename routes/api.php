@@ -107,6 +107,9 @@ Route::prefix('v1/mobile')->group(function () {
             // Wallets
             Route::get('/wallets/available', [MobileApiController::class, 'availableWallets']);
             Route::post('/wallets/open', [MobileApiController::class, 'openWallet']);
+
+            // AI Chat
+            Route::post('/ai-chat', [MobileApiController::class, 'aiChat']);
         }
     );
 });
