@@ -37,6 +37,8 @@ class User extends Authenticatable
         'customer_number',
         'stripe_cardholder_id',
         'fcm_token',
+        'device_platform',
+        'apns_token',
     ];
 
     protected static function booted(): void

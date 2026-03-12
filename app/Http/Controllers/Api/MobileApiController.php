@@ -485,7 +485,20 @@ class MobileApiController extends Controller
     public function updateFcmToken(Request $request)
     {
         $request->validate(['fcm_token' => 'required|string']);
-        $request->user()->update(['fcm_token' => $request->fcm_token]);
+
+        $updateData = [
+            'fcm_token' => $request->fcm_token,
+        ];
+
+        if ($request->has('device_platform')) {
+            $updateData['device_platform'] = $request->device_platform;
+        }
+
+        if ($request->has('apns_token')) {
+            $updateData['apns_token'] = $request->apns_token;
+        }
+
+        $request->user()->update($updateData);
         return response()->json(['message' => 'FCM token updated']);
     }
 

@@ -39,19 +39,32 @@ class PushNotificationService {
         }
       }
 
+      // Get APNS token for iOS (to send directly via APNs)
+      String? apnsTokenStr;
+      if (Platform.isIOS) {
+        apnsTokenStr = await _fcm.getAPNSToken();
+        if (apnsTokenStr != null) {
+          debugPrint('🔔 APNS Token: ${apnsTokenStr.substring(0, 20)}...');
+        }
+      }
+
       // Get FCM token
       final token = await _fcm.getToken();
       if (token != null) {
         debugPrint('🔔 FCM Token: ${token.substring(0, 20)}...');
-        await _sendTokenToServer(token);
+        await _sendTokenToServer(token, apnsToken: apnsTokenStr);
       } else {
         debugPrint('🔔 FCM Token is null');
       }
 
       // Listen for token refresh
-      _fcm.onTokenRefresh.listen((newToken) {
+      _fcm.onTokenRefresh.listen((newToken) async {
         debugPrint('🔔 FCM Token refreshed');
-        _sendTokenToServer(newToken);
+        String? newApns;
+        if (Platform.isIOS) {
+          newApns = await _fcm.getAPNSToken();
+        }
+        _sendTokenToServer(newToken, apnsToken: newApns);
       });
 
       // Handle foreground messages
@@ -71,10 +84,11 @@ class PushNotificationService {
   }
 
   /// Send FCM token to the backend
-  static Future<void> _sendTokenToServer(String token) async {
+  static Future<void> _sendTokenToServer(String token, {String? apnsToken}) async {
     try {
-      await ApiService.updateFcmToken(token);
-      debugPrint('🔔 FCM token sent to server');
+      final platform = Platform.isIOS ? 'ios' : 'android';
+      await ApiService.updateFcmToken(token, platform: platform, apnsToken: apnsToken);
+      debugPrint('🔔 FCM token sent to server (platform: $platform)');
     } catch (e) {
       debugPrint('🔔 Failed to send FCM token: $e');
     }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -169,15 +170,22 @@ class ApiService {
   }
 
   // FCM Token
-  static Future<void> updateFcmToken(String token) async {
+  static Future<void> updateFcmToken(String token, {String? platform, String? apnsToken}) async {
     try {
       final headers = await _headers();
       debugPrint('🔔 Sending FCM token to server...');
       debugPrint('🔔 Auth header present: ${headers.containsKey('Authorization')}');
+      final body = {
+        'fcm_token': token,
+        'device_platform': platform ?? (Platform.isIOS ? 'ios' : 'android'),
+      };
+      if (apnsToken != null) {
+        body['apns_token'] = apnsToken;
+      }
       final r = await http.post(
         Uri.parse('$baseUrl/fcm-token'),
         headers: headers,
-        body: jsonEncode({'fcm_token': token}),
+        body: jsonEncode(body),
       );
       debugPrint('🔔 FCM token update response: ${r.statusCode} - ${r.body}');
       if (r.statusCode != 200) {
@@ -187,7 +195,7 @@ class ApiService {
         final r2 = await http.post(
           Uri.parse('$baseUrl/fcm-token'),
           headers: retryHeaders,
-          body: jsonEncode({'fcm_token': token}),
+          body: jsonEncode(body),
         );
         debugPrint('🔔 FCM token retry response: ${r2.statusCode} - ${r2.body}');
       }
