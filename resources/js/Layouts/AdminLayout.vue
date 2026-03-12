@@ -1,6 +1,6 @@
 <script setup>
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 
 const sidebarOpen = ref(true);
 const page = usePage();
@@ -36,6 +36,33 @@ const closeSearch = () => { searchOpen.value = false; };
 // Notifications badge
 const pendingKyc = computed(() => page.props.auth?.admin_stats?.pending_kyc || 0);
 const newUsersToday = computed(() => page.props.auth?.admin_stats?.new_users_today || 0);
+
+// AI Chat
+const aiOpen = ref(false);
+const aiMsg = ref('');
+const aiMessages = ref([]);
+const aiLoading = ref(false);
+const aiChatBody = ref(null);
+
+const sendAiMsg = async () => {
+  const msg = aiMsg.value.trim();
+  if (!msg || aiLoading.value) return;
+  aiMessages.value.push({ role: 'user', content: msg });
+  aiMsg.value = '';
+  aiLoading.value = true;
+  nextTick(() => { if (aiChatBody.value) aiChatBody.value.scrollTop = aiChatBody.value.scrollHeight; });
+  try {
+    const history = aiMessages.value.slice(0, -1).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content }));
+    const res = await fetch(route('admin.ai-chat'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+      body: JSON.stringify({ message: msg, history }),
+    });
+    const data = await res.json();
+    aiMessages.value.push({ role: 'assistant', content: data.reply || 'خطأ' });
+  } catch (e) { aiMessages.value.push({ role: 'assistant', content: '❌ خطأ في الاتصال' }); }
+  aiLoading.value = false;
+  nextTick(() => { if (aiChatBody.value) aiChatBody.value.scrollTop = aiChatBody.value.scrollHeight; });
+};
 const notifCount = computed(() => pendingKyc.value + newUsersToday.value);
 
 const sideGroups = [
@@ -205,6 +232,48 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
         <slot />
       </div>
     </main>
+
+    <!-- AI Chat Floating Button -->
+    <button class="ai-fab" @click="aiOpen = !aiOpen" :class="{active: aiOpen}" title="مساعد SDB الذكي">
+      <span v-if="!aiOpen">🤖</span>
+      <span v-else>✕</span>
+    </button>
+
+    <!-- AI Chat Panel -->
+    <div class="ai-panel" v-if="aiOpen">
+      <div class="ai-header">
+        <div class="ai-header-info">
+          <span class="ai-avatar">🤖</span>
+          <div>
+            <div class="ai-name">مساعد SDB</div>
+            <div class="ai-status">Gemini AI · متصل</div>
+          </div>
+        </div>
+        <button class="ai-close" @click="aiOpen = false">✕</button>
+      </div>
+      <div class="ai-body" ref="aiChatBody">
+        <div v-if="!aiMessages.length" class="ai-welcome">
+          <div class="ai-welcome-icon">🤖</div>
+          <div class="ai-welcome-title">مرحباً! أنا مساعد SDB</div>
+          <div class="ai-welcome-text">أقدر أساعدك بكل شي بالأدمن — KYC، العملاء، المعاملات، والمزيد</div>
+          <div class="ai-suggestions">
+            <button @click="aiMsg = 'كيف أتحقق من هوية عميل جديد؟'; sendAiMsg()">🪪 كيف أتحقق من هوية عميل؟</button>
+            <button @click="aiMsg = 'ما هي إحصائيات اليوم؟'; sendAiMsg()">📊 إحصائيات اليوم</button>
+            <button @click="aiMsg = 'كيف أجمّد حساب مشبوه؟'; sendAiMsg()">🧊 تجميد حساب مشبوه</button>
+          </div>
+        </div>
+        <div v-for="(m, i) in aiMessages" :key="i" :class="['ai-msg', m.role === 'user' ? 'ai-msg-user' : 'ai-msg-bot']">
+          <div class="ai-msg-bubble" v-html="m.content.replace(/\n/g, '<br>')"></div>
+        </div>
+        <div v-if="aiLoading" class="ai-msg ai-msg-bot">
+          <div class="ai-msg-bubble ai-typing"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="ai-input-wrap">
+        <input v-model="aiMsg" @keyup.enter="sendAiMsg" placeholder="اكتب سؤالك..." class="ai-input" :disabled="aiLoading" />
+        <button @click="sendAiMsg" class="ai-send" :disabled="aiLoading || !aiMsg.trim()">➤</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -340,4 +409,60 @@ defineProps({ title: { type: String, default: '' }, subtitle: { type: String, de
   .adl-nav-label, .adl-logo-text, .adl-nav-badge { display: none; }
   .adl-topbar-center { display: none; }
 }
+
+/* ═══ AI Chat Widget ═══ */
+.ai-fab { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 26px; border: none; cursor: pointer; box-shadow: 0 6px 24px rgba(16,185,129,0.4); z-index: 9999; transition: all .3s; display: flex; align-items: center; justify-content: center; }
+.ai-fab:hover { transform: scale(1.1); box-shadow: 0 8px 32px rgba(16,185,129,0.5); }
+.ai-fab.active { background: #64748b; box-shadow: 0 4px 16px rgba(100,116,139,0.4); }
+.ai-fab::before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; opacity: 0; animation: ai-pulse 2s ease infinite; }
+@keyframes ai-pulse { 0%,100% { opacity: 0; transform: scale(1); } 50% { opacity: 0.2; transform: scale(1.4); } }
+
+.ai-panel { position: fixed; bottom: 90px; left: 24px; width: 380px; max-height: 520px; background: #fff; border-radius: 20px; box-shadow: 0 12px 48px rgba(0,0,0,0.15); z-index: 9999; display: flex; flex-direction: column; overflow: hidden; animation: ai-slideUp .3s ease; }
+@keyframes ai-slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.ai-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.ai-header-info { display: flex; align-items: center; gap: 12px; }
+.ai-avatar { font-size: 28px; width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.ai-name { font-weight: 700; font-size: 15px; }
+.ai-status { font-size: 11px; opacity: 0.85; }
+.ai-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; opacity: 0.7; transition: opacity .2s; }
+.ai-close:hover { opacity: 1; }
+
+.ai-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 340px; direction: rtl; }
+.ai-body::-webkit-scrollbar { width: 4px; }
+.ai-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+.ai-welcome { text-align: center; padding: 20px 10px; }
+.ai-welcome-icon { font-size: 48px; margin-bottom: 12px; }
+.ai-welcome-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+.ai-welcome-text { font-size: 13px; color: #64748b; margin-bottom: 16px; line-height: 1.5; }
+.ai-suggestions { display: flex; flex-direction: column; gap: 6px; }
+.ai-suggestions button { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; font-size: 13px; cursor: pointer; transition: all .2s; text-align: right; color: #334155; }
+.ai-suggestions button:hover { background: #e2e8f0; border-color: #10b981; color: #059669; }
+
+.ai-msg { display: flex; }
+.ai-msg-user { justify-content: flex-end; }
+.ai-msg-bot { justify-content: flex-start; }
+.ai-msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.6; word-wrap: break-word; }
+.ai-msg-user .ai-msg-bubble { background: #10b981; color: white; border-bottom-left-radius: 4px; }
+.ai-msg-bot .ai-msg-bubble { background: #f1f5f9; color: #0f172a; border-bottom-right-radius: 4px; }
+
+.ai-typing { display: flex; align-items: center; gap: 4px; padding: 12px 18px; }
+.ai-typing span { width: 7px; height: 7px; background: #94a3b8; border-radius: 50%; animation: ai-dot 1.4s ease infinite; }
+.ai-typing span:nth-child(2) { animation-delay: .2s; }
+.ai-typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes ai-dot { 0%,100% { transform: translateY(0); opacity: .4; } 50% { transform: translateY(-6px); opacity: 1; } }
+
+.ai-input-wrap { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e2e8f0; background: #fafafa; }
+.ai-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; font-size: 13px; direction: rtl; outline: none; transition: border .2s; }
+.ai-input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.1); }
+.ai-send { width: 40px; height: 40px; border-radius: 12px; background: #10b981; color: white; border: none; font-size: 16px; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; }
+.ai-send:hover:not(:disabled) { background: #059669; }
+.ai-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .ai-panel { left: 8px; right: 8px; width: auto; bottom: 80px; max-height: 70vh; }
+  .ai-fab { bottom: 16px; left: 16px; width: 50px; height: 50px; font-size: 22px; }
+}
 </style>
+

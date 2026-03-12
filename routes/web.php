@@ -409,6 +409,17 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::post('/businesses/{id}/notify', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'sendNotification'])->name('businesses.notify');
     Route::post('/businesses/{business}/employees/{employee}/role', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'updateEmployeeRole'])->name('businesses.updateEmployeeRole');
     Route::post('/businesses/{business}/employees/{employee}/remove', [\App\Http\Controllers\Admin\BusinessAccountController::class, 'removeEmployee'])->name('businesses.removeEmployee');
+
+    // AI Assistant
+    Route::post('/ai-chat', function (\Illuminate\Http\Request $request) {
+        $request->validate(['message' => 'required|string|max:2000']);
+        $reply = \App\Services\GeminiService::chat(
+            $request->message,
+            $request->input('history', []),
+            $request->input('context')
+        );
+        return response()->json(['reply' => $reply]);
+    })->name('ai-chat');
 });
 
 require __DIR__ . '/auth.php';
