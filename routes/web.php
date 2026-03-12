@@ -76,6 +76,7 @@ Route::get('/crypto', fn() => Inertia::render('Legal/CryptoInfo'))->name('crypto
 Route::get('/invite', fn() => Inertia::render('Legal/Referral'))->name('referral.public');
 Route::get('/referral', fn() => Inertia::render('Legal/Referral'))->name('referral');
 Route::get('/compare', fn() => Inertia::render('Legal/Compare'))->name('compare');
+Route::get('/lirtna', fn() => Inertia::render('Legal/Lirtna'))->name('lirtna');
 Route::get('/status', fn() => Inertia::render('Legal/Status'))->name('status');
 
 // Waitlist (hero email form)
