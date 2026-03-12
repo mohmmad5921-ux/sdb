@@ -146,6 +146,7 @@ const megaNav = computed(() => isAr.value ? [
       {l:'التحويلات',h:'/transfers-info',d:'محلي، SEPA، SWIFT'},
       {l:'العملات',h:'/currencies',d:'30+ عملة'},
       {l:'الليرة السورية 🇸🇾',h:'/syrian-lira',d:'أسعار صرف حية'},
+      {l:'ليرتنا 💱',h:'/lirtna',d:'محوّل الليرة السورية'},
       {l:'العملات الرقمية 🪙',h:'/crypto',d:'BTC، ETH، USDT + 9'},
       {l:'أسعار الصرف',h:'/exchange-rates',d:'حاسبة تفاعلية'},
       {l:'دفع الفواتير',h:'/bills',d:'كهرباء، ماء، إنترنت (قريباً)'},
@@ -209,6 +210,7 @@ const megaNav = computed(() => isAr.value ? [
       {l:'Transfers',h:'/transfers-info',d:'Local, SEPA, SWIFT'},
       {l:'Currencies',h:'/currencies',d:'30+ currencies'},
       {l:'Syrian Lira 🇸🇾',h:'/syrian-lira',d:'Live SYP exchange rates'},
+      {l:'Lirtna 💱',h:'/lirtna',d:'Syrian Lira converter'},
       {l:'Crypto 🪙',h:'/crypto',d:'BTC, ETH, USDT + 9'},
       {l:'Exchange Rates',h:'/exchange-rates',d:'Interactive calculator'},
       {l:'Bill Payments',h:'/bills',d:'Electricity, water, internet (Soon)'},
@@ -268,6 +270,7 @@ const t = computed(() => isAr.value ? {
     { label: 'دفع الفواتير', href: '/bills' },
     { label: 'التحليلات', href: '/analytics' },
     { label: 'المعاشات', href: '/salary' },
+    { label: 'ليرتنا', href: '/lirtna' },
   ],
   col4h: 'الأمان', col4: [
     { label: 'الحماية', href: '/security' },
@@ -311,6 +314,7 @@ const t = computed(() => isAr.value ? {
     { label: 'Bill Payments', href: '/bills' },
     { label: 'Analytics', href: '/analytics' },
     { label: 'Salary', href: '/salary' },
+    { label: 'Lirtna', href: '/lirtna' },
   ],
   col4h: 'Security', col4: [
     { label: 'Protection', href: '/security' },
