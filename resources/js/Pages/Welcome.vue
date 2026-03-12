@@ -25,11 +25,20 @@ async function submitEmail() {
 
 /* ── Transfer Widget ── */
 const sendAmt = ref('1,000');
-const exchangeRate = ref(14250);
+const twCur = ref({code:'DKK',flag:'🇩🇰',rate:6.87}); // default DKK, updated by auto-detect
+const exchangeRate = ref(14250); // SYP per unit of twCur
 const fee = 2.99;
 const numericAmt = computed(()=> parseFloat(sendAmt.value.replace(/,/g,''))||0);
-const receivedAmt = computed(()=> (numericAmt.value * exchangeRate.value).toLocaleString());
+const sypRate = computed(()=> {
+  // rate of twCur is vs USD; exchangeRate is SYP per USD
+  // so SYP per twCur unit = exchangeRate / twCur.rate
+  if (twCur.value.rate === 0) return exchangeRate.value;
+  return Math.round(exchangeRate.value / twCur.value.rate);
+});
+const receivedAmt = computed(()=> (numericAmt.value * sypRate.value).toLocaleString());
+const showTwDD = ref(false);
 function onSendInput(e){const v=e.target.value.replace(/[^0-9]/g,'');sendAmt.value=v?parseInt(v).toLocaleString():''}
+function pickTwCur(c) { twCur.value = {code:c.code, flag:c.flag, rate:c.rate}; showTwDD.value = false; }
 
 /* ── Calculator ── */
 const currencies = ref([
@@ -104,10 +113,12 @@ onMounted(async () => {
   if (detected) {
     const idx = currencies.value.findIndex(c => c.code === detected);
     if (idx !== -1) {
+      const c = currencies.value[idx];
+      // Set transfer widget currency
+      twCur.value = {code:c.code, flag:c.flag, rate:c.rate};
+      // Set calculator currency
       calcFrom.value = idx;
-      // If detected currency is SYP, user is in Syria — show SYP→EUR
       if (detected === 'SYP') {
-        calcFrom.value = idx;
         calcTo.value = currencies.value.findIndex(c => c.code === 'EUR');
       } else {
         calcTo.value = 0; // SYP is first
@@ -303,9 +314,13 @@ const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'1
     <div class="tw-glow"></div>
     <div class="tw">
       <div class="tw-head"><h3 class="tw-title">{{ t.twTitle }}</h3><span class="tw-instant">⚡ {{ t.twInstant }}</span></div>
-      <div class="tw-field"><label class="tw-lbl">{{ t.twSend }}</label><div class="tw-row"><input type="text" :value="sendAmt" @input="onSendInput" class="tw-inp" placeholder="0"/><div class="tw-cur">🇺🇸 <span>USD</span></div></div></div>
+      <div class="tw-field"><label class="tw-lbl">{{ t.twSend }}</label><div class="tw-row"><input type="text" :value="sendAmt" @input="onSendInput" class="tw-inp" placeholder="0"/><div class="tw-cur tw-cur-pick" @click="showTwDD=!showTwDD">{{ twCur.flag }} <span>{{ twCur.code }}</span> <span class="tw-cur-arr">▾</span>
+        <div v-if="showTwDD" class="tw-dd" @click.stop>
+          <div v-for="c in currencies" :key="c.code" class="tw-dd-item" :class="{'tw-dd-active':c.code===twCur.code}" @click="pickTwCur(c)">{{ c.flag }} <span>{{ c.code }}</span></div>
+        </div>
+      </div></div></div>
       <div class="tw-swap"><div class="tw-swap-circle">↓</div><div class="tw-line"></div></div>
-      <div class="tw-info"><span>✓ {{ fee }} USD {{ t.twFee }}</span><span>1 USD = {{ exchangeRate.toLocaleString() }} SYP</span></div>
+      <div class="tw-info"><span>✓ {{ fee }} {{ twCur.code }} {{ t.twFee }}</span><span>1 {{ twCur.code }} = {{ sypRate.toLocaleString() }} SYP</span></div>
       <div class="tw-field"><label class="tw-lbl">{{ t.twGets }}</label><div class="tw-row tw-row-result"><span class="tw-result">{{ receivedAmt }}</span><div class="tw-cur tw-cur-result">🇸🇾 <span>SYP</span></div></div></div>
       <div class="tw-delivery"><span>⚡ {{ t.twTime }}</span><span class="tw-bold">{{ t.twSecs }}</span></div>
       <Link href="/preregister" class="tw-cta">{{ t.twCta }}</Link>
@@ -498,6 +513,12 @@ const floatingSymbols = [{s:'$',top:'10%',left:'5%'},{s:'€',top:'20%',right:'1
 .tw-inp{font-size:28px;font-weight:900;color:#163300;border:none;outline:none;background:transparent;width:100%;font-family:inherit}.tw-inp::-webkit-inner-spin-button,.tw-inp::-webkit-outer-spin-button{-webkit-appearance:none}
 .tw-result{font-size:28px;font-weight:900;color:#163300;flex:1}
 .tw-cur{display:flex;align-items:center;gap:8px;background:#f8f8f8;border-radius:12px;padding:8px 16px;flex-shrink:0;cursor:pointer;transition:background .2s;font-size:18px}.tw-cur:hover{background:#f0f0f0}.tw-cur span{font-weight:700;color:#163300;font-size:14px}
+.tw-cur-pick{position:relative;border:1.5px solid rgba(159,232,112,.15)}.tw-cur-pick:hover{border-color:#9FE870}
+.tw-cur-arr{font-size:10px!important;color:rgba(10,10,10,.3)!important;font-weight:400!important}
+.tw-dd{position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:200px;background:#fff;border:1px solid rgba(159,232,112,.1);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.12);padding:6px;z-index:100;max-height:260px;overflow-y:auto}
+.rtl .tw-dd{left:auto;right:0}
+.tw-dd-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:15px;transition:background .15s}.tw-dd-item:hover{background:rgba(159,232,112,.06)}.tw-dd-item span{font-weight:700;font-size:13px;color:#163300}
+.tw-dd-active{background:rgba(159,232,112,.1)!important}
 .tw-cur-result{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .tw-swap{position:relative;padding:12px 0;display:flex;align-items:center;justify-content:center}
 .tw-swap-circle{width:40px;height:40px;background:#163300;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;box-shadow:0 4px 12px rgba(22,51,0,.2);z-index:1}
