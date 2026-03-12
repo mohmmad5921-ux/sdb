@@ -25,6 +25,13 @@ class FetchExchangeRates extends Command
                 if ($data['result'] === 'success') {
                     $rates = $data['rates'];
 
+                    // SYP: API returns official central bank rate (~130).
+                    // Override with market rate (configurable via .env or admin)
+                    $sypMarket = (float) env('SYP_MARKET_RATE', 13500);
+                    if ($sypMarket > 0) {
+                        $rates['SYP'] = $sypMarket;
+                    }
+
                     // Store rates vs EUR (base)
                     Cache::put('live_rates', $rates, now()->addHours(6));
                     Cache::put('live_rates_updated', now()->toISOString(), now()->addHours(6));
