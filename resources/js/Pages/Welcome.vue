@@ -33,16 +33,30 @@ function onSendInput(e){const v=e.target.value.replace(/[^0-9]/g,'');sendAmt.val
 
 /* ── Calculator ── */
 const currencies = ref([
+  {code:'SYP',name:'Syrian Pound',nameAr:'ليرة سورية',flag:'🇸🇾',rate:14250},
   {code:'USD',name:'US Dollar',nameAr:'دولار أمريكي',flag:'🇺🇸',rate:1},
   {code:'EUR',name:'Euro',nameAr:'يورو',flag:'🇪🇺',rate:0.92},
   {code:'GBP',name:'British Pound',nameAr:'جنيه إسترليني',flag:'🇬🇧',rate:0.79},
+  {code:'DKK',name:'Danish Krone',nameAr:'كرونة دنماركية',flag:'🇩🇰',rate:6.87},
+  {code:'SEK',name:'Swedish Krona',nameAr:'كرونة سويدية',flag:'🇸🇪',rate:10.3},
+  {code:'NOK',name:'Norwegian Krone',nameAr:'كرونة نرويجية',flag:'🇳🇴',rate:10.6},
+  {code:'CHF',name:'Swiss Franc',nameAr:'فرنك سويسري',flag:'🇨🇭',rate:0.88},
+  {code:'TRY',name:'Turkish Lira',nameAr:'ليرة تركية',flag:'🇹🇷',rate:32.1},
   {code:'AED',name:'UAE Dirham',nameAr:'درهم إماراتي',flag:'🇦🇪',rate:3.67},
   {code:'SAR',name:'Saudi Riyal',nameAr:'ريال سعودي',flag:'🇸🇦',rate:3.75},
-  {code:'SYP',name:'Syrian Pound',nameAr:'ليرة سورية',flag:'🇸🇾',rate:14250},
-  {code:'TRY',name:'Turkish Lira',nameAr:'ليرة تركية',flag:'🇹🇷',rate:32.1},
+  {code:'KWD',name:'Kuwaiti Dinar',nameAr:'دينار كويتي',flag:'🇰🇼',rate:0.31},
+  {code:'QAR',name:'Qatari Riyal',nameAr:'ريال قطري',flag:'🇶🇦',rate:3.64},
+  {code:'BHD',name:'Bahraini Dinar',nameAr:'دينار بحريني',flag:'🇧🇭',rate:0.38},
+  {code:'OMR',name:'Omani Rial',nameAr:'ريال عماني',flag:'🇴🇲',rate:0.39},
+  {code:'JOD',name:'Jordanian Dinar',nameAr:'دينار أردني',flag:'🇯🇴',rate:0.71},
   {code:'EGP',name:'Egyptian Pound',nameAr:'جنيه مصري',flag:'🇪🇬',rate:50.8},
+  {code:'LBP',name:'Lebanese Pound',nameAr:'ليرة لبنانية',flag:'🇱🇧',rate:89500},
+  {code:'IQD',name:'Iraqi Dinar',nameAr:'دينار عراقي',flag:'🇮🇶',rate:1310},
+  {code:'CAD',name:'Canadian Dollar',nameAr:'دولار كندي',flag:'🇨🇦',rate:1.36},
+  {code:'AUD',name:'Australian Dollar',nameAr:'دولار أسترالي',flag:'🇦🇺',rate:1.52},
+  {code:'JPY',name:'Japanese Yen',nameAr:'ين ياباني',flag:'🇯🇵',rate:149},
 ]);
-const calcAmt = ref('1000');const calcFrom = ref(0);const calcTo = ref(5);
+const calcAmt = ref('1000');const calcFrom = ref(1);const calcTo = ref(0);
 const showFromDD = ref(false);const showToDD = ref(false);
 const calcResult = computed(()=>{const a=parseFloat(calcAmt.value)||0;return(a*currencies.value[calcTo.value].rate/currencies.value[calcFrom.value].rate).toLocaleString(undefined,{maximumFractionDigits:2})});
 const calcFee = computed(()=> ((parseFloat(calcAmt.value)||0)*0.005).toFixed(2));
@@ -91,10 +105,12 @@ onMounted(async () => {
     const idx = currencies.value.findIndex(c => c.code === detected);
     if (idx !== -1) {
       calcFrom.value = idx;
-      // If detected currency is SYP, swap — user likely wants to convert FROM their currency TO SYP
+      // If detected currency is SYP, user is in Syria — show SYP→EUR
       if (detected === 'SYP') {
         calcFrom.value = idx;
         calcTo.value = currencies.value.findIndex(c => c.code === 'EUR');
+      } else {
+        calcTo.value = 0; // SYP is first
       }
     }
   }
@@ -104,22 +120,14 @@ onMounted(async () => {
     const data = await res.json();
     if (data.rates) {
       const r = data.rates;
-      // Update currencies array with live rates (all vs USD)
       const usdPerEur = r.USD || 1.08;
-      const updMap = {
-        USD: 1,
-        EUR: (r.EUR || 1) / usdPerEur,
-        GBP: (r.GBP || 0.86) / usdPerEur,
-        AED: (r.AED || 3.97) / usdPerEur,
-        SAR: (r.SAR || 4.05) / usdPerEur,
-        SYP: (r.SYP || 13500) / usdPerEur,
-        TRY: (r.TRY || 34.2) / usdPerEur,
-        EGP: (r.EGP || 53.2) / usdPerEur,
-      };
-      currencies.value = currencies.value.map(c => ({
-        ...c,
-        rate: updMap[c.code] !== undefined ? parseFloat(updMap[c.code].toFixed(4)) : c.rate,
-      }));
+      // Dynamically update all currencies (rates are vs EUR from API, convert to vs USD)
+      currencies.value = currencies.value.map(c => {
+        if (r[c.code] !== undefined) {
+          return { ...c, rate: parseFloat((r[c.code] / usdPerEur).toFixed(4)) };
+        }
+        return c;
+      });
       // Update transfer widget rate (1 USD = X SYP)
       exchangeRate.value = Math.round((r.SYP || 13500) / usdPerEur);
     }
