@@ -102,27 +102,35 @@ PROMPT;
                 'parts' => [['text' => $message]],
             ];
 
-            $response = Http::timeout(30)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}",
-                [
-                    'system_instruction' => [
-                        'parts' => [['text' => $systemPrompt]],
-                    ],
-                    'contents' => $contents,
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'maxOutputTokens' => 1024,
-                    ],
-                ]
-            );
+            $models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+            $lastError = '';
 
-            if ($response->successful()) {
-                $data = $response->json();
-                return $data['candidates'][0]['content']['parts'][0]['text']
-                    ?? '❌ لم أتمكن من إنشاء رد';
+            foreach ($models as $model) {
+                $response = Http::timeout(30)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                    [
+                        'system_instruction' => [
+                            'parts' => [['text' => $systemPrompt]],
+                        ],
+                        'contents' => $contents,
+                        'generationConfig' => [
+                            'temperature' => 0.7,
+                            'maxOutputTokens' => 1024,
+                        ],
+                    ]
+                );
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return $data['candidates'][0]['content']['parts'][0]['text']
+                        ?? '❌ لم أتمكن من إنشاء رد';
+                }
+
+                $lastError = $response->body();
+                if ($response->status() !== 429) break; // Only retry on rate limit
             }
 
-            Log::warning('Gemini API error: ' . $response->body());
+            Log::warning('Gemini API error: ' . $lastError);
             return '❌ حدث خطأ في الاتصال بالذكاء الاصطناعي. حاول مرة أخرى.';
 
         } catch (\Exception $e) {
