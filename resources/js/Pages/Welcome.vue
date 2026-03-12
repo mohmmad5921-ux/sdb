@@ -49,8 +49,56 @@ const calcFee = computed(()=> ((parseFloat(calcAmt.value)||0)*0.005).toFixed(2))
 const calcRate = computed(()=> (currencies.value[calcTo.value].rate/currencies.value[calcFrom.value].rate).toFixed(4));
 function swapCalc(){const t=calcFrom.value;calcFrom.value=calcTo.value;calcTo.value=t}
 
-/* ── Fetch live rates ── */
+/* ── Fetch live rates + auto-detect user currency ── */
+const tzToCurrency = {
+  'America/New_York':'USD','America/Chicago':'USD','America/Denver':'USD','America/Los_Angeles':'USD',
+  'America/Toronto':'CAD','America/Vancouver':'CAD',
+  'Europe/London':'GBP','Europe/Dublin':'GBP',
+  'Europe/Berlin':'EUR','Europe/Paris':'EUR','Europe/Rome':'EUR','Europe/Madrid':'EUR',
+  'Europe/Amsterdam':'EUR','Europe/Brussels':'EUR','Europe/Vienna':'EUR','Europe/Athens':'EUR',
+  'Europe/Helsinki':'EUR','Europe/Lisbon':'EUR',
+  'Europe/Copenhagen':'DKK',
+  'Europe/Stockholm':'SEK',
+  'Europe/Oslo':'NOK',
+  'Europe/Zurich':'CHF',
+  'Europe/Istanbul':'TRY',
+  'Asia/Dubai':'AED','Asia/Abu_Dhabi':'AED',
+  'Asia/Riyadh':'SAR',
+  'Asia/Kuwait':'KWD',
+  'Asia/Qatar':'QAR','Asia/Doha':'QAR',
+  'Asia/Bahrain':'BHD',
+  'Asia/Muscat':'OMR',
+  'Asia/Amman':'JOD',
+  'Africa/Cairo':'EGP',
+  'Asia/Damascus':'SYP','Asia/Aleppo':'SYP',
+  'Asia/Baghdad':'IQD',
+  'Asia/Beirut':'LBP',
+  'Asia/Tokyo':'JPY',
+  'Australia/Sydney':'AUD','Australia/Melbourne':'AUD',
+};
+
+function detectUserCurrency() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return tzToCurrency[tz] || null;
+  } catch (e) { return null; }
+}
+
 onMounted(async () => {
+  // Auto-detect user currency from timezone
+  const detected = detectUserCurrency();
+  if (detected) {
+    const idx = currencies.value.findIndex(c => c.code === detected);
+    if (idx !== -1) {
+      calcFrom.value = idx;
+      // If detected currency is SYP, swap — user likely wants to convert FROM their currency TO SYP
+      if (detected === 'SYP') {
+        calcFrom.value = idx;
+        calcTo.value = currencies.value.findIndex(c => c.code === 'EUR');
+      }
+    }
+  }
+
   try {
     const res = await fetch('/api/public/rates');
     const data = await res.json();

@@ -37,6 +37,28 @@ const isLive = ref(false);
 const updatedAt = ref(null);
 
 onMounted(async () => {
+  // Auto-detect user currency from timezone
+  const tzMap = {
+    'America/New_York':'USD','America/Chicago':'USD','America/Denver':'USD','America/Los_Angeles':'USD',
+    'America/Toronto':'CAD','America/Vancouver':'CAD',
+    'Europe/London':'GBP','Europe/Dublin':'GBP',
+    'Europe/Berlin':'EUR','Europe/Paris':'EUR','Europe/Rome':'EUR','Europe/Madrid':'EUR',
+    'Europe/Amsterdam':'EUR','Europe/Brussels':'EUR','Europe/Vienna':'EUR',
+    'Europe/Copenhagen':'DKK','Europe/Stockholm':'SEK','Europe/Oslo':'NOK','Europe/Zurich':'CHF',
+    'Europe/Istanbul':'TRY',
+    'Asia/Dubai':'AED','Asia/Riyadh':'SAR','Asia/Kuwait':'KWD','Asia/Doha':'QAR',
+    'Asia/Bahrain':'BHD','Asia/Muscat':'OMR','Asia/Amman':'JOD',
+    'Africa/Cairo':'EGP','Asia/Damascus':'SYP','Asia/Baghdad':'IQD','Asia/Beirut':'LBP',
+    'Asia/Tokyo':'JPY','Australia/Sydney':'AUD',
+  };
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const detected = tzMap[tz];
+    if (detected && detected !== 'SYP') {
+      fromCur.value = detected;
+    }
+  } catch (e) {}
+
   try {
     const res = await fetch('/api/public/rates');
     const data = await res.json();
