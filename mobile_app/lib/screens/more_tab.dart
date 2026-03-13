@@ -76,16 +76,16 @@ class _MoreTabState extends State<MoreTab> {
         final can = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
         if (!can) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric not available'), backgroundColor: AppTheme.danger));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('المصادقة البيومترية غير متوفرة'), backgroundColor: AppTheme.danger));
           }
           return;
         }
-        final didAuth = await _auth.authenticate(localizedReason: 'Enable biometric login', options: const AuthenticationOptions(biometricOnly: true));
+        final didAuth = await _auth.authenticate(localizedReason: 'تفعيل تسجيل الدخول بالبصمة', options: const AuthenticationOptions(biometricOnly: true));
         if (didAuth) {
           await _storage.write(key: 'biometric_enabled', value: 'true');
           if (mounted) {
             setState(() => _biometrics = true);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login enabled ✓'), backgroundColor: AppTheme.primary));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل تسجيل الدخول بالبصمة ✓'), backgroundColor: AppTheme.primary));
           }
         }
       } catch (_) {}
@@ -93,7 +93,7 @@ class _MoreTabState extends State<MoreTab> {
       await _storage.write(key: 'biometric_enabled', value: 'false');
       if (mounted) {
         setState(() => _biometrics = false);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biometric login disabled'), backgroundColor: AppTheme.textSecondary));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تعطيل تسجيل الدخول بالبصمة'), backgroundColor: AppTheme.textSecondary));
       }
     }
   }
