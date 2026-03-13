@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
+
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 
@@ -450,7 +450,58 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
 ═══════════════════════════
 ''';
 
-    Share.share(receiptText, subject: 'إيصال معاملة SDB #$reference');
+    showModalBottomSheet(
+      context: ctx,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetCtx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollCtrl) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            const Text('إيصال المعاملة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: SingleChildScrollView(
+                  controller: scrollCtrl,
+                  child: Text(receiptText, style: const TextStyle(fontSize: 13, height: 1.6, color: AppTheme.textPrimary, fontFamily: 'Courier')),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: receiptText));
+                  Navigator.pop(sheetCtx);
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(content: Text('تم نسخ الإيصال ✅'), backgroundColor: AppTheme.primary),
+                  );
+                },
+                icon: const Icon(Icons.copy_rounded, size: 18, color: Colors.white),
+                label: const Text('نسخ الإيصال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 
   // ── Report Problem ──
