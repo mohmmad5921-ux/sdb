@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/push_notification_service.dart';
@@ -29,6 +32,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   String? _error;
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
+
+  // Google Places autocomplete
+  static const _placesKey = 'AIzaSyDl7lQagSvn7TV1jpVdIyoDaE1NwTAI5oE';
+  List<Map<String, dynamic>> _placeSuggestions = [];
+  bool _showSuggestions = false;
+  Timer? _debounce;
 
   // Registration dropdowns
   String? _employment;
@@ -130,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   @override
-  void dispose() { _animCtrl.dispose(); super.dispose(); }
+  void dispose() { _animCtrl.dispose(); _debounce?.cancel(); super.dispose(); }
 
   void _showHelpDialog() {
     Navigator.pushNamed(context, '/help');
@@ -317,6 +326,132 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     } on PlatformException catch (_) {}
   }
 
+  // ─── Google Places Autocomplete ───
+  Future<void> _searchPlaces(String query) async {
+    if (query.length < 3) {
+      setState(() { _placeSuggestions = []; _showSuggestions = false; });
+      return;
+    }
+    try {
+      final url = Uri.parse('https://maps.googleapis.com/maps/api/place/autocomplete/json'
+        '?input=${Uri.encodeComponent(query)}'
+        '&types=address'
+        '&language=en'
+        '&key=$_placesKey');
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        if (data['status'] == 'OK') {
+          setState(() {
+            _placeSuggestions = List<Map<String, dynamic>>.from(data['predictions']);
+            _showSuggestions = _placeSuggestions.isNotEmpty;
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _selectPlace(String placeId) async {
+    setState(() { _showSuggestions = false; _placeSuggestions = []; });
+    try {
+      final url = Uri.parse('https://maps.googleapis.com/maps/api/place/details/json'
+        '?place_id=$placeId'
+        '&fields=address_components,formatted_address'
+        '&key=$_placesKey');
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        if (data['status'] == 'OK') {
+          final comps = List<Map<String, dynamic>>.from(data['result']['address_components']);
+          String street = '', number = '', postal = '', city = '';
+          for (final c in comps) {
+            final types = List<String>.from(c['types']);
+            if (types.contains('street_number')) number = c['long_name'];
+            if (types.contains('route')) street = c['long_name'];
+            if (types.contains('postal_code')) postal = c['long_name'];
+            if (types.contains('locality')) city = c['long_name'];
+            if (city.isEmpty && types.contains('administrative_area_level_2')) city = c['long_name'];
+          }
+          setState(() {
+            _street.text = number.isNotEmpty ? '$street $number' : street;
+            _postalCode.text = postal;
+            _city.text = city;
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Widget _buildAddressAutocomplete(Color cardBg, Color borderC, Color textW, Color textMuted) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Container(
+        height: 56,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: cardBg,
+          border: Border.all(color: borderC),
+        ),
+        child: TextField(
+          controller: _street,
+          keyboardType: TextInputType.streetAddress,
+          style: TextStyle(color: textW, fontSize: 15),
+          onChanged: (v) {
+            _debounce?.cancel();
+            _debounce = Timer(const Duration(milliseconds: 400), () => _searchPlaces(v));
+          },
+          decoration: InputDecoration(
+            hintText: _addrLabels['street'],
+            hintStyle: TextStyle(color: textMuted, fontSize: 14),
+            prefixIcon: const Icon(Icons.home_outlined, color: Color(0xFF888888), size: 20),
+            suffixIcon: _street.text.isNotEmpty
+              ? IconButton(icon: Icon(Icons.clear, color: textMuted, size: 18), onPressed: () {
+                  setState(() { _street.clear(); _placeSuggestions = []; _showSuggestions = false; });
+                })
+              : const Icon(Icons.search, color: Color(0xFF888888), size: 18),
+            border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 18),
+          ),
+        ),
+      ),
+      // Suggestions dropdown
+      if (_showSuggestions && _placeSuggestions.isNotEmpty)
+        Container(
+          margin: const EdgeInsets.only(top: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderC),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4))],
+          ),
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: _placeSuggestions.length,
+            itemBuilder: (_, i) {
+              final p = _placeSuggestions[i];
+              return InkWell(
+                onTap: () => _selectPlace(p['place_id']),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Row(children: [
+                    Icon(Icons.location_on_outlined, size: 18, color: AppTheme.primary),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(
+                      p['description'] ?? '',
+                      style: TextStyle(fontSize: 13, color: textW),
+                      maxLines: 2, overflow: TextOverflow.ellipsis,
+                    )),
+                  ]),
+                ),
+              );
+            },
+          ),
+        ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = L10n.of(context);
@@ -364,8 +499,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       const SizedBox(height: 10),
                       _buildPhoneField(cardBg, borderC, textW, textMuted, t),
                       const SizedBox(height: 10),
-                      // Address fields — country-specific
-                      _buildDarkField(_addrLabels['street']!, _street, Icons.home_outlined, TextInputType.streetAddress, cardBg, borderC, textW, textMuted),
+                      // Address fields — country-specific with autocomplete
+                      _buildAddressAutocomplete(cardBg, borderC, textW, textMuted),
                       const SizedBox(height: 10),
                       Row(children: [
                         Expanded(child: _buildDarkField(_addrLabels['postal']!, _postalCode, null, TextInputType.number, cardBg, borderC, textW, textMuted)),
