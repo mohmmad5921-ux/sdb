@@ -278,7 +278,7 @@ class ApiService {
   }
 
   /// Upload a single additional document (requested by admin)
-  static Future<Map<String, dynamic>> uploadAdditionalDocument(String filePath, {String docType = 'additional'}) async {
+  static Future<Map<String, dynamic>> uploadAdditionalDocument(String filePath, {String docType = 'other'}) async {
     final t = await token;
     final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/kyc/upload-additional'));
     request.headers.addAll({
