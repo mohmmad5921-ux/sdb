@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
 import 'dart:async';
@@ -17,6 +18,8 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
   String _userName = '';
   String? _docRequestMessage; // طلب مستندات إضافية
   bool _hasDocRequest = false;
+  bool _uploading = false;
+  bool _uploadSuccess = false;
 
   @override
   void initState() {
@@ -81,6 +84,71 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
         }
       }
     } catch (_) {}
+  }
+
+  Future<void> _pickAndUploadDoc() async {
+    final picker = ImagePicker();
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppTheme.bgLight,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text('اختر طريقة الرفع', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+          const SizedBox(height: 20),
+          ListTile(
+            leading: Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(color: AppTheme.primary.withAlpha(25), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.camera_alt_rounded, color: AppTheme.primary),
+            ),
+            title: const Text('الكاميرا', style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('التقط صورة للمستند'),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(color: const Color(0xFFF59E0B).withAlpha(25), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.photo_library_rounded, color: Color(0xFFF59E0B)),
+            ),
+            title: const Text('معرض الصور', style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text('اختر صورة من المعرض'),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+          const SizedBox(height: 16),
+        ]),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    final picked = await picker.pickImage(source: source, imageQuality: 85);
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploading = true);
+    try {
+      final r = await ApiService.uploadKycDocuments(
+        idFrontPath: picked.path,
+        idBackPath: picked.path,
+        selfiePath: picked.path,
+      );
+      if (mounted) {
+        setState(() {
+          _uploading = false;
+          if (r['success'] == true) {
+            _uploadSuccess = true;
+            _hasDocRequest = false;
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _uploading = false);
+    }
   }
 
   Future<void> _logout() async {
@@ -154,7 +222,25 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                 _statusStep('🔒', 'تفعيل الحساب', false),
 
                 // Document request alert
-                if (_hasDocRequest) ...[
+                if (_uploadSuccess) ...[                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppTheme.success, width: 1.5),
+                    ),
+                    child: const Column(children: [
+                      Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 40),
+                      SizedBox(height: 10),
+                      Text('شكراً لك! 🎉', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166534))),
+                      SizedBox(height: 6),
+                      Text('تم رفع المستند بنجاح. سيتم مراجعته من قبل فريقنا.', textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Color(0xFF166534), height: 1.5)),
+                    ]),
+                  ),
+                ] else if (_hasDocRequest) ...[
                   const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
@@ -177,17 +263,22 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                       ),
                       const SizedBox(height: 14),
                       GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, '/kyc'),
+                        onTap: _uploading ? null : _pickAndUploadDoc,
                         child: Container(
                           width: double.infinity, height: 44,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xFFf59e0b), Color(0xFFd97706)]),
+                            gradient: _uploading ? null : const LinearGradient(colors: [Color(0xFFf59e0b), Color(0xFFd97706)]),
+                            color: _uploading ? const Color(0xFFd97706).withAlpha(128) : null,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Icon(Icons.upload_file_rounded, color: Colors.white, size: 18),
-                            SizedBox(width: 8),
-                            Text('رفع المستندات', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            if (_uploading) ...[                              const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                              const SizedBox(width: 8),
+                              const Text('جاري الرفع...', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                            ] else ...[                              const Icon(Icons.upload_file_rounded, color: Colors.white, size: 18),
+                              const SizedBox(width: 8),
+                              const Text('رفع المستندات', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                            ],
                           ]),
                         ),
                       ),
