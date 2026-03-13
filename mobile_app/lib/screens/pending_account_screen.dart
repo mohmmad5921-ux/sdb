@@ -15,6 +15,8 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
   late AnimationController _fadeCtrl;
   Timer? _checkTimer;
   String _userName = '';
+  String? _docRequestMessage; // طلب مستندات إضافية
+  bool _hasDocRequest = false;
 
   @override
   void initState() {
@@ -23,8 +25,12 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
     _pulseAnim = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
     _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))..forward();
     _loadProfile();
+    _checkNotifications();
     // Check status every 30 seconds
-    _checkTimer = Timer.periodic(const Duration(seconds: 30), (_) => _checkStatus());
+    _checkTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _checkStatus();
+      _checkNotifications();
+    });
   }
 
   @override
@@ -51,6 +57,30 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
         Navigator.pushReplacementNamed(context, '/home');
       }
     }
+  }
+
+  Future<void> _checkNotifications() async {
+    try {
+      final res = await ApiService.getNotifications();
+      if (res['success'] == true) {
+        final data = res['data'];
+        final List notifs = data is Map ? (data['data'] ?? []) : (data is List ? data : []);
+        // ابحث عن آخر إشعار طلب مستندات
+        for (final n in notifs) {
+          final title = (n['title'] ?? '').toString();
+          final body = (n['body'] ?? '').toString();
+          if (title.contains('مستندات') || title.contains('Documents') || title.contains('📄')) {
+            if (mounted) {
+              setState(() {
+                _hasDocRequest = true;
+                _docRequestMessage = body;
+              });
+            }
+            break;
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _logout() async {
@@ -119,8 +149,50 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                 // Status steps
                 _statusStep('✅', 'تم إنشاء الحساب', true),
                 _statusStep('✅', 'تم التحقق من رقم الهاتف', true),
-                _statusStep('⏳', 'مراجعة الحساب من الإدارة', false),
+                _statusStep(_hasDocRequest ? '📄' : '⏳', 'مراجعة الحساب من الإدارة', false),
                 _statusStep('🔒', 'تفعيل الحساب', false),
+
+                // Document request alert
+                if (_hasDocRequest) ...[
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3CD),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFFFD93D), width: 1.5),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      const Row(children: [
+                        Icon(Icons.warning_amber_rounded, color: Color(0xFFB8860B), size: 22),
+                        SizedBox(width: 8),
+                        Text('📄 مطلوب مستندات إضافية', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF856404))),
+                      ]),
+                      const SizedBox(height: 10),
+                      Text(
+                        _docRequestMessage ?? 'يرجى رفع المستندات المطلوبة لإكمال عملية التحقق.',
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF856404), height: 1.6),
+                      ),
+                      const SizedBox(height: 14),
+                      GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, '/kyc'),
+                        child: Container(
+                          width: double.infinity, height: 44,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFFf59e0b), Color(0xFFd97706)]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(Icons.upload_file_rounded, color: Colors.white, size: 18),
+                            SizedBox(width: 8),
+                            Text('رفع المستندات', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                          ]),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ],
 
                 const SizedBox(height: 36),
 
