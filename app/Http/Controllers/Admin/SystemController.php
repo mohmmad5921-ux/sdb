@@ -105,6 +105,20 @@ class SystemController extends Controller
         ]);
         AdminActivityLog::log('account.balance_adjust', 'account', $account->id, ['type' => $request->type, 'amount' => $request->amount, 'reason' => $request->reason, 'user_name' => $account->user->full_name ?? '']);
 
+        // Create transaction record so it appears in user's transaction history
+        \App\Models\Transaction::create([
+            'reference_number' => \App\Models\Transaction::generateReference(),
+            'from_account_id' => $request->type === 'debit' ? $account->id : null,
+            'to_account_id' => $request->type === 'credit' ? $account->id : null,
+            'currency_id' => $account->currency_id,
+            'amount' => abs($request->amount),
+            'fee' => 0,
+            'type' => $request->type === 'credit' ? 'deposit' : 'withdrawal',
+            'status' => 'completed',
+            'description' => $request->reason,
+            'completed_at' => now(),
+        ]);
+
         // Send push notification to customer
         try {
             $account->refresh();
