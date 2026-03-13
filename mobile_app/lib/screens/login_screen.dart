@@ -94,6 +94,62 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     Navigator.pushNamed(context, '/help');
   }
 
+  void _showDuplicateDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 56, height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: const Icon(Icons.warning_amber_rounded, color: Color(0xFFF59E0B), size: 30),
+            ),
+            const SizedBox(height: 16),
+            const Text('حساب موجود مسبقاً', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A1A1A))),
+            const SizedBox(height: 10),
+            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: Color(0xFF666666), height: 1.5)),
+            const SizedBox(height: 24),
+            // Login button
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(ctx);
+                setState(() { _isRegister = false; _error = null; });
+              },
+              child: Container(
+                width: double.infinity, height: 50,
+                decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(14)),
+                child: const Center(child: Text('تسجيل الدخول', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Support button
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, '/help');
+              },
+              child: Container(
+                width: double.infinity, height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE5E5E5)),
+                ),
+                child: const Center(child: Text('التواصل مع الدعم', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1A1A1A)))),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     final t = L10n.of(context);
 
@@ -137,7 +193,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             }
           }
         } else {
-          setState(() => _error = res['data']?['message'] ?? t.connectionError);
+          // Check if it's a duplicate account detection
+          final action = res['data']?['action'];
+          if (action == 'login_or_support' && mounted) {
+            _showDuplicateDialog(res['data']?['message'] ?? 'هذا الحساب مرتبط بحساب آخر');
+          } else {
+            setState(() => _error = res['data']?['message'] ?? t.connectionError);
+          }
         }
       } else {
         // Login — can be via email or phone

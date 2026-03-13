@@ -9,10 +9,12 @@ use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\Currency;
 use App\Models\KycDocument;
+use App\Mail\DuplicateAccountAlert;
 use App\Services\AccountService;
 use App\Services\CardService;
 use App\Services\CurrencyService;
 use App\Services\DepositService;
+use Illuminate\Support\Facades\Mail;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
@@ -58,6 +60,79 @@ class MobileApiController extends Controller
 
     public function register(Request $request)
     {
+        // ── Duplicate Detection (before validation) ──
+        $duplicateField = null;
+        $duplicateMessage = null;
+
+        if ($request->email && \App\Models\User::where('email', $request->email)->exists()) {
+            $duplicateField = 'email';
+            $duplicateMessage = 'هذا البريد الإلكتروني مرتبط بحساب آخر. يرجى تسجيل الدخول أو التواصل مع الدعم.';
+        }
+        if ($request->phone && \App\Models\User::where('phone', $request->phone)->exists()) {
+            $duplicateField = 'phone';
+            $duplicateMessage = 'رقم الهاتف مرتبط بحساب آخر. يرجى تسجيل الدخول أو التواصل مع الدعم.';
+        }
+        if ($request->username && \App\Models\User::where('username', strtolower($request->username))->exists()) {
+            $duplicateField = 'username';
+            $duplicateMessage = 'اسم المستخدم مرتبط بحساب آخر. يرجى اختيار اسم مختلف.';
+        }
+
+        if ($duplicateField) {
+            // Find the existing user who owns this data
+            $existingUser = null;
+            $attemptValue = '';
+            if ($duplicateField === 'email') {
+                $existingUser = \App\Models\User::where('email', $request->email)->first();
+                $attemptValue = $request->email;
+            } elseif ($duplicateField === 'phone') {
+                $existingUser = \App\Models\User::where('phone', $request->phone)->first();
+                $attemptValue = $request->phone;
+            } elseif ($duplicateField === 'username') {
+                $existingUser = \App\Models\User::where('username', strtolower($request->username))->first();
+                $attemptValue = $request->username;
+            }
+
+            if ($existingUser) {
+                // 1. Log to admin system (Notification visible in admin panel)
+                Notification::create([
+                    'user_id' => $existingUser->id,
+                    'title' => 'محاولة تسجيل حساب مكرر',
+                    'body' => "محاولة إنشاء حساب جديد باستخدام {$duplicateField}: {$attemptValue} — IP: {$request->ip()}",
+                    'type' => 'security_alert',
+                    'data' => [
+                        'duplicate_field' => $duplicateField,
+                        'attempt_value' => $attemptValue,
+                        'attempt_ip' => $request->ip(),
+                        'attempt_name' => $request->full_name ?? '',
+                        'attempt_email' => $request->email ?? '',
+                        'attempt_phone' => $request->phone ?? '',
+                    ],
+                ]);
+
+                // 2. Send email alert to existing account owner
+                try {
+                    $fieldLabels = ['email' => 'البريد الإلكتروني', 'phone' => 'رقم الهاتف', 'username' => 'اسم المستخدم'];
+                    Mail::to($existingUser->email)->send(new DuplicateAccountAlert(
+                        userName: $existingUser->full_name,
+                        duplicateField: $fieldLabels[$duplicateField] ?? $duplicateField,
+                        attemptValue: $attemptValue,
+                        attemptIp: $request->ip(),
+                        attemptTime: now()->format('Y-m-d H:i:s'),
+                    ));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send duplicate account alert email: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'message' => $duplicateMessage,
+                'duplicate_field' => $duplicateField,
+                'action' => 'login_or_support',
+                'support_email' => 'support@sdb-bank.com',
+                'errors' => [$duplicateField => [$duplicateMessage]],
+            ], 422);
+        }
+
         $request->validate([
             'full_name' => 'required|string|max:255',
             'username' => 'required|string|min:3|max:30|unique:users|regex:/^[a-zA-Z0-9._]+$/',
