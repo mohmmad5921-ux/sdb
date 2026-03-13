@@ -152,6 +152,8 @@ class MobileApiController extends Controller
             'status' => 'pending',
             'kyc_status' => 'pending',
             'role' => 'customer',
+            'country' => $request->country,
+            'address' => $request->address,
         ]);
 
         // NOTE: Bank accounts are NOT created here.

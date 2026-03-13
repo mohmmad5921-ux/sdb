@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _name = TextEditingController();
   final _confirmPass = TextEditingController();
   final _phone = TextEditingController();
+  final _address = TextEditingController();
   bool _loading = false, _obscure = true, _isRegister = false;
   final _auth = LocalAuthentication();
   bool _canBiometric = false;
@@ -183,6 +184,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           'employment': _employment ?? '',
           'expected_annual_volume': _annualVolume ?? '',
           'currency': _currency,
+          'country': _selectedCountryName,
+          'address': _address.text,
         });
         if (res['success'] == true) {
           if (mounted) {
@@ -316,6 +319,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       _buildDarkField(t.fullName, _name, Icons.person_outline_rounded, TextInputType.name, cardBg, borderC, textW, textMuted),
                       const SizedBox(height: 10),
                       _buildPhoneField(cardBg, borderC, textW, textMuted, t),
+                      const SizedBox(height: 10),
+                      _buildDarkField('العنوان / Address', _address, Icons.home_outlined, TextInputType.streetAddress, cardBg, borderC, textW, textMuted),
                       const SizedBox(height: 10),
                       _buildDarkField(t.email, _email, Icons.mail_outline_rounded, TextInputType.emailAddress, cardBg, borderC, textW, textMuted),
                       const SizedBox(height: 10),

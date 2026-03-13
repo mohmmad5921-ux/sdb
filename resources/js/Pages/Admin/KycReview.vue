@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 
 const props = defineProps({ documents: Object, filters: Object, stats: Object, userQueue: Array });
 const flash = computed(() => usePage().props.flash || {});
@@ -18,6 +18,56 @@ const msgType = ref('approved');
 const customMsg = ref('');
 const expandedUser = ref(null);
 const selectedDocTypes = ref([]);
+
+// Chat state
+const chatMessages = ref([]);
+const chatReply = ref('');
+const chatLoading = ref(false);
+const chatSending = ref(false);
+const chatMsgsRef = ref(null);
+
+// Load chat when user is expanded
+watch(expandedUser, async (u) => {
+  chatMessages.value = [];
+  chatReply.value = '';
+  if (u?.user_id) {
+    chatLoading.value = true;
+    try {
+      const res = await fetch(`/admin/chat/${u.user_id}/messages`);
+      const data = await res.json();
+      chatMessages.value = data.messages || [];
+      await nextTick();
+      if (chatMsgsRef.value) chatMsgsRef.value.scrollTop = chatMsgsRef.value.scrollHeight;
+    } catch (e) { console.error(e); }
+    chatLoading.value = false;
+  }
+});
+
+async function sendChatReply() {
+  if (!chatReply.value.trim() || chatSending.value || !expandedUser.value) return;
+  chatSending.value = true;
+  try {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const res = await fetch(`/admin/chat/${expandedUser.value.user_id}/reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+      body: JSON.stringify({ message: chatReply.value }),
+    });
+    const data = await res.json();
+    if (data.message) {
+      chatMessages.value.push(data.message);
+      chatReply.value = '';
+      await nextTick();
+      if (chatMsgsRef.value) chatMsgsRef.value.scrollTop = chatMsgsRef.value.scrollHeight;
+    }
+  } catch (e) { console.error(e); }
+  chatSending.value = false;
+}
+
+function formatChatTime(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleString('ar', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
 
 const approve = (doc) => router.post(route('admin.kyc.review', doc.id), { action: 'approve' }, { preserveScroll: true });
 const reject = (doc) => {
@@ -209,6 +259,29 @@ const alertColor = (type) => {
               </div>
             </div>
 
+            <!-- Document Data (from MRZ scanner) -->
+            <div v-if="expandedUser.document_number || expandedUser.document_type || expandedUser.sex" class="ky-docs-list-section">
+              <h4 class="ky-sub-title">🪪 بيانات المستند (مسحوبة تلقائياً)</h4>
+              <div class="ky-info-grid">
+                <div class="ky-info-card" v-if="expandedUser.document_type" style="background:#ecfdf5;border-color:#a7f3d0">
+                  <div class="ky-info-label">📋 نوع المستند</div>
+                  <div class="ky-info-value">{{ {passport:'جواز سفر',id_card:'بطاقة هوية',residence:'إقامة'}[expandedUser.document_type] || expandedUser.document_type }}</div>
+                </div>
+                <div class="ky-info-card" v-if="expandedUser.document_number" style="background:#ecfdf5;border-color:#a7f3d0">
+                  <div class="ky-info-label">🔢 رقم المستند</div>
+                  <div class="ky-info-value" style="font-family:monospace;letter-spacing:1px">{{ expandedUser.document_number }}</div>
+                </div>
+                <div class="ky-info-card" v-if="expandedUser.document_expiry" style="background:#ecfdf5;border-color:#a7f3d0">
+                  <div class="ky-info-label">📆 تاريخ الانتهاء</div>
+                  <div class="ky-info-value">{{ expandedUser.document_expiry }}</div>
+                </div>
+                <div class="ky-info-card" v-if="expandedUser.sex" style="background:#ecfdf5;border-color:#a7f3d0">
+                  <div class="ky-info-label">⚧ الجنس</div>
+                  <div class="ky-info-value">{{ expandedUser.sex === 'M' ? 'ذكر' : expandedUser.sex === 'F' ? 'أنثى' : expandedUser.sex }}</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Documents List -->
             <div class="ky-docs-list-section">
               <h4 class="ky-sub-title">📎 المستندات المرفقة ({{ expandedUser.docs_count }})</h4>
@@ -227,6 +300,30 @@ const alertColor = (type) => {
               <div class="ky-alerts-title">🔍 تنبيهات أمنية</div>
               <div v-for="(alert, i) in expandedUser.duplicates" :key="i" class="ky-alert-item" :style="{borderColor: alertColor(alert.type)}">
                 <span class="ky-alert-msg">{{ alert.message }}</span>
+              </div>
+            </div>
+
+            <!-- Inline Chat Section -->
+            <div class="ky-docs-list-section">
+              <h4 class="ky-sub-title">💬 محادثات الدعم</h4>
+              <div class="ky-chat-inline">
+                <div class="ky-chat-msgs" ref="chatMsgsRef">
+                  <div v-if="chatLoading" style="text-align:center;padding:20px;color:#94a3b8">جاري التحميل...</div>
+                  <div v-else-if="!chatMessages.length" style="text-align:center;padding:20px;color:#94a3b8">لا توجد رسائل</div>
+                  <div v-for="m in chatMessages" :key="m.id" :class="['ky-chat-msg', m.sender_type]">
+                    <div class="ky-chat-sender">
+                      <span v-if="m.sender_type === 'user'">👤 {{ expandedUser.user_name }}</span>
+                      <span v-else-if="m.sender_type === 'ai'" style="color:#10b981">🤖 SDB AI</span>
+                      <span v-else style="color:#3b82f6">👤 {{ m.sender_name || 'موظف' }}</span>
+                    </div>
+                    <div class="ky-chat-bubble">{{ m.content }}</div>
+                    <div class="ky-chat-time">{{ formatChatTime(m.created_at) }}</div>
+                  </div>
+                </div>
+                <div class="ky-chat-input-row">
+                  <input v-model="chatReply" @keyup.enter="sendChatReply" placeholder="اكتب رسالة للعميل..." class="ky-chat-input" />
+                  <button @click="sendChatReply" :disabled="!chatReply.trim() || chatSending" class="ky-chat-send">{{ chatSending ? '...' : '📤' }}</button>
+                </div>
               </div>
             </div>
 
@@ -515,4 +612,21 @@ const alertColor = (type) => {
 
 /* Last Message Sent */
 .ky-last-msg{font-size:11px;color:#6366f1;background:#eef2ff;padding:2px 8px;border-radius:6px;margin-top:4px;font-weight:600;display:inline-block}
+
+/* Inline Chat */
+.ky-chat-inline{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
+.ky-chat-msgs{max-height:280px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:#fafbfc}
+.ky-chat-msg{max-width:80%}
+.ky-chat-msg.user{align-self:flex-end}
+.ky-chat-msg.ai,.ky-chat-msg.admin{align-self:flex-start}
+.ky-chat-sender{font-size:11px;font-weight:600;color:#64748b;margin-bottom:2px}
+.ky-chat-bubble{padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.6;word-break:break-word}
+.ky-chat-msg.user .ky-chat-bubble{background:#10b981;color:#fff;border-bottom-right-radius:4px}
+.ky-chat-msg.ai .ky-chat-bubble{background:#f1f5f9;color:#0f172a;border-bottom-left-radius:4px}
+.ky-chat-msg.admin .ky-chat-bubble{background:#eff6ff;color:#1e3a5f;border:1px solid #bfdbfe;border-bottom-left-radius:4px}
+.ky-chat-time{font-size:10px;color:#94a3b8;margin-top:2px}
+.ky-chat-msg.user .ky-chat-time{text-align:right}
+.ky-chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #e2e8f0;background:#fff}
+.ky-chat-input{flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;font-size:13px;direction:rtl;outline:none}.ky-chat-input:focus{border-color:#3b82f6}
+.ky-chat-send{width:40px;height:40px;border-radius:10px;background:#3b82f6;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}.ky-chat-send:hover{background:#2563eb}.ky-chat-send:disabled{opacity:.4;cursor:not-allowed}
 </style>
