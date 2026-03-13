@@ -14,11 +14,20 @@ const applyFilter = () => router.get(route('admin.accounts'), { search: search.v
 const adjustForm = useForm({ amount: '', type: 'credit', reason: '' });
 const adjustingAccount = ref(null);
 const userAccounts = ref([]);
-const openAdjust = (account) => {
+const openAdjust = async (account) => {
   adjustingAccount.value = account;
   adjustForm.reset();
-  // Find all accounts for the same user
-  userAccounts.value = props.accounts.data.filter(a => a.user?.id === account.user?.id);
+  // Fetch ALL accounts for this user via API
+  try {
+    const res = await fetch(route('admin.accounts.user', account.user?.id));
+    if (res.ok) {
+      userAccounts.value = await res.json();
+    } else {
+      userAccounts.value = [account];
+    }
+  } catch (e) {
+    userAccounts.value = [account];
+  }
 };
 const switchAdjustAccount = (accountId) => {
   const found = userAccounts.value.find(a => a.id == accountId);

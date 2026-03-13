@@ -227,6 +227,9 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/accounts', [AdminSystem::class, 'accounts'])->name('accounts');
     Route::patch('/accounts/{account}/status', [AdminSystem::class, 'updateAccountStatus'])->name('accounts.status');
     Route::post('/accounts/{account}/adjust', [AdminSystem::class, 'adjustBalance'])->name('accounts.adjust');
+    Route::get('/accounts/user/{user}', function (\App\Models\User $user) {
+        return response()->json($user->accounts()->with('currency')->get());
+    })->name('accounts.user');
 
     Route::get('/cards', [AdminSystem::class, 'cards'])->name('cards');
     Route::patch('/cards/{card}/status', [AdminSystem::class, 'updateCardStatus'])->name('cards.status');
