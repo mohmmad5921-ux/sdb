@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         });
         if (res['success'] == true) {
           if (mounted) {
-            await Navigator.pushNamed(context, '/phone-verify');
+            await Navigator.pushNamed(context, '/phone-verify', arguments: fullPhone);
             if (mounted) {
               PushNotificationService.initialize();
               Navigator.pushReplacementNamed(context, '/home');
@@ -240,10 +240,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         options: const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
       );
       if (didAuth && mounted) {
-        final hasToken = await ApiService.isLoggedIn();
-        if (hasToken && mounted) {
+        // Validate token with server before proceeding
+        final profile = await ApiService.getProfile();
+        if (profile['success'] == true && mounted) {
           PushNotificationService.initialize();
           Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          // Token invalid — clear and stay on login
+          await ApiService.logout();
         }
       }
     } on PlatformException catch (_) {}

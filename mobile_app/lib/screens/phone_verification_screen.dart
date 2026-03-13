@@ -37,6 +37,16 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-fill phone from route arguments if available
+    final phone = ModalRoute.of(context)?.settings.arguments as String?;
+    if (phone != null && _phoneCtrl.text.isEmpty) {
+      _phoneCtrl.text = phone.replaceAll('+', '');
+    }
+  }
+
+  @override
   void dispose() {
     _phoneCtrl.dispose();
     for (var c in _otpCtrls) { c.dispose(); }
@@ -160,6 +170,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
             controller: _phoneCtrl,
             keyboardType: TextInputType.phone,
             textDirection: TextDirection.ltr,
+            readOnly: _phoneCtrl.text.isNotEmpty,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, letterSpacing: 1),
             decoration: InputDecoration(
               hintText: '$_countryCode 9XX XXX XXX',
