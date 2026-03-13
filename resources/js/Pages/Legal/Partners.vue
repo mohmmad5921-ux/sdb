@@ -48,7 +48,7 @@ const t = computed(() => isAr.value ? {
 </script>
 <template>
 <Head :title="t.title" />
-<section class="p-hero"><div class="sw tc"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><a href="/preregister" class="hero-btn">{{ t.heroBtn }}</a></div></section>
+<section class="p-hero"><div class="sw tc"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><a href="/preregister?type=business" class="hero-btn">{{ t.heroBtn }}</a></div></section>
 <section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.progTitle }}</h2><div class="g4"><div v-for="p in t.progs" :key="p.t" class="pc"><span class="pc-ic">{{ p.ic }}</span><h3 class="pc-t">{{ p.t }}</h3><p class="pc-d">{{ p.d }}</p><div class="pc-meta"><span class="pc-bonus">{{ p.bonus }}</span><span class="pc-target">{{ p.target }}</span></div></div></div></div></section>
 <section class="sec sec-alt"><div class="sw"><h2 class="t2 tc">{{ t.howTitle }}</h2><div class="g4"><div v-for="s in t.steps" :key="s.n" class="st-c"><div class="st-n">{{ s.n }}</div><h4 class="st-t">{{ s.t }}</h4><p class="st-d">{{ s.d }}</p></div></div></div></section>
 <section class="sec sec-sky tc"><div class="sw"><h2 class="t2 t2-w">{{ t.ctaTitle }}</h2><p class="t2-sub t2-sub-w tc" style="margin:0 auto 28px">{{ t.ctaSub }}</p><a :href="'mailto:'+t.ctaEmail" class="cta-btn">{{ t.ctaBtn }}</a></div></section>
