@@ -38,11 +38,22 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       return;
     }
 
-    final loggedIn = await ApiService.isLoggedIn();
-    if (loggedIn) {
-      PushNotificationService.initialize();
+    final hasToken = await ApiService.isLoggedIn();
+    if (hasToken) {
+      // Verify token is still valid on server
+      final profile = await ApiService.getProfile();
+      if (profile['success'] == true) {
+        // Token valid — proceed to home
+        PushNotificationService.initialize();
+        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Token invalid (account deleted/expired) — clear and go to login
+        await ApiService.logout();
+        if (mounted) Navigator.pushReplacementNamed(context, '/login');
+      }
+    } else {
+      if (mounted) Navigator.pushReplacementNamed(context, '/login');
     }
-    if (mounted) Navigator.pushReplacementNamed(context, loggedIn ? '/home' : '/login');
   }
 
   @override
