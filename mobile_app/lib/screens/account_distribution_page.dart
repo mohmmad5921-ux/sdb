@@ -34,7 +34,7 @@ class AccountDistributionPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Title
-            const Text('Distribution', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            const Text('التوزيع', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 20),
 
             // Distribution Card
@@ -46,11 +46,11 @@ class AccountDistributionPage extends StatelessWidget {
                 border: Border.all(color: AppTheme.border),
               ),
               child: Column(children: [
-                _row('Available to spend', '$symbol${_format(balance)}'),
+                _row('المتاح للإنفاق', '$symbol${_format(balance)}'),
                 Divider(height: 1, color: AppTheme.border, indent: 16, endIndent: 16),
-                _row('Allocated to Goals', '$symbol${_format(0)}'),
+                _row('مخصص للأهداف', '$symbol${_format(0)}'),
                 Divider(height: 1, color: AppTheme.border, indent: 16, endIndent: 16),
-                _row('Balance', '$symbol${_format(balance)}', bold: true),
+                _row('الرصيد', '$symbol${_format(balance)}', bold: true),
               ]),
             ),
           ]),

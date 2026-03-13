@@ -138,10 +138,10 @@ class _MoreTabState extends State<MoreTab> {
     final t = L10n.of(context);
     final currencies = [
       {'code': 'SYP', 'name': 'الليرة السورية', 'flag': '🇸🇾'},
-      {'code': 'EUR', 'name': 'Euro', 'flag': '🇪🇺'},
-      {'code': 'USD', 'name': 'US Dollar', 'flag': '🇺🇸'},
-      {'code': 'GBP', 'name': 'British Pound', 'flag': '🇬🇧'},
-      {'code': 'DKK', 'name': 'Danish Krone', 'flag': '🇩🇰'},
+      {'code': 'EUR', 'name': 'يورو', 'flag': '🇪🇺'},
+      {'code': 'USD', 'name': 'دولار أمريكي', 'flag': '🇺🇸'},
+      {'code': 'GBP', 'name': 'جنيه إسترليني', 'flag': '🇬🇧'},
+      {'code': 'DKK', 'name': 'كرونة دنماركية', 'flag': '🇩🇰'},
     ];
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(20),
@@ -249,7 +249,7 @@ class _MoreTabState extends State<MoreTab> {
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(r['success'] == true ? t.passwordChanged : (r['data']?['message'] ?? 'Error')),
+                content: Text(r['success'] == true ? t.passwordChanged : (r['data']?['message'] ?? 'خطأ')),
                 backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
               ));
             }

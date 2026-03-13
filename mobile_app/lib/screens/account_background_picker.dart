@@ -42,35 +42,35 @@ class AccountBackgroundPicker extends StatefulWidget {
     {'name': 'Emerald', 'category': 'Color', 'colors': [Color(0xFF10B981), Color(0xFF059669), Color(0xFF047857)], 'hasWaves': false, 'image': null},
     {'name': 'Indigo', 'category': 'Color', 'colors': [Color(0xFF6366F1), Color(0xFF4F46E5), Color(0xFF4338CA)], 'hasWaves': false, 'image': null},
     {'name': 'Pink', 'category': 'Color', 'colors': [Color(0xFFEC4899), Color(0xFFDB2777), Color(0xFFBE185D)], 'hasWaves': false, 'image': null},
-    {'name': 'Forest', 'category': 'Nature', 'colors': [Color(0xFF064E3B), Color(0xFF065F46), Color(0xFF047857)], 'hasWaves': false, 'image': 'assets/backgrounds/forest.png'},
-    {'name': 'Mountains', 'category': 'Nature', 'colors': [Color(0xFF3B1F6E), Color(0xFF5B3A8C), Color(0xFF7C5FAF)], 'hasWaves': false, 'image': 'assets/backgrounds/mountains.png'},
-    {'name': 'Sunset', 'category': 'Nature', 'colors': [Color(0xFFB91C1C), Color(0xFFDC2626), Color(0xFFF97316)], 'hasWaves': false, 'image': 'assets/backgrounds/sunset.png'},
-    {'name': 'Ocean View', 'category': 'Nature', 'colors': [Color(0xFF0E7490), Color(0xFF0891B2), Color(0xFF06B6D4)], 'hasWaves': false, 'image': 'assets/backgrounds/ocean_aerial.png'},
+    {'name': 'غابة', 'category': 'Nature', 'colors': [Color(0xFF064E3B), Color(0xFF065F46), Color(0xFF047857)], 'hasWaves': false, 'image': 'assets/backgrounds/forest.png'},
+    {'name': 'جبال', 'category': 'Nature', 'colors': [Color(0xFF3B1F6E), Color(0xFF5B3A8C), Color(0xFF7C5FAF)], 'hasWaves': false, 'image': 'assets/backgrounds/mountains.png'},
+    {'name': 'غروب', 'category': 'Nature', 'colors': [Color(0xFFB91C1C), Color(0xFFDC2626), Color(0xFFF97316)], 'hasWaves': false, 'image': 'assets/backgrounds/sunset.png'},
+    {'name': 'منظر بحري', 'category': 'Nature', 'colors': [Color(0xFF0E7490), Color(0xFF0891B2), Color(0xFF06B6D4)], 'hasWaves': false, 'image': 'assets/backgrounds/ocean_aerial.png'},
   ];
 
   // ══════════ Icon Data ══════════
   static const List<Map<String, dynamic>> icons = [
-    {'icon': Icons.block_rounded, 'category': 'None', 'label': 'None'},
-    {'icon': Icons.person_rounded, 'category': 'Popular', 'label': 'Person'},
-    {'icon': Icons.people_rounded, 'category': 'Popular', 'label': 'Group'},
-    {'icon': Icons.home_rounded, 'category': 'Popular', 'label': 'Home'},
-    {'icon': Icons.savings_rounded, 'category': 'Popular', 'label': 'Savings'},
-    {'icon': Icons.spa_rounded, 'category': 'Popular', 'label': 'Wellness'},
-    {'icon': Icons.shopping_basket_rounded, 'category': 'Popular', 'label': 'Shopping'},
-    {'icon': Icons.fastfood_rounded, 'category': 'Popular', 'label': 'Food'},
-    {'icon': Icons.shopping_cart_rounded, 'category': 'Popular', 'label': 'Cart'},
-    {'icon': Icons.cake_rounded, 'category': 'Popular', 'label': 'Celebration'},
-    {'icon': Icons.card_giftcard_rounded, 'category': 'Popular', 'label': 'Gift'},
-    {'icon': Icons.attach_money_rounded, 'category': 'Money', 'label': 'Dollar'},
-    {'icon': Icons.lock_rounded, 'category': 'Money', 'label': 'Locked'},
-    {'icon': Icons.currency_exchange_rounded, 'category': 'Money', 'label': 'Exchange'},
-    {'icon': Icons.redeem_rounded, 'category': 'Money', 'label': 'Redeem'},
-    {'icon': Icons.schedule_rounded, 'category': 'Money', 'label': 'Scheduled'},
-    {'icon': Icons.pedal_bike_rounded, 'category': 'Travel', 'label': 'Bike'},
-    {'icon': Icons.pets_rounded, 'category': 'Travel', 'label': 'Pet'},
-    {'icon': Icons.directions_car_rounded, 'category': 'Travel', 'label': 'Car'},
-    {'icon': Icons.directions_bus_rounded, 'category': 'Travel', 'label': 'Bus'},
-    {'icon': Icons.flight_rounded, 'category': 'Travel', 'label': 'Flight'},
+    {'icon': Icons.block_rounded, 'category': 'None', 'label': 'بدون'},
+    {'icon': Icons.person_rounded, 'category': 'Popular', 'label': 'شخص'},
+    {'icon': Icons.people_rounded, 'category': 'Popular', 'label': 'مجموعة'},
+    {'icon': Icons.home_rounded, 'category': 'Popular', 'label': 'منزل'},
+    {'icon': Icons.savings_rounded, 'category': 'Popular', 'label': 'ادخار'},
+    {'icon': Icons.spa_rounded, 'category': 'Popular', 'label': 'صحة'},
+    {'icon': Icons.shopping_basket_rounded, 'category': 'Popular', 'label': 'تسوق'},
+    {'icon': Icons.fastfood_rounded, 'category': 'Popular', 'label': 'طعام'},
+    {'icon': Icons.shopping_cart_rounded, 'category': 'Popular', 'label': 'عربة'},
+    {'icon': Icons.cake_rounded, 'category': 'Popular', 'label': 'احتفال'},
+    {'icon': Icons.card_giftcard_rounded, 'category': 'Popular', 'label': 'هدية'},
+    {'icon': Icons.attach_money_rounded, 'category': 'Money', 'label': 'دولار'},
+    {'icon': Icons.lock_rounded, 'category': 'Money', 'label': 'مقفل'},
+    {'icon': Icons.currency_exchange_rounded, 'category': 'Money', 'label': 'صرف'},
+    {'icon': Icons.redeem_rounded, 'category': 'Money', 'label': 'استرداد'},
+    {'icon': Icons.schedule_rounded, 'category': 'Money', 'label': 'مجدول'},
+    {'icon': Icons.pedal_bike_rounded, 'category': 'Travel', 'label': 'دراجة'},
+    {'icon': Icons.pets_rounded, 'category': 'Travel', 'label': 'حيوان'},
+    {'icon': Icons.directions_car_rounded, 'category': 'Travel', 'label': 'سيارة'},
+    {'icon': Icons.directions_bus_rounded, 'category': 'Travel', 'label': 'حافلة'},
+    {'icon': Icons.flight_rounded, 'category': 'Travel', 'label': 'طيران'},
   ];
 }
 
@@ -155,13 +155,13 @@ class _AccountBackgroundPickerState extends State<AccountBackgroundPicker> {
                     Row(children: [
                       if (_selectedIcon > 0) Icon(AccountBackgroundPicker.icons[_selectedIcon]['icon'] as IconData, size: 14, color: Colors.white.withValues(alpha: 0.7)),
                       if (_selectedIcon > 0) const SizedBox(width: 4),
-                      Text('Account $currency', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
+                      Text('حساب $currency', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
                     ]),
                     const SizedBox(height: 8),
                     Text('$symbol${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
                     const Spacer(),
                     Row(children: [
-                      _fadedPill('Send'), const SizedBox(width: 8), _fadedPill('Cards'),
+                      _fadedPill('إرسال'), const SizedBox(width: 8), _fadedPill('البطاقات'),
                       const Spacer(),
                       Container(width: 28, height: 28, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(14)),
                         child: Icon(Icons.more_horiz, size: 16, color: Colors.white.withValues(alpha: 0.5))),
@@ -182,7 +182,7 @@ class _AccountBackgroundPickerState extends State<AccountBackgroundPicker> {
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 24), padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
-                  child: Row(children: [_tabPill('Background', 0), _tabPill('Icon', 1)]),
+                  child: Row(children: [_tabPill('الخلفية', 0), _tabPill('الأيقونة', 1)]),
                 ),
                 const SizedBox(height: 16),
                 Expanded(child: _activeTab == 0 ? _buildBgTab() : _buildIconTab()),
@@ -194,7 +194,7 @@ class _AccountBackgroundPickerState extends State<AccountBackgroundPicker> {
           Container(width: double.infinity, padding: const EdgeInsets.fromLTRB(24, 12, 24, 12), child: ElevatedButton(
             onPressed: _save,
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-            child: const Text('Done', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('تم', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           )),
         ]),
       ),
@@ -205,9 +205,9 @@ class _AccountBackgroundPickerState extends State<AccountBackgroundPicker> {
     return SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _bgSection('SDB', 'SDB'),
       const SizedBox(height: 20),
-      _bgSection('Color', 'Color'),
+      _bgSection('ألوان', 'Color'),
       const SizedBox(height: 20),
-      _bgSection('Nature', 'Nature'),
+      _bgSection('طبيعة', 'Nature'),
       const SizedBox(height: 20),
     ]));
   }
@@ -255,13 +255,13 @@ class _AccountBackgroundPickerState extends State<AccountBackgroundPicker> {
 
   Widget _buildIconTab() {
     return SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _iconSection('None', 'None'),
+      _iconSection('بدون', 'None'),
       const SizedBox(height: 20),
-      _iconSection('Popular', 'Popular'),
+      _iconSection('شائع', 'Popular'),
       const SizedBox(height: 20),
-      _iconSection('Money & Savings', 'Money'),
+      _iconSection('مال وادخار', 'Money'),
       const SizedBox(height: 20),
-      _iconSection('Travel & Transport', 'Travel'),
+      _iconSection('سفر وتنقل', 'Travel'),
       const SizedBox(height: 20),
     ]));
   }

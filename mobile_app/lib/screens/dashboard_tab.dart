@@ -99,7 +99,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(20)),
-                    child: const Text('Explore', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                    child: const Text('استكشف', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -144,11 +144,11 @@ class _DashboardTabState extends State<DashboardTab> {
                       const SizedBox(width: 12),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(
-                          (user['kyc_status'] == 'submitted') ? 'Account Under Review' : 'Account Not Verified',
+                          (user['kyc_status'] == 'submitted') ? 'الحساب قيد المراجعة' : 'الحساب غير موثّق',
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF92400E)),
                         ),
                         Text(
-                          (user['kyc_status'] == 'submitted') ? 'You will be notified once verified' : 'Verify your identity to activate',
+                          (user['kyc_status'] == 'submitted') ? 'سيتم إشعارك عند التوثيق' : 'وثّق هويتك لتفعيل الحساب',
                           style: const TextStyle(fontSize: 11, color: Color(0xFFB45309)),
                         ),
                       ])),
@@ -289,8 +289,8 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                     const SizedBox(width: 14),
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('How can I help you?', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                      Text('Ask SDB AI anything about your account', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                      const Text('كيف يمكنني مساعدتك؟', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                      Text('اسأل مساعد SDB الذكي عن حسابك', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                     ])),
                     Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textMuted),
                   ]),
@@ -658,7 +658,7 @@ class _DashboardTabState extends State<DashboardTab> {
         return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
       }
       final yesterday = now.subtract(const Duration(days: 1));
-      if (dt.day == yesterday.day && dt.month == yesterday.month && dt.year == yesterday.year) return 'Yesterday';
+      if (dt.day == yesterday.day && dt.month == yesterday.month && dt.year == yesterday.year) return 'أمس';
       return '${dt.day}/${dt.month}/${dt.year}';
     } catch (_) { return d; }
   }

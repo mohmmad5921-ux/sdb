@@ -79,7 +79,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
     if (mounted && r['success'] == true) {
       setState(() => _card['status'] = r['data']?['status'] ?? _card['status']);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_card['status'] == 'frozen' ? 'Card frozen ❄️' : 'Card activated ✅'),
+        content: Text(_card['status'] == 'frozen' ? 'البطاقة مجمّدة ❄️' : 'البطاقة مفعّلة ✅'),
         backgroundColor: AppTheme.primary,
       ));
     }
@@ -101,7 +101,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
           child: Text('${(_card['id'].hashCode % 9000 + 1000).abs()}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppTheme.textPrimary, letterSpacing: 12)),
         ),
         const SizedBox(height: 16),
-        Text('Do not share your PIN with anyone', style: TextStyle(fontSize: 12, color: AppTheme.danger, fontWeight: FontWeight.w600)),
+        Text('لا تشارك رقم PIN مع أحد', style: TextStyle(fontSize: 12, color: AppTheme.danger, fontWeight: FontWeight.w600)),
         const SizedBox(height: 20),
       ]),
     ));
@@ -113,11 +113,11 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 20),
-        _moreAction(Icons.tune_rounded, 'Card Settings', () => Navigator.pop(sheetCtx)),
-        _moreAction(Icons.lock_open_rounded, 'Reset PIN', () => Navigator.pop(sheetCtx)),
-        _moreAction(Icons.shield_outlined, 'Spending Limits', () => Navigator.pop(sheetCtx)),
-        _moreAction(Icons.swap_horiz_rounded, 'Replace Card', () => Navigator.pop(sheetCtx)),
-        _moreAction(Icons.delete_outline_rounded, 'Delete Card', () {
+        _moreAction(Icons.tune_rounded, 'إعدادات البطاقة', () => Navigator.pop(sheetCtx)),
+        _moreAction(Icons.lock_open_rounded, 'إعادة تعيين PIN', () => Navigator.pop(sheetCtx)),
+        _moreAction(Icons.shield_outlined, 'حدود الإنفاق', () => Navigator.pop(sheetCtx)),
+        _moreAction(Icons.swap_horiz_rounded, 'استبدال البطاقة', () => Navigator.pop(sheetCtx)),
+        _moreAction(Icons.delete_outline_rounded, 'حذف البطاقة', () {
           Navigator.pop(sheetCtx);
           _confirmDelete();
         }, danger: true),
@@ -134,12 +134,12 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
       title: const Row(children: [
         Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 28),
         SizedBox(width: 8),
-        Text('Delete Card', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+        Text('حذف البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
       ]),
-      content: const Text('Are you sure? This action cannot be undone.\nThe card will be permanently cancelled.',
+      content: const Text('هل أنت متأكد؟ هذا الإجراء لا يمكن التراجع عنه.\nسيتم إلغاء البطاقة نهائياً.',
         style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(dCtx), child: const Text('Cancel', style: TextStyle(color: Color(0xFF9CA3AF)))),
+        TextButton(onPressed: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: Color(0xFF9CA3AF)))),
         TextButton(
           onPressed: () async {
             Navigator.pop(dCtx);
@@ -148,18 +148,18 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
               if (mounted) {
                 final ok = r['success'] == true;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(ok ? 'Card deleted ✅' : 'Error: ${r['data']?['message'] ?? r.toString()}'),
+                  content: Text(ok ? 'تم حذف البطاقة ✅' : 'خطأ: ${r['data']?['message'] ?? r.toString()}'),
                   backgroundColor: ok ? AppTheme.primary : const Color(0xFFEF4444),
                 ));
                 if (ok) Navigator.pop(context, true); // Return to cards list
               }
             } catch (e) {
               if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error: $e'), backgroundColor: const Color(0xFFEF4444),
+                content: Text('خطأ: $e'), backgroundColor: const Color(0xFFEF4444),
               ));
             }
           },
-          child: const Text('Delete', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
+          child: const Text('حذف', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
         ),
       ],
     ));
@@ -197,7 +197,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
     final expiry = _fmtExpiry(_card['expiry_date'] ?? '');
     final isFrozen = _card['status'] == 'frozen';
     final cvv = _card['cvv']?.toString() ?? '${(_card['id'].hashCode % 900 + 100).abs()}';
-    final cardType = (_card['card_type'] ?? '').toString().contains('virtual') ? 'Virtual' : 'Physical';
+    final cardType = (_card['card_type'] ?? '').toString().contains('virtual') ? 'افتراضية' : 'فعلية';
 
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
@@ -265,17 +265,17 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                 _actionCircle(
                   _showBack ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  _showBack ? 'Hide\ndetails' : 'See\ndetails',
+                  _showBack ? 'إخفاء\nالتفاصيل' : 'عرض\nالتفاصيل',
                   _toggleFlip,
                   isActive: _showBack,
                 ),
-                _actionCircle(Icons.dialpad_rounded, 'Show\nPIN', _showPIN),
+                _actionCircle(Icons.dialpad_rounded, 'عرض\nPIN', _showPIN),
                 _actionCircle(
                   isFrozen ? Icons.lock_open_rounded : Icons.lock_rounded,
-                  isFrozen ? 'Unlock\ncard' : 'Lock\ncard',
+                  isFrozen ? 'إلغاء\nالتجميد' : 'تجميد\nالبطاقة',
                   _toggleFreeze,
                 ),
-                _actionCircle(Icons.more_horiz_rounded, 'More\n', _showMoreActions),
+                _actionCircle(Icons.more_horiz_rounded, 'المزيد\n', _showMoreActions),
               ]),
             ),
             const SizedBox(height: 24),
@@ -286,7 +286,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
               child: GestureDetector(
                 onTap: () async {
                   final cardId = int.tryParse(_card['id'].toString()) ?? 0;
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adding to Apple Wallet...'), backgroundColor: AppTheme.primary));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري الإضافة لمحفظة Apple...'), backgroundColor: AppTheme.primary));
                   await ApiService.downloadWalletPass(cardId);
                 },
                 child: Container(
@@ -300,7 +300,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
                       child: const Icon(Icons.wallet, size: 16, color: Colors.white),
                     ),
                     const SizedBox(width: 10),
-                    const Text('Add to Apple Wallet', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    const Text('إضافة لمحفظة Apple', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                   ]),
                 ),
               ),
@@ -315,17 +315,17 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
               child: Container(
                 decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
                 child: Column(children: [
-                  _infoRow('Card Number', '•••• $last4',
+                  _infoRow('رقم البطاقة', '•••• $last4',
                     leading: Icon(Icons.copy_rounded, size: 16, color: AppTheme.textMuted),
                     onLeadingTap: () {
                       Clipboard.setData(ClipboardData(text: _fullNumber()));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم النسخ'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)));
                     },
                   ),
                   Divider(height: 1, color: AppTheme.border),
-                  _infoRow('Expiry Date', expiry),
+                  _infoRow('تاريخ الانتهاء', expiry),
                   Divider(height: 1, color: AppTheme.border),
-                  _infoRow('Security Code', '', trailing: Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.textMuted)),
+                  _infoRow('رمز الأمان', '', trailing: Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.textMuted)),
                 ]),
               ),
             ),
@@ -474,7 +474,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
   Widget _frozenBadge(Color c) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-    child: Text('Frozen ❄️', style: TextStyle(color: c.withValues(alpha: 0.8), fontSize: 10, fontWeight: FontWeight.w600)),
+    child: Text('مجمّدة ❄️', style: TextStyle(color: c.withValues(alpha: 0.8), fontSize: 10, fontWeight: FontWeight.w600)),
   );
 
   // ═══════════════════════════════════════════════════════════════
@@ -685,11 +685,11 @@ class CardDesignPicker extends StatelessWidget {
       const Text('اختر تصميم البطاقة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
       const SizedBox(height: 12),
       Row(children: [
-        _mini(CardDesign.marble, 'Marble', 'assets/cards/card_marble.png'),
+        _mini(CardDesign.marble, 'رخام', 'assets/cards/card_marble.png'),
         const SizedBox(width: 10),
-        _mini(CardDesign.whiteGreen, 'Classic', 'assets/cards/card_classic.png'),
+        _mini(CardDesign.whiteGreen, 'كلاسيك', 'assets/cards/card_classic.png'),
         const SizedBox(width: 10),
-        _mini(CardDesign.waves, 'Waves', 'assets/cards/card_waves.png'),
+        _mini(CardDesign.waves, 'أمواج', 'assets/cards/card_waves.png'),
       ]),
     ]);
   }

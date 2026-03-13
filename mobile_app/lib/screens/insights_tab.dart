@@ -86,46 +86,46 @@ class _InsightsTabState extends State<InsightsTab> {
 
   String _categorize(Map<String, dynamic> tx) {
     final type = (tx['type'] ?? tx['description'] ?? 'Other').toString().toLowerCase();
-    if (type.contains('transfer')) return 'Transfers';
-    if (type.contains('deposit')) return 'Deposits';
-    if (type.contains('exchange')) return 'Exchange';
-    if (type.contains('card')) return 'Card Payments';
-    if (type.contains('fee')) return 'Fees';
-    return 'Other';
+    if (type.contains('transfer')) return 'تحويلات';
+    if (type.contains('deposit')) return 'إيداعات';
+    if (type.contains('exchange')) return 'صرف عملات';
+    if (type.contains('card')) return 'مدفوعات بطاقة';
+    if (type.contains('fee')) return 'رسوم';
+    return 'أخرى';
   }
 
   IconData _catIcon(String cat) {
     switch (cat) {
-      case 'Transfers': return Icons.send_rounded;
-      case 'Deposits': return Icons.account_balance_rounded;
-      case 'Exchange': return Icons.swap_horiz_rounded;
-      case 'Card Payments': return Icons.credit_card_rounded;
-      case 'Fees': return Icons.receipt_long_rounded;
+      case 'تحويلات': return Icons.send_rounded;
+      case 'إيداعات': return Icons.account_balance_rounded;
+      case 'صرف عملات': return Icons.swap_horiz_rounded;
+      case 'مدفوعات بطاقة': return Icons.credit_card_rounded;
+      case 'رسوم': return Icons.receipt_long_rounded;
       default: return Icons.category_rounded;
     }
   }
 
   Color _catColor(String cat) {
     switch (cat) {
-      case 'Transfers': return const Color(0xFF3B82F6);
-      case 'Deposits': return AppTheme.primary;
-      case 'Exchange': return const Color(0xFFF59E0B);
-      case 'Card Payments': return const Color(0xFF8B5CF6);
-      case 'Fees': return const Color(0xFFEF4444);
+      case 'تحويلات': return const Color(0xFF3B82F6);
+      case 'إيداعات': return AppTheme.primary;
+      case 'صرف عملات': return const Color(0xFFF59E0B);
+      case 'مدفوعات بطاقة': return const Color(0xFF8B5CF6);
+      case 'رسوم': return const Color(0xFFEF4444);
       default: return const Color(0xFF6B7280);
     }
   }
 
   String _dateRangeLabel() {
     final now = DateTime.now();
-    final months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     if (_timeFilter == 0) {
       final start = DateTime(now.year, now.month, 1);
       return '${start.day} ${months[start.month]} - ${now.day} ${months[now.month]}';
     } else if (_timeFilter == 1) {
-      return 'Jan ${now.year} - ${months[now.month]} ${now.year}';
+      return 'يناير ${now.year} - ${months[now.month]} ${now.year}';
     }
-    return 'All time';
+    return 'كل الفترات';
   }
 
   @override
@@ -155,7 +155,7 @@ class _InsightsTabState extends State<InsightsTab> {
                     child: const Icon(Icons.person_outline_rounded, size: 18, color: AppTheme.textSecondary),
                   ),
                   const SizedBox(width: 10),
-                  const Text('Insights', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                  const Text('الإحصائيات', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                 ]),
                 Container(
                   width: 36, height: 36,
@@ -170,11 +170,11 @@ class _InsightsTabState extends State<InsightsTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(children: [
-                _tabChip('Spending', 0),
+                _tabChip('الإنفاق', 0),
                 const SizedBox(width: 12),
-                _tabChip('Income', 1),
+                _tabChip('الدخل', 1),
                 const SizedBox(width: 12),
-                _tabChip('Cash Flow', 2),
+                _tabChip('التدفق النقدي', 2),
               ]),
             ),
             const SizedBox(height: 20),
@@ -215,9 +215,9 @@ class _InsightsTabState extends State<InsightsTab> {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
                 child: Row(children: [
-                  _filterChip('Month', 0),
-                  _filterChip('Year', 1),
-                  _filterChip('All Time', 2),
+                  _filterChip('الشهر', 0),
+                  _filterChip('السنة', 1),
+                  _filterChip('كل الفترات', 2),
                 ]),
               ),
             ),
@@ -229,7 +229,7 @@ class _InsightsTabState extends State<InsightsTab> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Row(children: [
-                    const Text('Categories', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                    const Text('الفئات', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
                     const SizedBox(width: 4),
                     Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
                   ]),
@@ -243,7 +243,7 @@ class _InsightsTabState extends State<InsightsTab> {
                   child: Center(child: Column(children: [
                     Icon(Icons.insights_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
                     const SizedBox(height: 12),
-                    Text('No data yet', style: const TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+                    Text('لا توجد بيانات', style: const TextStyle(fontSize: 14, color: AppTheme.textMuted)),
                   ])),
                 )
               else
@@ -309,7 +309,7 @@ class _InsightsTabState extends State<InsightsTab> {
     final data = _activeTab == 0 ? _spendingByCategory : _incomeByCategory;
     final total = data.values.fold(0.0, (a, b) => a + b);
     if (total == 0) {
-      return Center(child: Text('No data for this period', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)));
+      return Center(child: Text('لا توجد بيانات لهذه الفترة', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)));
     }
 
     final sorted = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
@@ -366,7 +366,7 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(e.key, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            Text('$txCount transactions', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+            Text('$txCount عملية', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
           ])),
           Text(
             '-€${_formatNum(e.value)}',

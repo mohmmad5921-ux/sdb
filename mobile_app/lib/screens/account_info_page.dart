@@ -140,8 +140,8 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               _divider(),
               _infoRowMulti('Bank Address', [
                 'SDB Bank',
-                'Syrian Digital Bank',
-                'Damascus, Syria',
+                'بنك سوريا الرقمي',
+                'دمشق، سوريا',
               ], copyable: true),
               _divider(),
               _infoNavRow('Interest Rate', '1 %', () {}),

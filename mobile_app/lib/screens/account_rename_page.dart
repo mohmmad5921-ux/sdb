@@ -16,7 +16,7 @@ class _AccountRenamePageState extends State<AccountRenamePage> {
   void initState() {
     super.initState();
     final currency = widget.account['currency']?['code'] ?? 'EUR';
-    _ctrl = TextEditingController(text: widget.account['name'] ?? 'Account $currency');
+    _ctrl = TextEditingController(text: widget.account['name'] ?? 'حساب $currency');
   }
 
   @override
@@ -58,7 +58,7 @@ class _AccountRenamePageState extends State<AccountRenamePage> {
                 autofocus: true,
                 style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
                 decoration: InputDecoration(
-                  labelText: 'Enter account name',
+                  labelText: 'أدخل اسم الحساب',
                   labelStyle: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,

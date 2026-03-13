@@ -44,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(0, Icons.home_rounded, t.navHome),
-                _buildNavItem(1, Icons.account_balance_wallet_rounded, 'Wallet'),
+                _buildNavItem(1, Icons.account_balance_wallet_rounded, 'المحفظة'),
                 _buildNavItem(2, Icons.swap_vert_rounded, t.navPayments),
-                _buildNavItem(3, Icons.insights_rounded, 'Insights'),
+                _buildNavItem(3, Icons.insights_rounded, 'الإحصائيات'),
                 _buildNavItem(4, Icons.person_rounded, t.navProfile),
               ],
             ),

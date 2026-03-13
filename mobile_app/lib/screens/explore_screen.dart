@@ -17,7 +17,7 @@ class ExploreScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('Explore', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+              const Text('استكشف', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
@@ -34,39 +34,39 @@ class ExploreScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // Banking Services
-              _sectionHeader('Banking Services'),
+              _sectionHeader('الخدمات المصرفية'),
               const SizedBox(height: 8),
               _buildItem(
                 icon: Icons.swap_horiz_rounded,
                 color: const Color(0xFFF59E0B),
                 title: t.exchangeCurrency,
-                subtitle: 'Exchange between your wallets',
+                subtitle: 'صرف بين محافظك',
                 onTap: () => Navigator.pushNamed(context, '/exchange'),
               ),
               _buildItem(
                 icon: Icons.add_circle_outline_rounded,
                 color: AppTheme.primary,
                 title: t.addMoney,
-                subtitle: 'Deposit funds to your account',
+                subtitle: 'إيداع أموال في حسابك',
                 onTap: () => Navigator.pushNamed(context, '/deposit'),
               ),
               _buildItem(
                 icon: Icons.account_balance_wallet_rounded,
                 color: const Color(0xFF3B82F6),
-                title: 'Open Wallet',
-                subtitle: 'Open a new currency wallet',
+                title: 'فتح محفظة',
+                subtitle: 'فتح محفظة عملة جديدة',
                 onTap: () => Navigator.pushNamed(context, '/home'),
               ),
               const SizedBox(height: 20),
 
               // Security & Identity
-              _sectionHeader('Security & Identity'),
+              _sectionHeader('الأمان والهوية'),
               const SizedBox(height: 8),
               _buildItem(
                 icon: Icons.verified_user_rounded,
                 color: const Color(0xFF8B5CF6),
                 title: t.verifyIdentity,
-                subtitle: 'Complete KYC verification',
+                subtitle: 'إكمال التحقق من الهوية',
                 onTap: () => Navigator.pushNamed(context, '/kyc'),
               ),
               _buildItem(
@@ -79,27 +79,27 @@ class ExploreScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Support
-              _sectionHeader('Support'),
+              _sectionHeader('الدعم'),
               const SizedBox(height: 8),
               _buildItem(
                 icon: Icons.smart_toy_rounded,
                 color: const Color(0xFF8B5CF6),
                 title: 'SDB AI',
-                subtitle: 'Your AI financial assistant',
+                subtitle: 'مساعدك المالي الذكي',
                 onTap: () => Navigator.pushNamed(context, '/ai-chat'),
               ),
               _buildItem(
                 icon: Icons.help_outline_rounded,
                 color: AppTheme.primary,
                 title: t.helpCenter,
-                subtitle: 'Get help and answers',
+                subtitle: 'احصل على مساعدة وإجابات',
                 onTap: () => Navigator.pushNamed(context, '/help'),
               ),
               _buildItem(
                 icon: Icons.group_rounded,
                 color: const Color(0xFF3B82F6),
                 title: t.contacts,
-                subtitle: 'Manage your contacts',
+                subtitle: 'إدارة جهات اتصالك',
                 onTap: () => Navigator.pushNamed(context, '/contacts'),
               ),
               const SizedBox(height: 32),

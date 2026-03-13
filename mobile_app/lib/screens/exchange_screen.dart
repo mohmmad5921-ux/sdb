@@ -115,7 +115,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
         const SizedBox(height: 20),
 
         // You sell
-        _buildCurrencyCard('You sell', _fromIdx, true),
+        _buildCurrencyCard('أنت تبيع', _fromIdx, true),
         const SizedBox(height: 8),
 
         // Swap button
@@ -130,7 +130,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
         const SizedBox(height: 8),
 
         // You get
-        _buildCurrencyCard('You get', _toIdx, false),
+        _buildCurrencyCard('أنت تحصل على', _toIdx, false),
         const SizedBox(height: 16),
 
         // Rate info
@@ -195,7 +195,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
             Text(_result(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.primary)),
         ]),
         const SizedBox(height: 4),
-        Text('Balance: ${_sym(idx)}${_bal(idx)}', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+        Text('الرصيد: ${_sym(idx)}${_bal(idx)}', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
       ]),
     );
   }
@@ -208,7 +208,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
         ...List.generate(_accounts.length, (i) => ListTile(
           leading: Text(_flag(i), style: const TextStyle(fontSize: 20)),
           title: Text(_code(i), style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text('Balance: ${_sym(i)}${_bal(i)}'),
+          subtitle: Text('الرصيد: ${_sym(i)}${_bal(i)}'),
           trailing: i == currentIdx ? const Icon(Icons.check, color: AppTheme.primary) : null,
           onTap: () { setState(() { if (isFrom) _fromIdx = i; else _toIdx = i; }); Navigator.pop(context); _fetchRate(); },
         )),

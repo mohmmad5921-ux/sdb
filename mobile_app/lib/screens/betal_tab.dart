@@ -53,15 +53,15 @@ class BetalTab extends StatelessWidget {
                 context,
                 Icons.swap_horiz_rounded,
                 t.send,
-                'Transfer to another account',
+                'تحويل إلى حساب آخر',
                 () => Navigator.pushNamed(context, '/transfer'),
               ),
               _divider(),
               _buildPaymentOption(
                 context,
                 Icons.receipt_long_rounded,
-                'Bill Payment',
-                'Pay a bill',
+                'دفع الفواتير',
+                'دفع فاتورة',
                 () => Navigator.pushNamed(context, '/transfer'),
               ),
               _divider(),
@@ -69,7 +69,7 @@ class BetalTab extends StatelessWidget {
                 context,
                 Icons.add_circle_outline_rounded,
                 t.addMoney,
-                'Add funds to your account',
+                'إضافة أموال لحسابك',
                 () => Navigator.pushNamed(context, '/deposit'),
               ),
               _divider(),
@@ -77,7 +77,7 @@ class BetalTab extends StatelessWidget {
                 context,
                 Icons.currency_exchange_rounded,
                 t.exchange,
-                'Convert between currencies',
+                'تحويل بين العملات',
                 () => Navigator.pushNamed(context, '/exchange'),
               ),
             ]),
@@ -87,7 +87,7 @@ class BetalTab extends StatelessWidget {
           // ── Recurring Section (Lunar: "Faste betalinger") ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Recurring', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text('عمليات متكررة', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Container(
@@ -101,8 +101,8 @@ class BetalTab extends StatelessWidget {
               _buildPaymentOption(
                 context,
                 Icons.repeat_rounded,
-                'Scheduled Transfers',
-                'Manage recurring payments',
+                'التحويلات المجدولة',
+                'إدارة المدفوعات المتكررة',
                 () => Navigator.pushNamed(context, '/transfer'),
               ),
             ]),
@@ -112,7 +112,7 @@ class BetalTab extends StatelessWidget {
           // ── Recipients Section (Lunar: "Modtagere") ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Recipients', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text('المستلمون', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Container(
@@ -126,8 +126,8 @@ class BetalTab extends StatelessWidget {
               _buildPaymentOption(
                 context,
                 Icons.people_outline_rounded,
-                'My Contacts',
-                'Manage saved recipients',
+                'جهات اتصالي',
+                'إدارة المستلمين المحفوظين',
                 () => Navigator.pushNamed(context, '/contacts'),
               ),
             ]),
