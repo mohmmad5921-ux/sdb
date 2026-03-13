@@ -224,8 +224,9 @@ const t = computed(() => isAr.value ? {
 .ap-hero-p { font-size: 17px; color: rgba(255,255,255,.5); line-height: 1.9; max-width: 520px; margin-bottom: 32px; }
 .ap-badges { display: flex; gap: 12px; flex-wrap: wrap; }
 .ap-badges-center { justify-content: center; }
-.ap-badge { display: inline-flex; align-items: center; justify-content: center; transition: all .25s; border-radius: 10px; overflow: hidden; background: #000; height: 54px; width: 180px; }
-.ap-badge img { height: 100%; width: 100%; display: block; object-fit: contain; }
+.ap-badge { display: inline-block; transition: all .25s; border-radius: 10px; overflow: hidden; cursor: pointer; }
+.ap-badge img { height: 54px; width: auto; display: block; }
+.ap-badge:first-child img { height: 72px; margin: -9px 0; }
 .ap-badge:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 
 /* Phone Mockup */
