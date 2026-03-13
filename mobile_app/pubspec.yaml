@@ -37,6 +37,7 @@ dependencies:
   url_launcher: ^6.3.1
   qr_flutter: ^4.1.0
   file_picker: ^10.3.10
+  flutter_dynamic_icon: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -49,3 +50,4 @@ flutter:
     - assets/images/
     - assets/backgrounds/
     - assets/cards/
+    - assets/icons/

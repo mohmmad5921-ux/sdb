@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -19,6 +21,7 @@ class _MoreTabState extends State<MoreTab> {
   bool _biometrics = false;
   bool _twoFactor = false;
   String _defaultCurrency = 'SYP';
+  String _selectedIcon = 'default';
   final _storage = const FlutterSecureStorage();
   final _auth = LocalAuthentication();
 
@@ -33,11 +36,13 @@ class _MoreTabState extends State<MoreTab> {
     final curr = await _storage.read(key: 'default_currency') ?? 'SYP';
     final bio = await _storage.read(key: 'biometric_enabled') ?? 'false';
     final notif = await _storage.read(key: 'notifications_enabled') ?? 'true';
+    final icon = await _storage.read(key: 'selected_icon') ?? 'default';
     if (mounted) {
       setState(() {
         _defaultCurrency = curr;
         _biometrics = bio == 'true';
         _notifications = notif == 'true';
+        _selectedIcon = icon;
       });
     }
   }
@@ -374,6 +379,7 @@ class _MoreTabState extends State<MoreTab> {
               _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
               _buildRow(Icons.language, t.language, subtitle: langDisplay, onTap: _showLanguagePicker),
               _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
+              if (Platform.isIOS) _buildRow(Icons.apps_rounded, 'أيقونة التطبيق', subtitle: _iconLabel(_selectedIcon), onTap: _showIconPicker),
             ]),
             const SizedBox(height: 16),
 
@@ -485,5 +491,100 @@ class _MoreTabState extends State<MoreTab> {
     final parts = name.trim().split(' ');
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     return name.isNotEmpty ? name[0].toUpperCase() : 'U';
+  }
+
+  String _iconLabel(String key) {
+    switch (key) {
+      case 'AppIconBlack': return 'أسود';
+      case 'AppIconWhite': return 'أبيض';
+      case 'AppIconNavy': return 'كحلي';
+      case 'AppIconRed': return 'أحمر';
+      default: return 'أخضر (افتراضي)';
+    }
+  }
+
+  void _showIconPicker() {
+    final icons = [
+      {'key': 'default', 'label': 'أخضر', 'asset': 'assets/icons/icon_green.png', 'color': const Color(0xFF1B5E20)},
+      {'key': 'AppIconBlack', 'label': 'أسود', 'asset': 'assets/icons/icon_black.png', 'color': const Color(0xFF000000)},
+      {'key': 'AppIconWhite', 'label': 'أبيض', 'asset': 'assets/icons/icon_white.png', 'color': const Color(0xFFFFFFFF)},
+      {'key': 'AppIconNavy', 'label': 'كحلي', 'asset': 'assets/icons/icon_navy.png', 'color': const Color(0xFF0A1628)},
+      {'key': 'AppIconRed', 'label': 'أحمر', 'asset': 'assets/icons/icon_red.png', 'color': const Color(0xFFB71C1C)},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 16),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('اختر أيقونة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: const Icon(Icons.close, size: 22, color: AppTheme.textMuted),
+            ),
+          ]),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: icons.map((ic) {
+              final isSelected = _selectedIcon == ic['key'];
+              return GestureDetector(
+                onTap: () async {
+                  try {
+                    if (ic['key'] == 'default') {
+                      await FlutterDynamicIcon.setAlternateIconName(null);
+                    } else {
+                      await FlutterDynamicIcon.setAlternateIconName(ic['key'] as String);
+                    }
+                    await _storage.write(key: 'selected_icon', value: ic['key'] as String);
+                    if (mounted) {
+                      setState(() => _selectedIcon = ic['key'] as String);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('تم تغيير الأيقونة إلى ${ic['label']} ✓'), backgroundColor: AppTheme.primary),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('تعذّر تغيير الأيقونة'), backgroundColor: AppTheme.danger),
+                      );
+                    }
+                  }
+                },
+                child: Column(children: [
+                  Container(
+                    width: 64, height: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? AppTheme.primary : AppTheme.border,
+                        width: isSelected ? 2.5 : 1,
+                      ),
+                      boxShadow: isSelected ? [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.3), blurRadius: 8)] : null,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(ic['asset'] as String, fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (isSelected)
+                    const Icon(Icons.check_circle, size: 16, color: AppTheme.primary)
+                  else
+                    Text(ic['label'] as String, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+                ]),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ]),
+      ),
+    );
   }
 }
