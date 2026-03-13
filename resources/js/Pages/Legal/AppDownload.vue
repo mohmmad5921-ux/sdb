@@ -226,7 +226,7 @@ const t = computed(() => isAr.value ? {
 .ap-badges-center { justify-content: center; }
 .ap-badge { display: inline-block; transition: all .25s; border-radius: 10px; overflow: hidden; cursor: pointer; }
 .ap-badge img { height: 54px; width: auto; display: block; }
-.ap-badge:first-child img { height: 72px; margin: -9px 0; }
+.ap-badge:last-child img { height: 72px; margin: -9px 0; }
 .ap-badge:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 
 /* Phone Mockup */
