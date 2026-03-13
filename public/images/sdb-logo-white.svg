@@ -1,22 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
-  <!-- SDB Text - White for dark backgrounds -->
-  <text x="0" y="48" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#ffffff" letter-spacing="-2">SDB</text>
-  <!-- Syrian Flag Circle -->
-  <clipPath id="flagClipW"><circle cx="165" cy="28" r="26"/></clipPath>
-  <g clip-path="url(#flagClipW)">
-    <!-- Green top -->
-    <rect x="139" y="2" width="52" height="17.3" fill="#1B5E20"/>
-    <!-- White middle -->
-    <rect x="139" y="19.3" width="52" height="17.4" fill="#ffffff"/>
-    <!-- Black bottom -->
-    <rect x="139" y="36.7" width="52" height="17.3" fill="#1a1a1a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 140" fill="none">
+  <!-- SDB Text - White Bold -->
+  <text x="0" y="108" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="130" fill="#ffffff" letter-spacing="-4">SDB</text>
+
+  <!-- Syrian Flag Circle - larger, matching original -->
+  <defs>
+    <clipPath id="fc"><circle cx="395" cy="55" r="55"/></clipPath>
+    <radialGradient id="shine" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+
+  <g clip-path="url(#fc)">
+    <!-- Green top stripe -->
+    <rect x="340" y="0" width="110" height="36.7" fill="#1B5E20"/>
+    <!-- White middle stripe -->
+    <rect x="340" y="36.7" width="110" height="36.6" fill="#ffffff"/>
+    <!-- Black bottom stripe -->
+    <rect x="340" y="73.3" width="110" height="36.7" fill="#1a1a1a"/>
     <!-- 3 Red Stars -->
     <g fill="#B71C1C">
-      <polygon points="153,30 154.2,26.2 158,26.2 154.9,23.8 156.1,20 153,22.4 149.9,20 151.1,23.8 148,26.2 151.8,26.2" />
-      <polygon points="165,30 166.2,26.2 170,26.2 166.9,23.8 168.1,20 165,22.4 161.9,20 163.1,23.8 160,26.2 163.8,26.2" />
-      <polygon points="177,30 178.2,26.2 182,26.2 178.9,23.8 180.1,20 177,22.4 173.9,20 175.1,23.8 172,26.2 175.8,26.2" />
+      <polygon points="375,60 377.4,52.4 385,52.4 378.8,47.6 381.2,40 375,44.8 368.8,40 371.2,47.6 365,52.4 372.6,52.4"/>
+      <polygon points="395,60 397.4,52.4 405,52.4 398.8,47.6 401.2,40 395,44.8 388.8,40 391.2,47.6 385,52.4 392.6,52.4"/>
+      <polygon points="415,60 417.4,52.4 425,52.4 418.8,47.6 421.2,40 415,44.8 408.8,40 411.2,47.6 405,52.4 412.6,52.4"/>
     </g>
   </g>
+  <!-- 3D shine effect -->
+  <circle cx="395" cy="55" r="55" fill="url(#shine)"/>
+
   <!-- SYRIA DIGITAL BANK subtitle -->
-  <text x="105" y="58" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="5.5" fill="rgba(255,255,255,0.5)" letter-spacing="1.5" text-anchor="middle">SYRIA DIGITAL BANK</text>
+  <text x="240" y="135" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="rgba(255,255,255,0.5)" letter-spacing="4" text-anchor="middle">SYRIA DIGITAL BANK</text>
 </svg>
