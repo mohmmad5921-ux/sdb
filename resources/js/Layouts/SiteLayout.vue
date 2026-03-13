@@ -378,6 +378,7 @@ const t = computed(() => isAr.value ? {
     { label: 'التحليلات', href: '/analytics' },
     { label: 'المعاشات', href: '/salary' },
     { label: 'ليرتنا', href: '/lirtna' },
+    { label: 'التطبيق', href: '/app' },
   ],
   col4h: 'الأمان', col4: [
     { label: 'الحماية', href: '/security' },
@@ -422,6 +423,7 @@ const t = computed(() => isAr.value ? {
     { label: 'Analytics', href: '/analytics' },
     { label: 'Salary', href: '/salary' },
     { label: 'Lirtna', href: '/lirtna' },
+    { label: 'The App', href: '/app' },
   ],
   col4h: 'Security', col4: [
     { label: 'Protection', href: '/security' },
@@ -604,7 +606,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
     <div class="sw">
       <div class="sf-top">
         <div class="sf-brand">
-          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-new.png" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
+          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-white.svg" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
             <span class="sf-soc-icon">𝕏</span>
@@ -638,7 +640,6 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
         <div class="sf-col-h" style="margin-bottom:12px">{{ t.col6h }}</div>
         <div class="sf-contact-row">
           <span class="sf-contact-item">📧 info@sdb-bank.com</span>
-          <span class="sf-contact-item">📞 +45 42 80 55 94</span>
           <span class="sf-contact-item">📍 Denmark 🇩🇰</span>
         </div>
       </div>
