@@ -132,11 +132,7 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
 
     setState(() => _uploading = true);
     try {
-      final r = await ApiService.uploadKycDocuments(
-        idFrontPath: picked.path,
-        idBackPath: picked.path,
-        selfiePath: picked.path,
-      );
+      final r = await ApiService.uploadAdditionalDocument(picked.path);
       if (mounted) {
         setState(() {
           _uploading = false;

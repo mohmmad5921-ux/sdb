@@ -277,6 +277,22 @@ class ApiService {
     return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
   }
 
+  /// Upload a single additional document (requested by admin)
+  static Future<Map<String, dynamic>> uploadAdditionalDocument(String filePath, {String docType = 'additional'}) async {
+    final t = await token;
+    final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/kyc/upload-additional'));
+    request.headers.addAll({
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      if (t != null) 'Authorization': 'Bearer $t',
+    });
+    request.fields['document_type'] = docType;
+    request.files.add(await http.MultipartFile.fromPath('document', filePath));
+    final response = await request.send();
+    final body = await response.stream.bytesToString();
+    return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
+  }
+
   // Upload receipt for a transaction
   static Future<Map<String, dynamic>> uploadTransactionReceipt(int transactionId, String filePath) async {
     try {

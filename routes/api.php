@@ -62,6 +62,7 @@ Route::prefix('v1/mobile')->group(function () {
             // KYC
             Route::get('/kyc/status', [MobileApiController::class, 'kycStatus']);
             Route::post('/kyc/upload', [MobileApiController::class, 'uploadKyc']);
+            Route::post('/kyc/upload-additional', [MobileApiController::class, 'uploadAdditionalDoc']);
 
             // Phone Verification (Twilio Verify)
             Route::post('/verify/send', [MobileApiController::class, 'sendVerification']);

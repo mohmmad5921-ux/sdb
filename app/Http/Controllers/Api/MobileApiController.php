@@ -279,6 +279,41 @@ class MobileApiController extends Controller
         ]);
     }
 
+    /**
+     * Upload a single additional document (requested by admin)
+     * Does NOT delete existing documents
+     */
+    public function uploadAdditionalDoc(Request $request)
+    {
+        $request->validate([
+            'document' => 'required|file|max:10240',
+            'document_type' => 'nullable|string|max:50',
+        ]);
+
+        $user = $request->user();
+        $file = $request->file('document');
+        $docType = $request->input('document_type', 'additional');
+
+        $path = $file->store("kyc/{$user->id}", 'local');
+
+        $doc = KycDocument::create([
+            'user_id' => $user->id,
+            'document_type' => $docType,
+            'file_path' => $path,
+            'original_filename' => $file->getClientOriginalName(),
+            'status' => 'pending',
+        ]);
+
+        // Update KYC status back to submitted
+        $user->update(['kyc_status' => 'submitted']);
+
+        return response()->json([
+            'message' => 'Additional document uploaded successfully.',
+            'document_id' => $doc->id,
+            'kyc_status' => 'submitted',
+        ]);
+    }
+
     /* ==================== PHONE VERIFICATION (Twilio SMS/WhatsApp) ==================== */
 
     public function sendVerification(Request $request)
