@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
@@ -11,8 +13,8 @@ class PhoneVerificationScreen extends StatefulWidget {
 
 class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   final _phoneCtrl = TextEditingController();
-  final _otpCtrls = List.generate(6, (_) => TextEditingController());
-  final _otpFocus = List.generate(6, (_) => FocusNode());
+  final _otpCtrl = TextEditingController();
+  String _otpValue = '';
 
   bool _codeSent = false;
   bool _loading = false;
@@ -49,12 +51,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   @override
   void dispose() {
     _phoneCtrl.dispose();
-    for (var c in _otpCtrls) { c.dispose(); }
-    for (var f in _otpFocus) { f.dispose(); }
+    _otpCtrl.dispose();
     super.dispose();
   }
 
-  String get _otp => _otpCtrls.map((c) => c.text).join();
+  String get _otp => _otpValue;
 
   Future<void> _sendCode() async {
     final phone = _phoneCtrl.text.trim();
@@ -284,32 +285,41 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       ),
       const SizedBox(height: 32),
 
-      Directionality(textDirection: TextDirection.ltr, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(6, (i) =>
-        Container(
-          width: 48, height: 56,
-          margin: EdgeInsets.symmetric(horizontal: i == 3 ? 8 : 4),
-          child: TextField(
-            controller: _otpCtrls[i],
-            focusNode: _otpFocus[i],
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-            maxLength: 1,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
-            decoration: InputDecoration(
-              counterText: '',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
-              filled: true,
-              fillColor: AppTheme.bgCard,
-            ),
-            onChanged: (v) {
-              if (v.isNotEmpty && i < 5) _otpFocus[i + 1].requestFocus();
-              if (v.isEmpty && i > 0) _otpFocus[i - 1].requestFocus();
-            },
+      Directionality(textDirection: TextDirection.ltr, child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: PinCodeTextField(
+          appContext: context,
+          length: 6,
+          controller: _otpCtrl,
+          autoFocus: true,
+          keyboardType: TextInputType.number,
+          animationType: AnimationType.fade,
+          enableActiveFill: true,
+          autoDisposeControllers: false,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+          pinTheme: PinTheme(
+            shape: PinCodeFieldShape.box,
+            borderRadius: BorderRadius.circular(14),
+            fieldHeight: 56,
+            fieldWidth: 48,
+            activeFillColor: AppTheme.bgCard,
+            inactiveFillColor: AppTheme.bgCard,
+            selectedFillColor: AppTheme.bgCard,
+            activeColor: AppTheme.primary,
+            inactiveColor: AppTheme.border,
+            selectedColor: AppTheme.primary,
+            borderWidth: 2,
           ),
+          onChanged: (value) {
+            setState(() => _otpValue = value);
+          },
+          onCompleted: (value) {
+            _otpValue = value;
+            _verifyCode();
+          },
         ),
-      ))),
+      )),
       const SizedBox(height: 16),
 
       if (_error != null) Container(

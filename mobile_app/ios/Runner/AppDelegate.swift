@@ -11,6 +11,10 @@ import FirebaseMessaging
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     
+    // Clear badge count on launch
+    application.applicationIconBadgeNumber = 0
+    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    
     // Register for remote notifications
     application.registerForRemoteNotifications()
     
