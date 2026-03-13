@@ -1,12 +1,16 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { inject, computed } from 'vue';
+import { inject, computed, ref } from 'vue';
 import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
 
-const iosUrl = 'https://apps.apple.com/app/sdb-bank/id6740003498';
-const androidUrl = 'https://play.google.com/store/apps/details?id=com.sdbbank.app';
+const showToast = inject('showToast', () => {});
+const comingSoonMsg = computed(() => isAr.value ? '📱 التطبيق سيكون متاحاً قريباً في المتجر!' : '📱 The app will be available soon in the store!');
+function handleBadgeClick(e) {
+  e.preventDefault();
+  showToast(comingSoonMsg.value, 'success');
+}
 
 const t = computed(() => isAr.value ? {
   title: 'تطبيق SDB Bank', tag: 'التطبيق الرسمي',
@@ -99,10 +103,10 @@ const t = computed(() => isAr.value ? {
         <h1 class="ap-h1">{{ t.heroH }}<br><span class="ap-h1-em">{{ t.heroEm }}</span></h1>
         <p class="ap-hero-p">{{ t.heroP }}</p>
         <div class="ap-badges">
-          <a :href="iosUrl" target="_blank" class="ap-badge">
+          <a href="#" class="ap-badge" @click="handleBadgeClick">
             <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store" />
           </a>
-          <a :href="androidUrl" target="_blank" class="ap-badge">
+          <a href="#" class="ap-badge" @click="handleBadgeClick">
             <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
           </a>
         </div>
@@ -192,10 +196,10 @@ const t = computed(() => isAr.value ? {
     <h2 class="ap-cta-h">{{ t.ctaH }}</h2>
     <p class="ap-cta-p">{{ t.ctaP }}</p>
     <div class="ap-badges ap-badges-center">
-      <a :href="iosUrl" target="_blank" class="ap-badge">
+      <a href="#" class="ap-badge" @click="handleBadgeClick">
         <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="App Store" />
       </a>
-      <a :href="androidUrl" target="_blank" class="ap-badge">
+      <a href="#" class="ap-badge" @click="handleBadgeClick">
         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Google Play" />
       </a>
     </div>
@@ -221,7 +225,7 @@ const t = computed(() => isAr.value ? {
 .ap-badges { display: flex; gap: 12px; flex-wrap: wrap; }
 .ap-badges-center { justify-content: center; }
 .ap-badge { display: inline-block; transition: all .25s; border-radius: 10px; overflow: hidden; }
-.ap-badge img { height: 52px; width: auto; display: block; }
+.ap-badge img { height: 54px; width: auto; display: block; object-fit: contain; }
 .ap-badge:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 
 /* Phone Mockup */
