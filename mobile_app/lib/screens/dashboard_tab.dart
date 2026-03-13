@@ -38,14 +38,19 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
-    final r = await ApiService.getDashboard();
-    final cardsR = await ApiService.getCards();
-    if (mounted) {
-      if (r['success'] == true) _data = r['data'];
-      if (cardsR['success'] == true) _cards = List<Map<String, dynamic>>.from(cardsR['data']?['cards'] ?? []);
-      setState(() => _loading = false);
-      _loadBackground();
+    try {
+      setState(() => _loading = true);
+      final r = await ApiService.getDashboard();
+      final cardsR = await ApiService.getCards();
+      if (mounted) {
+        if (r['success'] == true) _data = r['data'];
+        if (cardsR['success'] == true) _cards = List<Map<String, dynamic>>.from(cardsR['data']?['cards'] ?? []);
+        setState(() => _loading = false);
+        _loadBackground();
+      }
+    } catch (e) {
+      debugPrint('🔴 Dashboard load error: $e');
+      if (mounted) setState(() => _loading = false);
     }
   }
 

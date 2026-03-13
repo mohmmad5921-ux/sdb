@@ -35,6 +35,14 @@ void main() async {
     statusBarBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.dark,
   ));
+
+  // Catch Flutter framework errors
+  FlutterError.onError = (details) {
+    debugPrint('🔴 Flutter Error: ${details.exceptionAsString()}');
+    debugPrint('🔴 Stack: ${details.stack}');
+    FlutterError.presentError(details);
+  };
+
   runApp(const SDBApp());
 }
 
