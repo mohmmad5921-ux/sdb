@@ -14,6 +14,8 @@ class _InsightsTabState extends State<InsightsTab> {
   bool _loading = true;
   int _activeTab = 0; // 0=Spending, 1=Income, 2=Cash Flow
   int _timeFilter = 0; // 0=Month, 1=Year, 2=All Time
+  int? _selectedAccountId; // null = All accounts
+  int _chartType = 1; // 0=Pie, 1=Bar
 
   @override
   void initState() { super.initState(); _load(); }
@@ -24,9 +26,7 @@ class _InsightsTabState extends State<InsightsTab> {
     final tr = await ApiService.getTransactions();
     if (mounted) {
       setState(() {
-        if (r['success'] == true) {
-          _accounts = List<Map<String, dynamic>>.from(r['data']?['accounts'] ?? []);
-        }
+        if (r['success'] == true) _accounts = List<Map<String, dynamic>>.from(r['data']?['accounts'] ?? []);
         if (tr['success'] == true) {
           final data = tr['data']?['data'] ?? tr['data'];
           if (data is List) _transactions = List<Map<String, dynamic>>.from(data);
@@ -41,12 +41,25 @@ class _InsightsTabState extends State<InsightsTab> {
 
   // ═══════ Data Helpers ═══════
 
-  Set<dynamic> get _accountIds => _accounts.map((a) => a['id']).toSet();
+  Set<dynamic> get _accountIds {
+    if (_selectedAccountId != null) return {_selectedAccountId};
+    return _accounts.map((a) => a['id']).toSet();
+  }
+
+  Set<dynamic> get _allAccountIds => _accounts.map((a) => a['id']).toSet();
 
   List<Map<String, dynamic>> get _filteredTransactions {
-    if (_timeFilter == 2) return _transactions;
+    final txs = _transactions.where((tx) {
+      // Filter by account if selected
+      if (_selectedAccountId != null) {
+        if (tx['from_account_id'] != _selectedAccountId && tx['to_account_id'] != _selectedAccountId) return false;
+      }
+      return true;
+    }).toList();
+
+    if (_timeFilter == 2) return txs;
     final now = DateTime.now();
-    return _transactions.where((tx) {
+    return txs.where((tx) {
       try {
         final dt = DateTime.parse(tx['created_at'] ?? '');
         if (_timeFilter == 0) return dt.month == now.month && dt.year == now.year;
@@ -59,11 +72,10 @@ class _InsightsTabState extends State<InsightsTab> {
   Map<String, double> get _spendingByCategory {
     final cats = <String, double>{};
     for (final tx in _filteredTransactions) {
-      final isOut = _accountIds.contains(tx['from_account_id']) && !_accountIds.contains(tx['to_account_id']);
+      final isOut = _allAccountIds.contains(tx['from_account_id']) && !_allAccountIds.contains(tx['to_account_id']);
       if (isOut) {
-        String cat = _categorize(tx);
-        double amt = _parseAmount(tx);
-        cats[cat] = (cats[cat] ?? 0) + amt;
+        if (_selectedAccountId != null && tx['from_account_id'] != _selectedAccountId) continue;
+        cats[_categorize(tx)] = (cats[_categorize(tx)] ?? 0) + _parseAmount(tx);
       }
     }
     return cats;
@@ -72,42 +84,38 @@ class _InsightsTabState extends State<InsightsTab> {
   Map<String, double> get _incomeByCategory {
     final cats = <String, double>{};
     for (final tx in _filteredTransactions) {
-      final isIn = _accountIds.contains(tx['to_account_id']);
+      final isIn = _allAccountIds.contains(tx['to_account_id']);
       if (isIn) {
-        String cat = _categorize(tx);
-        double amt = _parseAmount(tx);
-        cats[cat] = (cats[cat] ?? 0) + amt;
+        if (_selectedAccountId != null && tx['to_account_id'] != _selectedAccountId) continue;
+        cats[_categorize(tx)] = (cats[_categorize(tx)] ?? 0) + _parseAmount(tx);
       }
     }
     return cats;
   }
 
-  Map<String, int> get _spendingCounts {
+  Map<String, int> _countByCategory(bool spending) {
     final counts = <String, int>{};
     for (final tx in _filteredTransactions) {
-      final isOut = _accountIds.contains(tx['from_account_id']) && !_accountIds.contains(tx['to_account_id']);
-      if (isOut) counts[_categorize(tx)] = (counts[_categorize(tx)] ?? 0) + 1;
-    }
-    return counts;
-  }
-
-  Map<String, int> get _incomeCounts {
-    final counts = <String, int>{};
-    for (final tx in _filteredTransactions) {
-      final isIn = _accountIds.contains(tx['to_account_id']);
-      if (isIn) counts[_categorize(tx)] = (counts[_categorize(tx)] ?? 0) + 1;
+      final isOut = _allAccountIds.contains(tx['from_account_id']) && !_allAccountIds.contains(tx['to_account_id']);
+      final isIn = _allAccountIds.contains(tx['to_account_id']);
+      if (spending && isOut) {
+        if (_selectedAccountId != null && tx['from_account_id'] != _selectedAccountId) continue;
+        counts[_categorize(tx)] = (counts[_categorize(tx)] ?? 0) + 1;
+      }
+      if (!spending && isIn) {
+        if (_selectedAccountId != null && tx['to_account_id'] != _selectedAccountId) continue;
+        counts[_categorize(tx)] = (counts[_categorize(tx)] ?? 0) + 1;
+      }
     }
     return counts;
   }
 
   double get _totalSpending => _spendingByCategory.values.fold(0, (a, b) => a + b);
   double get _totalIncome => _incomeByCategory.values.fold(0, (a, b) => a + b);
-  int get _spendingTxCount => _filteredTransactions.where((tx) => _accountIds.contains(tx['from_account_id']) && !_accountIds.contains(tx['to_account_id'])).length;
-  int get _incomeTxCount => _filteredTransactions.where((tx) => _accountIds.contains(tx['to_account_id'])).length;
+  int get _spendingTxCount => _countByCategory(true).values.fold(0, (a, b) => a + b);
+  int get _incomeTxCount => _countByCategory(false).values.fold(0, (a, b) => a + b);
 
-  double _parseAmount(Map<String, dynamic> tx) {
-    return (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount']?.toString() ?? '0') ?? 0;
-  }
+  double _parseAmount(Map<String, dynamic> tx) => (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount']?.toString() ?? '0') ?? 0;
 
   String _categorize(Map<String, dynamic> tx) {
     final type = (tx['type'] ?? tx['description'] ?? '').toString().toLowerCase();
@@ -119,27 +127,8 @@ class _InsightsTabState extends State<InsightsTab> {
     return 'أخرى';
   }
 
-  IconData _catIcon(String cat) {
-    switch (cat) {
-      case 'تحويلات': return Icons.send_rounded;
-      case 'إيداعات': return Icons.account_balance_rounded;
-      case 'صرف عملات': return Icons.swap_horiz_rounded;
-      case 'مدفوعات بطاقة': return Icons.credit_card_rounded;
-      case 'رسوم': return Icons.receipt_long_rounded;
-      default: return Icons.help_outline_rounded;
-    }
-  }
-
-  Color _catColor(String cat) {
-    switch (cat) {
-      case 'تحويلات': return const Color(0xFF3B82F6);
-      case 'إيداعات': return AppTheme.primary;
-      case 'صرف عملات': return const Color(0xFFF59E0B);
-      case 'مدفوعات بطاقة': return const Color(0xFFA855F7);
-      case 'رسوم': return const Color(0xFFEF4444);
-      default: return const Color(0xFF6B7280);
-    }
-  }
+  IconData _catIcon(String c) => {'تحويلات': Icons.send_rounded, 'إيداعات': Icons.account_balance_rounded, 'صرف عملات': Icons.swap_horiz_rounded, 'مدفوعات بطاقة': Icons.credit_card_rounded, 'رسوم': Icons.receipt_long_rounded}[c] ?? Icons.help_outline_rounded;
+  Color _catColor(String c) => {'تحويلات': const Color(0xFF3B82F6), 'إيداعات': AppTheme.primary, 'صرف عملات': const Color(0xFFF59E0B), 'مدفوعات بطاقة': const Color(0xFFA855F7), 'رسوم': const Color(0xFFEF4444)}[c] ?? const Color(0xFF6B7280);
 
   String _dateRangeLabel() {
     final now = DateTime.now();
@@ -149,38 +138,36 @@ class _InsightsTabState extends State<InsightsTab> {
     return 'كل الفترات';
   }
 
-  // ═══════ Monthly Bar Data ═══════
+  String _accountLabel() {
+    if (_selectedAccountId == null) return 'جميع الحسابات';
+    final acc = _accounts.firstWhere((a) => a['id'] == _selectedAccountId, orElse: () => {});
+    return acc['name'] ?? acc['currency']?['code'] ?? 'حساب';
+  }
+
+  // ═══════ Monthly Bars ═══════
 
   List<_MonthBar> _getMonthlyBars() {
     final now = DateTime.now();
     final bars = <_MonthBar>[];
-    final monthNames = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-    // Show last 4 months
+    final mn = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     for (int i = 3; i >= 0; i--) {
-      final month = now.month - i;
-      final year = now.year;
-      final adjustedMonth = month <= 0 ? month + 12 : month;
-      final adjustedYear = month <= 0 ? year - 1 : year;
-
+      int month = now.month - i;
+      int year = now.year;
+      if (month <= 0) { month += 12; year--; }
       double spending = 0, income = 0;
       for (final tx in _transactions) {
         try {
           final dt = DateTime.parse(tx['created_at'] ?? '');
-          if (dt.month == adjustedMonth && dt.year == adjustedYear) {
+          if (dt.month == month && dt.year == year) {
+            if (_selectedAccountId != null && tx['from_account_id'] != _selectedAccountId && tx['to_account_id'] != _selectedAccountId) continue;
             final amt = _parseAmount(tx);
-            final isOut = _accountIds.contains(tx['from_account_id']) && !_accountIds.contains(tx['to_account_id']);
-            final isIn = _accountIds.contains(tx['to_account_id']);
-            if (isOut) spending += amt;
-            if (isIn) income += amt;
+            final isOut = _allAccountIds.contains(tx['from_account_id']) && !_allAccountIds.contains(tx['to_account_id']);
+            if (isOut && (_selectedAccountId == null || tx['from_account_id'] == _selectedAccountId)) spending += amt;
+            if (_allAccountIds.contains(tx['to_account_id']) && (_selectedAccountId == null || tx['to_account_id'] == _selectedAccountId)) income += amt;
           }
         } catch (_) {}
       }
-      bars.add(_MonthBar(
-        label: monthNames[adjustedMonth].substring(0, 3),
-        spending: spending,
-        income: income,
-      ));
+      bars.add(_MonthBar(label: mn[month].substring(0, 3), spending: spending, income: income));
     }
     return bars;
   }
@@ -189,15 +176,10 @@ class _InsightsTabState extends State<InsightsTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF111111),
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-      );
-    }
+    if (_loading) return const Scaffold(backgroundColor: AppTheme.bgLight, body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
 
     return Scaffold(
-      backgroundColor: const Color(0xFF111111),
+      backgroundColor: AppTheme.bgLight,
       body: RefreshIndicator(
         color: AppTheme.primary,
         onRefresh: _load,
@@ -211,24 +193,24 @@ class _InsightsTabState extends State<InsightsTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Row(children: [
-                  Container(
-                    width: 34, height: 34,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A2A),
-                      borderRadius: BorderRadius.circular(17),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/profile'),
+                    child: Container(
+                      width: 34, height: 34,
+                      decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(17)),
+                      child: const Icon(Icons.person_outline_rounded, size: 18, color: AppTheme.textSecondary),
                     ),
-                    child: const Icon(Icons.person_outline_rounded, size: 18, color: Color(0xFF9CA3AF)),
                   ),
                   const SizedBox(width: 10),
-                  const Text('الإحصائيات', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white)),
+                  const Text('الإحصائيات', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                 ]),
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2A2A2A),
-                    borderRadius: BorderRadius.circular(18),
+                GestureDetector(
+                  onTap: () => _showSettings(context),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(18)),
+                    child: const Icon(Icons.settings_outlined, size: 20, color: AppTheme.textSecondary),
                   ),
-                  child: const Icon(Icons.settings_outlined, size: 20, color: Color(0xFF9CA3AF)),
                 ),
               ]),
             ),
@@ -252,13 +234,11 @@ class _InsightsTabState extends State<InsightsTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
-                  _activeTab == 2
-                    ? '€${_fmtNum(_totalIncome - _totalSpending)}'
-                    : '€${_fmtNum(_activeTab == 0 ? _totalSpending : _totalIncome)}',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
+                  _activeTab == 2 ? '€${_fmtNum(_totalIncome - _totalSpending)}' : '€${_fmtNum(_activeTab == 0 ? _totalSpending : _totalIncome)}',
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppTheme.textPrimary, letterSpacing: -0.5),
                 ),
                 const SizedBox(height: 4),
-                Text(_dateRangeLabel(), style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
+                Text(_dateRangeLabel(), style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
               ]),
             ),
             const SizedBox(height: 24),
@@ -275,7 +255,7 @@ class _InsightsTabState extends State<InsightsTab> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(color: const Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
                 child: Row(children: [
                   _filterChip('الشهر', 0),
                   _filterChip('السنة', 1),
@@ -285,7 +265,7 @@ class _InsightsTabState extends State<InsightsTab> {
             ),
             const SizedBox(height: 28),
 
-            // ── Content based on tab ──
+            // ── Content ──
             if (_activeTab == 0) _buildSpendingContent(),
             if (_activeTab == 1) _buildIncomeContent(),
             if (_activeTab == 2) _buildCashFlowContent(),
@@ -295,7 +275,188 @@ class _InsightsTabState extends State<InsightsTab> {
     );
   }
 
-  // ═══════ Tab Chip (Lunar style) ═══════
+  // ═══════ Settings Sheet (Lunar style) ═══════
+
+  void _showSettings(BuildContext ctx) {
+    int tempAccount = _selectedAccountId ?? -1; // -1 = all
+    int tempChart = _chartType;
+
+    showModalBottomSheet(
+      context: ctx,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => StatefulBuilder(builder: (_, setSheetState) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Close button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(sheetCtx),
+              child: Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]),
+                child: const Icon(Icons.close_rounded, size: 20, color: AppTheme.textPrimary),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Title
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text('الإعدادات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+          ),
+          const SizedBox(height: 24),
+
+          // Account picker
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text('الحسابات', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GestureDetector(
+              onTap: () {
+                // Show account picker
+                showModalBottomSheet(context: sheetCtx, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                  builder: (pickCtx) => Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+                      const SizedBox(height: 16),
+                      const Text('اختر حساب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                      const SizedBox(height: 16),
+                      // All accounts
+                      ListTile(
+                        leading: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.primary),
+                        title: const Text('جميع الحسابات', style: TextStyle(fontWeight: FontWeight.w600)),
+                        trailing: tempAccount == -1 ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
+                        onTap: () { setSheetState(() => tempAccount = -1); Navigator.pop(pickCtx); },
+                      ),
+                      ..._accounts.map((a) => ListTile(
+                        leading: Text(a['currency']?['symbol'] ?? '€', style: const TextStyle(fontSize: 20)),
+                        title: Text(a['name'] ?? 'حساب ${a['currency']?['code'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text(a['currency']?['code'] ?? '', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                        trailing: tempAccount == a['id'] ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
+                        onTap: () { setSheetState(() => tempAccount = a['id']); Navigator.pop(pickCtx); },
+                      )),
+                    ]),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('اختر حساب', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                    const SizedBox(height: 2),
+                    Text(
+                      tempAccount == -1 ? 'جميع الحسابات' : (_accounts.firstWhere((a) => a['id'] == tempAccount, orElse: () => {'name': 'حساب'})['name'] ?? 'حساب'),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                    ),
+                  ]),
+                  const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textMuted),
+                ]),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Period
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text('الفترة الزمنية', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('اختر الفترة', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                  const SizedBox(height: 2),
+                  Text(
+                    _timeFilter == 0 ? 'آخر يوم عمل في الشهر' : _timeFilter == 1 ? 'السنة الحالية' : 'كل الفترات',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                  ),
+                ]),
+                const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textMuted),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Chart type
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text('اختر المظهر', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(children: [
+              _chartOption(sheetCtx, setSheetState, Icons.donut_large_rounded, 'دائرة الإنفاق', 0, tempChart, (v) => setSheetState(() => tempChart = v)),
+              const SizedBox(height: 8),
+              _chartOption(sheetCtx, setSheetState, Icons.bar_chart_rounded, 'رسم بياني', 1, tempChart, (v) => setSheetState(() => tempChart = v)),
+            ]),
+          ),
+          const Spacer(),
+
+          // Apply button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+            child: SizedBox(width: double.infinity, height: 50, child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _selectedAccountId = tempAccount == -1 ? null : tempAccount;
+                  _chartType = tempChart;
+                });
+                Navigator.pop(sheetCtx);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.textPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              child: const Text('حفظ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            )),
+          ),
+        ]),
+      )),
+    );
+  }
+
+  Widget _chartOption(BuildContext ctx, StateSetter setSheet, IconData icon, String label, int value, int current, ValueChanged<int> onTap) {
+    final active = current == value;
+    return GestureDetector(
+      onTap: () => onTap(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+        child: Row(children: [
+          Icon(icon, size: 22, color: AppTheme.textSecondary),
+          const SizedBox(width: 14),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textPrimary))),
+          Container(
+            width: 24, height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: active ? AppTheme.textPrimary : AppTheme.border, width: 2),
+              color: active ? AppTheme.textPrimary : Colors.transparent,
+            ),
+            child: active ? const Icon(Icons.circle, size: 10, color: Colors.white) : null,
+          ),
+        ]),
+      ),
+    );
+  }
+
+  // ═══════ Widgets ═══════
 
   Widget _tabChip(String label, int idx) {
     final active = _activeTab == idx;
@@ -304,19 +465,17 @@ class _InsightsTabState extends State<InsightsTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? Colors.white : Colors.transparent,
+          color: active ? AppTheme.textPrimary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(label, style: TextStyle(
           fontSize: 13,
           fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-          color: active ? Colors.black : const Color(0xFF9CA3AF),
+          color: active ? Colors.white : AppTheme.textMuted,
         )),
       ),
     );
   }
-
-  // ═══════ Filter Chip ═══════
 
   Widget _filterChip(String label, int idx) {
     final active = _timeFilter == idx;
@@ -326,20 +485,21 @@ class _InsightsTabState extends State<InsightsTab> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? const Color(0xFF2A2A2A) : Colors.transparent,
+            color: active ? AppTheme.bgCard : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
+            boxShadow: active ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
           ),
           child: Center(child: Text(label, style: TextStyle(
             fontSize: 13,
             fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-            color: active ? Colors.white : const Color(0xFF6B7280),
+            color: active ? AppTheme.textPrimary : AppTheme.textMuted,
           ))),
         ),
       ),
     );
   }
 
-  // ═══════ Bar Chart (Lunar style) ═══════
+  // ═══════ Bar Chart ═══════
 
   Widget _buildBarChart() {
     final bars = _getMonthlyBars();
@@ -354,25 +514,24 @@ class _InsightsTabState extends State<InsightsTab> {
     }
     if (maxVal == 0) maxVal = 1;
 
-    // Average
     double avg = 0;
     if (_activeTab == 0) avg = bars.map((b) => b.spending).reduce((a, b) => a + b) / bars.length;
     if (_activeTab == 1) avg = bars.map((b) => b.income).reduce((a, b) => a + b) / bars.length;
 
     return LayoutBuilder(builder: (_, constraints) {
-      final chartHeight = constraints.maxHeight - 28;
-      final barWidth = _activeTab == 2 ? 18.0 : 28.0;
+      final chartH = constraints.maxHeight - 28;
+      final barW = _activeTab == 2 ? 18.0 : 28.0;
 
       return Stack(children: [
-        // Y-axis labels
-        Positioned(right: 0, top: 0, child: Text(_fmtShort(maxVal), style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)))),
-        Positioned(right: 0, top: chartHeight * 0.5, child: Text(_fmtShort(maxVal * 0.5), style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)))),
-        Positioned(right: 0, bottom: 24, child: const Text('0', style: TextStyle(fontSize: 10, color: Color(0xFF6B7280)))),
+        // Y-axis
+        Positioned(right: 0, top: 0, child: Text(_fmtShort(maxVal), style: const TextStyle(fontSize: 10, color: AppTheme.textMuted))),
+        Positioned(right: 0, top: chartH * 0.5, child: Text(_fmtShort(maxVal * 0.5), style: const TextStyle(fontSize: 10, color: AppTheme.textMuted))),
+        Positioned(right: 0, bottom: 24, child: const Text('0', style: TextStyle(fontSize: 10, color: AppTheme.textMuted))),
 
         // Average line
         if (_activeTab != 2 && avg > 0) Positioned(
           left: 0, right: 40,
-          top: chartHeight * (1 - avg / maxVal),
+          top: chartH * (1 - avg / maxVal),
           child: Row(children: [
             Expanded(child: CustomPaint(painter: _DashedLinePainter(color: AppTheme.primary.withValues(alpha: 0.6)))),
             const SizedBox(width: 4),
@@ -381,47 +540,32 @@ class _InsightsTabState extends State<InsightsTab> {
         ),
 
         // Bars
-        Positioned(
-          left: 0, right: 50, bottom: 0, top: 0,
+        Positioned(left: 0, right: 50, bottom: 0, top: 0,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: bars.map((b) {
               if (_activeTab == 2) {
-                // Cash flow: side-by-side green + gray bars
-                final incH = maxVal > 0 ? (b.income / maxVal) * chartHeight : 0.0;
-                final expH = maxVal > 0 ? (b.spending / maxVal) * chartHeight : 0.0;
+                final incH = maxVal > 0 ? (b.income / maxVal) * chartH : 0.0;
+                final expH = maxVal > 0 ? (b.spending / maxVal) * chartH : 0.0;
                 return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
                   Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Container(
-                      width: barWidth, height: incH.clamp(3, chartHeight),
-                      decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(4)),
-                    ),
+                    Container(width: barW, height: incH.clamp(3, chartH), decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(4))),
                     const SizedBox(width: 3),
-                    Container(
-                      width: barWidth, height: expH.clamp(3, chartHeight),
-                      decoration: BoxDecoration(color: const Color(0xFF4B5563), borderRadius: BorderRadius.circular(4)),
-                    ),
+                    Container(width: barW, height: expH.clamp(3, chartH), decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(4))),
                   ]),
                   const SizedBox(height: 6),
-                  Text(b.label, style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
-                ]);
-              } else {
-                // Spending or income: single bar
-                final val = _activeTab == 0 ? b.spending : b.income;
-                final h = maxVal > 0 ? (val / maxVal) * chartHeight : 0.0;
-                final color = _activeTab == 0
-                    ? const Color(0xFFE5E7EB) // Gray for spending (Lunar style)
-                    : AppTheme.primary; // Green for income
-                return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  Container(
-                    width: barWidth, height: h.clamp(3, chartHeight),
-                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(5)),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(b.label, style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
+                  Text(b.label, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
                 ]);
               }
+              final val = _activeTab == 0 ? b.spending : b.income;
+              final h = maxVal > 0 ? (val / maxVal) * chartH : 0.0;
+              final color = _activeTab == 0 ? const Color(0xFFD1D5DB) : AppTheme.primary;
+              return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                Container(width: barW, height: h.clamp(3, chartH), decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(5))),
+                const SizedBox(height: 6),
+                Text(b.label, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+              ]);
             }).toList(),
           ),
         ),
@@ -429,162 +573,287 @@ class _InsightsTabState extends State<InsightsTab> {
     });
   }
 
-  // ═══════ Spending Content ═══════
+  // ═══════ Spending ═══════
 
   Widget _buildSpendingContent() {
     final data = _spendingByCategory;
-    final counts = _spendingCounts;
+    final counts = _countByCategory(true);
+    final sorted = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      // Header
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: const [
-            Text('الفئات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
+            Text('الفئات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
             SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF6B7280)),
+            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
           ]),
         ]),
       ),
       const SizedBox(height: 12),
-
       if (data.isEmpty)
         _emptyState()
       else
-        ...(data.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).map((e) =>
-          _categoryRow(e.key, counts[e.key] ?? 0, e.value, _catIcon(e.key), _catColor(e.key)),
-        ),
+        ...sorted.map((e) => _categoryRow(e.key, counts[e.key] ?? 0, e.value, _catIcon(e.key), _catColor(e.key), onTap: () => _openCategoryDetail(e.key, e.value, counts[e.key] ?? 0, true))),
     ]);
   }
 
-  // ═══════ Income Content ═══════
+  // ═══════ Income ═══════
 
   Widget _buildIncomeContent() {
     final data = _incomeByCategory;
-    final counts = _incomeCounts;
+    final counts = _countByCategory(false);
+    final sorted = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Text('المعاملات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Text('المعاملات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
       ),
       const SizedBox(height: 12),
-
       if (data.isEmpty)
         _emptyState()
       else
-        ...(data.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).map((e) =>
-          _categoryRow(e.key, counts[e.key] ?? 0, e.value, _catIcon(e.key), _catColor(e.key), isIncome: true),
-        ),
+        ...sorted.map((e) => _categoryRow(e.key, counts[e.key] ?? 0, e.value, _catIcon(e.key), _catColor(e.key), isIncome: true, onTap: () => _openCategoryDetail(e.key, e.value, counts[e.key] ?? 0, false))),
     ]);
   }
 
-  // ═══════ Cash Flow Content ═══════
+  // ═══════ Cash Flow ═══════
 
   Widget _buildCashFlowContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(children: [
-        // Income row
-        _cashFlowRow(
-          icon: Icons.add_rounded,
-          iconColor: AppTheme.primary,
-          label: 'الدخل',
-          count: _incomeTxCount,
-          amount: _totalIncome,
+        GestureDetector(
+          onTap: () => setState(() => _activeTab = 1),
+          child: _cashFlowRow(Icons.add_rounded, AppTheme.primary, 'الدخل', _incomeTxCount, _totalIncome),
         ),
         const SizedBox(height: 10),
-        // Expenses row
-        _cashFlowRow(
-          icon: Icons.remove_rounded,
-          iconColor: const Color(0xFF6B7280),
-          label: 'المصروفات',
-          count: _spendingTxCount,
-          amount: _totalSpending,
+        GestureDetector(
+          onTap: () => setState(() => _activeTab = 0),
+          child: _cashFlowRow(Icons.remove_rounded, AppTheme.textMuted, 'المصروفات', _spendingTxCount, _totalSpending),
         ),
       ]),
     );
   }
 
-  Widget _cashFlowRow({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required int count,
-    required double amount,
-  }) {
+  Widget _cashFlowRow(IconData icon, Color iconColor, String label, int count, double amount) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
       ),
       child: Row(children: [
         Container(
           width: 40, height: 40,
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(20),
-          ),
+          decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
           child: Icon(icon, size: 20, color: iconColor),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
-          Text('$count عملية', style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+          Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+          Text('$count عملية', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
         ])),
-        Text('€${_fmtNum(amount)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+        Text('€${_fmtNum(amount)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         const SizedBox(width: 6),
-        const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF4B5563)),
+        const Icon(Icons.chevron_right_rounded, size: 18, color: AppTheme.textMuted),
       ]),
     );
   }
 
-  // ═══════ Category Row (Lunar dark style) ═══════
+  // ═══════ Category Row ═══════
 
-  Widget _categoryRow(String name, int count, double amount, IconData icon, Color color, {bool isIncome = false}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(children: [
-        Container(
-          width: 42, height: 42,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(21),
+  Widget _categoryRow(String name, int count, double amount, IconData icon, Color color, {bool isIncome = false, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
+        ),
+        child: Row(children: [
+          Container(
+            width: 42, height: 42,
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(21)),
+            child: Icon(icon, size: 20, color: color),
           ),
-          child: Icon(icon, size: 20, color: color),
-        ),
-        const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
-          Text('$count عملية', style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
-        ])),
-        Text(
-          '${isIncome ? "" : "-"}€${_fmtNum(amount)}',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-      ]),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            Text('$count عملية', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+          ])),
+          Text('${isIncome ? "" : "-"}€${_fmtNum(amount)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+        ]),
+      ),
+    );
+  }
+
+  // ═══════ Category Detail Page ═══════
+
+  void _openCategoryDetail(String catName, double total, int count, bool isSpending) {
+    final color = _catColor(catName);
+    final txsInCat = _filteredTransactions.where((tx) {
+      final isOut = _allAccountIds.contains(tx['from_account_id']) && !_allAccountIds.contains(tx['to_account_id']);
+      final isIn = _allAccountIds.contains(tx['to_account_id']);
+      if (isSpending && isOut && _categorize(tx) == catName) return true;
+      if (!isSpending && isIn && _categorize(tx) == catName) return true;
+      return false;
+    }).toList();
+
+    Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
+      backgroundColor: AppTheme.bgLight,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Back button
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(20)),
+                child: const Icon(Icons.arrow_back_rounded, size: 20, color: AppTheme.textPrimary),
+              ),
+            ),
+          ),
+
+          // Time filter
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
+              child: Row(children: [
+                _filterChip('الشهر', 0),
+                _filterChip('السنة', 1),
+                _filterChip('كل الفترات', 2),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Category name + icon + amount
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(catName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                Text('${isSpending ? "-" : ""}€${_fmtNum(total)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                const SizedBox(height: 4),
+                Text(_dateRangeLabel(), style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+              ]),
+              Container(
+                width: 48, height: 48,
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(24)),
+                child: Icon(_catIcon(catName), size: 24, color: color),
+              ),
+            ]),
+          ),
+          const SizedBox(height: 24),
+
+          // Mini bar chart for this category
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SizedBox(height: 120, child: _buildCategoryChart(catName, isSpending, color)),
+          ),
+          const SizedBox(height: 24),
+
+          // Transactions in this category
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text('المعاملات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          ),
+          const SizedBox(height: 12),
+
+          ...txsInCat.map((tx) {
+            final desc = tx['description'] ?? tx['type'] ?? '';
+            final amt = _parseAmount(tx);
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppTheme.bgCard,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
+              ),
+              child: Row(children: [
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                  child: Icon(_catIcon(catName), size: 18, color: color),
+                ),
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(desc.toString(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary), overflow: TextOverflow.ellipsis),
+                  Text(_fmtDate(tx['created_at'] ?? ''), style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                ])),
+                Text('${isSpending ? "-" : ""}€${_fmtNum(amt)}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              ]),
+            );
+          }),
+
+          const SizedBox(height: 32),
+        ]),
+      ),
+    )));
+  }
+
+  Widget _buildCategoryChart(String catName, bool isSpending, Color color) {
+    final now = DateTime.now();
+    final mn = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    final bars = <_MonthBar>[];
+    for (int i = 3; i >= 0; i--) {
+      int month = now.month - i;
+      int year = now.year;
+      if (month <= 0) { month += 12; year--; }
+      double val = 0;
+      for (final tx in _transactions) {
+        try {
+          final dt = DateTime.parse(tx['created_at'] ?? '');
+          if (dt.month == month && dt.year == year && _categorize(tx) == catName) {
+            final isOut = _allAccountIds.contains(tx['from_account_id']) && !_allAccountIds.contains(tx['to_account_id']);
+            final isIn = _allAccountIds.contains(tx['to_account_id']);
+            if (isSpending && isOut) val += _parseAmount(tx);
+            if (!isSpending && isIn) val += _parseAmount(tx);
+          }
+        } catch (_) {}
+      }
+      bars.add(_MonthBar(label: mn[month].substring(0, 3), spending: val, income: val));
+    }
+    double maxVal = bars.map((b) => b.spending).reduce((a, b) => a > b ? a : b);
+    if (maxVal == 0) maxVal = 1;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: bars.map((b) {
+        final h = (b.spending / maxVal) * 90;
+        return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+          Container(width: 28, height: h.clamp(3, 90), decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(5))),
+          const SizedBox(height: 6),
+          Text(b.label, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted)),
+        ]);
+      }).toList(),
     );
   }
 
   // ═══════ Empty State ═══════
 
-  Widget _emptyState() {
-    return Padding(
-      padding: const EdgeInsets.all(40),
-      child: Center(child: Column(children: [
-        Icon(Icons.insights_rounded, size: 48, color: const Color(0xFF4B5563).withValues(alpha: 0.4)),
-        const SizedBox(height: 12),
-        const Text('لا توجد بيانات لهذه الفترة', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
-      ])),
-    );
-  }
+  Widget _emptyState() => Padding(
+    padding: const EdgeInsets.all(40),
+    child: Center(child: Column(children: [
+      Icon(Icons.insights_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+      const SizedBox(height: 12),
+      const Text('لا توجد بيانات لهذه الفترة', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+    ])),
+  );
 
   // ═══════ Helpers ═══════
 
@@ -593,13 +862,17 @@ class _InsightsTabState extends State<InsightsTab> {
     return d.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+\.)'), (m) => '${m[1]},');
   }
 
-  String _fmtShort(double n) {
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}k';
-    return n.toStringAsFixed(0);
+  String _fmtShort(double n) => n >= 1000 ? '${(n / 1000).toStringAsFixed(1)}k' : n.toStringAsFixed(0);
+
+  String _fmtDate(String d) {
+    if (d.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(d);
+      final m = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      return '${dt.day} ${m[dt.month]}';
+    } catch (_) { return d; }
   }
 }
-
-// ═══════ Month bar data ═══════
 
 class _MonthBar {
   final String label;
@@ -608,22 +881,15 @@ class _MonthBar {
   _MonthBar({required this.label, required this.spending, required this.income});
 }
 
-// ═══════ Dashed line painter ═══════
-
 class _DashedLinePainter extends CustomPainter {
   final Color color;
   _DashedLinePainter({required this.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = color..strokeWidth = 1.5;
     double x = 0;
-    while (x < size.width) {
-      canvas.drawLine(Offset(x, 0), Offset(x + 4, 0), paint);
-      x += 8;
-    }
+    while (x < size.width) { canvas.drawLine(Offset(x, 0), Offset(x + 4, 0), paint); x += 8; }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
