@@ -112,8 +112,9 @@ const t = computed(() => isAr.value ? {
         </div>
       </div>
       <div class="ap-hero-mockup">
-        <div class="iphone17">
-          <!-- iPhone Frame -->
+        <img src="/images/iphone-sdb-app.png" alt="SDB Bank App" class="ap-phone-img" />
+      </div>
+      <!--
           <div class="iphone17-notch">
             <div class="iphone17-di"></div>
           </div>
@@ -178,8 +179,7 @@ const t = computed(() => isAr.value ? {
           </div>
           <!-- Home Indicator -->
           <div class="iphone17-home"></div>
-        </div>
-      </div>
+        -->
     </div>
   </div>
 </section>
@@ -263,7 +263,9 @@ const t = computed(() => isAr.value ? {
 .ap-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(159,232,112,.12) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(159,232,112,.06) 0%, transparent 50%); }
 .ap-hero-content { display: flex; align-items: center; gap: 60px; position: relative; z-index: 1; }
 .ap-hero-text { flex: 1; }
-.ap-hero-mockup { flex: 0 0 340px; }
+.ap-hero-mockup { flex: 0 0 380px; }
+.ap-phone-img { width: 100%; max-width: 380px; height: auto; display: block; filter: drop-shadow(0 32px 64px rgba(0,0,0,.5)); animation: phone-float 4s ease-in-out infinite; }
+@keyframes phone-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 .ap-tag { font-size: 11px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: #9FE870; margin-bottom: 20px; display: inline-block; background: rgba(159,232,112,.1); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(159,232,112,.15); }
 .ap-h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 20px; }
 .ap-h1-em { color: #9FE870; }
