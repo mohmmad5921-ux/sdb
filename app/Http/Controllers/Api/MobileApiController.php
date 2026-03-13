@@ -45,7 +45,10 @@ class MobileApiController extends Controller
         }
 
         if (!$user->isActive()) {
-            return response()->json(['message' => 'Account is suspended'], 403);
+            $msg = $user->status === 'pending' 
+                ? 'حسابك قيد المراجعة. يرجى الانتظار حتى يتم تفعيله من قبل الإدارة.'
+                : 'تم تعليق حسابك. يرجى التواصل مع الدعم.';
+            return response()->json(['message' => $msg], 403);
         }
 
         $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
@@ -148,7 +151,7 @@ class MobileApiController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => $request->password,
-            'status' => 'active',
+            'status' => 'pending',
             'kyc_status' => 'pending',
             'role' => 'customer',
         ]);
