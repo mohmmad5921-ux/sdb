@@ -112,25 +112,72 @@ const t = computed(() => isAr.value ? {
         </div>
       </div>
       <div class="ap-hero-mockup">
-        <div class="ap-phone-frame">
-          <div class="ap-phone-screen">
-            <div class="ap-mock-header">
-              <div class="ap-mock-logo">SDB</div>
-              <div class="ap-mock-dots"><span></span><span></span><span></span></div>
+        <div class="iphone17">
+          <!-- iPhone Frame -->
+          <div class="iphone17-notch">
+            <div class="iphone17-di"></div>
+          </div>
+          <div class="iphone17-screen">
+            <!-- Status Bar -->
+            <div class="ip-status">
+              <span class="ip-time">9:41</span>
+              <div class="ip-status-r">
+                <span class="ip-signal">●●●●○</span>
+                <span class="ip-wifi">📶</span>
+                <span class="ip-bat">🔋</span>
+              </div>
             </div>
-            <div class="ap-mock-balance">
-              <div class="ap-mock-bal-label">{{ isAr ? 'الرصيد الكلي' : 'Total Balance' }}</div>
-              <div class="ap-mock-bal-val">€ 12,485<small>.50</small></div>
+            <!-- App Header -->
+            <div class="ip-app-header">
+              <div class="ip-avatar">أ ح</div>
+              <div class="ip-greeting">
+                <div class="ip-hello">{{ isAr ? 'مرحباً،' : 'Hello,' }}</div>
+                <div class="ip-name">{{ isAr ? 'أحمد الحسن' : 'Ahmad Al-Hasan' }}</div>
+              </div>
+              <div class="ip-notif">🔔<span class="ip-notif-dot"></span></div>
             </div>
-            <div class="ap-mock-cards">
-              <div class="ap-mock-card c1">💳 {{ isAr ? 'بطاقة ذهبية' : 'Gold Card' }}</div>
-              <div class="ap-mock-card c2">💸 {{ isAr ? 'تحويل سريع' : 'Quick Transfer' }}</div>
+            <!-- Balance Card -->
+            <div class="ip-balance-card">
+              <div class="ip-bal-top">
+                <span class="ip-bal-label">{{ isAr ? 'الرصيد الإجمالي' : 'Total Balance' }}</span>
+                <span class="ip-eye">👁</span>
+              </div>
+              <div class="ip-bal-amount">€24,850<small>.75</small></div>
+              <div class="ip-bal-change">{{ isAr ? '↑ +3.2% هذا الشهر' : '↑ +3.2% this month' }}</div>
             </div>
-            <div class="ap-mock-tx">
-              <div class="ap-mock-tx-item"><span>🛒</span><span>{{ isAr ? 'تسوّق' : 'Shopping' }}</span><span style="color:#ef4444">-€45</span></div>
-              <div class="ap-mock-tx-item"><span>💰</span><span>{{ isAr ? 'راتب' : 'Salary' }}</span><span style="color:#10b981">+€2,500</span></div>
-              <div class="ap-mock-tx-item"><span>☕</span><span>{{ isAr ? 'مقهى' : 'Coffee' }}</span><span style="color:#ef4444">-€4.50</span></div>
+            <!-- Quick Actions -->
+            <div class="ip-actions">
+              <div class="ip-action"><span class="ip-action-ic">↗</span><span class="ip-action-l">{{ isAr ? 'إرسال' : 'Send' }}</span></div>
+              <div class="ip-action"><span class="ip-action-ic">↙</span><span class="ip-action-l">{{ isAr ? 'استلام' : 'Receive' }}</span></div>
+              <div class="ip-action"><span class="ip-action-ic">⇄</span><span class="ip-action-l">{{ isAr ? 'صرف' : 'Exchange' }}</span></div>
+              <div class="ip-action"><span class="ip-action-ic">⊞</span><span class="ip-action-l">{{ isAr ? 'المزيد' : 'More' }}</span></div>
             </div>
+            <!-- Virtual Card -->
+            <div class="ip-vcard">
+              <div class="ip-vcard-top"><span class="ip-vcard-logo">SDB</span><span class="ip-vcard-type">Premium</span></div>
+              <div class="ip-vcard-num">•••• •••• •••• 4821</div>
+              <div class="ip-vcard-bot"><span>AHMAD AL-HASAN</span><span>09/28</span></div>
+            </div>
+            <!-- Transactions -->
+            <div class="ip-tx-header">
+              <span class="ip-tx-title">{{ isAr ? 'آخر العمليات' : 'Recent' }}</span>
+              <span class="ip-tx-all">{{ isAr ? 'الكل' : 'All' }} →</span>
+            </div>
+            <div class="ip-tx-list">
+              <div class="ip-tx"><div class="ip-tx-ic" style="background:rgba(16,185,129,.1);color:#10b981">↙</div><div class="ip-tx-info"><span class="ip-tx-name">{{ isAr ? 'راتب — شركة TechSyr' : 'Salary — TechSyr Co.' }}</span><span class="ip-tx-date">{{ isAr ? 'اليوم، 10:30' : 'Today, 10:30 AM' }}</span></div><span class="ip-tx-plus">+€3,200</span></div>
+              <div class="ip-tx"><div class="ip-tx-ic" style="background:rgba(239,68,68,.1);color:#ef4444">↗</div><div class="ip-tx-info"><span class="ip-tx-name">{{ isAr ? 'تحويل — ليلى أحمد' : 'Transfer — Layla Ahmad' }}</span><span class="ip-tx-date">{{ isAr ? 'أمس، 14:22' : 'Yesterday, 2:22 PM' }}</span></div><span class="ip-tx-minus">-€150</span></div>
+              <div class="ip-tx"><div class="ip-tx-ic" style="background:rgba(99,102,241,.1);color:#6366f1">🛒</div><div class="ip-tx-info"><span class="ip-tx-name">{{ isAr ? 'أمازون' : 'Amazon' }}</span><span class="ip-tx-date">{{ isAr ? 'أمس، 09:15' : 'Yesterday, 9:15 AM' }}</span></div><span class="ip-tx-minus">-€89.99</span></div>
+            </div>
+            <!-- Bottom Tab Bar -->
+            <div class="ip-tabs">
+              <div class="ip-tab ip-tab-active"><span>🏠</span><small>{{ isAr ? 'الرئيسية' : 'Home' }}</small></div>
+              <div class="ip-tab"><span>💳</span><small>{{ isAr ? 'البطاقات' : 'Cards' }}</small></div>
+              <div class="ip-tab"><span>📊</span><small>{{ isAr ? 'تحليلات' : 'Analytics' }}</small></div>
+              <div class="ip-tab"><span>⋯</span><small>{{ isAr ? 'المزيد' : 'More' }}</small></div>
+            </div>
+          </div>
+          <!-- Home Indicator -->
+          <div class="iphone17-home"></div>
           </div>
         </div>
       </div>
@@ -229,23 +276,63 @@ const t = computed(() => isAr.value ? {
 .ap-badge:last-child img { height: 72px; margin: -9px 0; }
 .ap-badge:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 
-/* Phone Mockup */
-.ap-phone-frame { background: linear-gradient(145deg, #1a1a1a, #2a2a2a); border-radius: 32px; padding: 12px; box-shadow: 0 32px 64px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05); }
-.ap-phone-screen { background: linear-gradient(135deg, #0f1b07, #163300); border-radius: 24px; padding: 20px; min-height: 420px; overflow: hidden; }
-.ap-mock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.ap-mock-logo { font-size: 18px; font-weight: 900; color: #9FE870; letter-spacing: 2px; }
-.ap-mock-dots { display: flex; gap: 4px; }
-.ap-mock-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.2); }
-.ap-mock-balance { margin-bottom: 24px; }
-.ap-mock-bal-label { font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 4px; }
-.ap-mock-bal-val { font-size: 32px; font-weight: 900; color: #fff; letter-spacing: -1px; }
-.ap-mock-bal-val small { font-size: 20px; color: rgba(255,255,255,.4); }
-.ap-mock-cards { display: flex; gap: 8px; margin-bottom: 20px; }
-.ap-mock-card { flex: 1; padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 700; color: #fff; }
-.ap-mock-card.c1 { background: linear-gradient(135deg, rgba(159,232,112,.2), rgba(159,232,112,.05)); border: 1px solid rgba(159,232,112,.15); }
-.ap-mock-card.c2 { background: linear-gradient(135deg, rgba(99,102,241,.2), rgba(99,102,241,.05)); border: 1px solid rgba(99,102,241,.15); }
-.ap-mock-tx { display: flex; flex-direction: column; gap: 8px; }
-.ap-mock-tx-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(255,255,255,.04); border-radius: 10px; font-size: 13px; color: rgba(255,255,255,.7); font-weight: 600; }
+/* iPhone 17 Pro Frame */
+.iphone17 { position: relative; width: 320px; background: linear-gradient(145deg, #3a3a3c, #1c1c1e); border-radius: 48px; padding: 10px; box-shadow: 0 40px 80px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.08), inset 0 0 0 1px rgba(255,255,255,.04); }
+.iphone17-notch { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 10; }
+.iphone17-di { width: 100px; height: 28px; background: #000; border-radius: 20px; box-shadow: 0 0 0 2px rgba(255,255,255,.04); }
+.iphone17-screen { background: linear-gradient(160deg, #0a1a00, #122800); border-radius: 40px; overflow: hidden; padding: 14px 16px 0; display: flex; flex-direction: column; min-height: 640px; }
+.iphone17-home { width: 120px; height: 4px; background: rgba(255,255,255,.25); border-radius: 4px; margin: 8px auto 6px; }
+/* Status Bar */
+.ip-status { display: flex; justify-content: space-between; align-items: center; padding: 8px 8px 6px; margin-top: 20px; }
+.ip-time { font-size: 13px; font-weight: 700; color: #fff; }
+.ip-status-r { display: flex; gap: 4px; font-size: 10px; color: rgba(255,255,255,.6); }
+/* App Header */
+.ip-app-header { display: flex; align-items: center; gap: 10px; padding: 10px 4px 8px; }
+.ip-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #9FE870, #4ade80); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #0a1a00; }
+.ip-greeting { flex: 1; }
+.ip-hello { font-size: 11px; color: rgba(255,255,255,.4); }
+.ip-name { font-size: 15px; font-weight: 800; color: #fff; }
+.ip-notif { position: relative; font-size: 18px; }
+.ip-notif-dot { position: absolute; top: -2px; right: -2px; width: 7px; height: 7px; background: #ef4444; border-radius: 50%; border: 1.5px solid #0a1a00; }
+/* Balance Card */
+.ip-balance-card { background: linear-gradient(135deg, rgba(159,232,112,.12), rgba(159,232,112,.04)); border: 1px solid rgba(159,232,112,.12); border-radius: 18px; padding: 16px; margin: 6px 0 10px; }
+.ip-bal-top { display: flex; justify-content: space-between; align-items: center; }
+.ip-bal-label { font-size: 11px; color: rgba(255,255,255,.45); font-weight: 600; }
+.ip-eye { font-size: 14px; opacity: .4; }
+.ip-bal-amount { font-size: 30px; font-weight: 900; color: #fff; margin: 6px 0 4px; letter-spacing: -1px; }
+.ip-bal-amount small { font-size: 18px; color: rgba(255,255,255,.4); }
+.ip-bal-change { font-size: 11px; color: #9FE870; font-weight: 700; }
+/* Quick Actions */
+.ip-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.ip-action { text-align: center; padding: 10px 4px 8px; background: rgba(255,255,255,.04); border-radius: 14px; border: 1px solid rgba(255,255,255,.05); }
+.ip-action-ic { display: block; font-size: 18px; color: #9FE870; margin-bottom: 4px; }
+.ip-action-l { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.5); }
+/* Virtual Card */
+.ip-vcard { background: linear-gradient(135deg, #163300, #1e4400, #163300); border-radius: 14px; padding: 14px 16px 12px; margin-bottom: 10px; position: relative; overflow: hidden; border: 1px solid rgba(159,232,112,.1); }
+.ip-vcard::after { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(159,232,112,.08), transparent); }
+.ip-vcard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ip-vcard-logo { font-size: 16px; font-weight: 900; color: #9FE870; letter-spacing: 2px; }
+.ip-vcard-type { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: 1px; background: rgba(255,255,255,.06); padding: 3px 8px; border-radius: 6px; }
+.ip-vcard-num { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.6); letter-spacing: 2px; margin-bottom: 8px; font-family: 'Courier New', monospace; }
+.ip-vcard-bot { display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: 1px; }
+/* Transactions */
+.ip-tx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 0 2px; }
+.ip-tx-title { font-size: 13px; font-weight: 800; color: #fff; }
+.ip-tx-all { font-size: 10px; color: #9FE870; font-weight: 700; }
+.ip-tx-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.ip-tx { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,.03); border-radius: 12px; }
+.ip-tx-ic { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.ip-tx-info { flex: 1; min-width: 0; }
+.ip-tx-name { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-tx-date { display: block; font-size: 9px; color: rgba(255,255,255,.3); margin-top: 1px; }
+.ip-tx-plus { font-size: 12px; font-weight: 800; color: #10b981; flex-shrink: 0; }
+.ip-tx-minus { font-size: 12px; font-weight: 800; color: #ef4444; flex-shrink: 0; }
+/* Tab Bar */
+.ip-tabs { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: auto; padding: 6px 0 10px; border-top: 1px solid rgba(255,255,255,.06); }
+.ip-tab { text-align: center; padding: 4px 0; }
+.ip-tab span { font-size: 16px; display: block; }
+.ip-tab small { font-size: 8px; color: rgba(255,255,255,.3); font-weight: 600; display: block; margin-top: 1px; }
+.ip-tab-active small { color: #9FE870; }
 
 /* Stats */
 .ap-stats-section { padding: 0; margin-top: -40px; position: relative; z-index: 2; }
@@ -297,11 +384,14 @@ const t = computed(() => isAr.value ? {
   .ap-feat-grid { grid-template-columns: repeat(2, 1fr); }
   .ap-spec-grid { grid-template-columns: repeat(3, 1fr); }
   .ap-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .iphone17 { width: 280px; }
+  .iphone17-screen { min-height: 560px; }
 }
 @media (max-width: 480px) {
   .ap-feat-grid { grid-template-columns: 1fr; }
   .ap-spec-grid { grid-template-columns: repeat(2, 1fr); }
   .ap-stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .ap-hero-mockup { flex: 0 0 280px; }
+  .iphone17 { width: 260px; }
+  .iphone17-screen { min-height: 520px; }
 }
 </style>
