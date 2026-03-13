@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -130,6 +131,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_selectedProvince != null) {
       await prefs.setString('user_province', _selectedProvince!);
     }
+
+    // Clear any old auth tokens so user must log in fresh
+    const storage = FlutterSecureStorage();
+    await storage.delete(key: 'auth_token');
+    await storage.delete(key: 'biometric_enabled');
 
     if (mounted) Navigator.pushReplacementNamed(context, '/login');
   }
