@@ -501,7 +501,7 @@ class _DashboardTabState extends State<DashboardTab> {
   Widget _buildTransactionItem(Map<String, dynamic> tx, List<Map<String, dynamic>> accounts) {
     final accountIds = accounts.map((a) => a['id']).toSet();
     final isIncoming = accountIds.contains(tx['to_account_id']);
-    final amount = (tx['amount'] ?? 0).toDouble();
+    final amount = (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount']?.toString() ?? '0') ?? 0;
     final currency = tx['currency']?['code'] ?? tx['from_account']?['currency']?['code'] ?? 'EUR';
     final symbol = _currencySymbol(currency);
     final status = tx['status'] ?? 'completed';
