@@ -711,7 +711,7 @@ html,body{background:#fff}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
 .sn-logo{text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center}
 .sn-logo-img{height:42px;width:auto}
-.sn-logo-img-ft{height:64px}
+.sn-logo-img-ft{height:90px}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:4px;margin:0 auto}
 .sn-dd{position:relative}
