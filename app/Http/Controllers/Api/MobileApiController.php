@@ -192,11 +192,16 @@ class MobileApiController extends Controller
             'city' => 'sometimes|string|max:100',
             'country' => 'sometimes|string|max:100',
             'preferred_language' => 'sometimes|in:ar,en',
+            'document_number' => 'sometimes|string|max:50',
+            'document_type' => 'sometimes|string|max:30',
+            'document_expiry' => 'sometimes|date',
+            'sex' => 'sometimes|string|max:10',
         ]);
 
         $data = $request->only([
             'full_name', 'phone', 'nationality', 'date_of_birth',
             'address', 'city', 'country', 'preferred_language',
+            'document_number', 'document_type', 'document_expiry', 'sex',
         ]);
         if ($request->has('username')) $data['username'] = strtolower($request->username);
         $request->user()->update($data);

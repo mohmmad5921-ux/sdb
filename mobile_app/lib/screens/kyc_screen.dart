@@ -4,6 +4,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
+import '../services/mrz_parser.dart';
 import 'document_scanner_screen.dart';
 
 class KycScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class KycScreen extends StatefulWidget {
 }
 
 class _KycScreenState extends State<KycScreen> {
-  // Steps: 0=docType, 1=scanFront, 2=scanBack, 3=nameVerify, 4=selfie, 5=uploading, 6=done
+  // Steps: 0=docType, 1=scanFront, 2=scanBack, 3=dataReview, 4=selfie, 5=uploading, 6=done
   int _step = 0;
   String _kycStatus = 'pending';
   bool _loading = true;
@@ -25,6 +26,8 @@ class _KycScreenState extends State<KycScreen> {
   String _extractedName = '';
   bool _nameMatched = false;
   bool _faceDetected = false;
+  Map<String, String>? _mrzData;
+  bool _savingProfile = false;
 
   final _textRecognizer = TextRecognizer();
   final _faceDetector = FaceDetector(options: FaceDetectorOptions(enableClassification: true, minFaceSize: 0.2));
@@ -74,7 +77,7 @@ class _KycScreenState extends State<KycScreen> {
     if (isFront) await _runOCR(result);
   }
 
-  // ─── OCR ───
+  // ─── OCR + MRZ ───
   Future<void> _runOCR(File imageFile) async {
     try {
       final input = InputImage.fromFilePath(imageFile.path);
@@ -82,11 +85,22 @@ class _KycScreenState extends State<KycScreen> {
       final text = recognized.text;
 
       if (text.isEmpty) {
-        setState(() { _extractedName = ''; _nameMatched = false; });
+        setState(() { _extractedName = ''; _nameMatched = false; _mrzData = null; });
         return;
       }
 
-      // Try to extract name from document
+      // 1. Try MRZ parsing first (most reliable)
+      final mrz = MrzParser.parse(text);
+      if (mrz != null) {
+        setState(() {
+          _mrzData = mrz;
+          _extractedName = mrz['full_name'] ?? '';
+          _nameMatched = true; // MRZ data is authoritative
+        });
+        return;
+      }
+
+      // 2. Fallback: extract name from visible text
       String found = '';
       final lines = text.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
       for (final line in lines) {
@@ -101,30 +115,22 @@ class _KycScreenState extends State<KycScreen> {
       }
 
       setState(() {
+        _mrzData = null;
         _extractedName = found;
         if (found.isNotEmpty && _userName != null && _userName!.isNotEmpty) {
-          // Smart matching: passport shows first + father name
-          // Registration has first + family name
-          // Match if the FIRST name matches (most important part)
           final docParts = found.toLowerCase().split(RegExp(r'[\s,]+'));
           final regParts = _userName!.toLowerCase().split(RegExp(r'[\s,]+'));
-          
-          // Check if first name matches
           bool firstMatch = false;
           if (docParts.isNotEmpty && regParts.isNotEmpty) {
             firstMatch = docParts.first == regParts.first ||
               docParts.first.contains(regParts.first) ||
               regParts.first.contains(docParts.first);
           }
-          
-          // Also check if any part of registered name appears in document
           int anyMatch = 0;
           for (final p in regParts) {
             if (p.length < 2) continue;
             if (docParts.any((d) => d.contains(p) || p.contains(d))) anyMatch++;
           }
-          
-          // Match if first name matches OR any registered name part found
           _nameMatched = firstMatch || anyMatch > 0;
         } else {
           _nameMatched = true;
@@ -132,8 +138,29 @@ class _KycScreenState extends State<KycScreen> {
       });
     } catch (e) {
       debugPrint('OCR error: $e');
-      setState(() { _extractedName = ''; _nameMatched = true; });
+      setState(() { _extractedName = ''; _nameMatched = true; _mrzData = null; });
     }
+  }
+
+  // ─── Save extracted MRZ data to profile ───
+  Future<void> _saveExtractedData() async {
+    if (_mrzData == null) return;
+    setState(() => _savingProfile = true);
+    try {
+      final data = <String, dynamic>{};
+      if (_mrzData!['nationality']?.isNotEmpty == true) data['nationality'] = _mrzData!['nationality'];
+      if (_mrzData!['date_of_birth']?.isNotEmpty == true) data['date_of_birth'] = _mrzData!['date_of_birth'];
+      if (_mrzData!['document_number']?.isNotEmpty == true) data['document_number'] = _mrzData!['document_number'];
+      if (_mrzData!['document_type']?.isNotEmpty == true) data['document_type'] = _mrzData!['document_type'];
+      if (_mrzData!['expiry_date']?.isNotEmpty == true) data['document_expiry'] = _mrzData!['expiry_date'];
+      if (_mrzData!['sex']?.isNotEmpty == true) data['sex'] = _mrzData!['sex'];
+      if (data.isNotEmpty) {
+        await ApiService.updateProfile(data);
+      }
+    } catch (e) {
+      debugPrint('Profile update error: $e');
+    }
+    setState(() => _savingProfile = false);
   }
 
   // ─── SELFIE via Scanner ───
@@ -212,13 +239,70 @@ class _KycScreenState extends State<KycScreen> {
       case 0: return _buildDocTypeSelection();
       case 1: return _buildScanStep(true);
       case 2: return _buildScanStep(false);
-      case 3: return _buildNameVerification();
+      case 3: return _mrzData != null ? _buildDataReview() : _buildNameVerification();
       case 4: return _buildSelfieStep();
       case 5: return _buildUploading();
       case 6: return _buildStatus('🎉 تم إرسال المستندات!', 'سيتم مراجعة مستنداتك خلال 24 ساعة.', Icons.check_circle_rounded, AppTheme.success, showBack: true);
       default: return _buildDocTypeSelection();
     }
   }
+
+  // ─── STEP 3 (MRZ): Data Review ───
+  Widget _buildDataReview() => SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    _progress(3, 4),
+    const SizedBox(height: 24),
+    const Text('بيانات المستند', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+    const SizedBox(height: 6),
+    Text('تم استخراج البيانات تلقائياً من المستند', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+    const SizedBox(height: 20),
+
+    Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(
+      color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: AppTheme.success.withValues(alpha: 0.3))),
+      child: Row(children: [
+        const Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 22),
+        const SizedBox(width: 10),
+        Expanded(child: Text('تم مسح ${MrzParser.docTypeLabel(_mrzData?['document_type'])} بنجاح ✅',
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF166534)))),
+      ]),
+    ),
+    const SizedBox(height: 20),
+
+    // Data cards
+    _dataRow('📝', 'الاسم الكامل', _mrzData?['full_name'] ?? '—'),
+    _dataRow('🌍', 'الجنسية', _mrzData?['nationality'] ?? '—'),
+    _dataRow('📅', 'تاريخ الميلاد', _mrzData?['date_of_birth'] ?? '—'),
+    _dataRow('🔢', 'رقم المستند', _mrzData?['document_number'] ?? '—'),
+    _dataRow('📄', 'نوع المستند', MrzParser.docTypeLabel(_mrzData?['document_type'])),
+    if (_mrzData?['sex']?.isNotEmpty == true)
+      _dataRow('👤', 'الجنس', _mrzData!['sex']!),
+    if (_mrzData?['expiry_date']?.isNotEmpty == true)
+      _dataRow('⏰', 'تاريخ الانتهاء', _mrzData!['expiry_date']!),
+
+    const SizedBox(height: 24),
+    _btn(_savingProfile ? 'جاري الحفظ...' : 'تأكيد البيانات والمتابعة', _savingProfile ? null : () async {
+      await _saveExtractedData();
+      if (mounted) setState(() => _step = 4);
+    }),
+    const SizedBox(height: 12),
+    Center(child: GestureDetector(onTap: () => setState(() => _step = 1),
+      child: const Text('إعادة مسح المستند', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary)))),
+  ]));
+
+  Widget _dataRow(String emoji, String label, String value) => Container(
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+    child: Row(children: [
+      Text(emoji, style: const TextStyle(fontSize: 20)),
+      const SizedBox(width: 12),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+        const SizedBox(height: 2),
+        Text(value.isEmpty ? '—' : value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+      ])),
+    ]),
+  );
 
   // ─── STEP 0: Doc Type ───
   Widget _buildDocTypeSelection() => SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

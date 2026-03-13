@@ -39,6 +39,10 @@ class User extends Authenticatable
         'fcm_token',
         'device_platform',
         'apns_token',
+        'document_number',
+        'document_type',
+        'document_expiry',
+        'sex',
     ];
 
     protected static function booted(): void
@@ -61,6 +65,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'date_of_birth' => 'date',
+            'document_expiry' => 'date',
             'password' => 'hashed',
         ];
     }
