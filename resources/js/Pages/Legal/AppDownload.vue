@@ -178,7 +178,6 @@ const t = computed(() => isAr.value ? {
           </div>
           <!-- Home Indicator -->
           <div class="iphone17-home"></div>
-          </div>
         </div>
       </div>
     </div>
