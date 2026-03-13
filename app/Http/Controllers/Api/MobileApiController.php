@@ -293,7 +293,7 @@ class MobileApiController extends Controller
         ]);
     }
 
-    /* ==================== PHONE VERIFICATION (Twilio Verify) ==================== */
+    /* ==================== PHONE VERIFICATION (Twilio SMS/WhatsApp) ==================== */
 
     public function sendVerification(Request $request)
     {
@@ -308,31 +308,61 @@ class MobileApiController extends Controller
         try {
             $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
             $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
-            $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+
+            if ($channel === 'whatsapp') {
+                // WhatsApp → use Twilio Verify API (supports WhatsApp templates)
+                $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                    ->asForm()
+                    ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
+                        'To' => $phone,
+                        'Channel' => 'whatsapp',
+                    ]);
+
+                if ($response->successful()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'تم إرسال رمز التحقق عبر واتساب',
+                        'channel' => 'whatsapp',
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'فشل إرسال رمز التحقق عبر واتساب',
+                ], 422);
+            }
+
+            // SMS → use Messaging Service (shows "SDB" as sender)
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $msgServiceSid = env('TWILIO_MESSAGING_SERVICE_SID');
+
+            // Cache the code for 5 minutes
+            \Illuminate\Support\Facades\Cache::put("otp:{$phone}", $code, now()->addMinutes(5));
 
             $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
                 ->asForm()
-                ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
+                ->post("https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json", [
+                    'MessagingServiceSid' => $msgServiceSid,
                     'To' => $phone,
-                    'Channel' => $channel,
+                    'Body' => "Your SDB verification code is: {$code}\n\nرمز التحقق الخاص بك: {$code}\n\nDo not share this code.",
                 ]);
 
-            if ($response->successful()) {
+            if ($response->successful() || $response->status() === 201) {
                 return response()->json([
                     'success' => true,
-                    'message' => $channel === 'whatsapp'
-                        ? 'تم إرسال رمز التحقق عبر واتساب'
-                        : 'تم إرسال رمز التحقق عبر SMS',
-                    'channel' => $channel,
+                    'message' => 'تم إرسال رمز التحقق عبر SMS',
+                    'channel' => 'sms',
                 ]);
             }
 
+            \Log::error('Twilio SMS error: ' . $response->body());
             return response()->json([
                 'success' => false,
-                'message' => 'فشل إرسال رمز التحقق: ' . ($response->json()['message'] ?? 'خطأ'),
+                'message' => 'فشل إرسال رمز التحقق',
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Twilio sendVerification error: ' . $e->getMessage());
+            \Log::error('sendVerification error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'خطأ في إرسال رمز التحقق'], 500);
         }
     }
@@ -345,6 +375,25 @@ class MobileApiController extends Controller
         ]);
 
         try {
+            $phone = $request->phone;
+            $code = $request->code;
+
+            // First check if there's a cached OTP (SMS path)
+            $cachedCode = \Illuminate\Support\Facades\Cache::get("otp:{$phone}");
+
+            if ($cachedCode && $cachedCode === $code) {
+                // Valid SMS OTP
+                \Illuminate\Support\Facades\Cache::forget("otp:{$phone}");
+                $request->user()->update(['phone_verified_at' => now()]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم التحقق من رقم الهاتف بنجاح',
+                    'verified' => true,
+                ]);
+            }
+
+            // Fallback: try Twilio Verify API (WhatsApp path)
             $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
             $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
             $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
@@ -352,16 +401,14 @@ class MobileApiController extends Controller
             $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
                 ->asForm()
                 ->post("https://verify.twilio.com/v2/Services/{$verifySid}/VerificationCheck", [
-                    'To' => $request->phone,
-                    'Code' => $request->code,
+                    'To' => $phone,
+                    'Code' => $code,
                 ]);
 
             $data = $response->json();
 
             if ($response->successful() && ($data['status'] ?? '') === 'approved') {
-                // Mark phone as verified on user
                 $request->user()->update(['phone_verified_at' => now()]);
-
                 return response()->json([
                     'success' => true,
                     'message' => 'تم التحقق من رقم الهاتف بنجاح',
@@ -375,7 +422,7 @@ class MobileApiController extends Controller
                 'verified' => false,
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Twilio checkVerification error: ' . $e->getMessage());
+            \Log::error('checkVerification error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'خطأ في التحقق'], 500);
         }
     }
