@@ -36,6 +36,8 @@ class PushNotificationService
 
             $projectId = self::getProjectId();
             $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+            
+            Log::info("PushNotification: Sending to FCM (project={$projectId}, token_len=" . strlen($accessToken) . ")");
 
             $message = [
                 'message' => [
@@ -132,10 +134,12 @@ class PushNotificationService
         ]);
 
         if ($response->successful()) {
-            return $response->json('access_token');
+            $token = $response->json('access_token');
+            Log::info("PushNotification: OAuth2 token obtained (len=" . strlen($token ?? '') . ")");
+            return $token;
         }
 
-        Log::error("PushNotification: Token exchange failed: {$response->body()}");
+        Log::error("PushNotification: Token exchange failed (status={$response->status()}): {$response->body()}");
         return null;
     }
 
