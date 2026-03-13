@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late Animation<double> _fadeAnim;
 
   // Google Places autocomplete
-  static const _placesKey = 'AIzaSyDl7lQagSvn7TV1jpVdIyoDaE1NwTAI5oE';
+  static const _placesKey = 'AIzaSyB192ZJck27MRW3LEp5yvPiO8IfnwSmjjk';
   List<Map<String, dynamic>> _placeSuggestions = [];
   bool _showSuggestions = false;
   Timer? _debounce;
