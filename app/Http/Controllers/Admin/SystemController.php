@@ -131,8 +131,8 @@ class SystemController extends Controller
                 'data' => json_encode(['account_id' => $account->id, 'type' => $request->type, 'amount' => $request->amount, 'currency' => $currency->code ?? '']),
             ]);
 
-            // Send FCM push
-            \App\Services\PushNotificationService::sendToUser($user, $title, $body, [
+            // Send push notification via APNs/FCM
+            \App\Services\FcmService::sendToUser($user->id, $title, $body, [
                 'type' => 'balance_update',
                 'account_id' => (string) $account->id,
                 'amount' => (string) $request->amount,
