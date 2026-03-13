@@ -397,8 +397,8 @@ const t = computed(() => isAr.value ? {
   ],
   col6h: 'تواصل معنا',
   ftDesc: 'أول بنك إلكتروني سوري — مرخّص في الدنمارك بمعايير أوروبية.\nمصمم لخدمة كل سوري بالعالم.',
-  ftCopy: '© 2026 SDB Bank ApS. جميع الحقوق محفوظة.',
-  ftReg: 'SDB Bank ApS مسجّلة في الدنمارك. خاضعة لرقابة الجهات المالية الأوروبية. جميع الأموال محمية وفقاً لمعايير الاتحاد الأوروبي.',
+  ftCopy: '© 2026 SDB Bank. جميع الحقوق محفوظة.',
+  ftReg: 'SDB Bank مسجّلة في أوروبا. خاضعة لرقابة الجهات المالية الأوروبية. جميع الأموال محمية وفقاً لمعايير الاتحاد الأوروبي.',
 } : {
   cta: 'Open Account',
   col1h: 'Accounts', col1: [
@@ -442,8 +442,8 @@ const t = computed(() => isAr.value ? {
   ],
   col6h: 'Contact',
   ftDesc: 'The first Syrian digital bank — licensed in Denmark with European standards.\nDesigned to serve every Syrian worldwide.',
-  ftCopy: '© 2026 SDB Bank ApS. All rights reserved.',
-  ftReg: 'SDB Bank ApS is registered in Denmark. Subject to European financial regulations. All funds are protected under EU standards.',
+  ftCopy: '© 2026 SDB Bank. All rights reserved.',
+  ftReg: 'SDB Bank is registered in Europe. Subject to European financial regulations. All funds are protected under EU standards.',
 });
 
 /* ─── Mobile Nav Sections ─── */
