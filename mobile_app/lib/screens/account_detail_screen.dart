@@ -263,7 +263,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     final isOut = ['withdrawal', 'card_payment', 'fee'].contains(tx['type']);
     final desc = tx['description'] ?? tx['type'] ?? '';
     final time = _formatTime(tx['created_at'] ?? '');
-    final currencyCode = (tx['currency'] is Map) ? tx['currency']?['code'] ?? 'EUR' : tx['currency']?.toString() ?? 'EUR';
+    final rawCurrency = tx['currency'];
+    final currencyCode = (rawCurrency is Map) ? (rawCurrency['code'] ?? 'EUR') : (rawCurrency != null ? rawCurrency.toString() : 'EUR');
     final symbol = _sym(currencyCode);
 
     return Padding(
