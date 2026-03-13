@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'account_detail_screen.dart';
 import 'account_background_picker.dart';
+import 'transaction_detail_page.dart';
 
 class DashboardTab extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -514,45 +515,52 @@ class _DashboardTabState extends State<DashboardTab> {
     final date = tx['created_at'] ?? '';
     final initial = desc.toString().isNotEmpty ? desc.toString().substring(0, _min(2, desc.toString().length)).toUpperCase() : 'TX';
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
-        ),
-        child: Row(children: [
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              color: isIncoming ? const Color(0xFFE8F5F0) : const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(child: Icon(
-              isIncoming ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-              size: 18, color: isIncoming ? AppTheme.primary : AppTheme.danger,
-            )),
+    return GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(
+        builder: (_) => TransactionDetailPage(tx: tx, isIncoming: isIncoming),
+      )),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.bgCard,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
           ),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(desc.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary), overflow: TextOverflow.ellipsis),
-            Text(_formatDate(date), style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-          ])),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(
-              '${isIncoming ? "+" : "-"}$symbol${_formatNumber(amount)}',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isIncoming ? AppTheme.primary : AppTheme.textPrimary),
+          child: Row(children: [
+            Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: isIncoming ? const Color(0xFFE8F5F0) : const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(child: Icon(
+                isIncoming ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                size: 18, color: isIncoming ? AppTheme.primary : AppTheme.danger,
+              )),
             ),
-            if (status == 'pending') Container(
-              margin: const EdgeInsets.only(top: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-              child: Text(L10n.of(context).pending, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.warning)),
-            ),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(desc.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary), overflow: TextOverflow.ellipsis),
+              Text(_formatDate(date), style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+            ])),
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Text(
+                '${isIncoming ? "+" : "-"}$symbol${_formatNumber(amount)}',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isIncoming ? AppTheme.primary : AppTheme.textPrimary),
+              ),
+              if (status == 'pending') Container(
+                margin: const EdgeInsets.only(top: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(color: AppTheme.warning.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                child: Text(L10n.of(context).pending, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppTheme.warning)),
+              ),
+            ]),
+            const SizedBox(width: 4),
+            Icon(Icons.chevron_right_rounded, size: 16, color: AppTheme.textMuted.withValues(alpha: 0.5)),
           ]),
-        ]),
+        ),
       ),
     );
   }
