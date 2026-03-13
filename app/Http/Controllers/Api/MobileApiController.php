@@ -304,6 +304,35 @@ class MobileApiController extends Controller
         return response()->json(['success' => true, 'transaction' => $transaction->fresh()]);
     }
 
+    public function uploadTransactionReceipt(Request $request, Transaction $transaction)
+    {
+        // Verify the user owns this transaction
+        $accountIds = $request->user()->accounts()->pluck('id')->toArray();
+        if (!in_array($transaction->from_account_id, $accountIds) && !in_array($transaction->to_account_id, $accountIds)) {
+            return response()->json(['message' => 'غير مصرح'], 403);
+        }
+
+        $request->validate([
+            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
+
+        $file = $request->file('receipt');
+        $filename = 'receipt_' . $transaction->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('receipts', $filename, 'public');
+
+        $metadata = $transaction->metadata ?? [];
+        $metadata['receipt_path'] = $path;
+        $metadata['receipt_filename'] = $file->getClientOriginalName();
+        $metadata['receipt_uploaded_at'] = now()->toDateTimeString();
+        $transaction->update(['metadata' => $metadata]);
+
+        return response()->json([
+            'success' => true,
+            'receipt_url' => asset('storage/' . $path),
+            'transaction' => $transaction->fresh(),
+        ]);
+    }
+
     public function transfer(Request $request)
     {
         // Gate behind KYC

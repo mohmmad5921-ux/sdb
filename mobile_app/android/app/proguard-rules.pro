@@ -2,3 +2,9 @@
 -dontwarn com.google.mlkit.**
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
+-keep class com.stripe.** { *; }
+-dontwarn com.stripe.**
+-keep class com.reactnativestripesdk.** { *; }
+-dontwarn com.reactnativestripesdk.**
+-keep class io.flutter.** { *; }
+-dontwarn io.flutter.**

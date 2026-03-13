@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
@@ -379,6 +381,9 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   // ── Add Receipt (open camera/gallery) ──
   // ══════════════════════════════════════════
   void _addReceipt(BuildContext ctx) {
+    final txId = widget.tx['id'];
+    if (txId == null) return;
+
     showModalBottomSheet(
       context: ctx,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -389,29 +394,65 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
           const SizedBox(height: 20),
           const Text('إضافة إيصال', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
           const SizedBox(height: 20),
-          _optionItem(Icons.camera_alt_rounded, 'التقاط صورة', () {
+          _optionItem(Icons.camera_alt_rounded, 'التقاط صورة', () async {
             Navigator.pop(sheetCtx);
-            ScaffoldMessenger.of(ctx).showSnackBar(
-              const SnackBar(content: Text('📸 ميزة الكاميرا ستكون متاحة قريباً'), backgroundColor: AppTheme.primary),
-            );
+            final picker = ImagePicker();
+            final image = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+            if (image != null) _uploadReceipt(ctx, txId, image.path);
           }),
           _divider(),
-          _optionItem(Icons.photo_library_rounded, 'اختيار من المعرض', () {
+          _optionItem(Icons.photo_library_rounded, 'اختيار من المعرض', () async {
             Navigator.pop(sheetCtx);
-            ScaffoldMessenger.of(ctx).showSnackBar(
-              const SnackBar(content: Text('🖼️ ميزة المعرض ستكون متاحة قريباً'), backgroundColor: AppTheme.primary),
-            );
+            final picker = ImagePicker();
+            final image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+            if (image != null) _uploadReceipt(ctx, txId, image.path);
           }),
           _divider(),
-          _optionItem(Icons.description_rounded, 'مستند PDF', () {
+          _optionItem(Icons.description_rounded, 'مستند PDF', () async {
             Navigator.pop(sheetCtx);
-            ScaffoldMessenger.of(ctx).showSnackBar(
-              const SnackBar(content: Text('📄 ميزة PDF ستكون متاحة قريباً'), backgroundColor: AppTheme.primary),
+            final result = await FilePicker.platform.pickFiles(
+              type: FileType.custom,
+              allowedExtensions: ['pdf'],
             );
+            if (result != null && result.files.single.path != null) {
+              _uploadReceipt(ctx, txId, result.files.single.path!);
+            }
           }),
         ]),
       ),
     );
+  }
+
+  Future<void> _uploadReceipt(BuildContext ctx, dynamic txId, String filePath) async {
+    // Show loading
+    ScaffoldMessenger.of(ctx).showSnackBar(
+      const SnackBar(content: Text('⏳ جاري رفع الإيصال...'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 10)),
+    );
+
+    final result = await ApiService.uploadTransactionReceipt(
+      txId is int ? txId : int.tryParse(txId.toString()) ?? 0,
+      filePath,
+    );
+
+    if (ctx.mounted) {
+      ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          const SnackBar(content: Text('✅ تم رفع الإيصال بنجاح'), backgroundColor: AppTheme.primary),
+        );
+        // Update the transaction metadata locally
+        if (mounted) {
+          setState(() {
+            widget.tx['metadata'] ??= {};
+            widget.tx['metadata']['receipt_path'] = result['data']?['receipt_url'] ?? 'uploaded';
+          });
+        }
+      } else {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          SnackBar(content: Text('❌ فشل رفع الإيصال: ${result['data']?['message'] ?? 'خطأ'}'), backgroundColor: AppTheme.danger),
+        );
+      }
+    }
   }
 
   // ══════════════════════════════════════════

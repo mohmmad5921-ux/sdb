@@ -265,6 +265,25 @@ class ApiService {
     return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
   }
 
+  // Upload receipt for a transaction
+  static Future<Map<String, dynamic>> uploadTransactionReceipt(int transactionId, String filePath) async {
+    try {
+      final t = await token;
+      final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/transactions/$transactionId/receipt'));
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        if (t != null) 'Authorization': 'Bearer $t',
+      });
+      request.files.add(await http.MultipartFile.fromPath('receipt', filePath));
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
+      return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
+    } catch (e) {
+      return {'success': false, 'data': {'message': e.toString()}};
+    }
+  }
+
 
   // Generic POST (for new transfer lookup/execute endpoints)
   static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> data) async {
