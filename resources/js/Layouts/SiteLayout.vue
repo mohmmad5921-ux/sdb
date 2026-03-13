@@ -606,7 +606,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
     <div class="sw">
       <div class="sf-top">
         <div class="sf-brand">
-          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-white.svg" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
+          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-white.png" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
             <span class="sf-soc-icon">𝕏</span>
