@@ -376,6 +376,7 @@ class _MoreTabState extends State<MoreTab> {
 
             // Preferences
             _buildSection(t.sectionPreferences, [
+              _buildRow(Icons.settings_rounded, 'إعدادات التطبيق', subtitle: 'اللغة، المظهر، الأمان', onTap: () => Navigator.pushNamed(context, '/app-settings')),
               _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
               _buildRow(Icons.language, t.language, subtitle: langDisplay, onTap: _showLanguagePicker),
               _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
