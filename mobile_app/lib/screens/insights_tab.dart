@@ -229,26 +229,35 @@ class _InsightsTabState extends State<InsightsTab> {
             ),
             const SizedBox(height: 24),
 
-            // ── Total Amount ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(
-                  _activeTab == 2 ? '€${_fmtNum(_totalIncome - _totalSpending)}' : '€${_fmtNum(_activeTab == 0 ? _totalSpending : _totalIncome)}',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppTheme.textPrimary, letterSpacing: -0.5),
-                ),
-                const SizedBox(height: 4),
-                Text(_dateRangeLabel(), style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
-              ]),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Bar Chart ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(height: 160, child: _buildBarChart()),
-            ),
-            const SizedBox(height: 20),
+            // ── Chart Area ──
+            if (_chartType == 0 && _activeTab != 2) ...[
+              // Donut chart with amount inside
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(height: 260, child: _buildDonutChart()),
+              ),
+              const SizedBox(height: 20),
+            ] else ...[
+              // Total Amount (shown only with bar chart or cash flow)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(
+                    _activeTab == 2 ? '€${_fmtNum(_totalIncome - _totalSpending)}' : '€${_fmtNum(_activeTab == 0 ? _totalSpending : _totalIncome)}',
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppTheme.textPrimary, letterSpacing: -0.5),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(_dateRangeLabel(), style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+                ]),
+              ),
+              const SizedBox(height: 24),
+              // Bar Chart
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(height: 160, child: _buildBarChart()),
+              ),
+              const SizedBox(height: 20),
+            ],
 
             // ── Time Filter ──
             Padding(
@@ -495,6 +504,45 @@ class _InsightsTabState extends State<InsightsTab> {
             color: active ? AppTheme.textPrimary : AppTheme.textMuted,
           ))),
         ),
+      ),
+    );
+  }
+
+  // ═══════ Donut Chart (Lunar style) ═══════
+
+  Widget _buildDonutChart() {
+    final data = _activeTab == 0 ? _spendingByCategory : _incomeByCategory;
+    final total = _activeTab == 0 ? _totalSpending : _totalIncome;
+
+    if (data.isEmpty || total == 0) {
+      return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.donut_large_rounded, size: 60, color: AppTheme.textMuted.withValues(alpha: 0.2)),
+        const SizedBox(height: 12),
+        const Text('لا توجد بيانات', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+      ]));
+    }
+
+    final sorted = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final segments = sorted.map((e) => _DonutSegment(value: e.value, color: _catColor(e.key))).toList();
+
+    return Center(
+      child: SizedBox(
+        width: 240, height: 240,
+        child: Stack(alignment: Alignment.center, children: [
+          CustomPaint(
+            size: const Size(240, 240),
+            painter: _DonutPainter(segments: segments, total: total),
+          ),
+          // Center text
+          Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(_dateRangeLabel(), style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+            const SizedBox(height: 4),
+            Text(
+              '€${_fmtNum(total)}',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+            ),
+          ]),
+        ]),
       ),
     );
   }
@@ -892,4 +940,53 @@ class _DashedLinePainter extends CustomPainter {
   }
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _DonutSegment {
+  final double value;
+  final Color color;
+  _DonutSegment({required this.value, required this.color});
+}
+
+class _DonutPainter extends CustomPainter {
+  final List<_DonutSegment> segments;
+  final double total;
+  _DonutPainter({required this.segments, required this.total});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 14;
+    const strokeWidth = 22.0;
+    const gapDegrees = 4.0;
+    const startAngle = -90.0; // Start from top
+
+    final totalGap = gapDegrees * segments.length;
+    final availableDegrees = 360.0 - totalGap;
+
+    double currentAngle = startAngle;
+
+    for (final seg in segments) {
+      final sweepDegrees = (seg.value / total) * availableDegrees;
+
+      final paint = Paint()
+        ..color = seg.color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        currentAngle * 3.14159265 / 180,
+        sweepDegrees * 3.14159265 / 180,
+        false,
+        paint,
+      );
+
+      currentAngle += sweepDegrees + gapDegrees;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
