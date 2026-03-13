@@ -7,7 +7,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description"
         content="SDB Bank — أول بنك إلكتروني سوري. حسابات متعددة العملات، بطاقات ماستركارد، تحويلات دولية، عملات رقمية. مرخّص بالدنمارك.">
-    <meta name="theme-color" content="#0EA5E9">
+    <meta name="theme-color" content="#1B5E20">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/favicon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
