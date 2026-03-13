@@ -106,36 +106,40 @@ class SystemController extends Controller
         AdminActivityLog::log('account.balance_adjust', 'account', $account->id, ['type' => $request->type, 'amount' => $request->amount, 'reason' => $request->reason, 'user_name' => $account->user->full_name ?? '']);
 
         // Send push notification to customer
-        $account->refresh();
-        $user = $account->user;
-        $currency = $account->currency;
-        $symbol = $currency->symbol ?? $currency->code ?? '';
-        $amount = number_format(abs($request->amount), 2);
-        $newBalance = number_format($account->balance, 2);
+        try {
+            $account->refresh();
+            $user = $account->user;
+            $currency = $account->currency;
+            $symbol = $currency->symbol ?? $currency->code ?? '';
+            $amount = number_format(abs((float) $request->amount), 2);
+            $newBalance = number_format((float) $account->balance, 2);
 
-        if ($request->type === 'credit') {
-            $title = '💰 تم إضافة رصيد';
-            $body = "تم إضافة {$amount} {$symbol} إلى حسابك. رصيدك الجديد: {$newBalance} {$symbol}";
-        } else {
-            $title = '💸 خصم من الرصيد';
-            $body = "تم خصم {$amount} {$symbol} من حسابك. رصيدك الجديد: {$newBalance} {$symbol}";
+            if ($request->type === 'credit') {
+                $title = '💰 تم إضافة رصيد';
+                $body = "تم إضافة {$amount} {$symbol} إلى حسابك. رصيدك الجديد: {$newBalance} {$symbol}";
+            } else {
+                $title = '💸 خصم من الرصيد';
+                $body = "تم خصم {$amount} {$symbol} من حسابك. رصيدك الجديد: {$newBalance} {$symbol}";
+            }
+
+            // Create in-app notification (type must be: transaction, security, promotion, system)
+            \App\Models\Notification::create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'body' => $body,
+                'type' => 'transaction',
+                'data' => json_encode(['account_id' => $account->id, 'type' => $request->type, 'amount' => $request->amount, 'currency' => $currency->code ?? '']),
+            ]);
+
+            // Send FCM push
+            \App\Services\PushNotificationService::sendToUser($user, $title, $body, [
+                'type' => 'balance_update',
+                'account_id' => (string) $account->id,
+                'amount' => (string) $request->amount,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Push notification failed: ' . $e->getMessage());
         }
-
-        // Create in-app notification
-        \App\Models\Notification::create([
-            'user_id' => $user->id,
-            'title' => $title,
-            'body' => $body,
-            'type' => 'balance_update',
-            'data' => json_encode(['account_id' => $account->id, 'type' => $request->type, 'amount' => $request->amount, 'currency' => $currency->code ?? '']),
-        ]);
-
-        // Send FCM push
-        \App\Services\PushNotificationService::sendToUser($user, $title, $body, [
-            'type' => 'balance_update',
-            'account_id' => (string) $account->id,
-            'amount' => (string) $request->amount,
-        ]);
 
         return back()->with('success', 'تم تعديل الرصيد بنجاح');
     }
