@@ -1112,7 +1112,7 @@ PROMPT;
         }
         $contents[] = ['role' => 'user', 'parts' => [['text' => $message]]];
 
-        $models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+        $models = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash'];
         foreach ($models as $i => $model) {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
