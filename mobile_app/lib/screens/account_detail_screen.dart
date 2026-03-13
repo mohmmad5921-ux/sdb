@@ -35,7 +35,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     if (mounted) {
       setState(() {
         if (r['success'] == true) {
-          _transactions = List<Map<String, dynamic>>.from(r['data']?['transactions'] ?? []);
+          _transactions = List<Map<String, dynamic>>.from(r['data']?['data'] ?? []);
         }
         _loading = false;
       });
@@ -229,7 +229,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       double dayTotal = 0;
       for (final tx in txs) {
         final a = (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount'].toString()) ?? 0;
-        dayTotal += (tx['type'] == 'debit' || tx['type'] == 'out') ? -a : a;
+        dayTotal += ['withdrawal', 'card_payment', 'fee'].contains(tx['type']) ? -a : a;
       }
 
       widgets.add(Padding(
@@ -260,11 +260,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   Widget _buildTxItem(Map<String, dynamic> tx) {
     final amount = (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount'].toString()) ?? 0;
-    final isOut = tx['type'] == 'debit' || tx['type'] == 'out';
+    final isOut = ['withdrawal', 'card_payment', 'fee'].contains(tx['type']);
     final desc = tx['description'] ?? tx['type'] ?? '';
     final time = _formatTime(tx['created_at'] ?? '');
-    final currency = tx['currency'] ?? 'EUR';
-    final symbol = _sym(currency);
+    final currencyCode = (tx['currency'] is Map) ? tx['currency']?['code'] ?? 'EUR' : tx['currency']?.toString() ?? 'EUR';
+    final symbol = _sym(currencyCode);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
