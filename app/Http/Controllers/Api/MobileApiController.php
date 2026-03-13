@@ -1112,8 +1112,8 @@ PROMPT;
         }
         $contents[] = ['role' => 'user', 'parts' => [['text' => $message]]];
 
-        $models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
-        foreach ($models as $model) {
+        $models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+        foreach ($models as $i => $model) {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
                 [
@@ -1125,6 +1125,11 @@ PROMPT;
             if ($response->successful()) {
                 return $response->json()['candidates'][0]['content']['parts'][0]['text']
                     ?? 'حدث خطأ، حاول مرة أخرى';
+            }
+            \Log::warning("Gemini AI {$model} failed: " . $response->status() . ' ' . substr($response->body(), 0, 200));
+            if ($response->status() === 429 && $i < count($models) - 1) {
+                sleep(8); // Wait for rate limit reset
+                continue;
             }
             if ($response->status() !== 429) break;
         }
