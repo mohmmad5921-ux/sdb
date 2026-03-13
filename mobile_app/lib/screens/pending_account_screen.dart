@@ -97,9 +97,10 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
           opacity: CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              children: [
-                const Spacer(flex: 2),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
 
                 // Animated hourglass
                 ScaleTransition(
@@ -214,15 +215,16 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                   ),
                 ),
 
-                const Spacer(flex: 3),
+                const SizedBox(height: 40),
 
                 // Logout
                 TextButton(
                   onPressed: _logout,
                   child: const Text('تسجيل الخروج', style: TextStyle(color: AppTheme.textMuted, fontSize: 14, fontWeight: FontWeight.w500)),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 30),
               ],
+              ),
             ),
           ),
         ),
