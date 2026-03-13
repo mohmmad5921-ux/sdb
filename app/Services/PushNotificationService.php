@@ -87,16 +87,22 @@ class PushNotificationService
     {
         $credPath = storage_path('app/firebase-adminsdk.json');
         if (!file_exists($credPath)) {
-            Log::error("PushNotification: Service account file not found at {$credPath}");
-            return null;
+            // Try realpath for Simply.com hosting
+            $altPath = '/var/www/sdb-bank.com/sdb/storage/app/firebase-adminsdk.json';
+            if (file_exists($altPath)) {
+                $credPath = $altPath;
+            } else {
+                Log::error("PushNotification: Service account file not found");
+                return null;
+            }
         }
 
         $creds = json_decode(file_get_contents($credPath), true);
         
-        // Build JWT
+        // Build JWT with URL-safe base64
         $now = time();
-        $header = base64_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
-        $payload = base64_encode(json_encode([
+        $header = self::base64url(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
+        $payload = self::base64url(json_encode([
             'iss' => $creds['client_email'],
             'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
             'aud' => 'https://oauth2.googleapis.com/token',
@@ -112,7 +118,7 @@ class PushNotificationService
             OPENSSL_ALGO_SHA256
         );
 
-        $jwt = "{$header}.{$payload}." . base64_encode($signature);
+        $jwt = "{$header}.{$payload}." . self::base64url($signature);
 
         // Exchange JWT for access token
         $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
@@ -126,6 +132,14 @@ class PushNotificationService
 
         Log::error("PushNotification: Token exchange failed: {$response->body()}");
         return null;
+    }
+
+    /**
+     * URL-safe base64 encode (required for JWT)
+     */
+    private static function base64url(string $data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
     /**
