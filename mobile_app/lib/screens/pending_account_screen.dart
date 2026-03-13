@@ -28,9 +28,10 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
     _pulseAnim = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
     _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))..forward();
     _loadProfile();
+    _checkStatus(); // Check immediately on load
     _checkNotifications();
-    // Check status every 30 seconds
-    _checkTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    // Check status every 10 seconds for faster detection
+    _checkTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _checkStatus();
       _checkNotifications();
     });
@@ -53,13 +54,16 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
   }
 
   Future<void> _checkStatus() async {
-    final res = await ApiService.getProfile();
-    if (res['success'] == true) {
-      final user = res['data']?['user'] ?? res['data'];
-      if (user?['status'] == 'active' && mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+    try {
+      final res = await ApiService.getProfile();
+      if (res['success'] == true) {
+        final user = res['data']?['user'] ?? res['data'];
+        if (user?['status'] == 'active' && mounted) {
+          _checkTimer?.cancel();
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       }
-    }
+    } catch (_) {}
   }
 
   Future<void> _checkNotifications() async {
@@ -68,18 +72,20 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
       if (res['success'] == true) {
         final data = res['data'];
         final List notifs = data is Map ? (data['data'] ?? []) : (data is List ? data : []);
-        // ابحث عن آخر إشعار طلب مستندات
-        for (final n in notifs) {
-          final title = (n['title'] ?? '').toString();
-          final body = (n['body'] ?? '').toString();
-          if (title.contains('مستندات') || title.contains('Documents') || title.contains('📄')) {
-            if (mounted) {
-              setState(() {
-                _hasDocRequest = true;
-                _docRequestMessage = body;
-              });
+        // ابحث عن آخر إشعار طلب مستندات (فقط لو ما تم الرفع بعد)
+        if (!_uploadSuccess) {
+          for (final n in notifs) {
+            final title = (n['title'] ?? '').toString();
+            final body = (n['body'] ?? '').toString();
+            if (title.contains('مستندات') || title.contains('Documents') || title.contains('📄')) {
+              if (mounted) {
+                setState(() {
+                  _hasDocRequest = true;
+                  _docRequestMessage = body;
+                });
+              }
+              break;
             }
-            break;
           }
         }
       }
