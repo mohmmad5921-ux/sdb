@@ -154,6 +154,7 @@ class MobileApiController extends Controller
             'role' => 'customer',
             'country' => $request->country,
             'address' => $request->address,
+            'city' => $request->city,
         ]);
 
         // NOTE: Bank accounts are NOT created here.
