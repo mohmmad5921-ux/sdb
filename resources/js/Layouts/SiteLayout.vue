@@ -606,7 +606,7 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
     <div class="sw">
       <div class="sf-top">
         <div class="sf-brand">
-          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-white.png" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
+          <a href="/" class="sn-logo sn-logo-ft"><img src="/images/sdb-logo-new.png" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
             <span class="sf-soc-icon">𝕏</span>
@@ -711,7 +711,7 @@ html,body{background:#fff}
 .sn .sw{display:flex;align-items:center;justify-content:space-between;width:100%}
 .sn-logo{text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center}
 .sn-logo-img{height:42px;width:auto}
-.sn-logo-img-ft{height:64px}
+.sn-logo-img-ft{height:64px;filter:brightness(0) invert(1)}
 .sn-dot{color:#E0F2FE;font-size:32px;line-height:0}
 .sn-links{display:flex;gap:4px;margin:0 auto}
 .sn-dd{position:relative}
