@@ -71,6 +71,7 @@ Route::prefix('v1/mobile')->group(function () {
 
             // Transactions
             Route::get('/transactions', [MobileApiController::class, 'transactions']);
+            Route::post('/transactions/{transaction}/note', [MobileApiController::class, 'updateTransactionNote']);
             Route::post('/transfer', [MobileApiController::class, 'transfer']);
             Route::post('/exchange', [MobileApiController::class, 'exchange']);
             Route::get('/exchange-rate', [MobileApiController::class, 'exchangeRate']);

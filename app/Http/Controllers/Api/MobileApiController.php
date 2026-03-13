@@ -287,6 +287,23 @@ class MobileApiController extends Controller
         return response()->json($transactions);
     }
 
+    public function updateTransactionNote(Request $request, Transaction $transaction)
+    {
+        // Verify the user owns this transaction
+        $accountIds = $request->user()->accounts()->pluck('id')->toArray();
+        if (!in_array($transaction->from_account_id, $accountIds) && !in_array($transaction->to_account_id, $accountIds)) {
+            return response()->json(['message' => 'غير مصرح'], 403);
+        }
+
+        $request->validate(['note' => 'required|string|max:500']);
+
+        $metadata = $transaction->metadata ?? [];
+        $metadata['note'] = $request->note;
+        $transaction->update(['metadata' => $metadata]);
+
+        return response()->json(['success' => true, 'transaction' => $transaction->fresh()]);
+    }
+
     public function transfer(Request $request)
     {
         // Gate behind KYC
