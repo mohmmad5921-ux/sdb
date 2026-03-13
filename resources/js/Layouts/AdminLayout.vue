@@ -89,6 +89,7 @@ const sideGroups = [
   { label: 'الدعم والتواصل', links: [
     { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
     { label: 'الدعم', icon: '🎧', route: 'admin.support' },
+    { label: 'محادثات الدعم', icon: '💬', route: 'admin.chat' },
     { label: 'إشعارات جماعية', icon: '📢', route: 'admin.broadcast' },
     { label: 'سجل التواصل', icon: '📧', route: 'admin.communications' },
     { label: 'طلبات خاصة', icon: '📋', route: 'admin.special-requests' },

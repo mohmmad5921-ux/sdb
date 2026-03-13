@@ -248,6 +248,12 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::patch('/support/{id}/status', [SupportAdminController::class, 'updateStatus'])->name('support.status');
 
     Route::get('/audit-logs', [AdminSystem::class, 'auditLogs'])->name('audit-logs');
+
+    // In-App Chat (Support Chat)
+    Route::get('/chat', [\App\Http\Controllers\Admin\AdminChatController::class, 'index'])->name('chat');
+    Route::get('/chat/{user}/messages', [\App\Http\Controllers\Admin\AdminChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{user}/reply', [\App\Http\Controllers\Admin\AdminChatController::class, 'reply'])->name('chat.reply');
+
     Route::get('/settings', [AdminSystem::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminSystem::class, 'updateSettings'])->name('settings.update');
 

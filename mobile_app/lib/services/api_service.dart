@@ -188,6 +188,18 @@ class ApiService {
     return {'success': r.statusCode == 200, ...jsonDecode(r.body)};
   }
 
+  // Support Chat
+  static Future<Map<String, dynamic>> getSupportMessages() async {
+    final r = await http.get(Uri.parse('$baseUrl/support/messages'), headers: await _headers());
+    return {'success': r.statusCode == 200, ...jsonDecode(r.body)};
+  }
+
+  static Future<Map<String, dynamic>> sendSupportMessage(String message) async {
+    final r = await http.post(Uri.parse('$baseUrl/support/send'),
+      headers: await _headers(), body: jsonEncode({'message': message}));
+    return {'success': r.statusCode == 200, ...jsonDecode(r.body)};
+  }
+
   // FCM Token
   static Future<void> updateFcmToken(String token, {String? platform, String? apnsToken}) async {
     try {

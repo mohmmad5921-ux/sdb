@@ -43,9 +43,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       // Verify token is still valid on server
       final profile = await ApiService.getProfile();
       if (profile['success'] == true) {
-        // Token valid — proceed to home
+        final user = profile['data']?['user'] ?? profile['data'];
+        final status = user?['status'] ?? 'active';
         PushNotificationService.initialize();
-        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+        if (mounted) {
+          if (status == 'pending') {
+            Navigator.pushReplacementNamed(context, '/pending');
+          } else {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
       } else {
         // Token invalid (account deleted/expired) — clear and go to login
         await ApiService.logout();

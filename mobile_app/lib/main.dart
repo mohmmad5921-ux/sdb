@@ -21,6 +21,8 @@ import 'screens/qr_profile_screen.dart';
 import 'screens/ai_chat_screen.dart';
 import 'screens/explore_screen.dart';
 import 'screens/app_settings_screen.dart';
+import 'screens/pending_account_screen.dart';
+import 'screens/support_chat_screen.dart';
 import 'services/push_notification_service.dart';
 
 /// Global navigator key for push notification navigation
@@ -105,6 +107,8 @@ class _SDBAppState extends State<SDBApp> {
           '/ai-chat': (_) => const AiChatScreen(),
           '/explore': (_) => const ExploreScreen(),
           '/app-settings': (_) => const AppSettingsScreen(),
+          '/pending': (_) => const PendingAccountScreen(),
+          '/support-chat': (_) => const SupportChatScreen(),
         },
       ),
     );

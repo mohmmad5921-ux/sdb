@@ -116,6 +116,10 @@ Route::prefix('v1/mobile')->group(function () {
 
             // AI Chat
             Route::post('/ai-chat', [MobileApiController::class, 'aiChat']);
+
+            // Support Chat
+            Route::get('/support/messages', [MobileApiController::class, 'supportMessages']);
+            Route::post('/support/send', [MobileApiController::class, 'sendSupportMessage']);
         }
     );
 });

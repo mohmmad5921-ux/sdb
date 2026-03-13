@@ -44,11 +44,9 @@ class MobileApiController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        if (!$user->isActive()) {
-            $msg = $user->status === 'pending' 
-                ? 'حسابك قيد المراجعة. يرجى الانتظار حتى يتم تفعيله من قبل الإدارة.'
-                : 'تم تعليق حسابك. يرجى التواصل مع الدعم.';
-            return response()->json(['message' => $msg], 403);
+        // Block suspended/banned users, but allow pending (they'll see pending screen)
+        if ($user->status === 'suspended' || $user->status === 'banned') {
+            return response()->json(['message' => 'تم تعليق حسابك. يرجى التواصل مع الدعم.'], 403);
         }
 
         $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
@@ -977,5 +975,158 @@ PROMPT;
         }
 
         return response()->json(['reply' => $reply]);
+    }
+
+    /* ==================== SUPPORT CHAT ==================== */
+
+    public function supportMessages(Request $request)
+    {
+        $messages = \App\Models\ChatMessage::where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(fn($m) => [
+                'id' => $m->id,
+                'sender_type' => $m->sender_type,
+                'sender_name' => $m->sender_name,
+                'content' => $m->content,
+                'is_read' => $m->is_read,
+                'created_at' => $m->created_at->toIso8601String(),
+            ]);
+
+        // Mark unread admin/ai messages as read
+        \App\Models\ChatMessage::where('user_id', $request->user()->id)
+            ->where('sender_type', '!=', 'user')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json(['messages' => $messages]);
+    }
+
+    public function sendSupportMessage(Request $request)
+    {
+        $request->validate(['message' => 'required|string|max:2000']);
+        $user = $request->user();
+
+        // Save user message
+        $userMsg = \App\Models\ChatMessage::create([
+            'user_id' => $user->id,
+            'sender_type' => 'user',
+            'sender_name' => $user->full_name ?? 'User',
+            'content' => $request->message,
+        ]);
+
+        // Check if admin has taken over this conversation
+        $adminActive = \App\Models\ChatMessage::where('user_id', $user->id)
+            ->where('sender_type', 'admin')
+            ->where('created_at', '>=', now()->subHours(2))
+            ->exists();
+
+        if ($adminActive) {
+            // Admin is handling — don't auto-reply with AI
+            return response()->json([
+                'user_message' => [
+                    'id' => $userMsg->id,
+                    'sender_type' => 'user',
+                    'content' => $request->message,
+                    'created_at' => $userMsg->created_at->toIso8601String(),
+                ],
+                'ai_reply' => null,
+                'admin_active' => true,
+            ]);
+        }
+
+        // AI auto-reply (reuse aiChat logic)
+        $aiReply = $this->generateAiReply($user, $request->message);
+
+        $aiMsg = \App\Models\ChatMessage::create([
+            'user_id' => $user->id,
+            'sender_type' => 'ai',
+            'sender_name' => 'SDB AI',
+            'content' => $aiReply,
+        ]);
+
+        return response()->json([
+            'user_message' => [
+                'id' => $userMsg->id,
+                'sender_type' => 'user',
+                'content' => $request->message,
+                'created_at' => $userMsg->created_at->toIso8601String(),
+            ],
+            'ai_reply' => [
+                'id' => $aiMsg->id,
+                'sender_type' => 'ai',
+                'sender_name' => 'SDB AI',
+                'content' => $aiReply,
+                'created_at' => $aiMsg->created_at->toIso8601String(),
+            ],
+            'admin_active' => false,
+        ]);
+    }
+
+    private function generateAiReply($user, string $message): string
+    {
+        $accounts = $user->accounts()->with('currency')->get();
+        $accountsJson = json_encode($accounts->map(fn($a) => [
+            'currency' => $a->currency->code ?? '', 'balance' => $a->balance, 'iban' => $a->iban,
+        ])->toArray(), JSON_UNESCAPED_UNICODE);
+
+        $userName = $user->full_name ?? 'العميل';
+        $kycStatus = $user->kyc_status ?? 'pending';
+        $status = $user->status ?? 'pending';
+
+        $systemPrompt = <<<PROMPT
+أنت "SDB AI" — المساعد الذكي لعملاء بنك SDB الرقمي.
+أنت تتحدث مع العميل: {$userName}
+
+## بيانات العميل:
+- حالة الحساب: {$status}
+- حالة التحقق: {$kycStatus}
+- المحافظ: {$accountsJson}
+
+## تعليماتك:
+- أجب بالعربية دائماً وبأسلوب ودود ومختصر
+- ساعد العميل بأسئلته عن حسابه
+- إذا كان حساب العميل pending أخبره أن حسابه قيد المراجعة وسيتم تفعيله قريباً
+- لا تكشف بيانات حساسة كاملة
+- كن مختصراً ومفيداً واستخدم إيموجي
+- لا تذكر أنك تستخدم Gemini — أنت "SDB AI"
+PROMPT;
+
+        $apiKey = config('services.gemini.api_key');
+        if (!$apiKey) return 'عذراً، خدمة AI غير متاحة حالياً.';
+
+        // Get recent chat history for context
+        $history = \App\Models\ChatMessage::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->take(10)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $contents = [];
+        foreach ($history as $msg) {
+            $role = $msg->sender_type === 'user' ? 'user' : 'model';
+            $contents[] = ['role' => $role, 'parts' => [['text' => $msg->content]]];
+        }
+        $contents[] = ['role' => 'user', 'parts' => [['text' => $message]]];
+
+        $models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+        foreach ($models as $model) {
+            $response = \Illuminate\Support\Facades\Http::timeout(30)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                [
+                    'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
+                    'contents' => $contents,
+                    'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 512],
+                ]
+            );
+            if ($response->successful()) {
+                return $response->json()['candidates'][0]['content']['parts'][0]['text']
+                    ?? 'حدث خطأ، حاول مرة أخرى';
+            }
+            if ($response->status() !== 429) break;
+        }
+
+        return 'عذراً، لم أتمكن من الرد. يرجى المحاولة لاحقاً.';
     }
 }
