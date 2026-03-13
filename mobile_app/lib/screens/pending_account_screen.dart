@@ -87,63 +87,80 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
   }
 
   Future<void> _pickAndUploadDoc() async {
-    final picker = ImagePicker();
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: AppTheme.bgLight,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('اختر طريقة الرفع', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-          const SizedBox(height: 20),
-          ListTile(
-            leading: Container(
-              width: 44, height: 44,
-              decoration: BoxDecoration(color: AppTheme.primary.withAlpha(25), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.camera_alt_rounded, color: AppTheme.primary),
-            ),
-            title: const Text('الكاميرا', style: TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: const Text('التقط صورة للمستند'),
-            onTap: () => Navigator.pop(context, ImageSource.camera),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            leading: Container(
-              width: 44, height: 44,
-              decoration: BoxDecoration(color: const Color(0xFFF59E0B).withAlpha(25), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.photo_library_rounded, color: Color(0xFFF59E0B)),
-            ),
-            title: const Text('معرض الصور', style: TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: const Text('اختر صورة من المعرض'),
-            onTap: () => Navigator.pop(context, ImageSource.gallery),
-          ),
-          const SizedBox(height: 16),
-        ]),
-      ),
-    );
-    if (source == null || !mounted) return;
-
-    final picked = await picker.pickImage(source: source, imageQuality: 85);
-    if (picked == null || !mounted) return;
-
-    setState(() => _uploading = true);
     try {
+      final picker = ImagePicker();
+      final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppTheme.bgLight,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('اختر طريقة الرفع', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(12)),
+                child: const Icon(Icons.camera_alt_rounded, color: AppTheme.primary),
+              ),
+              title: const Text('الكاميرا', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('التقط صورة للمستند'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(color: const Color(0xFFFFF8E1), borderRadius: BorderRadius.circular(12)),
+                child: const Icon(Icons.photo_library_rounded, color: Color(0xFFF59E0B)),
+              ),
+              title: const Text('معرض الصور', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('اختر صورة من المعرض'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            const SizedBox(height: 16),
+          ]),
+        ),
+      );
+      if (source == null || !mounted) return;
+
+      final picked = await picker.pickImage(source: source, imageQuality: 85);
+      if (picked == null || !mounted) return;
+
+      setState(() => _uploading = true);
+
       final r = await ApiService.uploadAdditionalDocument(picked.path);
       if (mounted) {
-        setState(() {
-          _uploading = false;
-          if (r['success'] == true) {
+        if (r['success'] == true) {
+          setState(() {
+            _uploading = false;
             _uploadSuccess = true;
             _hasDocRequest = false;
-          }
-        });
+          });
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('✅ تم رفع المستند بنجاح!'),
+            backgroundColor: Color(0xFF10B981),
+          ));
+        } else {
+          setState(() => _uploading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('❌ فشل الرفع: ${r['data']?['message'] ?? 'خطأ غير معروف'}'),
+            backgroundColor: Colors.red,
+          ));
+        }
       }
-    } catch (_) {
-      if (mounted) setState(() => _uploading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _uploading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('❌ خطأ: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
     }
   }
 

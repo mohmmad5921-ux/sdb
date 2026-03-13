@@ -292,7 +292,7 @@ class MobileApiController extends Controller
 
         $user = $request->user();
         $file = $request->file('document');
-        $docType = $request->input('document_type', 'additional');
+        $docType = $request->input('document_type', 'other');
 
         $path = $file->store("kyc/{$user->id}", 'local');
 
