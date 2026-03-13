@@ -12,90 +12,86 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 </script>
 
 <template>
-<Head title="Sign in — SDB Bank" />
+<Head title="تسجيل الدخول — SDB Bank" />
 <div class="lg-page">
-  <!-- Animated background -->
-  <div class="lg-bg">
-    <div class="lg-orb lg-orb-1"></div>
-    <div class="lg-orb lg-orb-2"></div>
-    <div class="lg-orb lg-orb-3"></div>
-  </div>
-
   <div class="lg-container">
-    <!-- Left side: branding -->
+    <!-- Left: Visual Panel -->
     <div class="lg-left">
-      <div class="lg-brand-wrap">
-        <Link href="/" class="lg-logo"><img src="/images/sdb-logo-new.png" alt="SDB Bank" class="lg-logo-img"/></Link>
-        <p class="lg-slogan">Business Banking for a new era</p>
-      </div>
-      <div class="lg-features">
-        <div class="lg-feat" v-for="f in [
-          {e:'🏢',t:'Business Accounts',d:'Multi-currency accounts for your business'},
-          {e:'💱',t:'Multi-Currency',d:'Hold, exchange & send 30+ currencies'},
-          {e:'📊',t:'Financial Analytics',d:'Real-time business insights and reports'},
-          {e:'⚡',t:'Instant Transfers',d:'Send money to 170+ countries instantly'}
-        ]" :key="f.t">
-          <span class="lg-feat-emoji">{{ f.e }}</span>
-          <div>
-            <div class="lg-feat-t">{{ f.t }}</div>
-            <div class="lg-feat-d">{{ f.d }}</div>
+      <div class="lg-left-content">
+        <div class="lg-left-top">
+          <Link href="/" class="lg-back-link">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            العودة للرئيسية
+          </Link>
+        </div>
+        <div class="lg-left-center">
+          <div class="lg-brand-logo">
+            <span class="lg-brand-text">SDB</span>
+            <span class="sdb-flag"></span>
+          </div>
+          <p class="lg-brand-tagline">SYRIA DIGITAL BANK</p>
+          <h2 class="lg-brand-headline">مصرفك الرقمي<br/>لعصر جديد</h2>
+          <div class="lg-brand-features">
+            <div class="lg-bf"><span class="lg-bf-dot"></span>حسابات متعددة العملات</div>
+            <div class="lg-bf"><span class="lg-bf-dot"></span>تحويلات فورية لأكثر من 170 دولة</div>
+            <div class="lg-bf"><span class="lg-bf-dot"></span>بطاقات رقمية آمنة</div>
+          </div>
+        </div>
+        <div class="lg-left-bottom">
+          <div class="lg-trust-badges">
+            <span>🔒 تشفير 256-bit</span>
+            <span>🇩🇰 مرخص أوروبياً</span>
           </div>
         </div>
       </div>
-      <div class="lg-trust">
-        <span>🔒 256-bit encryption</span>
-        <span>🇩🇰 EU regulated</span>
-        <span>🏗️ Net Banking</span>
-      </div>
     </div>
 
-    <!-- Right side: login card -->
+    <!-- Right: Login Form -->
     <div class="lg-right">
       <div class="lg-card">
-        <img src="/images/sdb-logo-new.png" alt="SDB" class="lg-card-logo-img"/>
-        <h1 class="lg-title">Welcome back</h1>
-        <p class="lg-subtitle">Sign in to your business account</p>
+        <div class="lg-card-header">
+          <div class="lg-card-logo">
+            <span class="lg-card-logo-text">SDB</span>
+            <span class="sdb-flag sm"></span>
+          </div>
+          <h1 class="lg-title">مرحباً بك</h1>
+          <p class="lg-subtitle">سجّل دخولك للوصول إلى حسابك</p>
+        </div>
 
         <div v-if="status" class="lg-alert">{{ status }}</div>
 
         <form @submit.prevent="submit" class="lg-form">
           <div class="lg-field">
-            <label class="lg-label">Email address</label>
-            <div class="lg-input-wrap">
-              <svg class="lg-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-              <input id="email" type="email" v-model="form.email" required autofocus autocomplete="username" placeholder="you@company.com" class="lg-input" />
-            </div>
+            <label class="lg-label" for="email">البريد الإلكتروني</label>
+            <input id="email" type="email" v-model="form.email" required autofocus autocomplete="username" placeholder="you@example.com" class="lg-input" />
             <InputError :message="form.errors.email" class="lg-error" />
           </div>
 
           <div class="lg-field">
-            <label class="lg-label">Password</label>
-            <div class="lg-input-wrap">
-              <svg class="lg-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-              <input id="password" type="password" v-model="form.password" required autocomplete="current-password" placeholder="••••••••" class="lg-input" />
-            </div>
+            <label class="lg-label" for="password">كلمة المرور</label>
+            <input id="password" type="password" v-model="form.password" required autocomplete="current-password" placeholder="••••••••" class="lg-input" />
             <InputError :message="form.errors.password" class="lg-error" />
           </div>
 
           <div class="lg-options">
             <label class="lg-check">
               <input type="checkbox" v-model="form.remember" />
-              <span>Remember me</span>
+              <span>تذكرني</span>
             </label>
-            <Link v-if="canResetPassword" :href="route('password.request')" class="lg-forgot">Forgot password?</Link>
+            <Link v-if="canResetPassword" :href="route('password.request')" class="lg-forgot">نسيت كلمة المرور؟</Link>
           </div>
 
           <button type="submit" class="lg-btn" :disabled="form.processing">
             <span v-if="form.processing" class="lg-spinner"></span>
-            {{ form.processing ? 'Signing in...' : 'Sign in' }}
+            {{ form.processing ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
           </button>
         </form>
 
-        <div class="lg-divider"><span>or</span></div>
+        <div class="lg-divider"><span>أو</span></div>
 
         <div class="lg-footer">
-          <span>Don't have an account?</span>
-          <Link href="/preregister" class="lg-footer-link">Get early access →</Link>
+          <span>ليس لديك حساب؟</span>
+          <Link href="/preregister" class="lg-footer-link">سجّل الآن ←</Link>
         </div>
       </div>
     </div>
@@ -104,74 +100,152 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-*{box-sizing:border-box}
-.lg-page{min-height:100vh;background:#0f2600;position:relative;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
 
-/* Animated orbs — SDB Green */
-.lg-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.lg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;animation:float 12s ease-in-out infinite}
-.lg-orb-1{width:500px;height:500px;background:radial-gradient(circle,#9FE870,transparent);top:-10%;right:-5%;animation-delay:0s}
-.lg-orb-2{width:400px;height:400px;background:radial-gradient(circle,#2D6A00,transparent);bottom:-15%;left:-10%;animation-delay:-4s}
-.lg-orb-3{width:300px;height:300px;background:radial-gradient(circle,#7ACC50,transparent);top:40%;left:30%;animation-delay:-8s;opacity:.2}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-30px) scale(1.05)}66%{transform:translate(-15px,20px) scale(.95)}}
+.lg-page{min-height:100vh;background:#ffffff;font-family:'Cairo','Inter',system-ui,sans-serif;direction:rtl}
 
-.lg-container{position:relative;z-index:1;display:flex;min-height:100vh}
+.lg-container{display:flex;min-height:100vh}
 
-/* Left */
-.lg-left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 80px;color:#fff}
-.lg-brand-wrap{margin-bottom:48px}
-.lg-logo{display:inline-block;text-decoration:none}
-.lg-logo-img{height:56px}
-.lg-slogan{font-size:16px;color:rgba(255,255,255,.4);margin-top:8px;font-weight:400;letter-spacing:.5px}
-.lg-features{display:flex;flex-direction:column;gap:16px}
-.lg-feat{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px;border:1px solid rgba(159,232,112,.1);background:rgba(159,232,112,.03);backdrop-filter:blur(10px);transition:all .3s}
-.lg-feat:hover{border-color:rgba(159,232,112,.3);background:rgba(159,232,112,.06);transform:translateX(4px)}
-.lg-feat-emoji{font-size:28px;flex-shrink:0}
-.lg-feat-t{font-size:14px;font-weight:700;color:#fff}
-.lg-feat-d{font-size:12px;color:rgba(255,255,255,.4);margin-top:3px}
-.lg-trust{display:flex;gap:24px;margin-top:40px;font-size:12px;color:rgba(255,255,255,.3);font-weight:500}
+/* ═══════════════════ Left Panel ═══════════════════ */
+.lg-left{
+  flex:1;
+  background:#0a0a0a;
+  display:flex;
+  position:relative;
+  overflow:hidden;
+}
+.lg-left::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(0,122,61,.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,122,61,.08) 0%, transparent 50%);
+}
+.lg-left-content{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:40px 60px;width:100%;
+}
 
-/* Right */
-.lg-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
-.lg-card{width:100%;max-width:420px;background:rgba(255,255,255,.04);border:1px solid rgba(159,232,112,.12);border-radius:28px;padding:44px 40px;backdrop-filter:blur(40px);box-shadow:0 32px 64px rgba(0,0,0,.3)}
-.lg-card-logo-img{display:block;height:40px;margin:0 auto 12px}
-.lg-title{font-size:26px;font-weight:800;color:#fff;text-align:center;letter-spacing:-.03em}
-.lg-subtitle{font-size:14px;color:rgba(255,255,255,.4);text-align:center;margin-top:6px;margin-bottom:28px}
-.lg-alert{padding:12px 16px;background:rgba(159,232,112,.1);border:1px solid rgba(159,232,112,.2);color:#9FE870;font-size:13px;font-weight:600;border-radius:12px;margin-bottom:20px;text-align:center}
+.lg-back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:rgba(255,255,255,.4);font-size:13px;font-weight:600;
+  text-decoration:none;transition:color .2s;direction:ltr;
+}
+.lg-back-link:hover{color:rgba(255,255,255,.7)}
 
-.lg-form{display:flex;flex-direction:column;gap:18px}
+.lg-left-center{flex:1;display:flex;flex-direction:column;justify-content:center}
+
+.lg-brand-logo{display:flex;align-items:center;gap:4px;direction:ltr;margin-bottom:4px}
+.lg-brand-text{font-family:'Inter',sans-serif;font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1}
+
+/* Syrian Flag */
+.sdb-flag{
+  display:inline-block;width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3CcircleF cx='60' cy='60' r='60' fill='%23007a3d'/%3E%3Cpath d='M0 40h120v40H0z' fill='%23fff'/%3E%3Cpath d='M0 80h120v40a60 60 0 01-120 0z' fill='%23000'/%3E%3Cpath d='M0 0h120v40a0 0 0 010 0H0z' fill='%23007a3d'/%3E%3Cg fill='%23ce1126'%3E%3Cpolygon points='35,55 36.5,60 41.5,60 37.5,63 39,68 35,65 31,68 32.5,63 28.5,60 33.5,60'/%3E%3Cpolygon points='60,55 61.5,60 66.5,60 62.5,63 64,68 60,65 56,68 57.5,63 53.5,60 58.5,60'/%3E%3Cpolygon points='85,55 86.5,60 91.5,60 87.5,63 89,68 85,65 81,68 82.5,63 78.5,60 83.5,60'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:cover;
+}
+.sdb-flag.sm{width:22px;height:22px}
+
+.lg-brand-tagline{
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.25);
+  letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;direction:ltr;
+}
+
+.lg-brand-headline{
+  font-size:36px;font-weight:900;color:#fff;line-height:1.3;margin-bottom:40px;
+}
+
+.lg-brand-features{display:flex;flex-direction:column;gap:14px}
+.lg-bf{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,.5);font-weight:600}
+.lg-bf-dot{width:6px;height:6px;border-radius:50%;background:#007a3d;flex-shrink:0}
+
+.lg-left-bottom{padding-top:20px}
+.lg-trust-badges{display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,.2);font-weight:500}
+
+/* ═══════════════════ Right Panel (Form) ═══════════════════ */
+.lg-right{
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  padding:40px;
+  background:#fafafa;
+}
+.lg-card{
+  width:100%;max-width:400px;
+  background:#ffffff;
+  border:1px solid #e5e7eb;
+  border-radius:20px;
+  padding:44px 36px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04);
+}
+
+.lg-card-header{text-align:center;margin-bottom:32px}
+.lg-card-logo{display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:16px;direction:ltr}
+.lg-card-logo-text{font-family:'Inter',sans-serif;font-size:32px;font-weight:900;color:#0a0a0a;letter-spacing:-1.5px}
+
+.lg-title{font-size:24px;font-weight:900;color:#0a0a0a;letter-spacing:-.02em}
+.lg-subtitle{font-size:14px;color:#6b7280;margin-top:6px;font-weight:500}
+
+.lg-alert{
+  padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;
+  color:#166534;font-size:13px;font-weight:600;border-radius:12px;
+  margin-bottom:20px;text-align:center;
+}
+
+.lg-form{display:flex;flex-direction:column;gap:20px}
 .lg-field{display:flex;flex-direction:column;gap:6px}
-.lg-label{font-size:13px;font-weight:600;color:rgba(255,255,255,.5)}
-.lg-input-wrap{position:relative;display:flex;align-items:center}
-.lg-icon{position:absolute;left:14px;width:18px;height:18px;color:rgba(255,255,255,.2)}
-.lg-input{width:100%;padding:14px 16px 14px 42px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;font-size:15px;color:#fff;outline:none;transition:all .2s;font-family:inherit;box-sizing:border-box}
-.lg-input:focus{border-color:#9FE870;background:rgba(159,232,112,.04);box-shadow:0 0 0 4px rgba(159,232,112,.08)}
-.lg-input::placeholder{color:rgba(255,255,255,.15)}
-.lg-error{font-size:12px;color:#f87171;margin-top:4px}
+.lg-label{font-size:13px;font-weight:700;color:#374151}
+.lg-input{
+  width:100%;padding:13px 16px;
+  background:#f9fafb;
+  border:1.5px solid #e5e7eb;
+  border-radius:12px;
+  font-size:15px;color:#0a0a0a;
+  outline:none;transition:all .2s;
+  font-family:inherit;
+}
+.lg-input:focus{
+  border-color:#007a3d;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(0,122,61,.08);
+}
+.lg-input::placeholder{color:#9ca3af}
+.lg-error{font-size:12px;color:#dc2626;margin-top:4px}
 
 .lg-options{display:flex;justify-content:space-between;align-items:center}
-.lg-check{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.4);cursor:pointer}
-.lg-check input{width:16px;height:16px;accent-color:#9FE870;border-radius:4px}
-.lg-forgot{font-size:13px;color:#9FE870;text-decoration:none;font-weight:600}.lg-forgot:hover{text-decoration:underline}
+.lg-check{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;cursor:pointer;font-weight:500}
+.lg-check input{width:16px;height:16px;accent-color:#007a3d;border-radius:4px}
+.lg-forgot{font-size:13px;color:#007a3d;text-decoration:none;font-weight:700}
+.lg-forgot:hover{text-decoration:underline}
 
-.lg-btn{width:100%;padding:16px;background:linear-gradient(135deg,#9FE870,#7ACC50);color:#163300;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;transition:all .25s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
-.lg-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(159,232,112,.3)}
-.lg-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.lg-spinner{width:18px;height:18px;border:2px solid rgba(22,51,0,.3);border-top-color:#163300;border-radius:50%;animation:spin .6s linear infinite}
+.lg-btn{
+  width:100%;padding:14px;
+  background:#0a0a0a;color:#fff;
+  border:none;border-radius:12px;
+  font-size:15px;font-weight:800;
+  cursor:pointer;transition:all .2s;
+  font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.lg-btn:hover{background:#1a1a1a;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.lg-btn:active{transform:translateY(0)}
+.lg-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.lg-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.lg-divider{text-align:center;margin:20px 0;position:relative}
-.lg-divider::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.06)}
-.lg-divider span{background:transparent;padding:0 12px;font-size:12px;color:rgba(255,255,255,.2);position:relative}
+.lg-divider{text-align:center;margin:24px 0;position:relative}
+.lg-divider::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#e5e7eb}
+.lg-divider span{background:#fff;padding:0 12px;font-size:12px;color:#9ca3af;position:relative}
 
-.lg-footer{text-align:center;font-size:13px;color:rgba(255,255,255,.3)}
-.lg-footer-link{color:#9FE870;font-weight:700;text-decoration:none;margin-left:6px}.lg-footer-link:hover{text-decoration:underline}
+.lg-footer{text-align:center;font-size:14px;color:#6b7280;font-weight:500}
+.lg-footer-link{color:#007a3d;font-weight:800;text-decoration:none;margin-right:6px}
+.lg-footer-link:hover{text-decoration:underline}
 
+/* ═══════════════════ Responsive ═══════════════════ */
 @media(max-width:900px){
   .lg-container{flex-direction:column}
   .lg-left{display:none}
-  .lg-right{min-height:100vh;padding:24px}
-  .lg-card{padding:36px 28px}
+  .lg-right{min-height:100vh;padding:24px;background:#fff}
+  .lg-card{padding:36px 24px;border:none;box-shadow:none;max-width:100%}
 }
 </style>
