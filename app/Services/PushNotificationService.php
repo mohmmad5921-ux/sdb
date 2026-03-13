@@ -44,12 +44,12 @@ class PushNotificationService
                         'title' => $title,
                         'body' => $body,
                     ],
-                    'data' => array_map('strval', $data),
                     'apns' => [
                         'payload' => [
                             'aps' => [
                                 'sound' => 'default',
                                 'badge' => 1,
+                                'mutable-content' => 1,
                             ],
                         ],
                     ],
@@ -62,6 +62,11 @@ class PushNotificationService
                     ],
                 ],
             ];
+
+            // Only add data if non-empty (FCM data must be a map/object, not array)
+            if (!empty($data)) {
+                $message['message']['data'] = (object) array_map('strval', $data);
+            }
 
             $response = Http::withToken($accessToken)
                 ->timeout(10)
