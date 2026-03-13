@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Currency;
 use App\Models\AdminActivityLog;
 use App\Models\AdminNote;
+use App\Services\AccountService;
 use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -107,8 +109,63 @@ class UserController extends Controller
         $request->validate(['status' => 'required|in:pending,active,suspended,blocked']);
         $old = $user->status;
         $user->update(['status' => $request->status]);
+
+        // When activating a pending user → create bank accounts + notify
+        if ($old === 'pending' && $request->status === 'active' && $user->accounts()->count() === 0) {
+            $this->createUserAccounts($user);
+
+            // Send activation notification + push
+            try {
+                $t = 'تم تفعيل حسابك ✅';
+                $b = 'تهانينا! تمت الموافقة على حسابك وتفعيله بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.';
+                \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'system']);
+                FcmService::sendToUser($user->id, $t, $b);
+            } catch (\Exception $e) {}
+        }
+
         AdminActivityLog::log('user.status_change', 'user', $user->id, ['old' => $old, 'new' => $request->status, 'user_name' => $user->full_name]);
         return back()->with('success', 'تم تحديث حالة المستخدم');
+    }
+
+    /**
+     * Create default bank accounts for a newly activated user.
+     */
+    private function createUserAccounts(User $user): void
+    {
+        $accountService = app(AccountService::class);
+
+        $countryToCurrency = [
+            'DK' => 'DKK', 'SE' => 'SEK', 'GB' => 'GBP', 'US' => 'USD',
+            'TR' => 'TRY', 'SY' => 'SYP', 'DE' => 'EUR', 'FR' => 'EUR',
+            'NL' => 'EUR', 'IT' => 'EUR', 'ES' => 'EUR', 'AT' => 'EUR',
+            'BE' => 'EUR', 'FI' => 'EUR', 'IE' => 'EUR', 'PT' => 'EUR',
+            'GR' => 'EUR', 'LU' => 'EUR', 'LB' => 'USD', 'JO' => 'JOD',
+            'IQ' => 'IQD', 'SA' => 'SAR', 'AE' => 'AED', 'EG' => 'EGP',
+            'KW' => 'KWD', 'QA' => 'QAR', 'BH' => 'BHD', 'OM' => 'OMR',
+            'NO' => 'NOK', 'CH' => 'CHF', 'CA' => 'CAD',
+        ];
+
+        // Detect country from phone prefix
+        $phone = $user->phone ?? '';
+        $countryCode = 'DK'; // default
+        $prefixes = ['+963' => 'SY', '+961' => 'LB', '+962' => 'JO', '+964' => 'IQ', '+966' => 'SA', '+971' => 'AE', '+20' => 'EG', '+965' => 'KW', '+974' => 'QA', '+973' => 'BH', '+968' => 'OM', '+45' => 'DK', '+49' => 'DE', '+46' => 'SE', '+47' => 'NO', '+31' => 'NL', '+33' => 'FR', '+44' => 'GB', '+43' => 'AT', '+41' => 'CH', '+32' => 'BE', '+39' => 'IT', '+34' => 'ES', '+90' => 'TR', '+1' => 'US'];
+        foreach ($prefixes as $prefix => $code) {
+            if (str_starts_with($phone, $prefix)) { $countryCode = $code; break; }
+        }
+        $defaultCurrencyCode = $countryToCurrency[$countryCode] ?? 'EUR';
+
+        // 1. Create default account in user's country currency
+        $defaultCurrency = Currency::where('code', $defaultCurrencyCode)->first()
+                         ?? Currency::where('code', 'EUR')->first();
+        if ($defaultCurrency) {
+            $accountService->createAccount($user, $defaultCurrency, true);
+        }
+
+        // 2. Always create SYP account (unless already the default)
+        if ($defaultCurrencyCode !== 'SYP') {
+            $syp = Currency::where('code', 'SYP')->first();
+            if ($syp) $accountService->createAccount($user, $syp);
+        }
     }
 
     public function updateKycStatus(Request $request, User $user)

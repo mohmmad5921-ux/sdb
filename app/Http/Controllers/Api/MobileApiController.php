@@ -156,31 +156,8 @@ class MobileApiController extends Controller
             'role' => 'customer',
         ]);
 
-        // Country-to-currency mapping
-        $countryToCurrency = [
-            'DK' => 'DKK', 'SE' => 'SEK', 'GB' => 'GBP', 'US' => 'USD',
-            'TR' => 'TRY', 'SY' => 'SYP', 'DE' => 'EUR', 'FR' => 'EUR',
-            'NL' => 'EUR', 'IT' => 'EUR', 'ES' => 'EUR', 'AT' => 'EUR',
-            'BE' => 'EUR', 'FI' => 'EUR', 'IE' => 'EUR', 'PT' => 'EUR',
-            'GR' => 'EUR', 'LU' => 'EUR',
-        ];
-
-        // Detect country from phone prefix or nationality
-        $countryCode = $this->detectCountry($request->phone, $request->nationality ?? null);
-        $defaultCurrencyCode = $countryToCurrency[$countryCode] ?? 'EUR';
-
-        // 1. Create default account in user's country currency
-        $defaultCurrency = Currency::where('code', $defaultCurrencyCode)->first() 
-                         ?? Currency::where('code', 'EUR')->first();
-        if ($defaultCurrency) {
-            $this->accountService->createAccount($user, $defaultCurrency, true);
-        }
-
-        // 2. Always create SYP account (unless already the default)
-        if ($defaultCurrencyCode !== 'SYP') {
-            $syp = Currency::where('code', 'SYP')->first();
-            if ($syp) $this->accountService->createAccount($user, $syp);
-        }
+        // NOTE: Bank accounts are NOT created here.
+        // They will be created when admin activates the user.
 
         $token = $user->createToken($request->device_name)->plainTextToken;
 
