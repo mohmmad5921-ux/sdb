@@ -20,6 +20,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _confirmPass = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
+  final _street = TextEditingController();
+  final _postalCode = TextEditingController();
+  final _city = TextEditingController();
   bool _loading = false, _obscure = true, _isRegister = false;
   final _auth = LocalAuthentication();
   bool _canBiometric = false;
@@ -38,28 +41,64 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   String _selectedCountryCode = '+963';
   String _selectedCountryName = 'سوريا';
   String _selectedCountryFlag = '🇸🇾';
+  String _selectedCountryIso = 'SY';
+
+  // Country-specific address labels
+  static const _addressLabels = {
+    'DK': {'street': 'Adresse', 'postal': 'Postnummer', 'city': 'By'},
+    'DE': {'street': 'Straße', 'postal': 'PLZ', 'city': 'Stadt'},
+    'AT': {'street': 'Straße', 'postal': 'PLZ', 'city': 'Stadt'},
+    'CH': {'street': 'Straße', 'postal': 'PLZ', 'city': 'Stadt'},
+    'NL': {'street': 'Straat', 'postal': 'Postcode', 'city': 'Stad'},
+    'BE': {'street': 'Rue / Straat', 'postal': 'Code postal', 'city': 'Ville / Stad'},
+    'SE': {'street': 'Gatuadress', 'postal': 'Postnummer', 'city': 'Ort'},
+    'NO': {'street': 'Gateadresse', 'postal': 'Postnummer', 'city': 'Sted'},
+    'GB': {'street': 'Street Address', 'postal': 'Postcode', 'city': 'City'},
+    'US': {'street': 'Street Address', 'postal': 'ZIP Code', 'city': 'City'},
+    'CA': {'street': 'Street Address', 'postal': 'Postal Code', 'city': 'City'},
+    'FR': {'street': 'Rue', 'postal': 'Code postal', 'city': 'Ville'},
+    'IT': {'street': 'Via', 'postal': 'CAP', 'city': 'Città'},
+    'ES': {'street': 'Calle', 'postal': 'Código postal', 'city': 'Ciudad'},
+    'TR': {'street': 'Adres', 'postal': 'Posta Kodu', 'city': 'Şehir'},
+  };
+  // Arab countries default
+  static const _arabLabels = {'street': 'الشارع', 'postal': 'الرمز البريدي', 'city': 'المدينة'};
+  static const _defaultLabels = {'street': 'Street', 'postal': 'Postal Code', 'city': 'City'};
+
+  Map<String, String> get _addrLabels {
+    if (_addressLabels.containsKey(_selectedCountryIso)) return _addressLabels[_selectedCountryIso]!;
+    // Check if Arab country
+    const arabCodes = ['SY','LB','JO','IQ','SA','AE','EG','KW','QA','BH','OM','YE','LY','TN','DZ','MA','SD','SO','PS','MR','DJ','KM'];
+    if (arabCodes.contains(_selectedCountryIso)) return _arabLabels;
+    return _defaultLabels;
+  }
 
   static const _countries = [
-    {'name': 'سوريا', 'code': '+963', 'flag': '🇸🇾', 'en': 'Syria'},
-    {'name': 'الدنمارك', 'code': '+45', 'flag': '🇩🇰', 'en': 'Denmark'},
-    {'name': 'ألمانيا', 'code': '+49', 'flag': '🇩🇪', 'en': 'Germany'},
-    {'name': 'تركيا', 'code': '+90', 'flag': '🇹🇷', 'en': 'Turkey'},
-    {'name': 'لبنان', 'code': '+961', 'flag': '🇱🇧', 'en': 'Lebanon'},
-    {'name': 'الأردن', 'code': '+962', 'flag': '🇯🇴', 'en': 'Jordan'},
-    {'name': 'العراق', 'code': '+964', 'flag': '🇮🇶', 'en': 'Iraq'},
-    {'name': 'السعودية', 'code': '+966', 'flag': '🇸🇦', 'en': 'Saudi Arabia'},
-    {'name': 'الإمارات', 'code': '+971', 'flag': '🇦🇪', 'en': 'UAE'},
-    {'name': 'مصر', 'code': '+20', 'flag': '🇪🇬', 'en': 'Egypt'},
-    {'name': 'الكويت', 'code': '+965', 'flag': '🇰🇼', 'en': 'Kuwait'},
-    {'name': 'قطر', 'code': '+974', 'flag': '🇶🇦', 'en': 'Qatar'},
-    {'name': 'البحرين', 'code': '+973', 'flag': '🇧🇭', 'en': 'Bahrain'},
-    {'name': 'عُمان', 'code': '+968', 'flag': '🇴🇲', 'en': 'Oman'},
-    {'name': 'السويد', 'code': '+46', 'flag': '🇸🇪', 'en': 'Sweden'},
-    {'name': 'النرويج', 'code': '+47', 'flag': '🇳🇴', 'en': 'Norway'},
-    {'name': 'هولندا', 'code': '+31', 'flag': '🇳🇱', 'en': 'Netherlands'},
-    {'name': 'فرنسا', 'code': '+33', 'flag': '🇫🇷', 'en': 'France'},
-    {'name': 'بريطانيا', 'code': '+44', 'flag': '🇬🇧', 'en': 'UK'},
-    {'name': 'أمريكا', 'code': '+1', 'flag': '🇺🇸', 'en': 'USA'},
+    {'name': 'سوريا', 'code': '+963', 'flag': '🇸🇾', 'en': 'Syria', 'iso': 'SY'},
+    {'name': 'الدنمارك', 'code': '+45', 'flag': '🇩🇰', 'en': 'Denmark', 'iso': 'DK'},
+    {'name': 'ألمانيا', 'code': '+49', 'flag': '🇩🇪', 'en': 'Germany', 'iso': 'DE'},
+    {'name': 'تركيا', 'code': '+90', 'flag': '🇹🇷', 'en': 'Turkey', 'iso': 'TR'},
+    {'name': 'لبنان', 'code': '+961', 'flag': '🇱🇧', 'en': 'Lebanon', 'iso': 'LB'},
+    {'name': 'الأردن', 'code': '+962', 'flag': '🇯🇴', 'en': 'Jordan', 'iso': 'JO'},
+    {'name': 'العراق', 'code': '+964', 'flag': '🇮🇶', 'en': 'Iraq', 'iso': 'IQ'},
+    {'name': 'السعودية', 'code': '+966', 'flag': '🇸🇦', 'en': 'Saudi Arabia', 'iso': 'SA'},
+    {'name': 'الإمارات', 'code': '+971', 'flag': '🇦🇪', 'en': 'UAE', 'iso': 'AE'},
+    {'name': 'مصر', 'code': '+20', 'flag': '🇪🇬', 'en': 'Egypt', 'iso': 'EG'},
+    {'name': 'الكويت', 'code': '+965', 'flag': '🇰🇼', 'en': 'Kuwait', 'iso': 'KW'},
+    {'name': 'قطر', 'code': '+974', 'flag': '🇶🇦', 'en': 'Qatar', 'iso': 'QA'},
+    {'name': 'البحرين', 'code': '+973', 'flag': '🇧🇭', 'en': 'Bahrain', 'iso': 'BH'},
+    {'name': 'عُمان', 'code': '+968', 'flag': '🇴🇲', 'en': 'Oman', 'iso': 'OM'},
+    {'name': 'السويد', 'code': '+46', 'flag': '🇸🇪', 'en': 'Sweden', 'iso': 'SE'},
+    {'name': 'النرويج', 'code': '+47', 'flag': '🇳🇴', 'en': 'Norway', 'iso': 'NO'},
+    {'name': 'هولندا', 'code': '+31', 'flag': '🇳🇱', 'en': 'Netherlands', 'iso': 'NL'},
+    {'name': 'فرنسا', 'code': '+33', 'flag': '🇫🇷', 'en': 'France', 'iso': 'FR'},
+    {'name': 'بريطانيا', 'code': '+44', 'flag': '🇬🇧', 'en': 'UK', 'iso': 'GB'},
+    {'name': 'أمريكا', 'code': '+1', 'flag': '🇺🇸', 'en': 'USA', 'iso': 'US'},
+    {'name': 'النمسا', 'code': '+43', 'flag': '🇦🇹', 'en': 'Austria', 'iso': 'AT'},
+    {'name': 'سويسرا', 'code': '+41', 'flag': '🇨🇭', 'en': 'Switzerland', 'iso': 'CH'},
+    {'name': 'بلجيكا', 'code': '+32', 'flag': '🇧🇪', 'en': 'Belgium', 'iso': 'BE'},
+    {'name': 'إيطاليا', 'code': '+39', 'flag': '🇮🇹', 'en': 'Italy', 'iso': 'IT'},
+    {'name': 'إسبانيا', 'code': '+34', 'flag': '🇪🇸', 'en': 'Spain', 'iso': 'ES'},
   ];
 
   @override
@@ -84,6 +123,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         if (flag != null) _selectedCountryFlag = flag;
         if (name != null) _selectedCountryName = name;
         if (cur != null) _currency = cur;
+        final iso = prefs.getString('user_country_code');
+        if (iso != null) _selectedCountryIso = iso;
       });
     }
   }
@@ -185,7 +226,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           'expected_annual_volume': _annualVolume ?? '',
           'currency': _currency,
           'country': _selectedCountryName,
-          'address': _address.text,
+          'address': '${_street.text}, ${_postalCode.text} ${_city.text}',
+          'street': _street.text,
+          'postal_code': _postalCode.text,
+          'city': _city.text,
         });
         if (res['success'] == true) {
           if (mounted) {
@@ -320,7 +364,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       const SizedBox(height: 10),
                       _buildPhoneField(cardBg, borderC, textW, textMuted, t),
                       const SizedBox(height: 10),
-                      _buildDarkField('العنوان / Address', _address, Icons.home_outlined, TextInputType.streetAddress, cardBg, borderC, textW, textMuted),
+                      // Address fields — country-specific
+                      _buildDarkField(_addrLabels['street']!, _street, Icons.home_outlined, TextInputType.streetAddress, cardBg, borderC, textW, textMuted),
+                      const SizedBox(height: 10),
+                      Row(children: [
+                        Expanded(child: _buildDarkField(_addrLabels['postal']!, _postalCode, null, TextInputType.number, cardBg, borderC, textW, textMuted)),
+                        const SizedBox(width: 10),
+                        Expanded(flex: 2, child: _buildDarkField(_addrLabels['city']!, _city, null, TextInputType.text, cardBg, borderC, textW, textMuted)),
+                      ]),
                       const SizedBox(height: 10),
                       _buildDarkField(t.email, _email, Icons.mail_outline_rounded, TextInputType.emailAddress, cardBg, borderC, textW, textMuted),
                       const SizedBox(height: 10),
@@ -643,6 +694,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   _selectedCountryCode = c['code']!;
                   _selectedCountryName = c['name']!;
                   _selectedCountryFlag = c['flag']!;
+                  _selectedCountryIso = c['iso'] ?? 'SY';
                 });
                 Navigator.pop(ctx);
               },

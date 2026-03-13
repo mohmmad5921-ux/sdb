@@ -74,6 +74,8 @@
 	<string>نحتاج الوصول لمعرض الصور لرفع مستندات التحقق من الهوية</string>
 	<key>NSContactsUsageDescription</key>
 	<string>للعثور على أصدقائك المشتركين في SDB Bank وإرسال الأموال لهم</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>نستخدم موقعك لتحديد دولتك تلقائياً وتخصيص تجربتك المصرفية</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

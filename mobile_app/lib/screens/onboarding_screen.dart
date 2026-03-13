@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -16,9 +18,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String? _selectedLanguage;
   Map<String, String>? _selectedCountry;
   String? _selectedProvince;
+  bool _locationLoading = false;
+  bool _locationDetected = false;
 
-  // Total pages: Language(1) + 3 Welcome + Country(1) + Province(0 or 1)
-  int get _totalPages => _selectedCountry?['code'] == 'SY' ? 6 : 5;
+  // Total pages: Language(1) + Location(1) + 3 Welcome + Country(1) + Province(0 or 1)
+  int get _totalPages => _locationDetected
+    ? (_selectedCountry?['code'] == 'SY' ? 6 : 5)  // skip country page if auto-detected (but still counted)
+    : (_selectedCountry?['code'] == 'SY' ? 7 : 6);
 
   // Syria provinces
   static const _syriaProvinces = [
@@ -100,6 +106,45 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  Future<void> _requestLocation() async {
+    setState(() => _locationLoading = true);
+    try {
+      LocationPermission perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+        // User denied — go to next page (will show manual country picker)
+        setState(() => _locationLoading = false);
+        _nextPage();
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 8)));
+      final placemarks = await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      if (placemarks.isNotEmpty) {
+        final cc = placemarks.first.isoCountryCode ?? '';
+        // Find matching country
+        final match = _countries.where((c) => c['code'] == cc).toList();
+        if (match.isNotEmpty) {
+          setState(() {
+            _selectedCountry = match.first;
+            _locationDetected = true;
+            _locationLoading = false;
+          });
+          // Skip to welcome slides (auto-detected)
+          _nextPage();
+          return;
+        }
+      }
+    } catch (_) {}
+    setState(() => _locationLoading = false);
+    _nextPage();
+  }
+
+  void _skipLocation() {
+    _nextPage();
+  }
+
   void _onCountrySelected(Map<String, String> country) {
     setState(() {
       _selectedCountry = country;
@@ -173,14 +218,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 // Page 0: Language
                 _buildLanguagePage(),
-                // Pages 1-3: Welcome slides
+                // Page 1: Location Permission
+                _buildLocationPage(),
+                // Pages 2-4: Welcome slides
                 _buildWelcomeSlide(0),
                 _buildWelcomeSlide(1),
                 _buildWelcomeSlide(2),
-                // Page 4: Country
+                // Page 5: Country (skipped if auto-detected, but still in tree)
                 _buildCountryPage(),
-                // Page 5: Province (Syria only)
-                if (_totalPages == 6) _buildProvincePage(),
+                // Page 6: Province (Syria only)
+                if (_selectedCountry?['code'] == 'SY') _buildProvincePage(),
               ],
             ),
           ),
@@ -245,10 +292,59 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  // ─── PAGE 1: LOCATION PERMISSION ───
+  Widget _buildLocationPage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Spacer(flex: 2),
+        Container(
+          width: 100, height: 100,
+          decoration: BoxDecoration(
+            color: AppTheme.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: const Center(child: Text('📍', style: TextStyle(fontSize: 48))),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          _isArabic ? 'تحديد موقعك' : 'Detect your location',
+          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppTheme.textPrimary),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 14),
+        Text(
+          _isArabic
+            ? 'اسمح لنا بتحديد دولتك تلقائياً لنخصّص تجربتك. لن نخزّن موقعك.'
+            : 'Allow us to detect your country automatically to personalize your experience. We won\'t store your location.',
+          style: TextStyle(fontSize: 15, color: AppTheme.textMuted, height: 1.7),
+          textAlign: TextAlign.center,
+        ),
+        const Spacer(flex: 3),
+        _buildButton(
+          _locationLoading
+            ? (_isArabic ? 'جاري تحديد الموقع...' : 'Detecting...')
+            : (_isArabic ? 'السماح بتحديد الموقع' : 'Allow location access'),
+          _locationLoading ? null : _requestLocation,
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _locationLoading ? null : _skipLocation,
+          child: Text(
+            _isArabic ? 'تخطي — سأختار يدوياً' : 'Skip — I\'ll choose manually',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ]),
+    );
+  }
+
   // ─── PAGES 1-3: WELCOME SLIDES ───
   Widget _buildWelcomeSlide(int index) {
     final slide = _welcomeSlides[index];
     final isLast = index == 2;
+    // If location was auto-detected, last welcome slide goes to complete (skip country picker)
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -287,8 +383,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ))),
         const Spacer(flex: 3),
         _buildButton(
-          isLast ? (_isArabic ? 'اختر دولتك' : 'Choose your country') : (_isArabic ? 'التالي' : 'Next'),
-          _nextPage,
+          isLast
+            ? (_locationDetected
+                ? (_isArabic ? 'متابعة' : 'Continue')
+                : (_isArabic ? 'اختر دولتك' : 'Choose your country'))
+            : (_isArabic ? 'التالي' : 'Next'),
+          isLast && _locationDetected ? _complete : _nextPage,
         ),
         const SizedBox(height: 24),
       ]),
