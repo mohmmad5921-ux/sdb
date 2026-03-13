@@ -112,7 +112,7 @@ const t = computed(() => isAr.value ? {
         </div>
       </div>
       <div class="ap-hero-mockup">
-        <img src="/images/iphone-sdb-app.png" alt="SDB Bank App" class="ap-phone-img" />
+        <img src="/images/sdb-app-mockup.png" alt="SDB Bank App" class="ap-phone-img" />
       </div>
     </div>
   </div>
