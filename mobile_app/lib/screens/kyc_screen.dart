@@ -199,6 +199,10 @@ class _KycScreenState extends State<KycScreen> {
       );
       if (r['success'] == true) {
         setState(() { _step = 6; _kycStatus = 'submitted'; });
+        // Auto-redirect to pending screen after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) Navigator.pushReplacementNamed(context, '/pending');
+        });
       } else if (r['status'] == 401) {
         // Token expired — redirect to login
         await ApiService.clearToken();
@@ -223,7 +227,9 @@ class _KycScreenState extends State<KycScreen> {
       backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () {
+          if (Navigator.canPop(context)) { Navigator.pop(context); } else { Navigator.pushReplacementNamed(context, '/pending'); }
+        }),
         title: const Text('التحقق من الهوية', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
       ),
       body: SafeArea(child: _loading

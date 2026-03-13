@@ -189,7 +189,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             await Navigator.pushNamed(context, '/phone-verify', arguments: fullPhone);
             if (mounted) {
               PushNotificationService.initialize();
-              Navigator.pushReplacementNamed(context, '/home');
+              // After phone verify → go to KYC for document scan
+              Navigator.pushReplacementNamed(context, '/kyc');
             }
           }
         } else {
@@ -208,7 +209,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         if (res['success'] == true) {
           if (mounted) {
             PushNotificationService.initialize();
-            Navigator.pushReplacementNamed(context, '/home');
+            // Check user status — pending → pending screen
+            final profile = await ApiService.getProfile();
+            final user = profile['data']?['user'] ?? profile['data'];
+            final status = user?['status'] ?? 'active';
+            if (mounted) {
+              if (status == 'pending') {
+                Navigator.pushReplacementNamed(context, '/pending');
+              } else {
+                Navigator.pushReplacementNamed(context, '/home');
+              }
+            }
           }
         } else {
           setState(() => _error = res['data']?['message'] ?? t.connectionError);
@@ -244,7 +255,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         final profile = await ApiService.getProfile();
         if (profile['success'] == true && mounted) {
           PushNotificationService.initialize();
-          Navigator.pushReplacementNamed(context, '/home');
+          final user = profile['data']?['user'] ?? profile['data'];
+          final status = user?['status'] ?? 'active';
+          if (status == 'pending') {
+            Navigator.pushReplacementNamed(context, '/pending');
+          } else {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
         } else {
           // Token invalid — clear and stay on login
           await ApiService.logout();
