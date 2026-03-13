@@ -20,6 +20,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   String? _error;
   int _countdown = 0;
   String _countryCode = '963';
+  String _channel = 'sms'; // 'sms' or 'whatsapp'
 
   @override
   void initState() {
@@ -54,9 +55,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      // Call backend to send OTP
-      final res = await ApiService.post('/auth/send-otp', {'phone': fullPhone});
-      if (res['success'] == true) {
+      final res = await ApiService.post('/verify/send', {
+        'phone': fullPhone,
+        'channel': _channel,
+      });
+      if (res['success'] == true || res['data']?['success'] == true) {
         setState(() { _codeSent = true; _loading = false; _countdown = 60; });
         _startCountdown();
       } else {
@@ -82,10 +85,15 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
     setState(() { _loading = true; _error = null; });
     try {
-      final phone = _phoneCtrl.text.trim().startsWith('+') ? _phoneCtrl.text.trim() : '+${_phoneCtrl.text.trim()}';
-      final res = await ApiService.post('/auth/verify-otp', {'phone': phone, 'code': _otp});
+      final phone = _phoneCtrl.text.trim().startsWith('+')
+          ? _phoneCtrl.text.trim()
+          : '+${_phoneCtrl.text.trim()}';
+      final res = await ApiService.post('/verify/check', {
+        'phone': phone,
+        'code': _otp,
+      });
 
-      if (res['success'] == true) {
+      if (res['success'] == true || res['data']?['success'] == true || res['data']?['verified'] == true) {
         setState(() { _verified = true; _loading = false; });
         if (mounted) {
           await Future.delayed(const Duration(seconds: 2));
@@ -134,10 +142,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       const SizedBox(height: 24),
       const Center(child: Text('تأكيد رقم الهاتف', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
       const SizedBox(height: 8),
-      Center(child: Text('أدخل رقم هاتفك وسنرسل لك رمز تحقق عبر SMS', textAlign: TextAlign.center,
+      Center(child: Text('أدخل رقم هاتفك واختر طريقة استلام الرمز', textAlign: TextAlign.center,
         style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5))),
       const SizedBox(height: 32),
 
+      // Phone input
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
@@ -164,6 +173,21 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       ),
       const SizedBox(height: 16),
 
+      // ── Channel selector: SMS / WhatsApp ──
+      Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: AppTheme.bgCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.border),
+        ),
+        child: Row(children: [
+          _buildChannelTab('sms', Icons.sms_rounded, 'SMS'),
+          _buildChannelTab('whatsapp', Icons.chat_rounded, 'واتساب'),
+        ]),
+      ),
+      const SizedBox(height: 16),
+
       if (_error != null) Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: AppTheme.danger.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12)),
@@ -186,10 +210,48 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
           child: _loading
             ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-            : const Text('إرسال رمز التحقق', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(_channel == 'whatsapp' ? Icons.chat_rounded : Icons.sms_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  _channel == 'whatsapp' ? 'إرسال عبر واتساب' : 'إرسال عبر SMS',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                ),
+              ]),
         ),
       )),
     ]);
+  }
+
+  Widget _buildChannelTab(String channel, IconData icon, String label) {
+    final isActive = _channel == channel;
+    return Expanded(child: GestureDetector(
+      onTap: () => setState(() => _channel = channel),
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isActive
+              ? (channel == 'whatsapp' ? const Color(0xFF25D366).withValues(alpha: 0.12) : AppTheme.primary.withValues(alpha: 0.1))
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: isActive
+              ? Border.all(color: channel == 'whatsapp' ? const Color(0xFF25D366) : AppTheme.primary, width: 1.5)
+              : null,
+        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, size: 20, color: isActive
+              ? (channel == 'whatsapp' ? const Color(0xFF25D366) : AppTheme.primary)
+              : AppTheme.textMuted),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(
+            fontSize: 14, fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            color: isActive
+                ? (channel == 'whatsapp' ? const Color(0xFF25D366) : AppTheme.primary)
+                : AppTheme.textMuted,
+          )),
+        ]),
+      ),
+    ));
   }
 
   Widget _buildOTP() {
@@ -197,14 +259,24 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       const SizedBox(height: 20),
       Container(
         width: 80, height: 80,
-        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.08), borderRadius: BorderRadius.circular(24)),
-        child: const Icon(Icons.sms_rounded, size: 40, color: Color(0xFF10B981)),
+        decoration: BoxDecoration(
+          color: (_channel == 'whatsapp' ? const Color(0xFF25D366) : const Color(0xFF10B981)).withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Icon(
+          _channel == 'whatsapp' ? Icons.chat_rounded : Icons.sms_rounded,
+          size: 40,
+          color: _channel == 'whatsapp' ? const Color(0xFF25D366) : const Color(0xFF10B981),
+        ),
       ),
       const SizedBox(height: 24),
       const Text('أدخل رمز التحقق', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
       const SizedBox(height: 8),
-      Text('تم إرسال رمز مكون من 6 أرقام إلى\n${_phoneCtrl.text}', textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5)),
+      Text(
+        'تم إرسال رمز مكون من 6 أرقام ${_channel == 'whatsapp' ? 'عبر واتساب' : 'عبر SMS'}\nإلى ${_phoneCtrl.text}',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5),
+      ),
       const SizedBox(height: 32),
 
       Directionality(textDirection: TextDirection.ltr, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(6, (i) =>

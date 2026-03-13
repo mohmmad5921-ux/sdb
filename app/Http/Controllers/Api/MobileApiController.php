@@ -293,6 +293,93 @@ class MobileApiController extends Controller
         ]);
     }
 
+    /* ==================== PHONE VERIFICATION (Twilio Verify) ==================== */
+
+    public function sendVerification(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'channel' => 'sometimes|string|in:sms,whatsapp',
+        ]);
+
+        $phone = $request->phone;
+        $channel = $request->channel ?? 'sms';
+
+        try {
+            $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
+            $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
+            $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                ->asForm()
+                ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
+                    'To' => $phone,
+                    'Channel' => $channel,
+                ]);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $channel === 'whatsapp'
+                        ? 'تم إرسال رمز التحقق عبر واتساب'
+                        : 'تم إرسال رمز التحقق عبر SMS',
+                    'channel' => $channel,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل إرسال رمز التحقق: ' . ($response->json()['message'] ?? 'خطأ'),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Twilio sendVerification error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'خطأ في إرسال رمز التحقق'], 500);
+        }
+    }
+
+    public function checkVerification(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
+        try {
+            $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
+            $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
+            $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                ->asForm()
+                ->post("https://verify.twilio.com/v2/Services/{$verifySid}/VerificationCheck", [
+                    'To' => $request->phone,
+                    'Code' => $request->code,
+                ]);
+
+            $data = $response->json();
+
+            if ($response->successful() && ($data['status'] ?? '') === 'approved') {
+                // Mark phone as verified on user
+                $request->user()->update(['phone_verified_at' => now()]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم التحقق من رقم الهاتف بنجاح',
+                    'verified' => true,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية',
+                'verified' => false,
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Twilio checkVerification error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'خطأ في التحقق'], 500);
+        }
+    }
+
     /* ==================== DASHBOARD ==================== */
 
     public function dashboard(Request $request)
