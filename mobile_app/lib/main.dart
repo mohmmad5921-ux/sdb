@@ -38,7 +38,7 @@ void main() async {
   } catch (e) {
     debugPrint('⚠️ Firebase init failed: $e — continuing without Firebase');
   }
-  Stripe.publishableKey = 'pk_test_51TArZyQM9YGs6WV2JMNjwm5nejtGbQy0QQSLXnoiQ3l5SuqHyi7IDTU5NCsg1G3jKVdReBE9OLDw22MMp1v5F1GB006msVUM52';
+  Stripe.publishableKey = 'pk_test_51T5ScmC6o4Je50IeP0X3wvj9LZgDrtb3v6EKMwglmipSWSO6QqPKjcF1Ar6TGjHzcOArefoHkmVpXcgX4LteVk2T00PtXsDSeK';
   Stripe.merchantIdentifier = 'merchant.com.sdb-bank.app';
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

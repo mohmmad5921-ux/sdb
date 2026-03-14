@@ -363,21 +363,48 @@ class ApiService {
 
   // Subscription
   static Future<Map<String, dynamic>> subscribeToPlan(String planId) async {
-    final r = await http.post(Uri.parse('$baseUrl/subscription/subscribe'), headers: await _headers(),
-      body: jsonEncode({'plan_id': planId}));
-    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/subscription/subscribe'), headers: await _headers(),
+        body: jsonEncode({'plan_id': planId}));
+      debugPrint('🔵 subscribeToPlan status: ${r.statusCode}, body: ${r.body.substring(0, r.body.length > 200 ? 200 : r.body.length)}');
+      if (r.body.startsWith('{') || r.body.startsWith('[')) {
+        return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+      }
+      return {'success': false, 'data': {'message': 'Server error (${r.statusCode})'}, 'status': r.statusCode};
+    } catch (e) {
+      debugPrint('🔴 subscribeToPlan error: $e');
+      return {'success': false, 'data': {'message': 'Connection error: $e'}, 'status': 0};
+    }
   }
 
   static Future<Map<String, dynamic>> createSubscriptionIntent(String planId) async {
-    final r = await http.post(Uri.parse('$baseUrl/subscription/create-intent'), headers: await _headers(),
-      body: jsonEncode({'plan_id': planId}));
-    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/subscription/create-intent'), headers: await _headers(),
+        body: jsonEncode({'plan_id': planId}));
+      debugPrint('🔵 createSubscriptionIntent status: ${r.statusCode}, body: ${r.body.substring(0, r.body.length > 200 ? 200 : r.body.length)}');
+      if (r.body.startsWith('{') || r.body.startsWith('[')) {
+        return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+      }
+      return {'success': false, 'data': {'message': 'Server blocked request (${r.statusCode})'}, 'status': r.statusCode};
+    } catch (e) {
+      debugPrint('🔴 createSubscriptionIntent error: $e');
+      return {'success': false, 'data': {'message': 'Connection error: $e'}, 'status': 0};
+    }
   }
 
   static Future<Map<String, dynamic>> confirmSubscription(String paymentIntentId, String planId) async {
-    final r = await http.post(Uri.parse('$baseUrl/subscription/confirm'), headers: await _headers(),
-      body: jsonEncode({'payment_intent_id': paymentIntentId, 'plan_id': planId}));
-    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/subscription/confirm'), headers: await _headers(),
+        body: jsonEncode({'payment_intent_id': paymentIntentId, 'plan_id': planId}));
+      debugPrint('🔵 confirmSubscription status: ${r.statusCode}');
+      if (r.body.startsWith('{') || r.body.startsWith('[')) {
+        return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+      }
+      return {'success': false, 'data': {'message': 'Server error (${r.statusCode})'}, 'status': r.statusCode};
+    } catch (e) {
+      debugPrint('🔴 confirmSubscription error: $e');
+      return {'success': false, 'data': {'message': 'Connection error: $e'}, 'status': 0};
+    }
   }
 
   static Future<bool> isLoggedIn() async => await token != null;
