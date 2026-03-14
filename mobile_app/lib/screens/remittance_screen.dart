@@ -45,8 +45,8 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
       if (govRes['success'] == true) {
         _governorates = govRes['data']['governorates'] ?? [];
       }
-      if (dashRes != null) {
-        _accounts = dashRes['accounts'] ?? [];
+      if (dashRes['success'] == true && dashRes['data'] != null) {
+        _accounts = dashRes['data']['accounts'] ?? [];
         if (_accounts.isNotEmpty) _selectedAccount = _accounts[0];
       }
     } catch (e) {
