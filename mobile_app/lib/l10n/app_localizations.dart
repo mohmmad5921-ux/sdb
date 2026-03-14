@@ -338,9 +338,19 @@ class AppStrings {
   final String logOut;
 
   // Deposit
-  final String depositViaStripe;
-  final String testCard;
-  final String securePaymentsVia;
+  final String securePayment;
+  final String depositNow;
+  final String depositTo;
+  final String pleaseFillAllFields;
+  final String amountMustBeBetween;
+  final String depositFailed;
+  final String depositSuccess;
+  final String operationCancelled;
+  final String processingFee;
+  final String netAmount;
+  final String card;
+  final String error;
+  final String paymentMethod;
 
   // Support & AI
   final String welcomeToSupport;
@@ -364,7 +374,6 @@ class AppStrings {
   final String recentTransfers;
   final String distribution;
   final String chooseCardDesign;
-  final String testMode;
   final String uploading;
   final String transitioning;
   final String paymentLinkCopied;
@@ -649,9 +658,19 @@ class AppStrings {
     required this.registerNewOrLogin,
     required this.loginTitle,
     required this.logOut,
-    required this.depositViaStripe,
-    required this.testCard,
-    required this.securePaymentsVia,
+    required this.securePayment,
+    required this.depositNow,
+    required this.depositTo,
+    required this.pleaseFillAllFields,
+    required this.amountMustBeBetween,
+    required this.depositFailed,
+    required this.depositSuccess,
+    required this.operationCancelled,
+    required this.processingFee,
+    required this.netAmount,
+    required this.card,
+    required this.error,
+    required this.paymentMethod,
     required this.welcomeToSupport,
     required this.transferredToAgent,
     required this.contactSupportShort,
@@ -671,7 +690,6 @@ class AppStrings {
     required this.recentTransfers,
     required this.distribution,
     required this.chooseCardDesign,
-    required this.testMode,
     required this.uploading,
     required this.transitioning,
     required this.paymentLinkCopied,
@@ -958,9 +976,19 @@ const enStrings = AppStrings(
   registerNewOrLogin: 'Register a new account or use your email to log in',
   loginTitle: 'Log In',
   logOut: 'Log Out',
-  depositViaStripe: 'Deposit via Stripe',
-  testCard: 'Test card: 4242 4242 4242 4242\nExpiry: 12/27  |  CVC: 123',
-  securePaymentsVia: 'Secure payments via ',
+  securePayment: 'Secure payment protected by SDB',
+  depositNow: 'Deposit Now',
+  depositTo: 'Deposit to',
+  pleaseFillAllFields: 'Please fill all fields',
+  amountMustBeBetween: 'Amount must be between 1 and 50,000',
+  depositFailed: 'Deposit failed',
+  depositSuccess: 'Deposit successful!',
+  operationCancelled: 'Operation cancelled',
+  processingFee: 'Processing fee',
+  netAmount: 'Net amount',
+  card: 'Card',
+  error: 'Error',
+  paymentMethod: 'Payment method',
   welcomeToSupport: 'Welcome to Support',
   transferredToAgent: 'You have been transferred to a support agent',
   contactSupportShort: 'Contact Support',
@@ -980,7 +1008,6 @@ const enStrings = AppStrings(
   recentTransfers: 'Recent Transfers',
   distribution: 'Distribution',
   chooseCardDesign: 'Choose Card Design',
-  testMode: 'Test Mode',
   uploading: 'Uploading...',
   transitioning: 'Transitioning...',
   paymentLinkCopied: 'Payment link copied',
@@ -1266,9 +1293,19 @@ const arStrings = AppStrings(
   registerNewOrLogin: 'سجّل حساب جديد أو استخدم بريدك الإلكتروني للدخول',
   loginTitle: 'تسجيل الدخول',
   logOut: 'تسجيل الخروج',
-  depositViaStripe: 'إيداع عبر Stripe',
-  testCard: 'بطاقة تجريبية: 4242 4242 4242 4242\nتاريخ: 12/27  |  CVC: 123',
-  securePaymentsVia: 'مدفوعات آمنة عبر ',
+  securePayment: 'دفع آمن محمي من SDB',
+  depositNow: 'إيداع الآن',
+  depositTo: 'إيداع إلى',
+  pleaseFillAllFields: 'يرجى ملء جميع الحقول',
+  amountMustBeBetween: 'المبلغ يجب أن يكون بين 1 و 50,000',
+  depositFailed: 'فشل الإيداع',
+  depositSuccess: 'تم الإيداع بنجاح!',
+  operationCancelled: 'تم إلغاء العملية',
+  processingFee: 'رسوم المعالجة',
+  netAmount: 'المبلغ الصافي',
+  card: 'بطاقة',
+  error: 'خطأ',
+  paymentMethod: 'طريقة الدفع',
   welcomeToSupport: 'مرحباً بك في الدعم',
   transferredToAgent: 'تم تحويلك لموظف دعم',
   contactSupportShort: 'التواصل مع الدعم',
@@ -1288,7 +1325,6 @@ const arStrings = AppStrings(
   recentTransfers: 'آخر التحويلات',
   distribution: 'التوزيع',
   chooseCardDesign: 'اختر تصميم البطاقة',
-  testMode: 'وضع الاختبار',
   uploading: 'جاري الرفع...',
   transitioning: 'جاري الانتقال...',
   paymentLinkCopied: 'تم نسخ رابط الدفع',

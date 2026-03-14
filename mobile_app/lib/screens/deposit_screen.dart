@@ -18,6 +18,7 @@ class _DepositScreenState extends State<DepositScreen> {
   bool loading = false, loadingAccounts = true, processing = false;
   String? error, success;
   double fee = 0, net = 0;
+  int _payMethod = 0; // 0=card, 1=apple, 2=google
 
   @override
   void initState() { super.initState(); _loadAccounts(); }
@@ -40,14 +41,14 @@ class _DepositScreenState extends State<DepositScreen> {
     if (net < 0) net = 0;
   }
 
-  Future<void> _handleStripeDeposit() async {
+  Future<void> _handleDeposit() async {
     if (selectedAccount == null || _amount.text.isEmpty) {
-      setState(() => error = 'يرجى ملء جميع الحقول');
+      setState(() => error = L10n.of(context).pleaseFillAllFields);
       return;
     }
     final amount = double.tryParse(_amount.text) ?? 0;
     if (amount < 1 || amount > 50000) {
-      setState(() => error = 'المبلغ يجب أن يكون بين 1 و 50,000');
+      setState(() => error = L10n.of(context).amountMustBeBetween);
       return;
     }
 
@@ -57,18 +58,26 @@ class _DepositScreenState extends State<DepositScreen> {
       // 1. Create PaymentIntent on server
       final intentRes = await ApiService.createStripeIntent(selectedAccount!['id'] as int, amount);
       if (intentRes['success'] != true) {
-        setState(() { error = intentRes['data']?['message'] ?? 'فشل إنشاء عملية الدفع'; loading = false; });
+        setState(() { error = intentRes['data']?['message'] ?? L10n.of(context).depositFailed; loading = false; });
         return;
       }
 
       final clientSecret = intentRes['data']['client_secret'];
 
-      // 2. Initialize PaymentSheet
+      // 2. Initialize PaymentSheet with Apple Pay / Google Pay support
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'SDB Bank',
           style: ThemeMode.light,
+          googlePay: const PaymentSheetGooglePay(
+            merchantCountryCode: 'DK',
+            currencyCode: 'DKK',
+            testEnv: true,
+          ),
+          applePay: const PaymentSheetApplePay(
+            merchantCountryCode: 'DK',
+          ),
           appearance: PaymentSheetAppearance(
             colors: PaymentSheetAppearanceColors(
               primary: const Color(0xFF10B981),
@@ -92,7 +101,7 @@ class _DepositScreenState extends State<DepositScreen> {
         ),
       );
 
-      // 3. Present PaymentSheet
+      // 3. Present PaymentSheet (handles Card, Apple Pay, Google Pay)
       setState(() => processing = true);
       await Stripe.instance.presentPaymentSheet();
 
@@ -104,43 +113,45 @@ class _DepositScreenState extends State<DepositScreen> {
 
       if (confirmRes['success'] == true) {
         setState(() {
-          success = 'تم الإيداع بنجاح! ✅\nتمت إضافة ${fmt(net > 0 ? net : amount)} ${selectedAccount!['currency']?['symbol'] ?? ''}';
+          success = '${L10n.of(context).depositSuccess} ✅\n${fmt(net > 0 ? net : amount)} ${selectedAccount!['currency']?['symbol'] ?? ''}';
           processing = false;
           loading = false;
         });
         _amount.clear();
         _loadAccounts();
       } else {
-        setState(() { error = confirmRes['data']?['message'] ?? 'فشل تأكيد الإيداع'; processing = false; loading = false; });
+        setState(() { error = confirmRes['data']?['message'] ?? L10n.of(context).depositFailed; processing = false; loading = false; });
       }
     } on StripeException catch (e) {
       setState(() {
         if (e.error.code == FailureCode.Canceled) {
-          error = 'تم إلغاء العملية';
+          error = L10n.of(context).operationCancelled;
         } else {
-          error = e.error.localizedMessage ?? 'فشل الدفع';
+          error = e.error.localizedMessage ?? L10n.of(context).depositFailed;
         }
         processing = false;
         loading = false;
       });
     } catch (e) {
-      setState(() { error = 'خطأ: $e'; processing = false; loading = false; });
+      setState(() { error = '${L10n.of(context).error}: $e'; processing = false; loading = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final cur = selectedAccount?['currency']?['symbol'] ?? '€';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(L10n.of(context).deposit, style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
+        title: Text(l.deposit, style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
         backgroundColor: Colors.white, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFF111827), size: 20), onPressed: () => Navigator.pop(context)),
       ),
       body: loadingAccounts
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
         : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            // Stripe badge
+            // Secure payment badge (no Stripe branding)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
@@ -148,17 +159,16 @@ class _DepositScreenState extends State<DepositScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.15)),
               ),
-              child: const Row(children: [
-                Icon(Icons.lock_rounded, size: 16, color: Color(0xFF10B981)),
-                SizedBox(width: 8),
-                Text('مدفوعات آمنة عبر ', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), fontWeight: FontWeight.w500)),
-                Text('Stripe', style: TextStyle(fontSize: 13, color: Color(0xFF635BFF), fontWeight: FontWeight.w800)),
+              child: Row(children: [
+                const Icon(Icons.verified_user_rounded, size: 16, color: Color(0xFF10B981)),
+                const SizedBox(width: 8),
+                Expanded(child: Text(l.securePayment, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
               ]),
             ),
             const SizedBox(height: 24),
 
             // Account selector
-            _label('إيداع إلى'),
+            _label(l.depositTo),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(color: const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE5E7EB))),
@@ -175,7 +185,7 @@ class _DepositScreenState extends State<DepositScreen> {
             const SizedBox(height: 20),
 
             // Amount
-            _label('المبلغ'),
+            _label(l.amount),
             Container(
               decoration: BoxDecoration(color: const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE5E7EB))),
               child: TextField(
@@ -187,10 +197,10 @@ class _DepositScreenState extends State<DepositScreen> {
                 onChanged: (_) => setState(() => _calcFee()),
                 decoration: InputDecoration(
                   hintText: '0.00',
-                  hintStyle: TextStyle(color: const Color(0xFFD1D5DB), fontSize: 28, fontWeight: FontWeight.w800),
+                  hintStyle: const TextStyle(color: Color(0xFFD1D5DB), fontSize: 28, fontWeight: FontWeight.w800),
                   prefixIcon: Padding(
                     padding: const EdgeInsets.only(left: 16, top: 14),
-                    child: Text(selectedAccount?['currency']?['symbol'] ?? '€', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF10B981))),
+                    child: Text(cur, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF10B981))),
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 20),
@@ -209,15 +219,26 @@ class _DepositScreenState extends State<DepositScreen> {
                   border: Border.all(color: const Color(0xFFF3F4F6)),
                 ),
                 child: Column(children: [
-                  _feeRow('المبلغ', '${fmt(double.tryParse(_amount.text) ?? 0)} ${selectedAccount?['currency']?['symbol'] ?? '€'}'),
+                  _feeRow(l.amount, '${fmt(double.tryParse(_amount.text) ?? 0)} $cur'),
                   const Divider(height: 16, color: Color(0xFFF3F4F6)),
-                  _feeRow('رسوم المعالجة', '-${fmt(fee)} ${selectedAccount?['currency']?['symbol'] ?? '€'}'),
+                  _feeRow(l.processingFee, '-${fmt(fee)} $cur'),
                   const Divider(height: 16, color: Color(0xFFF3F4F6)),
-                  _feeRow('المبلغ الصافي', '${fmt(net)} ${selectedAccount?['currency']?['symbol'] ?? '€'}', bold: true, color: const Color(0xFF10B981)),
+                  _feeRow(l.netAmount, '${fmt(net)} $cur', bold: true, color: const Color(0xFF10B981)),
                 ]),
               ),
               const SizedBox(height: 20),
             ],
+
+            // Payment methods
+            _label(l.paymentMethod),
+            Row(children: [
+              _payMethodChip(0, Icons.credit_card_rounded, l.card),
+              const SizedBox(width: 8),
+              _payMethodChip(1, Icons.apple_rounded, 'Apple Pay'),
+              const SizedBox(width: 8),
+              _payMethodChip(2, Icons.g_mobiledata_rounded, 'Google Pay'),
+            ]),
+            const SizedBox(height: 20),
 
             // Error
             if (error != null) ...[
@@ -250,7 +271,7 @@ class _DepositScreenState extends State<DepositScreen> {
             // Deposit button
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: loading || processing ? null : _handleStripeDeposit,
+              onTap: loading || processing ? null : _handleDeposit,
               child: Container(
                 height: 58,
                 decoration: BoxDecoration(
@@ -261,30 +282,37 @@ class _DepositScreenState extends State<DepositScreen> {
                 child: Center(child: loading || processing
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
                   : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      const Icon(Icons.credit_card_rounded, size: 20, color: Colors.white),
+                      Icon(_payMethod == 1 ? Icons.apple_rounded : _payMethod == 2 ? Icons.g_mobiledata_rounded : Icons.lock_rounded, size: 20, color: Colors.white),
                       const SizedBox(width: 10),
-                      Text(L10n.of(context).depositViaStripe, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text(l.depositNow, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
                     ])),
               ),
             ),
 
-            const SizedBox(height: 20),
-            // Test cards hint
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE9E5FF))),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF7C3AED)),
-                  const SizedBox(width: 8),
-                  Text(L10n.of(context).testMode, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
-                ]),
-                SizedBox(height: 6),
-                Text('بطاقة تجريبية: 4242 4242 4242 4242\nتاريخ: 12/27  |  CVC: 123', style: TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w500, height: 1.5)),
-              ]),
-            ),
             const SizedBox(height: 30),
           ])),
+    );
+  }
+
+  Widget _payMethodChip(int index, IconData icon, String label) {
+    final sel = _payMethod == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _payMethod = index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: sel ? const Color(0xFF10B981).withValues(alpha: 0.08) : const Color(0xFFF5F7FA),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: sel ? const Color(0xFF10B981) : const Color(0xFFE5E7EB), width: sel ? 2 : 1),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 22, color: sel ? const Color(0xFF10B981) : const Color(0xFF9CA3AF)),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: sel ? const Color(0xFF10B981) : const Color(0xFF9CA3AF))),
+          ]),
+        ),
+      ),
     );
   }
 
