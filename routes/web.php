@@ -25,6 +25,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MoonPayController;
 use App\Http\Controllers\PreregistrationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RemittanceController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KycRequiredMiddleware;
 use Illuminate\Foundation\Application;
@@ -178,11 +179,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     );
 });
 
+// Public remittance notification page
+Route::get('/remittance/{token}', [RemittanceController::class, 'notificationPage'])->name('remittance.notification');
+
+// Remittance API (authenticated)
+Route::middleware(['auth'])->prefix('api/remittance')->group(function () {
+    Route::get('/governorates', [RemittanceController::class, 'governorates']);
+    Route::get('/governorates/{id}/districts', [RemittanceController::class, 'districts']);
+    Route::get('/districts/{id}/agents', [RemittanceController::class, 'agents']);
+    Route::post('/send', [RemittanceController::class, 'store']);
+    Route::get('/my', [RemittanceController::class, 'myRemittances']);
+    Route::get('/{id}', [RemittanceController::class, 'show']);
+    Route::get('/verify/{code}', [RemittanceController::class, 'verify']);
+    Route::post('/{id}/collect', [RemittanceController::class, 'collect']);
+});
+
 // Admin Routes
 Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/subscriptions', [AdminDashboard::class, 'subscriptions'])->name('subscriptions');
     Route::get('/countries', [AdminDashboard::class, 'countries'])->name('countries');
+    Route::get('/remittances', [RemittanceController::class, 'adminIndex'])->name('remittances');
 
     Route::get('/users', [AdminUsers::class, 'index'])->name('users');
     Route::get('/users/{user}', [AdminUsers::class, 'show'])->name('users.show');
