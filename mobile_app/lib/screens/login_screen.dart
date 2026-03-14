@@ -261,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       } else {
         // Login — can be via email or phone
         final identifier = _loginMode == 'email' ? _email.text : fullPhone;
-        final res = await ApiService.login(identifier, _pass.text.isNotEmpty ? _pass.text : 'phone_login');
+        final res = await ApiService.login(identifier, _pass.text);
         if (res['success'] == true) {
           if (mounted) {
             PushNotificationService.initialize();
@@ -584,6 +584,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         _buildDarkField(t.password, _pass, null, TextInputType.visiblePassword, cardBg, borderC, textW, textMuted, isPass: true),
                       ] else ...[
                         _buildPhoneField(cardBg, borderC, textW, textMuted, t),
+                        const SizedBox(height: 10),
+                        _buildDarkField(t.password, _pass, null, TextInputType.visiblePassword, cardBg, borderC, textW, textMuted, isPass: true),
                       ],
 
                       // Error
