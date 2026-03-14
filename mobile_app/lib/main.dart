@@ -93,7 +93,7 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'SDB Banking',
-        theme: AppTheme.darkTheme,
+        theme: AppTheme.themeFor(_localeProvider.isDarkMode),
         locale: _localeProvider.locale,
         supportedLocales: const [Locale('en'), Locale('ar'), Locale('tr'), Locale('da'), Locale('de'), Locale('fr'), Locale('sv')],
         localizationsDelegates: const [

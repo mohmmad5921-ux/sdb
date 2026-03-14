@@ -320,7 +320,6 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
   final _storage = const FlutterSecureStorage();
   late String _selectedIcon;
   bool _soundEnabled = true;
-  int _themeMode = 0; // 0=light, 1=dark
 
   @override
   void initState() {
@@ -358,6 +357,8 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
   @override
   Widget build(BuildContext context) {
     final t = L10n.of(context);
+    final provider = L10n.providerOf(context);
+    final isDark = provider.isDarkMode;
     final icons = [
       {'key': 'default', 'asset': 'assets/icons/icon_green.png'},
       {'key': 'AppIconBlack', 'asset': 'assets/icons/icon_black.png'},
@@ -367,7 +368,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: AppTheme.bgLight,
+      backgroundColor: isDark ? AppTheme.bgDark : AppTheme.bgLight,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -377,31 +378,31 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
               onTap: () => Navigator.pop(context),
               child: Container(
                 width: 36, height: 36,
-                decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(18)),
-                child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: AppTheme.textSecondary),
+                decoration: BoxDecoration(color: isDark ? AppTheme.bgMutedDark : AppTheme.bgMuted, borderRadius: BorderRadius.circular(18)),
+                child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondary),
               ),
             ),
             const SizedBox(height: 16),
 
-            Text(t.appearanceAndSound, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            Text(t.appearanceAndSound, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimary)),
             const SizedBox(height: 24),
 
-            // Theme selector (Light / Dark) - like Lunar
-            Text(t.appTheme, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+            // Theme selector (Light / Dark)
+            Text(t.appTheme, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
+              decoration: BoxDecoration(color: isDark ? AppTheme.bgCardDark : AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: isDark ? AppTheme.borderDark : AppTheme.border)),
               child: Row(children: [
                 // Light mode preview
                 Expanded(child: GestureDetector(
-                  onTap: () => setState(() => _themeMode = 0),
+                  onTap: () => provider.setDarkMode(false),
                   child: Container(
                     height: 140,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _themeMode == 0 ? AppTheme.primary : AppTheme.border, width: _themeMode == 0 ? 2 : 1),
+                      border: Border.all(color: !isDark ? AppTheme.primary : AppTheme.border, width: !isDark ? 2 : 1),
                     ),
                     child: Column(children: [
                       const SizedBox(height: 12),
@@ -412,7 +413,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                       _miniRow(const Color(0xFF3F51B5)),
                       _miniRow(const Color(0xFF009688)),
                       const Spacer(),
-                      Text(t.light, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 0 ? AppTheme.primary : AppTheme.textMuted)),
+                      Text(t.light, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: !isDark ? AppTheme.primary : AppTheme.textMuted)),
                       const SizedBox(height: 8),
                     ]),
                   ),
@@ -420,13 +421,13 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                 const SizedBox(width: 12),
                 // Dark mode preview
                 Expanded(child: GestureDetector(
-                  onTap: () => setState(() => _themeMode = 1),
+                  onTap: () => provider.setDarkMode(true),
                   child: Container(
                     height: 140,
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _themeMode == 1 ? AppTheme.primary : AppTheme.border, width: _themeMode == 1 ? 2 : 1),
+                      border: Border.all(color: isDark ? AppTheme.primary : AppTheme.border, width: isDark ? 2 : 1),
                     ),
                     child: Column(children: [
                       const SizedBox(height: 12),
@@ -437,7 +438,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                       _miniRow(const Color(0xFF3F51B5), dark: true),
                       _miniRow(const Color(0xFF009688), dark: true),
                       const Spacer(),
-                      Text(t.dark, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 1 ? AppTheme.primary : Colors.white54)),
+                      Text(t.dark, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? AppTheme.primary : Colors.white54)),
                       const SizedBox(height: 8),
                     ]),
                   ),

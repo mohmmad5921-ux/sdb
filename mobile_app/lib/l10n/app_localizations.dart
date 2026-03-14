@@ -1301,11 +1301,14 @@ const arStrings = AppStrings(
 class LocaleProvider extends ChangeNotifier {
   Locale _locale = const Locale('en');
   AppStrings _strings = enStrings;
+  bool _isDarkMode = false;
   static const _kLangPref = 'app_language_code';
+  static const _kThemePref = 'app_dark_mode';
 
   Locale get locale => _locale;
   AppStrings get strings => _strings;
   bool get isArabic => _locale.languageCode == 'ar';
+  bool get isDarkMode => _isDarkMode;
 
   LocaleProvider() {
     _loadSavedLocale();
@@ -1316,19 +1319,29 @@ class LocaleProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_kLangPref);
       if (saved != null && saved.isNotEmpty) {
-        // User has a saved language preference — use it
         _applyByCode(saved);
       } else {
-        // No saved preference — read system locale as initial default
         final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
         _applyByCode(systemLocale.languageCode);
       }
+      // Load theme preference
+      final dark = prefs.getBool(_kThemePref) ?? false;
+      _isDarkMode = dark;
     } catch (_) {
-      // Fallback to English
       _applyByCode('en');
     }
     notifyListeners();
   }
+
+  void setDarkMode(bool value) async {
+    _isDarkMode = value;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_kThemePref, value);
+    } catch (_) {}
+  }
+
 
   /// Called on app resume — only refresh if user has NOT set a preference
   void refreshFromSystem() async {
