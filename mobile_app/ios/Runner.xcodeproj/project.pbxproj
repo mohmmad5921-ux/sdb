@@ -18,6 +18,16 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		F1B2C3D4E5F6A7B8C9D0E1F2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F1B2C3D4E5F6A7B8C9D0E1F3 /* GoogleService-Info.plist */; };
+		B5D3D17E7A9A4A72854E922B /* AppIconBlack@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6EF9C220A522457494C08E91 /* AppIconBlack@2x.png */; };
+		F5B026343BBC43E587CA1A81 /* AppIconBlack@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 76FCDFE9004B4D738DC048E5 /* AppIconBlack@3x.png */; };
+		11BF74AF6C184B76A210EB82 /* AppIconWhite@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E2F4FC035C744B688D44F15E /* AppIconWhite@2x.png */; };
+		B9071C26F62E403285C9D40C /* AppIconWhite@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 93828029DD4241EBAE37705C /* AppIconWhite@3x.png */; };
+		763E84DC7DD54CCA88970243 /* AppIconNavy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 629F4C8D2DE3405AA948D16D /* AppIconNavy@2x.png */; };
+		E1F71CBBFE48450FB5A4A498 /* AppIconNavy@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = B0350510106049E7BD1C5AF7 /* AppIconNavy@3x.png */; };
+		3E502CA7F7D44FDE99FBB88D /* AppIconRed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D65FC1CA0432A81B254F6 /* AppIconRed@2x.png */; };
+		EE29C0315BBB44CC9D595FE5 /* AppIconRed@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A695B40A054A41069CD47BC6 /* AppIconRed@3x.png */; };
+		B86015F398A44331BD343C25 /* AppIconGreen@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FC314668FEC54A95827DCDBE /* AppIconGreen@2x.png */; };
+		DF7D0CBFEA4A4FE2B83AB79A /* AppIconGreen@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = FC9A878A1F8B4E078EA95FA6 /* AppIconGreen@3x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +79,16 @@
 		B0096508D9C9879F8FC69E68 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		DA6AF357DF2DAB4E21DDC076 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1B2C3D4E5F6A7B8C9D0E1F3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6EF9C220A522457494C08E91 /* AppIconBlack@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconBlack@2x.png; sourceTree = "<group>"; };
+		76FCDFE9004B4D738DC048E5 /* AppIconBlack@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconBlack@3x.png; sourceTree = "<group>"; };
+		E2F4FC035C744B688D44F15E /* AppIconWhite@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconWhite@2x.png; sourceTree = "<group>"; };
+		93828029DD4241EBAE37705C /* AppIconWhite@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconWhite@3x.png; sourceTree = "<group>"; };
+		629F4C8D2DE3405AA948D16D /* AppIconNavy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconNavy@2x.png; sourceTree = "<group>"; };
+		B0350510106049E7BD1C5AF7 /* AppIconNavy@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconNavy@3x.png; sourceTree = "<group>"; };
+		500D65FC1CA0432A81B254F6 /* AppIconRed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconRed@2x.png; sourceTree = "<group>"; };
+		A695B40A054A41069CD47BC6 /* AppIconRed@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconRed@3x.png; sourceTree = "<group>"; };
+		FC314668FEC54A95827DCDBE /* AppIconGreen@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconGreen@2x.png; sourceTree = "<group>"; };
+		FC9A878A1F8B4E078EA95FA6 /* AppIconGreen@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIconGreen@3x.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +176,16 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				6EF9C220A522457494C08E91 /* AppIconBlack@2x.png */,
+				76FCDFE9004B4D738DC048E5 /* AppIconBlack@3x.png */,
+				E2F4FC035C744B688D44F15E /* AppIconWhite@2x.png */,
+				93828029DD4241EBAE37705C /* AppIconWhite@3x.png */,
+				629F4C8D2DE3405AA948D16D /* AppIconNavy@2x.png */,
+				B0350510106049E7BD1C5AF7 /* AppIconNavy@3x.png */,
+				500D65FC1CA0432A81B254F6 /* AppIconRed@2x.png */,
+				A695B40A054A41069CD47BC6 /* AppIconRed@3x.png */,
+				FC314668FEC54A95827DCDBE /* AppIconGreen@2x.png */,
+				FC9A878A1F8B4E078EA95FA6 /* AppIconGreen@3x.png */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -266,6 +296,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5D3D17E7A9A4A72854E922B /* AppIconBlack@2x.png in Resources */,
+				F5B026343BBC43E587CA1A81 /* AppIconBlack@3x.png in Resources */,
+				11BF74AF6C184B76A210EB82 /* AppIconWhite@2x.png in Resources */,
+				B9071C26F62E403285C9D40C /* AppIconWhite@3x.png in Resources */,
+				763E84DC7DD54CCA88970243 /* AppIconNavy@2x.png in Resources */,
+				E1F71CBBFE48450FB5A4A498 /* AppIconNavy@3x.png in Resources */,
+				3E502CA7F7D44FDE99FBB88D /* AppIconRed@2x.png in Resources */,
+				EE29C0315BBB44CC9D595FE5 /* AppIconRed@3x.png in Resources */,
+				B86015F398A44331BD343C25 /* AppIconGreen@2x.png in Resources */,
+				DF7D0CBFEA4A4FE2B83AB79A /* AppIconGreen@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
