@@ -44,6 +44,9 @@ Route::prefix('v1/mobile')->group(function () {
     // Auth (no token required)
     Route::post('/auth/login', [MobileApiController::class, 'login']);
     Route::post('/auth/register', [MobileApiController::class, 'register']);
+    Route::post('/auth/send-otp', [MobileApiController::class, 'sendLoginOtp']);
+    Route::post('/auth/verify-otp', [MobileApiController::class, 'verifyLoginOtp']);
+    Route::post('/auth/login-otp', [MobileApiController::class, 'loginWithOtp']);
 
     // Public
     Route::get('/currencies', [MobileApiController::class, 'currencies']);

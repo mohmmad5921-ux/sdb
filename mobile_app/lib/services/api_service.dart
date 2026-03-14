@@ -32,6 +32,25 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': data, 'status': r.statusCode};
   }
 
+  // OTP Phone Login
+  static Future<Map<String, dynamic>> sendLoginOtp(String phone, String channel) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/send-otp'), headers: await _headers(), body: jsonEncode({'phone': phone, 'channel': channel}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
+  static Future<Map<String, dynamic>> verifyLoginOtp(String phone, String code) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/verify-otp'), headers: await _headers(), body: jsonEncode({'phone': phone, 'code': code}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
+  static Future<Map<String, dynamic>> loginWithOtp(String phone) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/login-otp'), headers: await _headers(), body: jsonEncode({'phone': phone, 'device_name': 'SDB Mobile App'}));
+    final data = jsonDecode(r.body);
+    if (r.statusCode == 200 && data['token'] != null) {
+      await setToken(data['token']);
+    }
+    return {'success': r.statusCode == 200, 'data': data, 'status': r.statusCode};
+  }
   static Future<Map<String, dynamic>> register(Map<String, dynamic> fields) async {
     final r = await http.post(Uri.parse('$baseUrl/auth/register'), headers: await _headers(), body: jsonEncode(fields));
     final data = jsonDecode(r.body);

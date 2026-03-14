@@ -30,6 +30,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _auth = LocalAuthentication();
   bool _canBiometric = false;
   String? _error;
+
+  // OTP phone login
+  bool _otpSent = false;
+  String _otpCode = '';
+  String _channel = 'sms';
+  final _otpCtrl = TextEditingController();
+  int _countdown = 0;
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
 
@@ -139,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   @override
-  void dispose() { _animCtrl.dispose(); _debounce?.cancel(); super.dispose(); }
+  void dispose() { _animCtrl.dispose(); _debounce?.cancel(); _otpCtrl.dispose(); super.dispose(); }
 
   void _showHelpDialog() {
     Navigator.pushNamed(context, '/help');
@@ -245,12 +252,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             await Navigator.pushNamed(context, '/phone-verify', arguments: fullPhone);
             if (mounted) {
               PushNotificationService.initialize();
-              // After phone verify → go to KYC for document scan
               Navigator.pushReplacementNamed(context, '/kyc');
             }
           }
         } else {
-          // Check if it's a duplicate account detection
           final action = res['data']?['action'];
           if (action == 'login_or_support' && mounted) {
             _showDuplicateDialog(res['data']?['message'] ?? 'هذا الحساب مرتبط بحساب آخر');
@@ -258,14 +263,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             setState(() => _error = res['data']?['message'] ?? t.connectionError);
           }
         }
-      } else {
-        // Login — can be via email or phone
-        final identifier = _loginMode == 'email' ? _email.text : fullPhone;
-        final res = await ApiService.login(identifier, _pass.text);
+      } else if (_loginMode == 'email') {
+        // Email login with password
+        final res = await ApiService.login(_email.text, _pass.text);
         if (res['success'] == true) {
           if (mounted) {
             PushNotificationService.initialize();
-            // Check user status — pending → pending screen
             final profile = await ApiService.getProfile();
             final user = profile['data']?['user'] ?? profile['data'];
             final status = user?['status'] ?? 'active';
@@ -280,11 +283,55 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         } else {
           setState(() => _error = res['data']?['message'] ?? t.connectionError);
         }
+      } else {
+        // Phone OTP login
+        if (!_otpSent) {
+          // Step 1: Send OTP
+          final res = await ApiService.sendLoginOtp(fullPhone, _channel);
+          if (res['success'] == true || res['data']?['success'] == true) {
+            setState(() { _otpSent = true; _countdown = 60; });
+            _startCountdown();
+          } else {
+            setState(() => _error = res['data']?['message'] ?? 'فشل إرسال رمز التحقق');
+          }
+        } else {
+          // Step 2: Verify OTP
+          if (_otpCode.length != 6) { setState(() => _error = 'يرجى إدخال الرمز كاملاً'); if (mounted) setState(() => _loading = false); return; }
+          final res = await ApiService.verifyLoginOtp(fullPhone, _otpCode);
+          if (res['success'] == true || res['data']?['verified'] == true) {
+            // Step 3: Login with OTP
+            final loginRes = await ApiService.loginWithOtp(fullPhone);
+            if (loginRes['success'] == true && mounted) {
+              PushNotificationService.initialize();
+              final profile = await ApiService.getProfile();
+              final user = profile['data']?['user'] ?? profile['data'];
+              final status = user?['status'] ?? 'active';
+              if (mounted) {
+                if (status == 'pending') {
+                  Navigator.pushReplacementNamed(context, '/pending');
+                } else {
+                  Navigator.pushReplacementNamed(context, '/home');
+                }
+              }
+            } else {
+              setState(() => _error = loginRes['data']?['message'] ?? t.connectionError);
+            }
+          } else {
+            setState(() => _error = res['data']?['message'] ?? 'رمز التحقق غير صحيح');
+          }
+        }
       }
     } catch (e) {
       setState(() => _error = L10n.of(context).connectionError);
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  void _startCountdown() async {
+    while (_countdown > 0) {
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) setState(() => _countdown--);
+    }
   }
 
   Future<void> _checkBiometric() async {
@@ -584,8 +631,51 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         _buildDarkField(t.password, _pass, null, TextInputType.visiblePassword, cardBg, borderC, textW, textMuted, isPass: true),
                       ] else ...[
                         _buildPhoneField(cardBg, borderC, textW, textMuted, t),
-                        const SizedBox(height: 10),
-                        _buildDarkField(t.password, _pass, null, TextInputType.visiblePassword, cardBg, borderC, textW, textMuted, isPass: true),
+                        const SizedBox(height: 12),
+                        // Channel selector: SMS / WhatsApp
+                        if (!_otpSent) Container(
+                          height: 48,
+                          decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: borderC)),
+                          child: Row(children: [
+                            _buildChannelTab('sms', Icons.sms_rounded, 'SMS', cardBg),
+                            _buildChannelTab('whatsapp', Icons.chat_rounded, 'واتساب', cardBg),
+                          ]),
+                        ),
+                        // OTP input after sending
+                        if (_otpSent) ...[
+                          const SizedBox(height: 4),
+                          Text('أدخل رمز التحقق المرسل ${_channel == 'whatsapp' ? 'عبر واتساب' : 'عبر SMS'}', style: TextStyle(fontSize: 12, color: textMuted), textAlign: TextAlign.center),
+                          const SizedBox(height: 10),
+                          Directionality(textDirection: TextDirection.ltr, child: Container(
+                            height: 56,
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), color: cardBg, border: Border.all(color: borderC)),
+                            child: TextField(
+                              controller: _otpCtrl,
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              maxLength: 6,
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: 8, color: Color(0xFF1A1A1A)),
+                              decoration: const InputDecoration(
+                                hintText: '------',
+                                counterText: '',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(vertical: 14),
+                              ),
+                              onChanged: (v) => setState(() => _otpCode = v),
+                            ),
+                          )),
+                          if (_countdown > 0) Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text('إعادة الإرسال ($_countdown)', style: TextStyle(fontSize: 12, color: textMuted)),
+                          ),
+                          if (_countdown == 0) Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: GestureDetector(
+                              onTap: () => setState(() { _otpSent = false; _otpCode = ''; _otpCtrl.clear(); _error = null; }),
+                              child: Text('إعادة الإرسال', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.primary)),
+                            ),
+                          ),
+                        ],
                       ],
 
                       // Error
@@ -603,7 +693,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ],
 
                       const SizedBox(height: 18),
-                      _buildSubmitButton(t.login),
+                      _buildSubmitButton(_loginMode == 'phone' ? (_otpSent ? 'تأكيد الرمز' : (_channel == 'whatsapp' ? 'إرسال عبر واتساب' : 'إرسال عبر SMS')) : t.login),
 
                       const SizedBox(height: 18),
                       // Divider
@@ -643,7 +733,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildTab(String label, String mode, Color textW, Color textMuted, Color cardBg) {
     final isActive = _loginMode == mode;
     return Expanded(child: GestureDetector(
-      onTap: () => setState(() { _loginMode = mode; _error = null; }),
+      onTap: () => setState(() { _loginMode = mode; _error = null; _otpSent = false; _otpCode = ''; _otpCtrl.clear(); }),
       child: Container(
         decoration: BoxDecoration(
           color: isActive ? const Color(0xFFE8E8E8) : Colors.transparent,
@@ -654,6 +744,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           label,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isActive ? textW : textMuted),
         )),
+      ),
+    ));
+  }
+
+  // ─── Channel tab (SMS / WhatsApp) ───
+  Widget _buildChannelTab(String channel, IconData icon, String label, Color cardBg) {
+    final isActive = _channel == channel;
+    final color = channel == 'whatsapp' ? const Color(0xFF25D366) : AppTheme.primary;
+    return Expanded(child: GestureDetector(
+      onTap: () => setState(() => _channel = channel),
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isActive ? color.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: isActive ? Border.all(color: color, width: 1.5) : null,
+        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, size: 18, color: isActive ? color : const Color(0xFF888888)),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontSize: 13, fontWeight: isActive ? FontWeight.w700 : FontWeight.w500, color: isActive ? color : const Color(0xFF888888))),
+        ]),
       ),
     ));
   }

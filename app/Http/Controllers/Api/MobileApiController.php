@@ -72,6 +72,142 @@ class MobileApiController extends Controller
         ]);
     }
 
+    public function loginWithOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'device_name' => 'required|string',
+        ]);
+
+        $phone = preg_replace('/[\s\-]/', '', trim($request->phone));
+
+        // Find user by phone (flexible matching - last 8 digits)
+        $user = \App\Models\User::where('phone', $phone)
+            ->orWhere('phone', 'LIKE', '%' . substr($phone, -8))
+            ->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'لا يوجد حساب مرتبط بهذا الرقم'], 404);
+        }
+
+        if ($user->status === 'suspended' || $user->status === 'banned') {
+            return response()->json(['message' => 'تم تعليق حسابك. يرجى التواصل مع الدعم.'], 403);
+        }
+
+        $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
+
+        $token = $user->createToken($request->device_name)->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $this->formatUser($user),
+        ]);
+    }
+
+
+    public function sendLoginOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'channel' => 'sometimes|string|in:sms,whatsapp',
+        ]);
+
+        $phone = $request->phone;
+        $channel = $request->channel ?? 'sms';
+
+        // Check if user exists with this phone
+        $cleanPhone = preg_replace('/[\s\-]/', '', $phone);
+        $user = \App\Models\User::where('phone', $cleanPhone)
+            ->orWhere('phone', 'LIKE', '%' . substr($cleanPhone, -8))
+            ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'لا يوجد حساب مرتبط بهذا الرقم'], 404);
+        }
+
+        try {
+            $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
+            $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
+
+            if ($channel === 'whatsapp') {
+                $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                    ->asForm()
+                    ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
+                        'To' => $phone,
+                        'Channel' => 'whatsapp',
+                    ]);
+
+                if ($response->successful()) {
+                    return response()->json(['success' => true, 'message' => 'تم إرسال رمز التحقق عبر واتساب', 'channel' => 'whatsapp']);
+                }
+                return response()->json(['success' => false, 'message' => 'فشل إرسال رمز التحقق عبر واتساب'], 422);
+            }
+
+            // SMS
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $msgServiceSid = env('TWILIO_MESSAGING_SERVICE_SID');
+            \Illuminate\Support\Facades\Cache::put("login_otp:{$phone}", $code, now()->addMinutes(5));
+
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                ->asForm()
+                ->post("https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json", [
+                    'MessagingServiceSid' => $msgServiceSid,
+                    'To' => $phone,
+                    'Body' => "Your SDB login code is: {$code}\n\nرمز الدخول: {$code}\n\nDo not share this code.",
+                ]);
+
+            if ($response->successful() || $response->status() === 201) {
+                return response()->json(['success' => true, 'message' => 'تم إرسال رمز التحقق عبر SMS', 'channel' => 'sms']);
+            }
+
+            return response()->json(['success' => false, 'message' => 'فشل إرسال رمز التحقق'], 422);
+        } catch (\Exception $e) {
+            \Log::error('sendLoginOtp error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'خطأ في إرسال رمز التحقق'], 500);
+        }
+    }
+
+    public function verifyLoginOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $phone = $request->phone;
+        $code = $request->code;
+
+        // Check SMS OTP from cache
+        $cachedCode = \Illuminate\Support\Facades\Cache::get("login_otp:{$phone}");
+        if ($cachedCode && $cachedCode === $code) {
+            \Illuminate\Support\Facades\Cache::forget("login_otp:{$phone}");
+            return response()->json(['success' => true, 'verified' => true]);
+        }
+
+        // Fallback: Twilio Verify API (WhatsApp)
+        try {
+            $sid = config('services.twilio.account_sid') ?: env('TWILIO_ACCOUNT_SID');
+            $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
+            $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
+                ->asForm()
+                ->post("https://verify.twilio.com/v2/Services/{$verifySid}/VerificationCheck", [
+                    'To' => $phone,
+                    'Code' => $code,
+                ]);
+
+            if ($response->successful() && $response->json('status') === 'approved') {
+                return response()->json(['success' => true, 'verified' => true]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('verifyLoginOtp error: ' . $e->getMessage());
+        }
+
+        return response()->json(['success' => false, 'message' => 'رمز التحقق غير صحيح'], 422);
+    }
+
     public function register(Request $request)
     {
         // ── Duplicate Detection (before validation) ──
