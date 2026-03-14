@@ -19,13 +19,13 @@ class DashboardController extends Controller
         // ══════════════════════════════════════
         // 1. USER METRICS
         // ══════════════════════════════════════
-        $totalUsers = DB::table('users')->where('role', '!=', 'admin')->count();
-        $newToday = DB::table('users')->where('role', '!=', 'admin')->whereDate('created_at', $today)->count();
-        $activeUsers = DB::table('users')->where('role', '!=', 'admin')
+        $totalUsers = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')->count();
+        $newToday = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')->whereDate('created_at', $today)->count();
+        $activeUsers = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')
             ->where('last_login_at', '>=', Carbon::now()->subDays(30))->count();
 
         // Users by country
-        $usersByCountry = DB::table('users')->where('role', '!=', 'admin')
+        $usersByCountry = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')
             ->selectRaw("COALESCE(country, 'Unknown') as country, COUNT(*) as count")
             ->groupBy('country')->orderBy('count', 'desc')->limit(10)->get();
 
@@ -106,7 +106,7 @@ class DashboardController extends Controller
             ->groupByRaw("strftime('%Y-%m', created_at)")
             ->orderBy('month')->get();
 
-        $userGrowth = DB::table('users')->where('role', '!=', 'admin')
+        $userGrowth = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')
             ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
             ->groupByRaw("strftime('%Y-%m', created_at)")
@@ -178,8 +178,10 @@ class DashboardController extends Controller
             ->selectRaw("COALESCE(country, 'Unknown') as plan, COUNT(*) as count")
             ->groupBy('country')->orderBy('count', 'desc')->get();
 
-        // Get all users
-        $users = DB::table('users')->where('role', '!=', 'admin')
+        // Get all customers (exclude admin/staff accounts)
+        $users = DB::table('users')
+            ->whereNotIn('role', ['admin', 'super_admin'])
+            ->where('email', 'not like', '%@sdb%')
             ->select('id', 'full_name', 'email', 'country', 'created_at')
             ->orderBy('created_at', 'desc')->limit(100)->get()
             ->map(function ($u) {
@@ -201,7 +203,7 @@ class DashboardController extends Controller
 
     public function countries()
     {
-        $usersByCountry = DB::table('users')->where('role', '!=', 'admin')
+        $usersByCountry = DB::table('users')->whereNotIn('role', ['admin', 'super_admin'])->where('email', 'not like', '%@sdb%')
             ->selectRaw("COALESCE(country, 'Unknown') as country, COUNT(*) as count")
             ->groupBy('country')->orderBy('count', 'desc')->get();
 
