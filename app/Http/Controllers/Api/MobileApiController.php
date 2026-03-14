@@ -309,6 +309,13 @@ class MobileApiController extends Controller
         // NOTE: Bank accounts are NOT created here.
         // They will be created when admin activates the user.
 
+        // Send welcome email
+        try {
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeRegistration($user));
+        } catch (\Exception $e) {
+            \Log::warning('Welcome email failed: ' . $e->getMessage());
+        }
+
         $token = $user->createToken($request->device_name)->plainTextToken;
 
         return response()->json([
@@ -496,27 +503,31 @@ class MobileApiController extends Controller
             $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
 
             if ($channel === 'whatsapp') {
-                // WhatsApp → use Twilio Verify API (supports WhatsApp templates)
-                $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
-                $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
-                    ->asForm()
-                    ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
-                        'To' => $phone,
-                        'Channel' => 'whatsapp',
-                    ]);
+                // WhatsApp → generate OTP and send via direct WhatsApp message
+                $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                \Illuminate\Support\Facades\Cache::put("otp:{$phone}", $code, now()->addMinutes(5));
 
-                if ($response->successful()) {
+                try {
+                    \App\Services\SmsService::sendWhatsApp($phone,
+                        "🏦 *SDB Bank — رمز التحقق*\n\n" .
+                        "رمز التحقق الخاص بك: *{$code}*\n" .
+                        "Your verification code: *{$code}*\n\n" .
+                        "⚠️ لا تشارك هذا الرمز مع أحد\n" .
+                        "Do not share this code."
+                    );
+
                     return response()->json([
                         'success' => true,
                         'message' => 'تم إرسال رمز التحقق عبر واتساب',
                         'channel' => 'whatsapp',
                     ]);
+                } catch (\Exception $e) {
+                    \Log::error('WhatsApp OTP error: ' . $e->getMessage());
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'فشل إرسال رمز التحقق عبر واتساب',
+                    ], 422);
                 }
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'فشل إرسال رمز التحقق عبر واتساب',
-                ], 422);
             }
 
             // SMS → use Messaging Service (shows "SDB" as sender)

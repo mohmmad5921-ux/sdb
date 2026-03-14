@@ -12,6 +12,7 @@ use App\Services\AccountService;
 use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -114,12 +115,13 @@ class UserController extends Controller
         if ($old === 'pending' && $request->status === 'active' && $user->accounts()->count() === 0) {
             $this->createUserAccounts($user);
 
-            // Send activation notification + push
+            // Send activation notification + push + email
             try {
                 $t = 'تم تفعيل حسابك ✅';
                 $b = 'تهانينا! تمت الموافقة على حسابك وتفعيله بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.';
                 \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'system']);
                 FcmService::sendToUser($user->id, $t, $b);
+                Mail::to($user->email)->send(new \App\Mail\AccountActivated($user));
             } catch (\Exception $e) {}
         }
 
@@ -189,6 +191,7 @@ class UserController extends Controller
                 $b = 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.';
                 \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'security']);
                 FcmService::sendToUser($user->id, $t, $b);
+                Mail::to($user->email)->send(new \App\Mail\KycRejected($user));
             }
         } catch (\Exception $e) {}
 
