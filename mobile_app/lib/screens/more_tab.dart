@@ -405,9 +405,7 @@ class _MoreTabState extends State<MoreTab> {
 
             // Security
             _buildSection(t.sectionSecurity, [
-              _buildRow(Icons.fingerprint, t.biometricLogin, subtitle: t.biometricSubtitle, right: _toggle(_biometrics, _toggleBiometric)),
               _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: t.twoFactorSubtitle, right: _toggle(_twoFactor, _toggle2fa)),
-              _buildRow(Icons.key, t.changePassword, onTap: _showChangePassword),
             ]),
             const SizedBox(height: 16),
 
@@ -415,9 +413,7 @@ class _MoreTabState extends State<MoreTab> {
             _buildSection(t.sectionPreferences, [
               _buildRow(Icons.settings_rounded, 'إعدادات التطبيق', subtitle: 'اللغة، المظهر، الأمان', onTap: () => Navigator.pushNamed(context, '/app-settings')),
               _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
-              _buildRow(Icons.language, t.language, subtitle: langDisplay, onTap: _showLanguagePicker),
               _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
-              if (Platform.isIOS) _buildRow(Icons.apps_rounded, 'أيقونة التطبيق', subtitle: _iconLabel(_selectedIcon), onTap: _showIconPicker),
             ]),
             const SizedBox(height: 16),
 
