@@ -23,6 +23,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   int _countdown = 0;
   String _countryCode = '963';
   String _channel = 'sms'; // 'sms' or 'whatsapp'
+  bool _isLoginOtp = false;
 
   @override
   void initState() {
@@ -41,10 +42,21 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Pre-fill phone from route arguments if available
-    final phone = ModalRoute.of(context)?.settings.arguments as String?;
-    if (phone != null && _phoneCtrl.text.isEmpty) {
-      _phoneCtrl.text = phone.replaceAll('+', '');
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map) {
+      // Map args: {phone, codeSent, channel}
+      if (_phoneCtrl.text.isEmpty) {
+        final phone = args['phone'] as String? ?? '';
+        _phoneCtrl.text = phone.replaceAll('+', '');
+      }
+      if (args['codeSent'] == true && !_codeSent) {
+        _channel = (args['channel'] as String?) ?? 'sms';
+        _isLoginOtp = args['isLogin'] == true;
+        setState(() { _codeSent = true; _countdown = 60; });
+        _startCountdown();
+      }
+    } else if (args is String && _phoneCtrl.text.isEmpty) {
+      _phoneCtrl.text = args.replaceAll('+', '');
     }
   }
 
@@ -66,18 +78,25 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      final res = await ApiService.post('/verify/send', {
-        'phone': fullPhone,
-        'channel': _channel,
-      });
-      if (res['success'] == true || res['data']?['success'] == true) {
-        setState(() { _codeSent = true; _loading = false; _countdown = 60; });
-        _startCountdown();
+      if (_isLoginOtp) {
+        final res = await ApiService.sendLoginOtp(fullPhone, _channel);
+        if (res['success'] == true || res['data']?['success'] == true) {
+          setState(() { _codeSent = true; _loading = false; _countdown = 60; });
+          _startCountdown();
+        } else {
+          setState(() { _loading = false; _error = res['data']?['message'] ?? 'فشل إرسال رمز التحقق'; });
+        }
       } else {
-        setState(() {
-          _loading = false;
-          _error = res['data']?['message'] ?? 'فشل إرسال رمز التحقق';
+        final res = await ApiService.post('/verify/send', {
+          'phone': fullPhone,
+          'channel': _channel,
         });
+        if (res['success'] == true || res['data']?['success'] == true) {
+          setState(() { _codeSent = true; _loading = false; _countdown = 60; });
+          _startCountdown();
+        } else {
+          setState(() { _loading = false; _error = res['data']?['message'] ?? 'فشل إرسال رمز التحقق'; });
+        }
       }
     } catch (e) {
       setState(() { _loading = false; _error = 'خطأ في الاتصال بالسيرفر'; });
@@ -99,19 +118,32 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       final phone = _phoneCtrl.text.trim().startsWith('+')
           ? _phoneCtrl.text.trim()
           : '+${_phoneCtrl.text.trim()}';
-      final res = await ApiService.post('/verify/check', {
-        'phone': phone,
-        'code': _otp,
-      });
 
-      if (res['success'] == true || res['data']?['success'] == true || res['data']?['verified'] == true) {
-        setState(() { _verified = true; _loading = false; });
-        if (mounted) {
-          await Future.delayed(const Duration(seconds: 2));
-          if (mounted) Navigator.pop(context, true);
+      if (_isLoginOtp) {
+        final res = await ApiService.verifyLoginOtp(phone, _otp);
+        if (res['success'] == true || res['data']?['verified'] == true) {
+          setState(() { _verified = true; _loading = false; });
+          if (mounted) {
+            await Future.delayed(const Duration(seconds: 1));
+            if (mounted) Navigator.pop(context, true);
+          }
+        } else {
+          setState(() { _loading = false; _error = res['data']?['message'] ?? 'رمز التحقق غير صحيح'; });
         }
       } else {
-        setState(() { _loading = false; _error = res['data']?['message'] ?? 'رمز التحقق غير صحيح'; });
+        final res = await ApiService.post('/verify/check', {
+          'phone': phone,
+          'code': _otp,
+        });
+        if (res['success'] == true || res['data']?['success'] == true || res['data']?['verified'] == true) {
+          setState(() { _verified = true; _loading = false; });
+          if (mounted) {
+            await Future.delayed(const Duration(seconds: 2));
+            if (mounted) Navigator.pop(context, true);
+          }
+        } else {
+          setState(() { _loading = false; _error = res['data']?['message'] ?? 'رمز التحقق غير صحيح'; });
+        }
       }
     } catch (e) {
       setState(() { _loading = false; _error = 'خطأ في الاتصال بالسيرفر'; });

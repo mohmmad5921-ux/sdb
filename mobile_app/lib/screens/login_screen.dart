@@ -345,7 +345,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           if (res['success'] == true || res['data']?['success'] == true) {
             if (mounted) {
               // Navigate to phone verification screen
-              final verified = await Navigator.pushNamed(context, '/phone-verify', arguments: phone);
+              final verified = await Navigator.pushNamed(context, '/phone-verify', arguments: {
+                'phone': phone,
+                'codeSent': true,
+                'channel': channel,
+                'isLogin': true,
+              });
               if (verified == true && mounted) {
                 // OTP verified — login
                 setState(() => _loading = true);
