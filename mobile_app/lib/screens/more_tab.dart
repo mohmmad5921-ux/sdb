@@ -172,7 +172,7 @@ class _MoreTabState extends State<MoreTab> {
       case 'fr': return 'Français';
       case 'sv': return 'Svenska';
       case 'ar':
-      default: return _langLabel();
+      default: return 'العربية';
     }
   }
 

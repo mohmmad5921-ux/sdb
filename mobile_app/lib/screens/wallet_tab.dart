@@ -374,7 +374,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
           const SizedBox(height: 20),
 
           // ── Wallet Selection ──
-          const Align(alignment: Alignment.centerRight, child: Text(L10n.of(context).linkCardToWallet, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
+          Align(alignment: Alignment.centerRight, child: Text(L10n.of(context).linkCardToWallet, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
           const SizedBox(height: 8),
           ...widget.accounts.map((w) {
             final id = int.tryParse(w['id'].toString()) ?? 0;
@@ -446,7 +446,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
                   child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(child: Text(L10n.of(context).agreeTermsCard, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
+                Expanded(child: Text(L10n.of(context).agreeTermsCard, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
               ]),
             ),
           ),
@@ -464,7 +464,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: (_agreed && _selectedWalletId != null) ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
               ),
-              child: Center(child: Text(L10n.of(context).issueCardBtn, style: const TextStyle(
+              child: Center(child: Text(L10n.of(context).issueCardBtn, style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w800, color: (_agreed && _selectedWalletId != null) ? Colors.white : const Color(0xFF9CA3AF),
               ))),
             ),

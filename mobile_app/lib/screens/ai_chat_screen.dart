@@ -70,9 +70,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: const Center(child: Text('🤖', style: TextStyle(fontSize: 20))),
           ),
           const SizedBox(width: 10),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('SDB AI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            Text(L10n.of(context).yourSmartAssistant, style: TextStyle(fontSize: 11, color: Colors.white70)),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('SDB AI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            Text(L10n.of(context).yourSmartAssistant, style: const TextStyle(fontSize: 11, color: Colors.white70)),
           ]),
         ]),
         actions: [
@@ -116,7 +116,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           child: const Center(child: Text('🤖', style: TextStyle(fontSize: 40))),
         ),
         const SizedBox(height: 16),
-        const Text(L10n.of(context).welcomeToAI, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        Text(L10n.of(context).welcomeToAI, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
         const SizedBox(height: 8),
         const Text('مساعدك الذكي لكل ما يخص حسابك البنكي', style: TextStyle(fontSize: 13, color: AppTheme.textMuted), textAlign: TextAlign.center),
         const SizedBox(height: 28),

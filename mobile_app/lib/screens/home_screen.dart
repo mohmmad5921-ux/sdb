@@ -148,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // ═══════ Lunar-style Lock Screen ═══════
 
   Widget _buildLockOverlay() {
+    final t = L10n.of(context);
     return GestureDetector(
       onTap: _authenticateWithBiometric,
       child: Container(

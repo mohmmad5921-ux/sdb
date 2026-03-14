@@ -133,7 +133,7 @@ class _DepositScreenState extends State<DepositScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(L10n.of(context).deposit, style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
+        title: Text(L10n.of(context).deposit, style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
         backgroundColor: Colors.white, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFF111827), size: 20), onPressed: () => Navigator.pop(context)),
       ),
@@ -260,10 +260,10 @@ class _DepositScreenState extends State<DepositScreen> {
                 ),
                 child: Center(child: loading || processing
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                  : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(Icons.credit_card_rounded, size: 20, color: Colors.white),
-                      SizedBox(width: 10),
-                      Text(L10n.of(context).depositViaStripe, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+                  : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      const Icon(Icons.credit_card_rounded, size: 20, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Text(L10n.of(context).depositViaStripe, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
                     ])),
               ),
             ),
@@ -273,11 +273,11 @@ class _DepositScreenState extends State<DepositScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE9E5FF))),
-              child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF7C3AED)),
-                  SizedBox(width: 8),
-                  Text(L10n.of(context).testMode, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
+                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF7C3AED)),
+                  const SizedBox(width: 8),
+                  Text(L10n.of(context).testMode, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
                 ]),
                 SizedBox(height: 6),
                 Text('بطاقة تجريبية: 4242 4242 4242 4242\nتاريخ: 12/27  |  CVC: 123', style: TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w500, height: 1.5)),

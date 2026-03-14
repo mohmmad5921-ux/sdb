@@ -166,7 +166,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                       const Icon(Icons.sticky_note_2_rounded, size: 16, color: Color(0xFFB45309)),
                       const SizedBox(width: 8),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text(L10n.of(context).note, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFB45309))),
+                        Text(L10n.of(context).note, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFB45309))),
                         const SizedBox(height: 2),
                         Text(_savedNote!, style: const TextStyle(fontSize: 13, color: Color(0xFF92400E))),
                       ])),
@@ -181,7 +181,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                 const SizedBox(height: 28),
 
                 // ── Details Section ──
-                const Text(L10n.of(context).transactionDetails, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                Text(L10n.of(context).transactionDetails, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                 const SizedBox(height: 12),
                 Container(
                   decoration: BoxDecoration(
@@ -227,7 +227,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                 const SizedBox(height: 28),
 
                 // ── Options Section ──
-                const Text(L10n.of(context).options, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                Text(L10n.of(context).options, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                 const SizedBox(height: 12),
                 Container(
                   decoration: BoxDecoration(
@@ -290,7 +290,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: value));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('${L10n.of(context).copied} ✅'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)),
+                  SnackBar(content: Text('${L10n.of(context).copied} ✅'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)),
                 );
               },
               child: const Icon(Icons.copy_rounded, size: 14, color: AppTheme.primary),
@@ -334,7 +334,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 20),
-          const Text(L10n.of(context).addNote, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+          Text(L10n.of(context).addNote, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
           const SizedBox(height: 16),
           TextField(
             controller: ctrl,
@@ -366,12 +366,12 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               if (mounted) {
                 setState(() => _savedNote = note);
                 ScaffoldMessenger.of(ctx).showSnackBar(
-                  const SnackBar(content: Text('${L10n.of(context).noteSaved} ✅'), backgroundColor: AppTheme.primary),
+                  SnackBar(content: Text('${L10n.of(context).noteSaved} ✅'), backgroundColor: AppTheme.primary),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-            child: const Text(L10n.of(context).save, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            child: Text(L10n.of(context).save, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
           )),
         ]),
       ),
@@ -393,7 +393,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 20),
-          const Text(L10n.of(context).addReceipt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+          Text(L10n.of(context).addReceipt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
           const SizedBox(height: 20),
           _optionItem(Icons.camera_alt_rounded, 'التقاط صورة', () async {
             Navigator.pop(sheetCtx);
@@ -506,7 +506,7 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
           child: Column(children: [
             Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            const Text(L10n.of(context).transactionReceipt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            Text(L10n.of(context).transactionReceipt, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 16),
             Expanded(
               child: Container(
@@ -532,11 +532,11 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
                   Clipboard.setData(ClipboardData(text: receiptText));
                   Navigator.pop(sheetCtx);
                   ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('${L10n.of(context).receiptCopied} ✅'), backgroundColor: AppTheme.primary),
+                    SnackBar(content: Text('${L10n.of(context).receiptCopied} ✅'), backgroundColor: AppTheme.primary),
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 18, color: Colors.white),
-                label: const Text(L10n.of(context).copyReceipt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                label: Text(L10n.of(context).copyReceipt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
               ),
             ),
@@ -550,10 +550,10 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
   void _reportProblem(BuildContext ctx) {
     showDialog(context: ctx, builder: (dCtx) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Row(children: [
-        Icon(Icons.flag_outlined, color: AppTheme.danger, size: 24),
-        SizedBox(width: 8),
-        Text(L10n.of(context).reportProblem, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+      title: Row(children: [
+        const Icon(Icons.flag_outlined, color: AppTheme.danger, size: 24),
+        const SizedBox(width: 8),
+        Text(L10n.of(context).reportProblem, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
       ]),
       content: const Text('هل تريد الإبلاغ عن هذه المعاملة؟\nسيتم مراجعتها من قبل فريق الدعم.',
         style: TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
@@ -561,8 +561,8 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
         TextButton(onPressed: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: AppTheme.textMuted))),
         TextButton(onPressed: () {
           Navigator.pop(dCtx);
-          ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('${L10n.of(context).reportSent} ✅'), backgroundColor: AppTheme.primary));
-        }, child: const Text(L10n.of(context).report, style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w700))),
+          ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('${L10n.of(context).reportSent} ✅'), backgroundColor: AppTheme.primary));
+        }, child: Text(L10n.of(context).report, style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w700))),
       ],
     ));
   }
@@ -581,7 +581,7 @@ ${fromAccount != null ? 'من حساب: ${fromAccount['account_number'] ?? '-'}$
             Navigator.pop(ctx);
             final ref = tx['reference_number']?.toString() ?? tx['reference']?.toString() ?? tx['id']?.toString() ?? '';
             Clipboard.setData(ClipboardData(text: ref));
-            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('${L10n.of(context).copied} ✅'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)));
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('${L10n.of(context).copied} ✅'), backgroundColor: AppTheme.primary, duration: Duration(seconds: 1)));
           }),
           _divider(),
           _optionItem(Icons.repeat_rounded, 'تكرار العملية', () { Navigator.pop(ctx); Navigator.pushNamed(ctx, '/transfer'); }),

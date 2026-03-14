@@ -317,16 +317,16 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(height: 16),
 
           // Title
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(L10n.of(context).settings, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(L10n.of(context).settings, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 24),
 
           // Account picker
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(L10n.of(context).accounts, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(L10n.of(context).accounts, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -345,7 +345,7 @@ class _InsightsTabState extends State<InsightsTab> {
                       // All accounts
                       ListTile(
                         leading: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.primary),
-                        title: const Text(L10n.of(context).allAccounts, style: TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(L10n.of(context).allAccounts, style: TextStyle(fontWeight: FontWeight.w600)),
                         trailing: tempAccount == -1 ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
                         onTap: () { setSheetState(() => tempAccount = -1); Navigator.pop(pickCtx); },
                       ),
@@ -380,9 +380,9 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(height: 24),
 
           // Period
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(L10n.of(context).timePeriod, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(L10n.of(context).timePeriod, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -392,7 +392,7 @@ class _InsightsTabState extends State<InsightsTab> {
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text(L10n.of(context).selectPeriod, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                  Text(L10n.of(context).selectPeriod, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                   const SizedBox(height: 2),
                   Text(
                     _timeFilter == 0 ? L10n.of(context).thisMonth : _timeFilter == 1 ? L10n.of(context).timePeriod : L10n.of(context).allAccounts,
@@ -406,9 +406,9 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(height: 24),
 
           // Chart type
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(L10n.of(context).selectTheme, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(L10n.of(context).selectTheme, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Padding(
@@ -519,7 +519,7 @@ class _InsightsTabState extends State<InsightsTab> {
       return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(Icons.donut_large_rounded, size: 60, color: AppTheme.textMuted.withValues(alpha: 0.2)),
         const SizedBox(height: 12),
-        const Text(L10n.of(context).noData, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+        Text(L10n.of(context).noData, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
       ]));
     }
 
@@ -633,10 +633,10 @@ class _InsightsTabState extends State<InsightsTab> {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Row(children: const [
-            Text(L10n.of(context).categories, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-            SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
+          Row(children: [
+            Text(L10n.of(context).categories, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            const SizedBox(width: 4),
+            const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
           ]),
         ]),
       ),
@@ -656,9 +656,9 @@ class _InsightsTabState extends State<InsightsTab> {
     final sorted = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text(L10n.of(context).transactions, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(L10n.of(context).transactions, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
       ),
       const SizedBox(height: 12),
       if (data.isEmpty)
@@ -815,9 +815,9 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(height: 24),
 
           // Transactions in this category
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(L10n.of(context).transactions, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(L10n.of(context).transactions, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
 
@@ -900,7 +900,7 @@ class _InsightsTabState extends State<InsightsTab> {
     child: Center(child: Column(children: [
       Icon(Icons.insights_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
       const SizedBox(height: 12),
-      const Text(L10n.of(context).noDataPeriod, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+      Text(L10n.of(context).noDataPeriod, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
     ])),
   );
 

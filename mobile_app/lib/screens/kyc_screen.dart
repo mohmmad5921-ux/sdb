@@ -231,7 +231,7 @@ class _KycScreenState extends State<KycScreen> {
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () {
           if (Navigator.canPop(context)) { Navigator.pop(context); } else { Navigator.pushReplacementNamed(context, '/pending'); }
         }),
-        title: const Text(L10n.of(context).verifyIdentityTitle, style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
+        title: Text(L10n.of(context).verifyIdentityTitle, style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
       ),
       body: SafeArea(child: _loading
         ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
@@ -258,7 +258,7 @@ class _KycScreenState extends State<KycScreen> {
   Widget _buildDataReview() => SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     _progress(3, 4),
     const SizedBox(height: 24),
-    const Text(L10n.of(context).documentData, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+    Text(L10n.of(context).documentData, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
     const SizedBox(height: 6),
     Text('تم استخراج البيانات تلقائياً من المستند', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
     const SizedBox(height: 20),
@@ -293,7 +293,7 @@ class _KycScreenState extends State<KycScreen> {
     }),
     const SizedBox(height: 12),
     Center(child: GestureDetector(onTap: () => setState(() => _step = 1),
-      child: const Text(L10n.of(context).reScanDoc, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary)))),
+      child: Text(L10n.of(context).reScanDoc, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary)))),
   ]));
 
   Widget _dataRow(String emoji, String label, String value) => Container(
@@ -318,13 +318,13 @@ class _KycScreenState extends State<KycScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 32),
         const SizedBox(height: 12),
-        const Text(L10n.of(context).scanDocument, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+        Text(L10n.of(context).scanDocument, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
         const SizedBox(height: 4),
         Text('الكاميرا ستمسح مستندك تلقائياً وتتحقق من بياناتك', style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8))),
       ]),
     ),
     const SizedBox(height: 28),
-    const Text(L10n.of(context).selectDocType, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+    Text(L10n.of(context).selectDocType, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
     const SizedBox(height: 16),
     _docTypeCard('passport', '🛂', 'جواز السفر', 'Passport'),
     const SizedBox(height: 10),
@@ -374,21 +374,21 @@ class _KycScreenState extends State<KycScreen> {
               ClipRRect(borderRadius: BorderRadius.circular(18), child: Image.file(file, fit: BoxFit.cover, width: double.infinity, height: 220)),
               Positioned(top: 8, right: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(color: AppTheme.success, borderRadius: BorderRadius.circular(12)),
-                child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check, color: Colors.white, size: 14), SizedBox(width: 4), Text(L10n.of(context).scanComplete, style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))]))),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check, color: Colors.white, size: 14), SizedBox(width: 4), Text(L10n.of(context).scanComplete, style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))]))),
             ])
           : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Container(width: 64, height: 64, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
                 child: const Icon(Icons.document_scanner_rounded, size: 32, color: AppTheme.primary)),
               const SizedBox(height: 12),
-              const Text(L10n.of(context).tapToOpenScanner, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+              Text(L10n.of(context).tapToOpenScanner, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
             ]),
       )),
 
       if (file != null) ...[
         const SizedBox(height: 12),
         Center(child: GestureDetector(onTap: () => _captureDocument(isFront),
-          child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primary), SizedBox(width: 4),
-            Text(L10n.of(context).reScan, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary))]))),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primary), const SizedBox(width: 4),
+            Text(L10n.of(context).reScan, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary))]))),
       ],
       if (_error != null) ...[const SizedBox(height: 12), _errorBox(_error!)],
       const Spacer(),
@@ -403,15 +403,15 @@ class _KycScreenState extends State<KycScreen> {
   Widget _buildNameVerification() => Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     _progress(3, 4),
     const SizedBox(height: 24),
-    const Text(L10n.of(context).nameVerification, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+    Text(L10n.of(context).nameVerification, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
     const SizedBox(height: 20),
     Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text(L10n.of(context).registeredName, style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+        Text(L10n.of(context).registeredName, style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
         const SizedBox(height: 4),
         Text(_userName ?? 'غير متوفر', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         const SizedBox(height: 16),
-        const Text(L10n.of(context).nameExtracted, style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+        Text(L10n.of(context).nameExtracted, style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
         const SizedBox(height: 4),
         Text(_extractedName.isEmpty ? 'لم يتم استخراج اسم' : _extractedName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _extractedName.isEmpty ? AppTheme.textMuted : AppTheme.textPrimary)),
       ])),
@@ -433,7 +433,7 @@ class _KycScreenState extends State<KycScreen> {
   Widget _buildSelfieStep() => Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     _progress(4, 4),
     const SizedBox(height: 24),
-    const Text(L10n.of(context).selfieCapture, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+    Text(L10n.of(context).selfieCapture, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
     const SizedBox(height: 6),
     Text('التقط سيلفي واضح للمقارنة مع صورة المستند', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
     const SizedBox(height: 24),
@@ -446,21 +446,21 @@ class _KycScreenState extends State<KycScreen> {
             ClipRRect(borderRadius: BorderRadius.circular(18), child: Image.file(_selfie!, fit: BoxFit.cover, width: double.infinity, height: 260)),
             if (_faceDetected) Positioned(top: 8, right: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: AppTheme.success, borderRadius: BorderRadius.circular(12)),
-              child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.face, color: Colors.white, size: 14), SizedBox(width: 4), Text(L10n.of(context).faceDetected, style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))]))),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.face, color: Colors.white, size: 14), SizedBox(width: 4), Text(L10n.of(context).faceDetected, style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))]))),
           ])
         : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Container(width: 80, height: 80, decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(40)),
               child: const Icon(Icons.face_rounded, size: 44, color: AppTheme.primary)),
             const SizedBox(height: 12),
-            const Text(L10n.of(context).tapToOpenCamera, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+            Text(L10n.of(context).tapToOpenCamera, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
           ]),
     )),
 
     if (_selfie != null) ...[
       const SizedBox(height: 12),
       Center(child: GestureDetector(onTap: _captureSelfie,
-        child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primary), SizedBox(width: 4),
-          Text(L10n.of(context).reCapture, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary))]))),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.refresh_rounded, size: 16, color: AppTheme.primary), const SizedBox(width: 4),
+          Text(L10n.of(context).reCapture, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primary))]))),
     ],
     if (_error != null) ...[const SizedBox(height: 12), _errorBox(_error!)],
     const Spacer(),
@@ -471,7 +471,7 @@ class _KycScreenState extends State<KycScreen> {
   Widget _buildUploading() => Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
     const SizedBox(width: 60, height: 60, child: CircularProgressIndicator(strokeWidth: 4, color: AppTheme.primary)),
     const SizedBox(height: 24),
-    const Text(L10n.of(context).uploadingDocs, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+    Text(L10n.of(context).uploadingDocs, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
   ]));
 
   Widget _buildStatus(String title, String subtitle, IconData icon, Color color, {bool showResend = false, bool showBack = false}) =>
@@ -485,7 +485,7 @@ class _KycScreenState extends State<KycScreen> {
       if (showResend) ...[const SizedBox(height: 32), SizedBox(width: double.infinity, height: 50, child: OutlinedButton(
         onPressed: () => setState(() { _step = 0; _kycStatus = 'pending'; }),
         style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), side: const BorderSide(color: AppTheme.primary)),
-        child: const Text(L10n.of(context).resubmitDocs, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primary))))],
+        child: Text(L10n.of(context).resubmitDocs, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primary))))],
       if (showBack) ...[const SizedBox(height: 32), SizedBox(width: 200, height: 50, child: ElevatedButton(
         onPressed: () => Navigator.pop(context),
         style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),

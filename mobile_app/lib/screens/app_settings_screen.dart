@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -73,8 +73,43 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     if (mounted) setState(() => _notifications = newVal);
   }
 
-  void _showLanguagePicker() async {
-    await launchUrl(Uri.parse('app-settings:'));
+  void _showLanguagePicker() {
+    final t = L10n.of(context);
+    final provider = L10n.providerOf(context);
+    final currentCode = provider.locale.languageCode;
+    final languages = [
+      {'name': 'العربية', 'code': 'ar', 'flag': '🇸🇾'},
+      {'name': 'English', 'code': 'en', 'flag': '🇬🇧'},
+      {'name': 'Türkçe', 'code': 'tr', 'flag': '🇹🇷'},
+      {'name': 'Dansk', 'code': 'da', 'flag': '🇩🇰'},
+      {'name': 'Deutsch', 'code': 'de', 'flag': '🇩🇪'},
+      {'name': 'Français', 'code': 'fr', 'flag': '🇫🇷'},
+      {'name': 'Svenska', 'code': 'sv', 'flag': '🇸🇪'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 16),
+          Text(t.selectLanguage, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 16),
+          ...languages.map((l) => ListTile(
+            leading: Text(l['flag']!, style: const TextStyle(fontSize: 22)),
+            title: Text(l['name']!, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+            trailing: currentCode == l['code'] ? const Icon(Icons.check_circle, color: AppTheme.primary, size: 20) : null,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onTap: () {
+              provider.setLanguage(l['name']!);
+              Navigator.pop(context);
+            },
+          )),
+        ]),
+      ),
+    );
   }
 
 
@@ -322,6 +357,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = L10n.of(context);
     final icons = [
       {'key': 'default', 'asset': 'assets/icons/icon_green.png'},
       {'key': 'AppIconBlack', 'asset': 'assets/icons/icon_black.png'},
@@ -477,7 +513,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                     child: const Icon(Icons.volume_up_rounded, size: 17, color: AppTheme.textSecondary),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(child: Text(t.appSounds, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+                  Expanded(child: Text(t.appSounds, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
                   GestureDetector(
                     onTap: () async {
                       final newVal = !_soundEnabled;

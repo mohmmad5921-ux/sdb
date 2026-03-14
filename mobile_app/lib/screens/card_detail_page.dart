@@ -132,10 +132,10 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
     if (cardId == 0) return;
     showDialog(context: context, builder: (dCtx) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Row(children: [
-        Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 28),
-        SizedBox(width: 8),
-        Text(L10n.of(context).deleteCard, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+      title: Row(children: [
+        const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 28),
+        const SizedBox(width: 8),
+        Text(L10n.of(context).deleteCard, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
       ]),
       content: const Text('هل أنت متأكد؟ هذا الإجراء لا يمكن التراجع عنه.\nسيتم إلغاء البطاقة نهائياً.',
         style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
@@ -287,7 +287,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
               child: GestureDetector(
                 onTap: () async {
                   final cardId = int.tryParse(_card['id'].toString()) ?? 0;
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(L10n.of(context).addingToWallet), backgroundColor: AppTheme.primary));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).addingToWallet), backgroundColor: AppTheme.primary));
                   await ApiService.downloadWalletPass(cardId);
                 },
                 child: Container(
@@ -301,7 +301,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
                       child: const Icon(Icons.wallet, size: 16, color: Colors.white),
                     ),
                     const SizedBox(width: 10),
-                    const Text(L10n.of(context).addToWallet, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    Text(L10n.of(context).addToWallet, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
                   ]),
                 ),
               ),
@@ -683,7 +683,7 @@ class CardDesignPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text(L10n.of(context).chooseCardDesign, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+      Text(L10n.of(context).chooseCardDesign, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
       const SizedBox(height: 12),
       Row(children: [
         _mini(CardDesign.marble, 'رخام', 'assets/cards/card_marble.png'),
