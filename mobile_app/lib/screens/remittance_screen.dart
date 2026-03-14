@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
+import '../services/biometric_service.dart';
 import '../theme/app_theme.dart';
 import 'remittance_receipt_screen.dart';
 
@@ -105,6 +106,19 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
   }
 
   Future<void> _sendRemittance() async {
+    // Face ID / Biometric verification
+    try {
+      final authenticated = await BiometricService.authenticate(
+        reason: 'تحقق من هويتك لتأكيد الحوالة',
+      );
+      if (!authenticated) {
+        _showError('فشل التحقق من الهوية');
+        return;
+      }
+    } catch (e) {
+      debugPrint('Biometric error: $e');
+    }
+
     setState(() => _sending = true);
     try {
       final res = await ApiService.sendRemittance({

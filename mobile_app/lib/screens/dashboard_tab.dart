@@ -19,7 +19,7 @@ class _DashboardTabState extends State<DashboardTab> {
   bool _loading = true;
   int _activeWallet = 0;
   final _pageCtrl = PageController(viewportFraction: 0.92);
-  List<Map<String, dynamic>> _cards = [];
+
 
   @override
   void initState() {
@@ -42,10 +42,8 @@ class _DashboardTabState extends State<DashboardTab> {
     try {
       setState(() => _loading = true);
       final r = await ApiService.getDashboard();
-      final cardsR = await ApiService.getCards();
       if (mounted) {
         if (r['success'] == true) _data = r['data'];
-        if (cardsR['success'] == true) _cards = List<Map<String, dynamic>>.from(cardsR['data']?['cards'] ?? []);
         setState(() => _loading = false);
         _loadBackground();
       }
@@ -207,47 +205,7 @@ class _DashboardTabState extends State<DashboardTab> {
             ),
             const SizedBox(height: 24),
 
-            // ── Cards Section (Lunar style: horizontal cards) ──
-            if (_cards.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text(t.myCards, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                  GestureDetector(
-                    onTap: () => widget.onTabChange?.call(1),
-                    child: Text(t.seeAll, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.primary)),
-                  ),
-                ]),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 110,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _cards.length + 1, // +1 for "New" card
-                  itemBuilder: (_, i) {
-                    if (i < _cards.length) return _buildMiniCard(_cards[i], i);
-                    // "New" card button at end (Lunar: + Nyt)
-                    return Container(
-                      width: 80, height: 110,
-                      margin: const EdgeInsets.only(right: 10),
-                      decoration: BoxDecoration(
-                        color: AppTheme.bgMuted,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppTheme.border),
-                      ),
-                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.add_rounded, size: 24, color: AppTheme.textMuted),
-                        const SizedBox(height: 4),
-                        Text(t.newStr, style: TextStyle(fontSize: 10, color: AppTheme.textMuted, fontWeight: FontWeight.w500)),
-                      ]),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+
 
             // ── Recent Transactions (Lunar style: grouped by date) ──
             Padding(

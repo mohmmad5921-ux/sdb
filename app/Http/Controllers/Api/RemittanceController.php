@@ -130,6 +130,62 @@ class RemittanceController extends Controller
             \Log::error('Remittance push failed: ' . $e->getMessage());
         }
 
+        // Send email notification
+        try {
+            $govName = $agent->district->governorate->name_ar ?? '';
+            $distName = $agent->district->name_ar ?? '';
+            \Illuminate\Support\Facades\Mail::html("
+                <div dir='rtl' style='font-family:Arial,sans-serif;max-width:600px;margin:auto;background:#f8fafc;padding:24px;border-radius:16px;'>
+                    <div style='text-align:center;margin-bottom:20px;'>
+                        <h1 style='color:#10b981;font-size:24px;'>💸 تم إرسال الحوالة بنجاح</h1>
+                        <p style='color:#64748b;'>SDB Bank — Syria Digital Bank</p>
+                    </div>
+                    <div style='background:white;padding:20px;border-radius:12px;border:1px solid #e2e8f0;'>
+                        <h3 style='color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:10px;'>تفاصيل الحوالة</h3>
+                        <table style='width:100%;font-size:14px;color:#334155;'>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>رقم الإشعار:</td><td style='text-align:left;font-weight:bold;color:#3b82f6;font-size:18px;letter-spacing:2px;'>{$remittance->notification_code}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>المستلم:</td><td style='text-align:left;'>{$request->recipient_name}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>هاتف المستلم:</td><td style='text-align:left;'>{$request->recipient_phone}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>الموقع:</td><td style='text-align:left;'>{$govName} - {$distName}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>مكتب الوكيل:</td><td style='text-align:left;'>{$agent->name_ar}</td></tr>
+                            <tr><td colspan='2' style='border-top:1px solid #e2e8f0;padding:4px;'></td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>المبلغ المرسل:</td><td style='text-align:left;'>{$request->amount} {$sendCurrency}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>العمولة:</td><td style='text-align:left;'>{$fee} {$sendCurrency}</td></tr>
+                            <tr><td style='padding:6px 0;color:#94a3b8;'>المستلم يحصل على:</td><td style='text-align:left;font-weight:bold;color:#10b981;font-size:16px;'>{$receiveAmount} SYP</td></tr>
+                        </table>
+                    </div>
+                    <div style='text-align:center;margin-top:16px;padding:12px;background:#fef3c7;border-radius:8px;border:1px solid #fbbf24;'>
+                        <p style='color:#92400e;font-size:13px;margin:0;'>⏱️ صلاحية الحوالة: 72 ساعة</p>
+                    </div>
+                    <p style='text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;'>SDB Bank — أول بنك إلكتروني سوري 🇸🇾</p>
+                </div>
+            ", function ($msg) use ($user) {
+                $msg->to($user->email)->subject('💸 SDB Bank — إيصال حوالة');
+            });
+        } catch (\Exception $e) {
+            \Log::error('Remittance email failed: ' . $e->getMessage());
+        }
+
+        // Send WhatsApp message to recipient
+        try {
+            $govName = $agent->district->governorate->name_ar ?? '';
+            $distName = $agent->district->name_ar ?? '';
+            $waMessage = "🏦 *SDB Bank — إشعار حوالة*\n\n"
+                . "مرحباً *{$request->recipient_name}*!\n"
+                . "تم إرسال حوالة لك عبر بنك SDB 💰\n\n"
+                . "📍 *الموقع:* {$govName} - {$distName}\n"
+                . "🏬 *مكتب الوكيل:* {$agent->name_ar}\n"
+                . "💵 *المبلغ:* {$receiveAmount} SYP\n\n"
+                . "🔐 *رقم الإشعار:* {$remittance->notification_code}\n\n"
+                . "✅ توجه لمكتب الوكيل وأعرض رقم الإشعار لسحب المبلغ\n"
+                . "⏱️ صلاحية الحوالة: 72 ساعة\n\n"
+                . "_SDB Bank — أول بنك إلكتروني سوري_ 🇸🇾";
+
+            \App\Services\SmsService::sendWhatsApp($request->recipient_phone, $waMessage);
+        } catch (\Exception $e) {
+            \Log::error('Remittance WhatsApp failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'remittance' => $remittance->load('agent.district.governorate'),
