@@ -361,8 +361,8 @@ class _ScannerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
-    // Passport: taller (ISO ratio ~1.42), ID/license: wider
-    final ratio = docType == 'passport' ? 1.42 : 0.63;
+    // Passport: landscape data page (88x125mm = ~0.71), ID/license: wider card
+    final ratio = docType == 'passport' ? 0.71 : 0.63;
     final fw = w * 0.88, fh = fw * ratio;
     final l = (w - fw) / 2, t = (h - fh) / 2 - 40;
     final r = l + fw, b = t + fh;
