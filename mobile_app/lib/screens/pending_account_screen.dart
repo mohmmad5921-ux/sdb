@@ -309,7 +309,27 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                   ),
                 ],
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 24),
+
+                // Always show KYC verification button
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/kyc'),
+                  child: Container(
+                    width: double.infinity, height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Color(0xFFf59e0b), Color(0xFFd97706)]),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [BoxShadow(color: const Color(0xFFf59e0b).withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
+                    ),
+                    child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Icon(Icons.verified_user_rounded, color: Colors.white, size: 22),
+                      SizedBox(width: 10),
+                      Text('أكمل التحقق من هويتك', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    ]),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
 
                 // Support chat button
                 GestureDetector(
