@@ -143,8 +143,8 @@ class _MoreTabState extends State<MoreTab> {
   void _showLanguagePicker() {
     final t = L10n.of(context);
     final provider = L10n.providerOf(context);
-    final currentLang = provider.isArabic ? 'العربية' : 'English';
-    final languages = ['العربية', 'English'];
+    final currentLang = _currentLangName(provider);
+    final languages = ['العربية', 'English', 'Türkçe', 'Dansk', 'Deutsch', 'Français', 'Svenska'];
 
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(20),
@@ -161,6 +161,19 @@ class _MoreTabState extends State<MoreTab> {
         )),
       ]),
     ));
+  }
+
+  String _currentLangName(LocaleProvider provider) {
+    switch (provider.locale.languageCode) {
+      case 'en': return 'English';
+      case 'tr': return 'Türkçe';
+      case 'da': return 'Dansk';
+      case 'de': return 'Deutsch';
+      case 'fr': return 'Français';
+      case 'sv': return 'Svenska';
+      case 'ar':
+      default: return 'العربية';
+    }
   }
 
   void _showCurrencyPicker() {
@@ -303,7 +316,7 @@ class _MoreTabState extends State<MoreTab> {
     final initials = _getInitials(name);
     final joined = _user?['created_at'] ?? '';
     final joinYear = joined.isNotEmpty ? DateTime.tryParse(joined)?.year.toString() ?? '2026' : '2026';
-    final langDisplay = provider.isArabic ? 'العربية' : 'English';
+    final langDisplay = _currentLangName(provider);
 
     return Scaffold(
       backgroundColor: AppTheme.bgLight,

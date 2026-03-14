@@ -650,8 +650,14 @@ class LocaleProvider extends ChangeNotifier {
 
   Future<void> _loadSavedLocale() async {
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString('app_language') ?? 'العربية';
-    _applyLanguage(saved);
+    final saved = prefs.getString('app_language');
+    if (saved != null) {
+      _applyLanguage(saved);
+    } else {
+      // Read iOS/system language
+      final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+      _applyByCode(systemLocale.languageCode);
+    }
     notifyListeners();
   }
 
@@ -662,16 +668,51 @@ class LocaleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _applyLanguage(String languageName) {
-    switch (languageName) {
-      case 'English':
-        _locale = const Locale('en');
-        _strings = enStrings;
+  void _applyByCode(String code) {
+    switch (code) {
+      case 'ar':
+        _locale = const Locale('ar');
+        _strings = arStrings;
         break;
-      case 'العربية':
+      case 'en':
+      case 'tr':
+      case 'da':
+      case 'de':
+      case 'fr':
+      case 'sv':
+        _locale = Locale(code);
+        _strings = enStrings; // Fall back to English for now
+        break;
       default:
         _locale = const Locale('ar');
         _strings = arStrings;
+        break;
+    }
+  }
+
+  void _applyLanguage(String languageName) {
+    switch (languageName) {
+      case 'English':
+        _applyByCode('en');
+        break;
+      case 'Türkçe':
+        _applyByCode('tr');
+        break;
+      case 'Dansk':
+        _applyByCode('da');
+        break;
+      case 'Deutsch':
+        _applyByCode('de');
+        break;
+      case 'Français':
+        _applyByCode('fr');
+        break;
+      case 'Svenska':
+        _applyByCode('sv');
+        break;
+      case 'العربية':
+      default:
+        _applyByCode('ar');
         break;
     }
   }
