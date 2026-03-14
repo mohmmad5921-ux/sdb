@@ -64,7 +64,7 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
           Navigator.pushReplacementNamed(context, '/home');
         } else if (user?['status'] == 'subscription_required' && mounted) {
           _checkTimer?.cancel();
-          Navigator.pushReplacementNamed(context, '/subscription');
+          Navigator.pushReplacementNamed(context, '/home');
         }
       }
     } catch (_) {}

@@ -359,7 +359,7 @@ class KycReviewController extends Controller
             ]);
         }
 
-        $user->update(['kyc_status' => 'verified', 'status' => 'subscription_required']);
+        $user->update(['kyc_status' => 'verified', 'status' => 'active']);
 
         Notification::create([
             'user_id' => $user->id,
