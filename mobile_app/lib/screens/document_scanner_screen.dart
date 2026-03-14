@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class DocumentScannerScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initCamera();
+    _checkPermissionAndInit();
     _startScanAnimation();
   }
 
@@ -60,8 +61,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
     if (_controller == null || !_controller!.value.isInitialized) return;
     if (state == AppLifecycleState.inactive) {
       _controller?.dispose();
+      _controller = null;
     } else if (state == AppLifecycleState.resumed) {
-      _initCamera();
+      _checkPermissionAndInit();
     }
   }
 
@@ -80,11 +82,28 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
     });
   }
 
+  Future<void> _checkPermissionAndInit() async {
+    try {
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        if (mounted) {
+          setState(() => _error = 'يرجى السماح باستخدام الكاميرا من الإعدادات');
+        }
+        return;
+      }
+      await _initCamera();
+    } catch (e) {
+      debugPrint('Permission check error: $e');
+      // Try init even if permission check fails (some devices)
+      await _initCamera();
+    }
+  }
+
   Future<void> _initCamera() async {
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
-        setState(() => _error = 'لم يتم العثور على كاميرا');
+        if (mounted) setState(() => _error = 'لم يتم العثور على كاميرا');
         return;
       }
 
@@ -92,18 +111,20 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
         ? cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.front, orElse: () => cameras.first)
         : cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
 
-      _controller = CameraController(camera, ResolutionPreset.high, enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
+      _controller = CameraController(camera, ResolutionPreset.medium, enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
       await _controller!.initialize();
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
+          _error = null;
           _statusText = widget.isSelfie ? 'ضع وجهك داخل الإطار' : 'وجّه الكاميرا نحو المستند';
         });
         if (!widget.isSelfie) _startAutoDetection();
       }
     } catch (e) {
-      setState(() => _error = 'فشل تشغيل الكاميرا');
+      debugPrint('Camera init error: $e');
+      if (mounted) setState(() => _error = 'فشل تشغيل الكاميرا\nيرجى إغلاق التطبيقات الأخرى والمحاولة مرة أخرى');
     }
   }
 
