@@ -203,15 +203,18 @@ class KycReviewController extends Controller
         $hasMinDocs = $user->kycDocuments()->where('status', 'approved')->count() >= 2;
 
         if ($allApproved && $hasMinDocs) {
-            $user->update(['kyc_status' => 'verified']);
+            $user->update(['kyc_status' => 'verified', 'status' => 'subscription_required']);
 
             // Send approval notification
             Notification::create([
                 'user_id' => $user->id,
                 'title' => '✅ تم التحقق من هويتك',
-                'body' => 'تمت الموافقة على مستنداتك. يمكنك الآن استخدام جميع خدمات SDB Bank.',
+                'body' => 'تمت الموافقة على مستنداتك. يرجى اختيار باقة الاشتراك لتفعيل حسابك.',
                 'type' => 'system',
             ]);
+
+            // Send push notification
+            FcmService::sendToUser($user->id, '✅ تم التحقق من هويتك', 'يرجى اختيار باقة الاشتراك لتفعيل حسابك.');
         } elseif ($request->action === 'reject') {
             $user->update(['kyc_status' => 'pending']);
 
@@ -356,14 +359,16 @@ class KycReviewController extends Controller
             ]);
         }
 
-        $user->update(['kyc_status' => 'verified']);
+        $user->update(['kyc_status' => 'verified', 'status' => 'subscription_required']);
 
         Notification::create([
             'user_id' => $user->id,
             'title' => '✅ تم التحقق من هويتك',
-            'body' => 'تمت الموافقة على جميع مستنداتك. مرحباً بك في SDB Bank!',
+            'body' => 'تمت الموافقة على جميع مستنداتك. يرجى اختيار باقة الاشتراك لتفعيل حسابك.',
             'type' => 'system',
         ]);
+
+        FcmService::sendToUser($user->id, '✅ تم التحقق من هويتك', 'يرجى اختيار باقة الاشتراك لتفعيل حسابك.');
 
         AdminActivityLog::log('kyc.approve_all', 'user', $user->id, [
             'docs_count' => $pending->count(),

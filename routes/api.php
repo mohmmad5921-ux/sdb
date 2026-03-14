@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\MobileApiController;
 use App\Http\Controllers\Api\PaymentApiController;
+use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
@@ -125,6 +126,11 @@ Route::prefix('v1/mobile')->group(function () {
             // Support Chat
             Route::get('/support/messages', [MobileApiController::class, 'supportMessages']);
             Route::post('/support/send', [MobileApiController::class, 'sendSupportMessage']);
+
+            // Subscription
+            Route::post('/subscription/subscribe', [SubscriptionController::class, 'subscribe']);
+            Route::post('/subscription/create-intent', [SubscriptionController::class, 'createIntent']);
+            Route::post('/subscription/confirm', [SubscriptionController::class, 'confirm']);
         }
     );
 });
