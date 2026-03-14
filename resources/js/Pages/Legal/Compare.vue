@@ -14,7 +14,7 @@ const t = computed(() => isAr.value ? {
   rows:[
     ['فتح الحساب','مجاني — دقيقتين','مجاني — 5 دقائق','مجاني — 5 دقائق','مجاني — 10 دقائق'],
     ['بطاقة مجانية','✅ افتراضية فورية','✅ افتراضية','✅ افتراضية','✅ افتراضية'],
-    ['بطاقة معدنية','✅ من 600 ل.س/شهر','❌ غير متوفر','✅ من €7.99/شهر','✅ من €9.90/شهر'],
+    ['بطاقات Mastercard','✅ 5 بطاقات من €9.99/شهر','❌ غير متوفر','✅ من €7.99/شهر','✅ من €9.90/شهر'],
     ['دعم الليرة السورية','✅ SYP مدعومة','❌ غير متوفر','❌ غير متوفر','❌ غير متوفر'],
     ['تحويل لسوريا','✅ فوري — 0.5%','⚠️ محدود','❌ غير متوفر','❌ غير متوفر'],
     ['رسوم التحويل','0.3% فقط','0.4% — 1.5%','0% — 1.5%','مجاني (محدود)'],
@@ -34,7 +34,7 @@ const t = computed(() => isAr.value ? {
   rows:[
     ['Account opening','Free — 2 minutes','Free — 5 minutes','Free — 5 minutes','Free — 10 minutes'],
     ['Free card','✅ Virtual instant','✅ Virtual','✅ Virtual','✅ Virtual'],
-    ['Metal card','✅ From 600 SYP/mo','❌ Not available','✅ From €7.99/mo','✅ From €9.90/mo'],
+    ['Mastercard cards','✅ 5 cards from €9.99/mo','❌ Not available','✅ From €7.99/mo','✅ From €9.90/mo'],
     ['Syrian Lira support','✅ SYP supported','❌ Not available','❌ Not available','❌ Not available'],
     ['Transfer to Syria','✅ Instant — 0.5%','⚠️ Limited','❌ Not available','❌ Not available'],
     ['Transfer fees','0.3% only','0.4% — 1.5%','0% — 1.5%','Free (limited)'],

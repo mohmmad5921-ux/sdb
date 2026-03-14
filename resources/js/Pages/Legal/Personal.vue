@@ -12,7 +12,7 @@ const t = computed(() => isAr.value ? {
   whyTitle:'لماذا SDB؟',whyFade:'الفرق واضح.',
   whyCards:[
     {ic:'⚡',t:'فتح فوري',d:'حساب جاهز خلال 5 دقائق. لا فروع، لا أوراق، لا مواعيد. فقط هاتفك وإثبات هوية.'},
-    {ic:'🆓',t:'مجاني بالكامل',d:'لا رسوم شهرية، لا رسوم فتح، لا رسوم صيانة. حسابك مجاني للأبد مع باقة Standard.'},
+    {ic:'💰',t:'أسعار منافسة',d:'اشتراك يبدأ من €9.99/شهر فقط. بطاقات Mastercard، تحويلات، صرف عملات، وتداول كريبتو.'},
     {ic:'🌍',t:'150+ دولة',d:'أرسل واستلم أموال من وإلى أكثر من 150 دولة. IBAN دولي حقيقي يعمل بكل مكان.'},
     {ic:'💳',t:'بطاقة فورية',d:'بطاقة ماستركارد افتراضية فورية لحظة فتح الحساب. ادفع أونلاين أو أضفها لـ Apple Pay.'},
     {ic:'🔒',t:'أمان بنكي',d:'تشفير AES-256، مصادقة بيومترية، CVV ديناميكي، تجميد فوري، مراقبة احتيال 24/7.'},
@@ -40,13 +40,13 @@ const t = computed(() => isAr.value ? {
   ],
   limitsTitle:'الحدود والرسوم',
   limits:[
-    {t:'سحب ATM',v:'€500/يوم مجاناً',d:'Standard — يزيد مع الباقات الأعلى'},
-    {t:'تحويل شهري',v:'€5,000',d:'Standard — حتى €200,000 مع Elite'},
-    {t:'صرف عملات',v:'€1,000/شهر مجاناً',d:'Standard — غير محدود مع Premium+'},
-    {t:'عدد البطاقات',v:'1 افتراضية + 1 فعلية',d:'Standard — حتى 5 مع Elite'},
+    {t:'عمولة تحويل',v:'من 1%',d:'Personal 2.5% — Plus 1.5% — Business 1%'},
+    {t:'عمولة إيداع',v:'من 0.8%',d:'Personal 2% — Plus 1% — Business 0.8%'},
+    {t:'صرف عملات',v:'من +1%',d:'Personal +3% — Plus +1.5% — Business +1%'},
+    {t:'بطاقات Mastercard',v:'5 بطاقات',d:'5 بطاقات + 5 حسابات مع كل الباقات'},
   ],
   upgradeTitle:'تبي أكثر؟',upgradeFade:'اكتشف باقاتنا.',
-  upgradeDesc:'ارتقِ لـ Plus أو Premium أو Elite واحصل على مميزات حصرية: بطاقة معدنية، صالات مطار، تأمين سفر، cashback والمزيد.',
+  upgradeDesc:'ارتقِ لـ Plus بـ €19.99/شهر واحصل على عمولات أقل (1.5% تحويل)، كاشباك 1%، ودعم أولوية. أو اكتشف حسابات Business و Enterprise.',
   upgradeBtn:'قارن الباقات ←',
   testimTitle:'ماذا يقول عملاؤنا',
   testims:[
@@ -58,21 +58,21 @@ const t = computed(() => isAr.value ? {
   faqs:[
     {q:'من يقدر يفتح حساب؟',a:'أي شخص عمره 18+ بوثيقة هوية سارية. سواء بسوريا أو بأي دولة بالعالم.'},
     {q:'كم يستغرق فتح الحساب؟',a:'عادة 3-5 دقائق. التحقق من الهوية يتم رقمياً بدون زيارة فرع.'},
-    {q:'هل في رسوم مخفية؟',a:'لا — باقة Standard مجانية بالكامل. بدون رسوم شهرية أو رسوم فتح أو صيانة.'},
+    {q:'كم سعر الاشتراك؟',a:'Personal بـ €9.99/شهر — يتضمن 5 بطاقات Mastercard، 5 حسابات، AI مساعد ذكي، وتأمين ضد الاحتيال.'},
     {q:'هل الحساب حقيقي؟',a:'نعم — تحصل على IBAN دولي حقيقي مسجل بالدنمارك ويعمل مع أي بنك بالعالم.'},
     {q:'كيف أحوّل لأهلي بسوريا؟',a:'من التطبيق مباشرة — أضف مستفيد، حدد المبلغ، وأرسل. يوصل خلال 1-3 أيام عمل بـ 0.5% فقط.'},
     {q:'هل التطبيق بالعربي؟',a:'نعم — واجهة عربية كاملة مع دعم RTL. يمكنك التبديل بين العربية والإنجليزية بأي وقت.'},
   ],
-  ctaTitle:'جاهز تبدأ؟',ctaSub:'افتح حسابك الشخصي المجاني بدقائق. بدون أوراق، بدون فروع.',ctaBtn:'افتح حسابك المجاني ←',ctaBtn2:'قارن الباقات',
+  ctaTitle:'جاهز تبدأ؟',ctaSub:'افتح حسابك الشخصي بدقائق. بدون أوراق، بدون فروع.',ctaBtn:'افتح حسابك ←',ctaBtn2:'قارن الباقات',
 } : {
   title:'Personal Account — SDB Bank',tag:'Personal Account',
   heroH:'Your personal account.',heroEm:'World-class standards.',
   heroP:'More than just a bank account — a complete financial platform with instant Mastercard, free transfers, real exchange rates, and full control from your phone.',
-  heroBtn:'Open your free account →',
+  heroBtn:'Open your account →',
   whyTitle:'Why SDB?',whyFade:'The difference is clear.',
   whyCards:[
     {ic:'⚡',t:'Instant Opening',d:'Account ready in 5 minutes. No branches, no paperwork, no appointments. Just your phone and an ID.'},
-    {ic:'🆓',t:'Completely Free',d:'No monthly fees, no opening fees, no maintenance fees. Your account is free forever with Standard plan.'},
+    {ic:'💰',t:'Competitive Pricing',d:'Starting from just €9.99/month. Mastercard cards, transfers, currency exchange, and crypto trading.'},
     {ic:'🌍',t:'150+ Countries',d:'Send and receive money from 150+ countries. A real international IBAN that works everywhere.'},
     {ic:'💳',t:'Instant Card',d:'Free virtual Mastercard the moment you open your account. Pay online or add to Apple Pay.'},
     {ic:'🔒',t:'Bank Security',d:'AES-256 encryption, biometric auth, dynamic CVV, instant freeze, 24/7 fraud monitoring.'},
@@ -100,13 +100,13 @@ const t = computed(() => isAr.value ? {
   ],
   limitsTitle:'Limits & Fees',
   limits:[
-    {t:'ATM withdrawal',v:'€500/day free',d:'Standard — increases with higher plans'},
-    {t:'Monthly transfer',v:'€5,000',d:'Standard — up to €200,000 with Elite'},
-    {t:'FX exchange',v:'€1,000/mo free',d:'Standard — unlimited with Premium+'},
-    {t:'Number of cards',v:'1 virtual + 1 physical',d:'Standard — up to 5 with Elite'},
+    {t:'Transfer fee',v:'From 1%',d:'Personal 2.5% — Plus 1.5% — Business 1%'},
+    {t:'Deposit fee',v:'From 0.8%',d:'Personal 2% — Plus 1% — Business 0.8%'},
+    {t:'Currency exchange',v:'From +1%',d:'Personal +3% — Plus +1.5% — Business +1%'},
+    {t:'Mastercard cards',v:'5 cards',d:'5 cards + 5 accounts with all plans'},
   ],
   upgradeTitle:'Want more?',upgradeFade:'Discover our plans.',
-  upgradeDesc:'Upgrade to Plus, Premium, or Elite for exclusive features: metal card, airport lounges, travel insurance, cashback and more.',
+  upgradeDesc:'Upgrade to Plus at €19.99/mo for lower fees (1.5% transfers), 1% cashback, and priority support. Or discover Business and Enterprise plans.',
   upgradeBtn:'Compare plans →',
   testimTitle:'What our customers say',
   testims:[
@@ -118,12 +118,12 @@ const t = computed(() => isAr.value ? {
   faqs:[
     {q:'Who can open an account?',a:'Anyone 18+ with a valid ID. Whether in Syria or anywhere in the world.'},
     {q:'How long does it take?',a:'Usually 3-5 minutes. Identity verification is fully digital, no branch visits.'},
-    {q:'Are there hidden fees?',a:'No — Standard plan is completely free. No monthly, opening, or maintenance fees.'},
+    {q:'How much is the subscription?',a:'Personal at €9.99/month — includes 5 Mastercard cards, 5 accounts, AI assistant, and fraud protection.'},
     {q:'Is the account real?',a:'Yes — you get a real international IBAN registered in Denmark that works with any bank worldwide.'},
     {q:'How do I send to family in Syria?',a:'Directly from the app — add beneficiary, set amount, and send. Arrives in 1-3 business days at only 0.5%.'},
     {q:'Is the app in Arabic?',a:'Yes — full Arabic interface with RTL support. Switch between Arabic and English anytime.'},
   ],
-  ctaTitle:'Ready to start?',ctaSub:'Open your free personal account in minutes. No paperwork, no branches.',ctaBtn:'Open free account →',ctaBtn2:'Compare plans',
+  ctaTitle:'Ready to start?',ctaSub:'Open your personal account in minutes. No paperwork, no branches.',ctaBtn:'Open your account →',ctaBtn2:'Compare plans',
 });
 </script>
 <template>
