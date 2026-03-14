@@ -6,58 +6,56 @@ defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
 const t = computed(() => isAr.value ? {
   title:'البطاقات — SDB Bank',tag:'بطاقات ماستركارد',
-  heroH:'بطاقتك.',heroEm:'بين يديك فوراً.',heroP:'بطاقة افتراضية فورية مجانية عند التسجيل. أو بطاقة معدنية فاخرة تصلك لأي مكان. ادفع بـ Apple Pay و Google Pay بكل مكان بالعالم.',
+  heroH:'بطاقتك.',heroEm:'بين يديك فوراً.',heroP:'5 بطاقات Mastercard مع كل اشتراك — افتراضية وفعلية. ادفع بـ Apple Pay و Google Pay في أي مكان بالعالم.',
   heroCta:'احصل على بطاقتك',
-  tierTitle:'اختر بطاقتك المثالية',
+  tierTitle:'البطاقات حسب الباقة',
   tiers:[
-    {name:'Standard',badge:'مجاني',color:'#9FE870',feats:['بطاقة افتراضية فورية','Apple Pay و Google Pay','ادفع بأي متجر إلكتروني','حد سحب يومي 75,000 ل.س','إشعارات فورية لكل عملية','تجميد فوري من التطبيق']},
-    {name:'Plus',badge:'600 ل.س/شهر',color:'#7C3AED',feats:['بطاقة معدنية فاخرة','حماية مشتريات 150,000 ل.س','حد يومي مضاعف 300,000 ل.س','دعم أولوية 24/7','CVV ديناميكي','تحويلات دولية مجانية (150,000 ل.س/شهر)']},
-    {name:'Premium',badge:'1,200 ل.س/شهر',color:'#DB2777',feats:['صرف عملات بلا حدود بسعر السوق','تأمين سفر شامل','3 زيارات صالة مطار شهرياً','شريحة eSIM دولية (3GB)','حماية مشتريات 750,000 ل.س','حد سحب يومي 750,000 ل.س']},
-    {name:'Elite',badge:'2,250 ل.س/شهر',color:'#B45309',feats:['صالات VIP بلا حدود','مدير حساب شخصي','استرداد نقدي 1% على كل عملية','تأمين شامل (سفر + صحة)','شريحة eSIM دولية (10GB)','حد سحب يومي 1,500,000 ل.س']},
+    {name:'Personal',badge:'€9.99/شهر',color:'#9FE870',feats:['5 بطاقات Mastercard (افتراضية + فعلية)','5 حسابات','Apple Pay و Google Pay','عمولة تحويل 2.5%','عمولة إيداع 2%','صرف عملات +3%','تداول كريبتو 2%','AI مساعد ذكي','تأمين ضد الاحتيال']},
+    {name:'Plus',badge:'€19.99/شهر',color:'#7C3AED',feats:['5 بطاقات Mastercard (افتراضية + فعلية)','5 حسابات','عمولة تحويل 1.5%','عمولة إيداع 1%','صرف عملات +1.5%','تداول كريبتو 1%','كاشباك 1%','AI مساعد ذكي','تأمين ضد الاحتيال','دعم أولوية']},
+    {name:'Business',badge:'€49/شهر',color:'#2563EB',feats:['5 بطاقات Mastercard للموظفين','5 حسابات','عمولة تحويل 1%','عمولة إيداع 0.8%','Payment Gateway','Net Bank Business','نظام محاسبة','فواتير','API Access']},
+    {name:'Enterprise',badge:'مخصص',color:'#B45309',feats:['5 بطاقات Mastercard','5 حسابات','عمولات مخصصة','كل ميزات Business','Web Shop متكامل','ربط ERP / SAP','تطوير حسب الطلب']},
   ],
-  compTitle:'مقارنة البطاقات',
-  compH:['الميزة','Standard','Plus','Premium','Elite'],
-  compR:[['السعر الشهري','مجاني','600 ل.س','1,200 ل.س','2,250 ل.س'],['بطاقة افتراضية','✓','✓','✓','✓'],['بطاقة معدنية','—','✓','✓','✓'],['Apple Pay','✓','✓','✓','✓'],['حد السحب اليومي','75,000 ل.س','300,000 ل.س','750,000 ل.س','1,500,000 ل.س'],['صرف عملات مجاني','30,000 ل.س/شهر','150,000 ل.س/شهر','بلا حدود','بلا حدود'],['حماية مشتريات','—','150,000 ل.س','750,000 ل.س','1,500,000 ل.س'],['تأمين سفر','—','—','✓','✓ شامل'],['صالات مطار','—','—','3/شهر','بلا حدود'],['CVV ديناميكي','—','✓','✓','✓'],['استرداد نقدي','—','—','0.5%','1%'],['مدير حساب','—','—','—','✓']],
+  compTitle:'مقارنة العمولات',
+  compH:['الميزة','Personal','Plus','Business','Enterprise'],
+  compR:[['السعر الشهري','€9.99','€19.99','€49','مخصص'],['عمولة تحويل','2.5%','1.5%','1%','مخصص'],['عمولة إيداع','2%','1%','0.8%','مخصص'],['صرف عملات','+3%','+1.5%','+1%','مخصص'],['كريبتو','2%','1%','1%','مخصص'],['بطاقات','5','5','5','5'],['حسابات','5','5','5','5'],['AI مساعد','✓','✓','✓','✓'],['تأمين احتيال','✓','✓','✓','✓'],['كاشباك','—','1%','—','✓'],['دعم أولوية','—','✓','✓','✓'],['Payment Gateway','—','—','✓','✓'],['نظام محاسبة','—','—','✓','✓'],['Web Shop','—','—','—','✓']],
   featTitle:'كل مميزات البطاقة',
   feats:[
     {ic:'📱',t:'Apple Pay و Google Pay',d:'أضف بطاقتك لمحفظتك الرقمية وادفع بهاتفك أو ساعتك الذكية بأي متجر.'},
     {ic:'❄️',t:'تجميد فوري',d:'جمّد بطاقتك فوراً من التطبيق إذا فقدتها أو شككت بنشاط غير عادي.'},
-    {ic:'🔄',t:'CVV ديناميكي',d:'رمز أمان يتغير تلقائياً كل ساعة لحماية إضافية بالمشتريات الإلكترونية.'},
     {ic:'🔔',t:'إشعارات فورية',d:'كل عملية دفع أو سحب ترسل إشعار فوري بكل التفاصيل لهاتفك.'},
-    {ic:'🌍',t:'ادفع بأي مكان',d:'ماستركارد مقبولة بأكثر من 80 مليون متجر حول العالم.'},
+    {ic:'🌍',t:'ادفع بأي مكان',d:'Mastercard مقبولة بأكثر من 80 مليون متجر حول العالم.'},
     {ic:'💱',t:'تحويل تلقائي',d:'ادفع بأي عملة والتحويل يتم تلقائياً بسعر الصرف الحقيقي.'},
     {ic:'🛡️',t:'3D Secure',d:'طبقة أمان إضافية تتحقق من هويتك عند الدفع إلكترونياً.'},
-    {ic:'📊',t:'تحليل المصاريف',d:'تتبع وين رايحة فلوسك مع تصنيف تلقائي وتقارير شهرية.'},
     {ic:'🔐',t:'أمان متعدد الطبقات',d:'تشفير 256-بت، مصادقة ثنائية، وبصمة الوجه أو الإصبع.'},
+    {ic:'🤖',t:'AI مساعد ذكي',d:'مساعد بالذكاء الاصطناعي يساعدك بكل استفساراتك البنكية.'},
   ],
-  ctaTitle:'احصل على بطاقتك اليوم',ctaSub:'سجّل بدقائق واحصل على بطاقة افتراضية فوراً. بدون رسوم مخفية.',ctaBtn:'سجّل مجاناً ←',
+  ctaTitle:'احصل على بطاقتك اليوم',ctaSub:'سجّل بدقائق واحصل على بطاقة Mastercard فوراً.',ctaBtn:'سجّل الآن ←',
 } : {
   title:'Cards — SDB Bank',tag:'Mastercard Cards',
-  heroH:'Your card.',heroEm:'Instantly yours.',heroP:'Free instant virtual card on signup. Or a premium metal card delivered anywhere. Pay with Apple Pay and Google Pay worldwide.',
+  heroH:'Your card.',heroEm:'Instantly yours.',heroP:'5 Mastercard cards with every subscription — virtual and physical. Pay with Apple Pay and Google Pay anywhere worldwide.',
   heroCta:'Get your card',
-  tierTitle:'Choose your perfect card',
+  tierTitle:'Cards by plan',
   tiers:[
-    {name:'Standard',badge:'Free',color:'#9FE870',feats:['Instant virtual Mastercard','Apple Pay & Google Pay','Pay at any online store','Daily withdrawal limit €500','Instant notifications','Instant freeze from app']},
-    {name:'Plus',badge:'€3.99/mo',color:'#7C3AED',feats:['Premium metal Mastercard','Purchase protection €1,000','Double daily limit €2,000','Priority 24/7 support','Dynamic CVV','Free intl. transfers (€1,000/mo)']},
-    {name:'Premium',badge:'€7.99/mo',color:'#DB2777',feats:['Unlimited FX at market rate','Comprehensive travel insurance','3 airport lounges/month','Intl. eSIM data (3GB)','Purchase protection €5,000','Daily withdrawal €5,000']},
-    {name:'Elite',badge:'€14.99/mo',color:'#B45309',feats:['Unlimited VIP lounges','Personal account manager','1% cashback on everything','Full insurance (travel + health)','Intl. eSIM data (10GB)','Daily withdrawal €10,000']},
+    {name:'Personal',badge:'€9.99/mo',color:'#9FE870',feats:['5 Mastercard cards (virtual + physical)','5 accounts','Apple Pay & Google Pay','2.5% transfer fee','2% deposit fee','+3% currency exchange','2% crypto trading','AI assistant','Fraud protection']},
+    {name:'Plus',badge:'€19.99/mo',color:'#7C3AED',feats:['5 Mastercard cards (virtual + physical)','5 accounts','1.5% transfer fee','1% deposit fee','+1.5% currency exchange','1% crypto trading','1% cashback','AI assistant','Fraud protection','Priority support']},
+    {name:'Business',badge:'€49/mo',color:'#2563EB',feats:['5 Mastercard cards for employees','5 accounts','1% transfer fee','0.8% deposit fee','Payment Gateway','Net Bank Business','Accounting system','Invoicing','API Access']},
+    {name:'Enterprise',badge:'Custom',color:'#B45309',feats:['5 Mastercard cards','5 accounts','Custom fees','All Business features','Full Web Shop','ERP / SAP integration','Custom development']},
   ],
-  compTitle:'Card Comparison',
-  compH:['Feature','Standard','Plus','Premium','Elite'],
-  compR:[['Monthly price','Free','€3.99','€7.99','€14.99'],['Virtual card','✓','✓','✓','✓'],['Metal card','—','✓','✓','✓'],['Apple Pay','✓','✓','✓','✓'],['Daily withdrawal','€500','€2,000','€5,000','€10,000'],['Free FX','€200/mo','€1,000/mo','Unlimited','Unlimited'],['Purchase protection','—','€1,000','€5,000','€10,000'],['Travel insurance','—','—','✓','✓ Full'],['Airport lounges','—','—','3/mo','Unlimited'],['Dynamic CVV','—','✓','✓','✓'],['Cashback','—','—','0.5%','1%'],['Account manager','—','—','—','✓']],
+  compTitle:'Fee Comparison',
+  compH:['Feature','Personal','Plus','Business','Enterprise'],
+  compR:[['Monthly price','€9.99','€19.99','€49','Custom'],['Transfer fee','2.5%','1.5%','1%','Custom'],['Deposit fee','2%','1%','0.8%','Custom'],['Currency exchange','+3%','+1.5%','+1%','Custom'],['Crypto','2%','1%','1%','Custom'],['Cards','5','5','5','5'],['Accounts','5','5','5','5'],['AI assistant','✓','✓','✓','✓'],['Fraud protection','✓','✓','✓','✓'],['Cashback','—','1%','—','✓'],['Priority support','—','✓','✓','✓'],['Payment Gateway','—','—','✓','✓'],['Accounting','—','—','✓','✓'],['Web Shop','—','—','—','✓']],
   featTitle:'All Card Features',
   feats:[
     {ic:'📱',t:'Apple Pay & Google Pay',d:'Add your card to your digital wallet and pay with your phone or smartwatch.'},
     {ic:'❄️',t:'Instant Freeze',d:'Freeze your card instantly from the app if lost or suspicious activity detected.'},
-    {ic:'🔄',t:'Dynamic CVV',d:'Security code that changes automatically every hour for extra protection.'},
     {ic:'🔔',t:'Instant Notifications',d:'Every payment triggers instant notification with full details.'},
     {ic:'🌍',t:'Pay Anywhere',d:'Mastercard accepted at 80M+ stores worldwide.'},
     {ic:'💱',t:'Auto Conversion',d:'Pay in any currency with auto conversion at real exchange rate.'},
     {ic:'🛡️',t:'3D Secure',d:'Extra security layer verifying identity during online payments.'},
-    {ic:'📊',t:'Spending Analytics',d:'Track where your money goes with auto categorization.'},
     {ic:'🔐',t:'Multi-Layer Security',d:'256-bit encryption, 2FA, and Face ID or fingerprint.'},
+    {ic:'🤖',t:'AI Assistant',d:'AI-powered assistant to help with all your banking inquiries.'},
   ],
-  ctaTitle:'Get your card today',ctaSub:'Sign up in minutes and get a virtual card instantly. No hidden fees.',ctaBtn:'Sign up free →',
+  ctaTitle:'Get your card today',ctaSub:'Sign up in minutes and get a Mastercard instantly.',ctaBtn:'Sign up now →',
 });
 </script>
 <template>
@@ -98,7 +96,7 @@ const t = computed(() => isAr.value ? {
 .tbl td{padding:12px 14px;text-align:center;border-bottom:1px solid rgba(10,10,10,.06);color:rgba(10,10,10,.5)}
 .tbl-first{text-align:start!important;font-weight:600;color:#0a0a0a!important}
 .tbl tbody tr:hover{background:rgba(159,232,112,.02)}
-.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat-g{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .feat-c{padding:32px 24px;background:#fff;border:1px solid rgba(10,10,10,.06);border-radius:18px;transition:all .3s}.feat-c:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.04)}
 .feat-ic{font-size:28px;display:block;margin-bottom:12px}
 .feat-t{font-size:15px;font-weight:800;margin-bottom:6px}

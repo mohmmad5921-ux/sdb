@@ -5,54 +5,54 @@ import SiteLayout from '@/Layouts/SiteLayout.vue';
 defineOptions({ layout: SiteLayout });
 const isAr = inject('isAr', computed(() => true));
 const t = computed(() => isAr.value ? {
-  title:'بطاقة Plus — SDB Bank',tag:'Plus',
-  heroH:'بطاقة Plus.',heroEm:'ذكية ومرنة.',
-  heroP:'كل مميزات Standard بالإضافة لبطاقة فعلية مجانية، CVV ديناميكي، حدود أعلى، وحماية مشتريات حتى €1,000.',
-  price:'600',priceNote:' ل.س/شهر',
+  title:'حساب Plus — SDB Bank',tag:'Plus · الأكثر طلباً',
+  heroH:'حساب Plus.',heroEm:'عمولات أقل. مميزات أكثر.',
+  heroP:'كل مميزات Personal بعمولات أقل بكثير، كاشباك 1% على كل مشترياتك، ودعم أولوية.',
+  price:'€19.99',priceNote:'/شهر',
   heroBtn:'احصل على Plus ←',
-  inclTitle:'كل شيء في Standard + أكثر',
-  incl:['بطاقة فعلية مجانية','بطاقة افتراضية إضافية — المجموع 2','CVV ديناميكي يتغير كل ساعة','حماية مشتريات حتى €1,000','سحب €2,000/يوم من ATM مجاناً','صرف €5,000/شهر بسعر السوق','تحويل شهري حتى €20,000','SWIFT دولي بـ 0.3% فقط','تنبيهات أسعار الصرف','أولوية الدعم الفني','كل مميزات Standard'],
-  limitsTitle:'الحدود',
-  limits:[{l:'سحب ATM يومي',v:'€2,000'},{l:'صرف مجاني شهري',v:'€5,000'},{l:'تحويل شهري',v:'€20,000'},{l:'بطاقات',v:'2 (فعلية + افتراضية)'}],
+  inclTitle:'كل شيء في Personal + أكثر',
+  incl:['5 بطاقات Mastercard (افتراضية + فعلية)','5 حسابات','عمولة تحويل 1.5% (بدل 2.5%)','عمولة إيداع 1% (بدل 2%)','صرف عملات +1.5% (بدل +3%)','تداول كريبتو 1% (بدل 2%)','كاشباك 1% على كل المشتريات','AI مساعد ذكي','تأمين ضد الاحتيال','دعم أولوية'],
+  feesTitle:'العمولات',
+  fees:[{l:'تحويل',v:'1.5%'},{l:'إيداع',v:'1%'},{l:'صرف عملات',v:'+1.5%'},{l:'كريبتو',v:'1%'}],
   extraTitle:'مميزات حصرية لـ Plus',
   extras:[
-    {ic:'🔄',t:'CVV ديناميكي',d:'رمز الأمان يتغير كل ساعة — حماية قصوى للمشتريات الإلكترونية.'},
-    {ic:'🛡️',t:'حماية مشتريات',d:'تغطية حتى €1,000 — بضاعة تالفة أو لم تصل؟ نحميك.'},
-    {ic:'💳',t:'بطاقة فعلية مجانية',d:'بطاقة ماستركارد فعلية توصلك لعنوانك مجاناً خلال 5-7 أيام.'},
-    {ic:'⚡',t:'دعم أولوية',d:'أولوية في الرد على استفساراتك — وقت انتظار أقل.'},
+    {ic:'💰',t:'كاشباك 1%',d:'استرداد 1% على كل مشترياتك. يُضاف تلقائياً لرصيدك كل شهر. بدون حد أقصى.'},
+    {ic:'⚡',t:'عمولات مخفضة',d:'وفّر أكثر مع كل عملية — 1.5% تحويل بدل 2.5%، و1% إيداع بدل 2%.'},
+    {ic:'🎧',t:'دعم أولوية',d:'أولوية في الرد على استفساراتك — وقت انتظار أقل ودعم متميز.'},
+    {ic:'🤖',t:'AI مساعد ذكي',d:'مساعد بالذكاء الاصطناعي يساعدك بكل استفساراتك البنكية.'},
   ],
-  upgradeTitle:'تبي الفخامة؟',upgradeFade:'اكتشف Premium',
-  upgradeDesc:'بطاقة معدنية، صالات مطار، تأمين سفر شامل، صرف بلا حدود، 0.5% cashback — بـ €7.99/شهر.',
-  upgradeBtn:'اكتشف Premium ←',upgradeBtnAll:'قارن كل الباقات',
-  ctaTitle:'ارتقِ لـ Plus',ctaSub:'بطاقة فعلية + CVV ديناميكي + حماية — بـ 600 ل.س/شهر فقط.',ctaBtn:'احصل على Plus ←',
+  upgradeTitle:'لشركتك؟',upgradeFade:'اكتشف Business',
+  upgradeDesc:'حساب تجاري متكامل مع Payment Gateway، نظام محاسبة، فواتير، وNet Bank Business — بـ €49/شهر.',
+  upgradeBtn:'اكتشف Business ←',upgradeBtnAll:'قارن كل الباقات',
+  ctaTitle:'ارتقِ لـ Plus',ctaSub:'عمولات أقل + كاشباك 1% + دعم أولوية — بـ €19.99/شهر.',ctaBtn:'احصل على Plus ←',
 } : {
-  title:'Plus Card — SDB Bank',tag:'Plus',
-  heroH:'Plus Card.',heroEm:'Smart & flexible.',
-  heroP:'Everything in Standard plus free physical card, dynamic CVV, higher limits, and €1,000 purchase protection.',
-  price:'€3.99',priceNote:'/month',
+  title:'Plus Account — SDB Bank',tag:'Plus · Most Popular',
+  heroH:'Plus Account.',heroEm:'Lower fees. More features.',
+  heroP:'Everything in Personal with much lower fees, 1% cashback on all purchases, and priority support.',
+  price:'€19.99',priceNote:'/month',
   heroBtn:'Get Plus →',
-  inclTitle:'Everything in Standard + more',
-  incl:['Free physical card','Extra virtual card — total 2','Dynamic CVV changes hourly','Purchase protection up to €1,000','€2,000/day free ATM withdrawal','€5,000/mo FX at market rate','€20,000 monthly transfer limit','0.3% SWIFT international','Rate alerts','Priority support','All Standard features'],
-  limitsTitle:'Limits',
-  limits:[{l:'Daily ATM',v:'€2,000'},{l:'Free monthly FX',v:'€5,000'},{l:'Monthly transfer',v:'€20,000'},{l:'Cards',v:'2 (physical + virtual)'}],
+  inclTitle:'Everything in Personal + more',
+  incl:['5 Mastercard cards (virtual + physical)','5 accounts','1.5% transfer fee (vs 2.5%)','1% deposit fee (vs 2%)','+1.5% currency exchange (vs +3%)','1% crypto trading (vs 2%)','1% cashback on all purchases','AI assistant','Fraud protection','Priority support'],
+  feesTitle:'Fees',
+  fees:[{l:'Transfer',v:'1.5%'},{l:'Deposit',v:'1%'},{l:'Currency exchange',v:'+1.5%'},{l:'Crypto',v:'1%'}],
   extraTitle:'Plus exclusive features',
   extras:[
-    {ic:'🔄',t:'Dynamic CVV',d:'Security code changes every hour — maximum protection for online purchases.'},
-    {ic:'🛡️',t:'Purchase Protection',d:'Coverage up to €1,000 — damaged or undelivered? We protect you.'},
-    {ic:'💳',t:'Free Physical Card',d:'Physical Mastercard delivered to your address free in 5-7 days.'},
-    {ic:'⚡',t:'Priority Support',d:'Priority response to your inquiries — shorter wait times.'},
+    {ic:'💰',t:'1% Cashback',d:'1% back on all purchases. Automatically credited to your balance monthly. No cap.'},
+    {ic:'⚡',t:'Lower Fees',d:'Save more on every transaction — 1.5% transfer vs 2.5%, 1% deposit vs 2%.'},
+    {ic:'🎧',t:'Priority Support',d:'Priority response to your inquiries — shorter wait times and premium support.'},
+    {ic:'🤖',t:'AI Assistant',d:'AI-powered assistant to help with all your banking inquiries.'},
   ],
-  upgradeTitle:'Want luxury?',upgradeFade:'Discover Premium',
-  upgradeDesc:'Metal card, airport lounges, comprehensive travel insurance, unlimited FX, 0.5% cashback — €7.99/mo.',
-  upgradeBtn:'Discover Premium →',upgradeBtnAll:'Compare all plans',
-  ctaTitle:'Upgrade to Plus',ctaSub:'Physical card + dynamic CVV + protection — just €3.99/mo.',ctaBtn:'Get Plus →',
+  upgradeTitle:'For your business?',upgradeFade:'Discover Business',
+  upgradeDesc:'Complete business account with Payment Gateway, accounting system, invoicing, and Net Bank Business — €49/mo.',
+  upgradeBtn:'Discover Business →',upgradeBtnAll:'Compare all plans',
+  ctaTitle:'Upgrade to Plus',ctaSub:'Lower fees + 1% cashback + priority support — €19.99/mo.',ctaBtn:'Get Plus →',
 });
 </script>
 <template>
 <Head :title="t.title" />
 <section class="p-hero"><div class="sw tc"><div class="p-hero-tag">{{ t.tag }}</div><h1 class="p-hero-h">{{ t.heroH }}<br><span class="p-hero-em">{{ t.heroEm }}</span></h1><p class="p-hero-p">{{ t.heroP }}</p><div class="price-box"><span class="price-v">{{ t.price }}</span><span class="price-n">{{ t.priceNote }}</span></div><a href="/preregister" class="hero-btn">{{ t.heroBtn }}</a></div></section>
 <section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.inclTitle }}</h2><div class="incl-grid"><div v-for="i in t.incl" :key="i" class="incl-i">✓ {{ i }}</div></div></div></section>
-<section class="sec sec-alt"><div class="sw"><h2 class="t2 tc">{{ t.limitsTitle }}</h2><div class="g4"><div v-for="l in t.limits" :key="l.l" class="lim"><div class="lim-v">{{ l.v }}</div><div class="lim-l">{{ l.l }}</div></div></div></div></section>
+<section class="sec sec-alt"><div class="sw"><h2 class="t2 tc">{{ t.feesTitle }}</h2><div class="g4"><div v-for="f in t.fees" :key="f.l" class="lim"><div class="lim-v">{{ f.v }}</div><div class="lim-l">{{ f.l }}</div></div></div></div></section>
 <section class="sec"><div class="sw"><h2 class="t2 tc">{{ t.extraTitle }}</h2><div class="g4"><div v-for="e in t.extras" :key="e.t" class="ext-c"><span class="ext-ic">{{ e.ic }}</span><h3 class="ext-t">{{ e.t }}</h3><p class="ext-d">{{ e.d }}</p></div></div></div></section>
 <section class="sec sec-alt"><div class="sw sec-hdr tc"><h2 class="t2">{{ t.upgradeTitle }}<br><span class="t2-em">{{ t.upgradeFade }}</span></h2><p class="t2-sub tc" style="margin:0 auto 24px">{{ t.upgradeDesc }}</p><div class="cta-row"><Link href="/cards/premium" class="link-btn-lg">{{ t.upgradeBtn }}</Link><Link href="/plans" class="link-btn-lg link-sec">{{ t.upgradeBtnAll }}</Link></div></div></section>
 <section class="sec sec-sky tc"><div class="sw"><h2 class="t2 t2-w">{{ t.ctaTitle }}</h2><p class="t2-sub t2-sub-w tc" style="margin:0 auto 28px">{{ t.ctaSub }}</p><a href="/preregister" class="cta-btn">{{ t.ctaBtn }}</a></div></section>
