@@ -649,22 +649,23 @@ class LocaleProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSavedLocale() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString('app_language');
-    if (saved != null) {
-      _applyLanguage(saved);
-    } else {
-      // Read iOS/system language
-      final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-      _applyByCode(systemLocale.languageCode);
-    }
+    // Always read iOS per-app language setting (system locale)
+    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    _applyByCode(systemLocale.languageCode);
     notifyListeners();
+  }
+
+  /// Called on app resume to pick up iOS Settings language changes
+  void refreshFromSystem() {
+    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    if (systemLocale.languageCode != _locale.languageCode) {
+      _applyByCode(systemLocale.languageCode);
+      notifyListeners();
+    }
   }
 
   void setLanguage(String languageName) async {
     _applyLanguage(languageName);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('app_language', languageName);
     notifyListeners();
   }
 

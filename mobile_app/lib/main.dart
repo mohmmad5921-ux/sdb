@@ -79,6 +79,7 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _localeProvider.refreshFromSystem();
       _checkBiometricOnResume();
     }
   }
