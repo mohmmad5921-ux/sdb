@@ -102,8 +102,6 @@ class RemittanceReceiptScreen extends StatelessWidget {
                       version: QrVersions.auto,
                       size: 160,
                       backgroundColor: Colors.white,
-                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.roundedRect, color: Color(0xFF0A1628)),
-                      dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.roundedRect, color: Color(0xFF0A1628)),
                     ),
                   ),
                   const SizedBox(height: 12),
