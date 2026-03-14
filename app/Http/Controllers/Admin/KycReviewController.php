@@ -203,7 +203,7 @@ class KycReviewController extends Controller
         $hasMinDocs = $user->kycDocuments()->where('status', 'approved')->count() >= 2;
 
         if ($allApproved && $hasMinDocs) {
-            $user->update(['kyc_status' => 'verified', 'status' => 'subscription_required']);
+            $user->update(['kyc_status' => 'verified', 'status' => 'active']);
 
             // Send approval notification
             Notification::create([

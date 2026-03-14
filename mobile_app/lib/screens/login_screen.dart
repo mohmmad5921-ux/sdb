@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               if (status == 'pending') {
                 Navigator.pushReplacementNamed(context, '/pending');
               } else if (status == 'subscription_required') {
-                Navigator.pushReplacementNamed(context, '/subscription');
+                Navigator.pushReplacementNamed(context, '/home');
               } else {
                 Navigator.pushReplacementNamed(context, '/home');
               }
@@ -366,7 +366,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     if (status == 'pending') {
                       Navigator.pushReplacementNamed(context, '/pending');
                     } else if (status == 'subscription_required') {
-                      Navigator.pushReplacementNamed(context, '/subscription');
+                      Navigator.pushReplacementNamed(context, '/home');
                     } else {
                       Navigator.pushReplacementNamed(context, '/home');
                     }
