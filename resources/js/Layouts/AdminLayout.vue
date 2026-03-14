@@ -87,6 +87,10 @@ const sideGroups = [
     { label: 'التجار', icon: '🔌', route: 'admin.merchants' },
     { label: 'الموافقات', icon: '✅', route: 'admin.approvals' },
   ]},
+  { id:'remittance', label: 'الحوالات', icon: '💸', links: [
+    { label: 'الحوالات', icon: '💸', route: 'admin.remittances' },
+    { label: 'الوكلاء', icon: '🏪', route: 'admin.agents' },
+  ]},
   { id:'support', label: 'الدعم والتواصل', icon: '🎧', links: [
     { label: 'تذاكر الدعم', icon: '🎫', route: 'admin.tickets' },
     { label: 'الدعم', icon: '🎧', route: 'admin.support' },

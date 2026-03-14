@@ -200,6 +200,15 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::get('/subscriptions', [AdminDashboard::class, 'subscriptions'])->name('subscriptions');
     Route::get('/countries', [AdminDashboard::class, 'countries'])->name('countries');
     Route::get('/remittances', [RemittanceController::class, 'adminIndex'])->name('remittances');
+    Route::post('/remittances/{id}/collect', [RemittanceController::class, 'adminCollect'])->name('remittances.collect');
+    Route::post('/remittances/{id}/cancel', [RemittanceController::class, 'adminCancel'])->name('remittances.cancel');
+
+    // Agents
+    Route::get('/agents', [RemittanceController::class, 'adminAgents'])->name('agents');
+    Route::post('/agents', [RemittanceController::class, 'adminCreateAgent'])->name('agents.store');
+    Route::patch('/agents/{id}', [RemittanceController::class, 'adminUpdateAgent'])->name('agents.update');
+    Route::post('/agents/{id}/toggle', [RemittanceController::class, 'adminToggleAgent'])->name('agents.toggle');
+    Route::delete('/agents/{id}', [RemittanceController::class, 'adminDeleteAgent'])->name('agents.delete');
 
     Route::get('/users', [AdminUsers::class, 'index'])->name('users');
     Route::get('/users/{user}', [AdminUsers::class, 'show'])->name('users.show');

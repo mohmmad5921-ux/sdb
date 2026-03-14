@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Services\FcmService;
 
 class RemittanceController extends Controller
 {
@@ -271,7 +272,8 @@ class RemittanceController extends Controller
             ->select(
                 'remittances.*',
                 'users.full_name as sender_name', 'users.email as sender_email',
-                'agents.name_ar as agent_name_ar',
+                'agents.name_ar as agent_name_ar', 'agents.name_en as agent_name_en',
+                'agents.phone as agent_phone', 'agents.address_ar as agent_address',
                 'districts.name_ar as district_ar',
                 'governorates.name_ar as governorate_ar'
             )
@@ -283,11 +285,184 @@ class RemittanceController extends Controller
             'pending' => DB::table('remittances')->where('status', 'ready')->count(),
             'collected' => DB::table('remittances')->where('status', 'collected')->count(),
             'totalAmount' => DB::table('remittances')->where('status', '!=', 'cancelled')->sum('amount'),
+            'today' => DB::table('remittances')->whereDate('created_at', today())->count(),
+            'thisWeek' => DB::table('remittances')->where('created_at', '>=', now()->startOfWeek())->sum('amount'),
         ];
 
         return Inertia::render('Admin/Remittances', [
             'remittances' => $remittances,
             'stats' => $stats,
         ]);
+    }
+
+    /**
+     * Admin: collect remittance on behalf of agent
+     */
+    public function adminCollect($id)
+    {
+        $remittance = DB::table('remittances')->where('id', $id)->first();
+        if (!$remittance) return back()->with('error', 'حوالة غير موجودة');
+        if ($remittance->status === 'collected') return back()->with('error', 'تم سحب هذه الحوالة مسبقاً');
+
+        DB::table('remittances')->where('id', $id)->update([
+            'status' => 'collected',
+            'collected_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Push notification to sender
+        FcmService::sendToUser($remittance->user_id, '✅ تم تسليم حوالتك', 'تم استلام الحوالة رقم ' . $remittance->notification_code . ' بنجاح من قبل ' . $remittance->recipient_name);
+
+        return back()->with('success', 'تم تسليم الحوالة بنجاح ✅');
+    }
+
+    /**
+     * Admin: cancel a remittance
+     */
+    public function adminCancel($id)
+    {
+        $remittance = DB::table('remittances')->where('id', $id)->first();
+        if (!$remittance) return back()->with('error', 'حوالة غير موجودة');
+        if ($remittance->status === 'collected') return back()->with('error', 'لا يمكن إلغاء حوالة تم سحبها');
+
+        DB::table('remittances')->where('id', $id)->update([
+            'status' => 'cancelled',
+            'updated_at' => now(),
+        ]);
+
+        // Push notification to sender
+        FcmService::sendToUser($remittance->user_id, '❌ تم إلغاء حوالتك', 'تم إلغاء الحوالة رقم ' . $remittance->notification_code . '. يرجى التواصل مع الدعم لأي استفسار.');
+
+        return back()->with('success', 'تم إلغاء الحوالة ✅');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ADMIN: Agent Management
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Admin: list all agents
+     */
+    public function adminAgents()
+    {
+        $agents = DB::table('agents')
+            ->join('districts', 'agents.district_id', '=', 'districts.id')
+            ->join('governorates', 'districts.governorate_id', '=', 'governorates.id')
+            ->select(
+                'agents.*',
+                'districts.name_ar as district_ar', 'districts.name_en as district_en',
+                'governorates.name_ar as governorate_ar', 'governorates.name_en as governorate_en',
+                'governorates.id as governorate_id'
+            )
+            ->orderBy('governorates.name_ar')
+            ->orderBy('districts.name_ar')
+            ->get();
+
+        $governorates = DB::table('governorates')->orderBy('name_ar')->get();
+        $districts = DB::table('districts')->orderBy('name_ar')->get();
+
+        $stats = [
+            'total' => $agents->count(),
+            'active' => $agents->where('is_active', true)->count(),
+            'inactive' => $agents->where('is_active', false)->count(),
+            'governorates' => $governorates->count(),
+        ];
+
+        // Count remittances per agent
+        $remittanceCounts = DB::table('remittances')
+            ->select('agent_id', DB::raw('count(*) as cnt'), DB::raw('sum(amount) as total_amount'))
+            ->groupBy('agent_id')
+            ->pluck('cnt', 'agent_id');
+
+        return Inertia::render('Admin/Agents', [
+            'agents' => $agents,
+            'governorates' => $governorates,
+            'districts' => $districts,
+            'stats' => $stats,
+            'remittanceCounts' => $remittanceCounts,
+        ]);
+    }
+
+    /**
+     * Admin: create agent
+     */
+    public function adminCreateAgent(Request $request)
+    {
+        $request->validate([
+            'district_id' => 'required|exists:districts,id',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:30',
+            'address_ar' => 'nullable|string|max:500',
+            'address_en' => 'nullable|string|max:500',
+            'commission_rate' => 'numeric|min:0|max:100',
+        ]);
+
+        DB::table('agents')->insert([
+            'district_id' => $request->district_id,
+            'name_ar' => $request->name_ar,
+            'name_en' => $request->name_en,
+            'phone' => $request->phone,
+            'address_ar' => $request->address_ar,
+            'address_en' => $request->address_en,
+            'commission_rate' => $request->commission_rate ?? 0,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'تم إضافة الوكيل بنجاح ✅');
+    }
+
+    /**
+     * Admin: update agent
+     */
+    public function adminUpdateAgent(Request $request, $id)
+    {
+        $agent = DB::table('agents')->where('id', $id)->first();
+        if (!$agent) return back()->with('error', 'وكيل غير موجود');
+
+        $data = ['updated_at' => now()];
+        if ($request->has('name_ar')) $data['name_ar'] = $request->name_ar;
+        if ($request->has('name_en')) $data['name_en'] = $request->name_en;
+        if ($request->has('phone')) $data['phone'] = $request->phone;
+        if ($request->has('address_ar')) $data['address_ar'] = $request->address_ar;
+        if ($request->has('address_en')) $data['address_en'] = $request->address_en;
+        if ($request->has('commission_rate')) $data['commission_rate'] = $request->commission_rate;
+        if ($request->has('is_active')) $data['is_active'] = $request->boolean('is_active');
+
+        DB::table('agents')->where('id', $id)->update($data);
+
+        return back()->with('success', 'تم تحديث الوكيل ✅');
+    }
+
+    /**
+     * Admin: toggle agent active status
+     */
+    public function adminToggleAgent($id)
+    {
+        $agent = DB::table('agents')->where('id', $id)->first();
+        if (!$agent) return back()->with('error', 'وكيل غير موجود');
+
+        DB::table('agents')->where('id', $id)->update([
+            'is_active' => !$agent->is_active,
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', $agent->is_active ? 'تم تعطيل الوكيل' : 'تم تفعيل الوكيل ✅');
+    }
+
+    /**
+     * Admin: delete agent
+     */
+    public function adminDeleteAgent($id)
+    {
+        $hasRemittances = DB::table('remittances')->where('agent_id', $id)->exists();
+        if ($hasRemittances) {
+            return back()->with('error', 'لا يمكن حذف وكيل لديه حوالات، قم بتعطيله بدلاً من ذلك');
+        }
+
+        DB::table('agents')->where('id', $id)->delete();
+        return back()->with('success', 'تم حذف الوكيل ✅');
     }
 }
