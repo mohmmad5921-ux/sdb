@@ -15,7 +15,7 @@
                     <tr>
                         <td style="padding:30px 40px 20px;text-align:center;border-bottom:2px solid #1a6b3c;background:#ffffff">
                             <div style="background:#ffffff;display:inline-block;padding:10px 20px;border-radius:8px">
-                                <img src="https://sdb-bank.com/images/sdb-logo-new.png" alt="SDB Bank" width="180" style="display:block;margin:0 auto">
+                                <img src="https://sdb-bank.com/images/sdb-email-icon.png" alt="SDB Bank" width="80" style="display:block;margin:0 auto;border-radius:16px">
                             </div>
                         </td>
                     </tr>
