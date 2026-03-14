@@ -5,68 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تم تفعيل حسابك</title>
 </head>
-<body style="margin:0;padding:0;background:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f5;padding:40px 20px">
+<body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:30px 20px">
         <tr>
             <td align="center">
-                <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+                <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff">
 
-                    <!-- Header with Logo -->
+                    <!-- Logo -->
                     <tr>
-                        <td style="background:linear-gradient(135deg,#1a6b3c 0%,#2d8f52 50%,#1a6b3c 100%);padding:40px 48px;text-align:center">
-                            <img src="https://sdb-bank.com/images/sdb-logo-white.png" alt="SDB Bank" width="80" style="margin-bottom:12px">
-                            <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">تم تفعيل حسابك! ✅</div>
-                            <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:6px">مرحباً بك في عائلة SDB Bank</div>
-                        </td>
-                    </tr>
-
-                    <!-- Success Icon -->
-                    <tr>
-                        <td style="padding:40px 48px 0;text-align:center">
-                            <div style="width:80px;height:80px;background:#e8f5e9;border-radius:50%;display:inline-block;line-height:80px;font-size:36px">✅</div>
+                        <td style="padding:30px 40px 20px;text-align:center;border-bottom:2px solid #1a6b3c;background:#ffffff">
+                            <div style="background:#ffffff;display:inline-block;padding:10px 20px;border-radius:8px">
+                                <img src="https://sdb-bank.com/images/sdb-logo-new.png" alt="SDB Bank" width="180" style="display:block;margin:0 auto">
+                            </div>
                         </td>
                     </tr>
 
                     <!-- Body -->
                     <tr>
-                        <td style="padding:24px 48px 40px;text-align:right">
-                            <h1 style="font-size:22px;font-weight:800;color:#1a1a1a;margin:0 0 16px;text-align:center">تهانينا، {{ $user->full_name }}!</h1>
+                        <td style="padding:30px 40px">
+                            <h1 style="font-size:24px;font-weight:800;color:#1a1a1a;margin:0 0 20px;text-align:center">تهانينا، {{ $user->full_name }}! 🎉</h1>
 
-                            <p style="font-size:15px;color:#555;line-height:1.9;margin:0 0 20px;text-align:right">
-                                يسعدنا إبلاغك بأنه تمت الموافقة على حسابك في <strong style="color:#1a6b3c">SDB Bank</strong> وتفعيله بنجاح. يمكنك الآن استخدام جميع خدماتنا المصرفية الرقمية.
+                            <p style="font-size:15px;color:#333;line-height:1.8;margin:0 0 20px;text-align:right">
+                                يسعدنا إبلاغك بأنه تمت الموافقة على حسابك في <strong>SDB Bank</strong> وتفعيله بنجاح. يمكنك الآن استخدام جميع خدماتنا المصرفية الرقمية.
                             </p>
 
                             <!-- Active Badge -->
-                            <div style="text-align:center;margin-bottom:28px">
-                                <span style="display:inline-block;background:#d4edda;color:#155724;padding:12px 28px;border-radius:50px;font-size:15px;font-weight:700">🟢 حسابك نشط الآن</span>
+                            <div style="text-align:center;margin-bottom:24px">
+                                <span style="display:inline-block;background:#e8f5e9;color:#2e7d32;padding:10px 24px;border-radius:6px;font-size:15px;font-weight:700;border:1px solid #a5d6a7">✅ حسابك نشط الآن</span>
                             </div>
 
-                            <!-- Getting Started Box -->
-                            <div style="background:#f8faf9;border-radius:12px;padding:24px;margin-bottom:28px;border:1px solid #e8f5e9">
-                                <div style="font-size:14px;font-weight:800;color:#1a6b3c;margin-bottom:16px;text-align:center">🚀 ابدأ الآن</div>
-                                <table width="100%" cellpadding="0" cellspacing="0" dir="rtl">
-                                    <tr><td style="padding:10px 0;font-size:14px;color:#444;text-align:right"><strong style="color:#1a6b3c">1.</strong> افتح التطبيق وسجل الدخول</td></tr>
-                                    <tr><td style="padding:10px 0;font-size:14px;color:#444;text-align:right"><strong style="color:#1a6b3c">2.</strong> أكمل التحقق من هويتك (KYC)</td></tr>
-                                    <tr><td style="padding:10px 0;font-size:14px;color:#444;text-align:right"><strong style="color:#1a6b3c">3.</strong> اطلب بطاقتك المصرفية</td></tr>
-                                    <tr><td style="padding:10px 0;font-size:14px;color:#444;text-align:right"><strong style="color:#1a6b3c">4.</strong> ابدأ بالإيداع والتحويل</td></tr>
-                                </table>
-                            </div>
+                            <!-- Getting Started -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden">
+                                <tr><td style="padding:14px 20px;background:#f9f9f9;font-size:14px;font-weight:700;color:#1a6b3c;text-align:center">🚀 ابدأ الآن</td></tr>
+                                <tr><td style="padding:10px 20px;font-size:14px;color:#333;border-top:1px solid #eee"><strong>1.</strong> افتح التطبيق وسجل الدخول</td></tr>
+                                <tr><td style="padding:10px 20px;font-size:14px;color:#333;border-top:1px solid #eee"><strong>2.</strong> أكمل التحقق من هويتك</td></tr>
+                                <tr><td style="padding:10px 20px;font-size:14px;color:#333;border-top:1px solid #eee"><strong>3.</strong> اطلب بطاقتك المصرفية</td></tr>
+                                <tr><td style="padding:10px 20px;font-size:14px;color:#333;border-top:1px solid #eee"><strong>4.</strong> ابدأ بالإيداع والتحويل</td></tr>
+                            </table>
 
                             <!-- Account Info -->
-                            <div style="background:#f0f7ff;border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #d0e3ff">
-                                <table width="100%" cellpadding="0" cellspacing="0" dir="rtl">
-                                    <tr>
-                                        <td style="padding:6px 0;font-size:13px;color:#666;text-align:right">رقم العميل</td>
-                                        <td style="padding:6px 0;font-size:13px;color:#1a1a1a;font-weight:700;text-align:left">{{ $user->customer_number ?? '—' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding:6px 0;font-size:13px;color:#666;text-align:right">البريد الإلكتروني</td>
-                                        <td style="padding:6px 0;font-size:13px;color:#1a1a1a;font-weight:700;text-align:left">{{ $user->email }}</td>
-                                    </tr>
-                                </table>
-                            </div>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden">
+                                <tr>
+                                    <td style="padding:10px 20px;font-size:13px;color:#666;background:#f9f9f9;border-bottom:1px solid #eee;text-align:right">البريد الإلكتروني</td>
+                                    <td style="padding:10px 20px;font-size:13px;color:#1a1a1a;font-weight:700;background:#f9f9f9;border-bottom:1px solid #eee;text-align:left">{{ $user->email }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px 20px;font-size:13px;color:#666;text-align:right">رقم العميل</td>
+                                    <td style="padding:10px 20px;font-size:13px;color:#1a1a1a;font-weight:700;text-align:left">{{ $user->customer_number ?? '—' }}</td>
+                                </tr>
+                            </table>
 
-                            <p style="font-size:13px;color:#999;line-height:1.7;margin:0;text-align:center">
+                            <p style="font-size:13px;color:#888;line-height:1.6;margin:0;text-align:center">
                                 إذا لم تقم بإنشاء هذا الحساب، يرجى التواصل معنا فوراً.
                             </p>
                         </td>
@@ -74,11 +63,9 @@
 
                     <!-- Footer -->
                     <tr>
-                        <td style="padding:28px 48px;background:#fafafa;border-top:1px solid #f0f0f0;text-align:center">
-                            <img src="https://sdb-bank.com/images/sdb-logo-new.png" alt="SDB" width="40" style="opacity:0.3;margin-bottom:8px">
-                            <p style="font-size:11px;color:#bbb;line-height:1.6;margin:0">
-                                SDB Bank · Syrian Digital Bank<br>
-                                © 2026 جميع الحقوق محفوظة
+                        <td style="padding:20px 40px;border-top:1px solid #eee;text-align:center">
+                            <p style="font-size:11px;color:#aaa;line-height:1.6;margin:0">
+                                SDB Bank · Syrian Digital Bank · © 2026
                             </p>
                         </td>
                     </tr>
