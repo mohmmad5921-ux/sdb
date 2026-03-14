@@ -59,7 +59,7 @@ class RemittanceController extends Controller
         }
 
         // Calculate fee (1.5% commission)
-        $fee = round($request->amount * 0.015, 2);
+        $fee = round($request->amount * 0.02, 2);
         $totalDeduct = $request->amount + $fee;
 
         if ($account->balance < $totalDeduct) {

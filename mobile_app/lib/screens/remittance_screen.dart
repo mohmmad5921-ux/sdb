@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'remittance_receipt_screen.dart';
@@ -25,7 +27,13 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
   final _amountCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
 
-  double _sypRate = 13500;
+  String _receiveCurrency = 'SYP';
+  Map<String, Map<String, dynamic>> _receiveCurrencies = {
+    'SYP': {'name': 'ليرة سورية', 'flag': '🇸🇾', 'rate': 13500.0},
+    'USD': {'name': 'دولار أمريكي', 'flag': '🇺🇸', 'rate': 1.08},
+    'TRY': {'name': 'ليرة تركية', 'flag': '🇹🇷', 'rate': 34.2},
+  };
+  double get _currentRate => (_receiveCurrencies[_receiveCurrency]?['rate'] as num?)?.toDouble() ?? 13500;
 
   @override
   void initState() {
@@ -49,6 +57,19 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
         _accounts = dashRes['data']['accounts'] ?? [];
         if (_accounts.isNotEmpty) _selectedAccount = _accounts[0];
       }
+      // Fetch live exchange rates
+      try {
+        final ratesRes = await http.get(Uri.parse('https://sdb-bank.com/api/public/rates'));
+        if (ratesRes.statusCode == 200) {
+          final ratesData = jsonDecode(ratesRes.body);
+          final rates = ratesData['rates'];
+          if (rates != null) {
+            if (rates['SYP'] != null) _receiveCurrencies['SYP']!['rate'] = (rates['SYP'] as num).toDouble();
+            if (rates['USD'] != null) _receiveCurrencies['USD']!['rate'] = (rates['USD'] as num).toDouble();
+            if (rates['TRY'] != null) _receiveCurrencies['TRY']!['rate'] = (rates['TRY'] as num).toDouble();
+          }
+        }
+      } catch (_) {}
     } catch (e) {
       debugPrint('Error loading remittance data: $e');
     }
@@ -92,6 +113,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
         'recipient_name': _nameCtrl.text,
         'recipient_phone': _phoneCtrl.text,
         'amount': double.parse(_amountCtrl.text),
+        'receive_currency': _receiveCurrency,
         'notes': _notesCtrl.text.isNotEmpty ? _notesCtrl.text : null,
       });
 
@@ -391,9 +413,34 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
 
         // Amount
         _buildField('المبلغ (${_selectedAccount?['currency']?['code'] ?? 'EUR'})', _amountCtrl, Icons.attach_money_rounded, keyboard: TextInputType.number),
+        const SizedBox(height: 12),
+
+        // Receive currency selector
+        const Text('عملة الاستلام', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () => _showCurrencyPicker(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppTheme.bgCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.border),
+            ),
+            child: Row(children: [
+              Text(_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🇸🇾', style: const TextStyle(fontSize: 20)),
+              const SizedBox(width: 10),
+              Expanded(child: Text(
+                '$_receiveCurrency — ${_receiveCurrencies[_receiveCurrency]?['name'] ?? ''}',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+              )),
+              const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textMuted),
+            ]),
+          ),
+        ),
         const SizedBox(height: 8),
 
-        // SYP conversion preview
+        // Conversion preview
         if (_amountCtrl.text.isNotEmpty && (double.tryParse(_amountCtrl.text) ?? 0) > 0)
           Container(
             padding: const EdgeInsets.all(10),
@@ -402,9 +449,9 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Text('🇸🇾 ', style: TextStyle(fontSize: 14)),
+              Text('${_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🇸🇾'} ', style: const TextStyle(fontSize: 14)),
               Text(
-                'المستلم يحصل على: ${_formatNumber((double.tryParse(_amountCtrl.text) ?? 0) * _sypRate)} ل.س',
+                'المستلم يحصل على: ${_formatNumber((double.tryParse(_amountCtrl.text) ?? 0) * _currentRate)} $_receiveCurrency',
                 style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ]),
@@ -495,12 +542,45 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
     );
   }
 
+  void _showCurrencyPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.bgCard,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 16),
+          const Text('عملة الاستلام', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          const SizedBox(height: 12),
+          ..._receiveCurrencies.entries.map((e) {
+            final code = e.key;
+            final info = e.value;
+            final isSelected = _receiveCurrency == code;
+            return ListTile(
+              leading: Text(info['flag'], style: const TextStyle(fontSize: 24)),
+              title: Text('$code — ${info['name']}', style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              subtitle: Text('1 EUR = ${_formatNumber((info['rate'] as num).toDouble())} $code', style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              trailing: isSelected ? const Icon(Icons.check_circle, color: AppTheme.primary) : null,
+              onTap: () {
+                setState(() => _receiveCurrency = code);
+                Navigator.pop(context);
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+        ]),
+      ),
+    );
+  }
+
   // ── Step 4: Confirmation ──
   Widget _buildConfirmation() {
     final amount = double.tryParse(_amountCtrl.text) ?? 0;
-    final fee = (amount * 0.015);
+    final fee = (amount * 0.02);
     final total = amount + fee;
-    final receiveAmount = amount * _sypRate;
+    final receiveAmount = amount * _currentRate;
     final curr = _selectedAccount?['currency']?['code'] ?? 'EUR';
 
     return SingleChildScrollView(
@@ -527,11 +607,12 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
             _confirmRow('مكتب الوكيل', _selectedAgent?['name_ar'] ?? ''),
             const Divider(height: 20, color: AppTheme.border),
             _confirmRow('المبلغ المرسل', '${amount.toStringAsFixed(2)} $curr'),
-            _confirmRow('العمولة (1.5%)', '${fee.toStringAsFixed(2)} $curr'),
+            _confirmRow('العمولة (2%)', '${fee.toStringAsFixed(2)} $curr'),
             _confirmRow('المجموع', '${total.toStringAsFixed(2)} $curr', bold: true),
             const Divider(height: 20, color: AppTheme.border),
-            _confirmRow('المستلم يحصل على', '${_formatNumber(receiveAmount)} ل.س', bold: true, color: AppTheme.success),
-            _confirmRow('سعر الصرف', '1 $curr = ${_formatNumber(_sypRate)} ل.س'),
+            _confirmRow('عملة الاستلام', '$_receiveCurrency — ${_receiveCurrencies[_receiveCurrency]?['name'] ?? ''}'),
+            _confirmRow('المستلم يحصل على', '${_formatNumber(receiveAmount)} $_receiveCurrency', bold: true, color: AppTheme.success),
+            _confirmRow('سعر الصرف', '1 $curr = ${_formatNumber(_currentRate)} $_receiveCurrency'),
           ]),
         ),
         const SizedBox(height: 14),
