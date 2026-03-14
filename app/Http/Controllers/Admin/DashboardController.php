@@ -160,4 +160,43 @@ class DashboardController extends Controller
             return $current > 0 ? 100 : 0;
         return round(($current - $previous) / $previous * 100, 1);
     }
+
+    public function subscriptions()
+    {
+        // Count preregistrations by plan
+        $preregByPlan = DB::table('preregistrations')
+            ->selectRaw("COALESCE(plan, 'free') as plan, COUNT(*) as count")
+            ->groupBy('plan')->orderBy('count', 'desc')->get();
+
+        $planCounts = [];
+        foreach ($preregByPlan as $pr) {
+            $planCounts[$pr->plan] = $pr->count;
+        }
+
+        // Get all users with their plan info
+        $users = DB::table('users')->where('role', '!=', 'admin')
+            ->select('id', 'full_name', 'email', 'country', 'created_at')
+            ->orderBy('created_at', 'desc')->limit(100)->get()
+            ->map(function ($u) {
+                $u->plan = 'personal'; // default plan
+                return $u;
+            });
+
+        return Inertia::render('Admin/Subscriptions', [
+            'planCounts' => $planCounts,
+            'users' => $users,
+            'preregByPlan' => $preregByPlan,
+        ]);
+    }
+
+    public function countries()
+    {
+        $usersByCountry = DB::table('users')->where('role', '!=', 'admin')
+            ->selectRaw("COALESCE(country, 'Unknown') as country, COUNT(*) as count")
+            ->groupBy('country')->orderBy('count', 'desc')->get();
+
+        return Inertia::render('Admin/Countries', [
+            'usersByCountry' => $usersByCountry,
+        ]);
+    }
 }

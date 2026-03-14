@@ -181,6 +181,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    Route::get('/subscriptions', [AdminDashboard::class, 'subscriptions'])->name('subscriptions');
+    Route::get('/countries', [AdminDashboard::class, 'countries'])->name('countries');
 
     Route::get('/users', [AdminUsers::class, 'index'])->name('users');
     Route::get('/users/{user}', [AdminUsers::class, 'show'])->name('users.show');
