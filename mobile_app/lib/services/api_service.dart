@@ -220,15 +220,16 @@ class ApiService {
   }
 
   // FCM Token
-  static Future<void> updateFcmToken(String token, {String? platform, String? apnsToken}) async {
+  static Future<void> updateFcmToken(String? token, {String? platform, String? apnsToken}) async {
     try {
       final headers = await _headers();
       debugPrint('🔔 Sending FCM token to server...');
-      debugPrint('🔔 Auth header present: ${headers.containsKey('Authorization')}');
-      final body = {
-        'fcm_token': token,
+      final body = <String, String>{
         'device_platform': platform ?? (Platform.isIOS ? 'ios' : 'android'),
       };
+      if (token != null) {
+        body['fcm_token'] = token;
+      }
       if (apnsToken != null) {
         body['apns_token'] = apnsToken;
       }

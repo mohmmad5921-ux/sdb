@@ -15,25 +15,30 @@ class FcmService
     public static function sendToUser(int $userId, string $title, string $body, array $data = []): bool
     {
         $user = \App\Models\User::find($userId);
-        if (!$user || !$user->fcm_token) {
+        if (!$user) {
+            Log::warning("FCM: User #{$userId} not found");
             return false;
         }
 
-        // If iOS user with APNS token, send directly via APNs
+        // If iOS user with APNS token, always try APNs first (most reliable for iOS)
         if ($user->device_platform === 'ios' && $user->apns_token) {
             Log::info("FCM: iOS user #{$userId} — sending via APNs directly");
             $apnsResult = self::sendViaApns($user->apns_token, $title, $body, $data);
 
-            // Fallback to FCM if APNs fails
-            if (!$apnsResult) {
-                Log::warning("FCM: APNs failed for user #{$userId}, falling back to FCM");
-                return self::sendViaFcm($user->fcm_token, $title, $body, $data);
+            if ($apnsResult) {
+                return true;
             }
-            return true;
+
+            Log::warning("FCM: APNs failed for user #{$userId}, trying FCM fallback");
         }
 
-        // Android or iOS without APNS token — use FCM
-        return self::sendViaFcm($user->fcm_token, $title, $body, $data);
+        // Try FCM if we have a token
+        if ($user->fcm_token) {
+            return self::sendViaFcm($user->fcm_token, $title, $body, $data);
+        }
+
+        Log::warning("FCM: No FCM token or APNS token for user #{$userId}");
+        return false;
     }
 
     /**

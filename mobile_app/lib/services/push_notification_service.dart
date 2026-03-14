@@ -55,7 +55,11 @@ class PushNotificationService {
         debugPrint('🔔 FCM Token: ${token.substring(0, 20)}...');
         await _sendTokenToServer(token, apnsToken: apnsTokenStr);
       } else {
-        debugPrint('🔔 FCM Token is null');
+        debugPrint('🔔 FCM Token is null — sending APNs token only');
+        // Still send APNs token even without FCM token
+        if (apnsTokenStr != null) {
+          await _sendTokenToServer(null, apnsToken: apnsTokenStr);
+        }
       }
 
       // Listen for token refresh
@@ -96,11 +100,11 @@ class PushNotificationService {
   }
 
   /// Send FCM token to the backend
-  static Future<void> _sendTokenToServer(String token, {String? apnsToken}) async {
+  static Future<void> _sendTokenToServer(String? token, {String? apnsToken}) async {
     try {
       final platform = Platform.isIOS ? 'ios' : 'android';
       await ApiService.updateFcmToken(token, platform: platform, apnsToken: apnsToken);
-      debugPrint('🔔 FCM token sent to server (platform: $platform)');
+      debugPrint('🔔 FCM token sent to server (platform: $platform, fcm: ${token != null}, apns: ${apnsToken != null})');
     } catch (e) {
       debugPrint('🔔 Failed to send FCM token: $e');
     }
