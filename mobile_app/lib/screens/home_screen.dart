@@ -80,7 +80,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  bool _authInProgress = false;
+
   Future<void> _checkBiometricLock() async {
+    if (_authInProgress) return;
     final enabled = await BiometricService.isEnabled();
     if (enabled && mounted) {
       setState(() => _isLocked = true);
@@ -89,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _authenticateWithBiometric() async {
+    if (_authInProgress) return;
+    _authInProgress = true;
     try {
       final authenticated = await BiometricService.authenticate(
         reason: L10n.of(context).biometricLogin,
@@ -99,6 +104,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('🔐 Biometric auth error: $e');
       if (mounted) setState(() => _isLocked = false);
+    } finally {
+      _authInProgress = false;
     }
   }
 

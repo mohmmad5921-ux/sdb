@@ -59,8 +59,6 @@ class SDBApp extends StatefulWidget {
 
 class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
   final _localeProvider = LocaleProvider();
-  bool _checkingBiometric = false;
-  DateTime? _lastBiometricCheck;
 
   @override
   void initState() {
@@ -82,34 +80,9 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _localeProvider.refreshFromSystem();
-      _checkBiometricOnResume();
     }
   }
 
-  Future<void> _checkBiometricOnResume() async {
-    // Prevent infinite loop: if already checking or checked recently, skip
-    if (_checkingBiometric) return;
-    final now = DateTime.now();
-    if (_lastBiometricCheck != null && now.difference(_lastBiometricCheck!).inSeconds < 5) return;
-
-    // Only check if user is logged in and biometric is enabled
-    final t = await ApiService.token;
-    if (t == null) return;
-
-    final isEnabled = await BiometricService.isEnabled();
-    if (!isEnabled) return;
-
-    _checkingBiometric = true;
-    _lastBiometricCheck = now;
-    try {
-      final didAuth = await BiometricService.authenticate(reason: _localeProvider.strings.biometricLogin);
-      if (!didAuth && mounted) {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (r) => false);
-      }
-    } finally {
-      _checkingBiometric = false;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
