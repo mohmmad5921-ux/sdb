@@ -33,7 +33,11 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('⚠️ Firebase init failed: $e — continuing without Firebase');
+  }
   Stripe.publishableKey = 'pk_test_51T5ScmC6o4Je50IeP0X3wvj9LZgDrtb3v6EKMwglmipSWSO6QqPKjcF1Ar6TGjHzcOArefoHkmVpXcgX4LteVk2T00PtXsDSeK';
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
