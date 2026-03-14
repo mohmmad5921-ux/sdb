@@ -364,7 +364,7 @@ class ApiService {
   // Subscription
   static Future<Map<String, dynamic>> subscribeToPlan(String planId) async {
     try {
-      final r = await http.post(Uri.parse('$baseUrl/subscription/subscribe'), headers: await _headers(),
+      final r = await http.post(Uri.parse('$baseUrl/pkg/subscribe'), headers: await _headers(),
         body: jsonEncode({'plan_id': planId}));
       debugPrint('🔵 subscribeToPlan status: ${r.statusCode}, body: ${r.body.substring(0, r.body.length > 200 ? 200 : r.body.length)}');
       if (r.body.startsWith('{') || r.body.startsWith('[')) {
@@ -379,7 +379,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> createSubscriptionIntent(String planId) async {
     try {
-      final r = await http.post(Uri.parse('$baseUrl/subscription/create-intent'), headers: await _headers(),
+      final r = await http.post(Uri.parse('$baseUrl/pkg/create-intent'), headers: await _headers(),
         body: jsonEncode({'plan_id': planId}));
       debugPrint('🔵 createSubscriptionIntent status: ${r.statusCode}, body: ${r.body.substring(0, r.body.length > 200 ? 200 : r.body.length)}');
       if (r.body.startsWith('{') || r.body.startsWith('[')) {
@@ -394,7 +394,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> confirmSubscription(String paymentIntentId, String planId) async {
     try {
-      final r = await http.post(Uri.parse('$baseUrl/subscription/confirm'), headers: await _headers(),
+      final r = await http.post(Uri.parse('$baseUrl/pkg/confirm'), headers: await _headers(),
         body: jsonEncode({'payment_intent_id': paymentIntentId, 'plan_id': planId}));
       debugPrint('🔵 confirmSubscription status: ${r.statusCode}');
       if (r.body.startsWith('{') || r.body.startsWith('[')) {

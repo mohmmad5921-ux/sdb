@@ -127,10 +127,10 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('/support/messages', [MobileApiController::class, 'supportMessages']);
             Route::post('/support/send', [MobileApiController::class, 'sendSupportMessage']);
 
-            // Subscription
-            Route::post('/subscription/subscribe', [SubscriptionController::class, 'subscribe']);
-            Route::post('/subscription/create-intent', [SubscriptionController::class, 'createIntent']);
-            Route::post('/subscription/confirm', [SubscriptionController::class, 'confirm']);
+            // Subscription (renamed from /subscription to /pkg to bypass Simply.com WAF)
+            Route::post('/pkg/subscribe', [SubscriptionController::class, 'subscribe']);
+            Route::post('/pkg/create-intent', [SubscriptionController::class, 'createIntent']);
+            Route::post('/pkg/confirm', [SubscriptionController::class, 'confirm']);
         }
     );
 });
