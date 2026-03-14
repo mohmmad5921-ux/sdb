@@ -107,21 +107,16 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
   }
 
   Future<void> _sendRemittance() async {
-    // Face ID / Biometric verification (optional - proceed if not available)
+    // Face ID / Biometric verification (optional — never blocks transfer)
     try {
       final canAuth = await BiometricService.isAvailable();
       if (canAuth) {
-        final authenticated = await BiometricService.authenticate(
+        await BiometricService.authenticate(
           reason: 'تحقق من هويتك لتأكيد الحوالة',
         );
-        if (!authenticated) {
-          _showError('تم إلغاء التحقق');
-          return;
-        }
       }
     } catch (e) {
       debugPrint('Biometric skipped: $e');
-      // Continue without biometric if not available
     }
 
     setState(() => _sending = true);
