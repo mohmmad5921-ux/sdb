@@ -232,16 +232,16 @@ const megaNav = computed(() => isAr.value ? [
       {l:'حساب توفير',h:'/savings',d:'أدوات ادخار ذكية'},
     ]},
     { title:'الباقات', links:[
-      {l:'مقارنة الباقات',h:'/plans',d:'Standard · Plus · Premium · Elite'},
+      {l:'مقارنة الباقات',h:'/plans',d:'Personal · Plus · Business · Enterprise'},
       {l:'المعاشات',h:'/salary',d:'استلام راتبك مباشرة'},
     ]},
   ]},
   { id:'cards', label:'البطاقات', cols:[
     { title:'مستويات البطاقات', links:[
-      {l:'Standard 🔵',h:'/cards/standard',d:'مجانية للأبد'},
-      {l:'Plus 🟣',h:'/cards/plus',d:'€3.99/شهر — CVV ديناميكي'},
-      {l:'Premium 🩷',h:'/cards/premium',d:'€7.99/شهر — بطاقة معدنية'},
-      {l:'Elite 🟡',h:'/cards/elite',d:'€14.99/شهر — مدير شخصي'},
+      {l:'Personal 🔵',h:'/cards/standard',d:'€9.99/شهر — 5 بطاقات'},
+      {l:'Plus 🟣',h:'/cards/plus',d:'€19.99/شهر — كاشباك 1%'},
+      {l:'Business 🩷',h:'/cards/premium',d:'€49/شهر — Payment Gateway'},
+      {l:'Enterprise 🟡',h:'/cards/elite',d:'مخصص — مدير حساب مخصص'},
     ]},
     { title:'معلومات البطاقات', links:[
       {l:'نظرة عامة',h:'/cards-info',d:'كل شيء عن بطاقات SDB'},
@@ -296,16 +296,16 @@ const megaNav = computed(() => isAr.value ? [
       {l:'Savings',h:'/savings',d:'Smart saving tools'},
     ]},
     { title:'Plans', links:[
-      {l:'Compare Plans',h:'/plans',d:'Standard · Plus · Premium · Elite'},
+      {l:'Compare Plans',h:'/plans',d:'Personal · Plus · Business · Enterprise'},
       {l:'Salary',h:'/salary',d:'Receive your salary directly'},
     ]},
   ]},
   { id:'cards', label:'Cards', cols:[
     { title:'Card Tiers', links:[
-      {l:'Standard 🔵',h:'/cards/standard',d:'Free forever'},
-      {l:'Plus 🟣',h:'/cards/plus',d:'€3.99/mo — Dynamic CVV'},
-      {l:'Premium 🩷',h:'/cards/premium',d:'€7.99/mo — Metal card'},
-      {l:'Elite 🟡',h:'/cards/elite',d:'€14.99/mo — Personal manager'},
+      {l:'Personal 🔵',h:'/cards/standard',d:'€9.99/mo — 5 cards'},
+      {l:'Plus 🟣',h:'/cards/plus',d:'€19.99/mo — 1% Cashback'},
+      {l:'Business 🩷',h:'/cards/premium',d:'€49/mo — Payment Gateway'},
+      {l:'Enterprise 🟡',h:'/cards/elite',d:'Custom — Dedicated manager'},
     ]},
     { title:'Card Info', links:[
       {l:'Overview',h:'/cards-info',d:'All about SDB cards'},
@@ -364,10 +364,10 @@ const t = computed(() => isAr.value ? {
     { label: 'مقارنة الباقات', href: '/plans' },
   ],
   col2h: 'البطاقات', col2: [
-    { label: 'Standard', href: '/cards/standard' },
+    { label: 'Personal', href: '/cards/standard' },
     { label: 'Plus', href: '/cards/plus' },
-    { label: 'Premium', href: '/cards/premium' },
-    { label: 'Elite', href: '/cards/elite' },
+    { label: 'Business', href: '/cards/premium' },
+    { label: 'Enterprise', href: '/cards/elite' },
     { label: 'نظرة عامة', href: '/cards-info' },
   ],
   col3h: 'الخدمات', col3: [
@@ -409,10 +409,10 @@ const t = computed(() => isAr.value ? {
     { label: 'Compare Plans', href: '/plans' },
   ],
   col2h: 'Cards', col2: [
-    { label: 'Standard', href: '/cards/standard' },
+    { label: 'Personal', href: '/cards/standard' },
     { label: 'Plus', href: '/cards/plus' },
-    { label: 'Premium', href: '/cards/premium' },
-    { label: 'Elite', href: '/cards/elite' },
+    { label: 'Business', href: '/cards/premium' },
+    { label: 'Enterprise', href: '/cards/elite' },
     { label: 'Overview', href: '/cards-info' },
   ],
   col3h: 'Services', col3: [
