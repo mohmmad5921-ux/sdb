@@ -380,6 +380,16 @@ class AppStrings {
   final String support;
   final String orTapToManualCapture;
   final String balance;
+  final String accountNumber;
+  final String iban;
+  final String swiftBic;
+  final String bankAddress;
+  final String interestRate;
+  final String manage;
+  final String customize;
+  final String editAppearance;
+  final String accountStatement;
+  final String moneyProtected;
 
   const AppStrings({
     required this.welcomeBack,
@@ -696,6 +706,16 @@ class AppStrings {
     required this.support,
     required this.orTapToManualCapture,
     required this.balance,
+    required this.accountNumber,
+    required this.iban,
+    required this.swiftBic,
+    required this.bankAddress,
+    required this.interestRate,
+    required this.manage,
+    required this.customize,
+    required this.editAppearance,
+    required this.accountStatement,
+    required this.moneyProtected,
   });
 }
 
@@ -1014,6 +1034,16 @@ const enStrings = AppStrings(
   support: 'Support',
   orTapToManualCapture: 'or tap to capture manually',
   balance: 'Balance',
+  accountNumber: 'Account Number',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Bank Address',
+  interestRate: 'Interest Rate',
+  manage: 'Manage',
+  customize: 'Customize',
+  editAppearance: 'Edit Appearance',
+  accountStatement: 'Account Statement',
+  moneyProtected: 'SDB Bank. Your money is\nprotected and secured.',
 );
 
 const arStrings = AppStrings(
@@ -1331,6 +1361,16 @@ const arStrings = AppStrings(
   support: 'الدعم',
   orTapToManualCapture: 'أو اضغط للتصوير يدوياً',
   balance: 'الرصيد',
+  accountNumber: 'رقم الحساب',
+  iban: 'آيبان',
+  swiftBic: 'سويفت',
+  bankAddress: 'عنوان البنك',
+  interestRate: 'سعر الفائدة',
+  manage: 'إدارة',
+  customize: 'تخصيص',
+  editAppearance: 'تغيير المظهر',
+  accountStatement: 'كشف حساب',
+  moneyProtected: 'SDB Bank — أموالك\nمحمية ومؤمنة.',
 );
 
 /// Provider to manage locale across the app

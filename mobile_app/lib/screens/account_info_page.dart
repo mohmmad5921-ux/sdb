@@ -37,7 +37,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Copied ✓'),
+        content: Text('${L10n.of(context).copied} ✓'),
         backgroundColor: AppTheme.primary,
         duration: const Duration(seconds: 1),
       ),
@@ -132,19 +132,19 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Column(children: [
-              _infoRow('Account Number', _accountNumber(), copyable: true),
+              _infoRow(t.accountNumber, _accountNumber(), copyable: true),
               _divider(),
-              _infoRow('IBAN', _iban(), copyable: true),
+              _infoRow(t.iban, _iban(), copyable: true),
               _divider(),
-              _infoRow('Swift/BIC', 'SDBSYDAM', copyable: true),
+              _infoRow(t.swiftBic, 'SDBSYDAM', copyable: true),
               _divider(),
-              _infoRowMulti('Bank Address', [
+              _infoRowMulti(t.bankAddress, [
                 'SDB Bank',
                 'بنك سوريا الرقمي',
                 'دمشق، سوريا',
               ], copyable: true),
               _divider(),
-              _infoNavRow('Interest Rate', '1 %', () {}),
+              _infoNavRow(t.interestRate, '1 %', () {}),
             ]),
           ),
           const SizedBox(height: 28),
@@ -152,7 +152,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           // ── Manage Section (Lunar: "Administrer") ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Text('Manage', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(t.manage, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Container(
@@ -163,11 +163,11 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Column(children: [
-              _manageRow(Icons.credit_card_rounded, 'Cards', trailing: '${(acc['cards_count'] ?? 1)}', onTap: () {}),
+              _manageRow(Icons.credit_card_rounded, t.navCards, trailing: '${(acc['cards_count'] ?? 1)}', onTap: () {}),
               _manageDivider(),
-              _manageRow(Icons.upload_rounded, 'Account Statement', onTap: () {}),
+              _manageRow(Icons.upload_rounded, t.accountStatement, onTap: () {}),
               _manageDivider(),
-              _manageRow(Icons.info_outline_rounded, 'Distribution', onTap: () {
+              _manageRow(Icons.info_outline_rounded, t.distribution, onTap: () {
                 Navigator.push(context, MaterialPageRoute(
                   builder: (_) => AccountDistributionPage(account: acc),
                 ));
@@ -179,7 +179,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           // ── Customize Section (Lunar: "Tilpas") ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Text('Customize', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(t.customize, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Container(
@@ -190,15 +190,9 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Column(children: [
-              _manageRow(Icons.image_rounded, 'Edit Appearance', onTap: () {
+              _manageRow(Icons.image_rounded, t.editAppearance, onTap: () {
                 Navigator.push(context, MaterialPageRoute(
                   builder: (_) => AccountBackgroundPicker(account: acc),
-                ));
-              }),
-              _manageDivider(),
-              _manageRow(Icons.edit_rounded, 'Edit Name', onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => AccountRenamePage(account: acc),
                 ));
               }),
             ]),
@@ -210,12 +204,12 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
             Icon(Icons.verified_rounded, size: 24, color: AppTheme.primary),
             const SizedBox(height: 8),
             Text(
-              'SDB Bank. Your money is\nprotected and secured.',
+              t.moneyProtected,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: AppTheme.textMuted, height: 1.4),
             ),
             const SizedBox(height: 4),
-            Text('Learn more', style: TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w500)),
+            Text(t.learnMore, style: TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w500)),
           ])),
           const SizedBox(height: 32),
         ]),

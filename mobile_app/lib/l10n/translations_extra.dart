@@ -317,6 +317,16 @@ const trStrings = AppStrings(
   support: 'Destek',
   orTapToManualCapture: 'veya manuel cekim icin dokunun',
   balance: 'Bakiye',
+  accountNumber: 'Hesap Numarası',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Banka Adresi',
+  interestRate: 'Faiz Oranı',
+  manage: 'Yönet',
+  customize: 'Özelleştir',
+  editAppearance: 'Görünümü Düzenle',
+  accountStatement: 'Hesap Özeti',
+  moneyProtected: 'SDB Bank — Paranız\nkorunmaktadır.',
 );
 
 // ═══════════ DANISH (da) ═══════════
@@ -636,6 +646,16 @@ const daStrings = AppStrings(
   support: 'Support',
   orTapToManualCapture: 'eller tryk for manuel optagelse',
   balance: 'Saldo',
+  accountNumber: 'Kontonummer',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Bankadresse',
+  interestRate: 'Rentesats',
+  manage: 'Administrer',
+  customize: 'Tilpas',
+  editAppearance: 'Rediger udseende',
+  accountStatement: 'Kontoudtog',
+  moneyProtected: 'SDB Bank — Dine penge\ner beskyttet og sikret.',
 );
 
 // ═══════════ GERMAN (de) ═══════════
@@ -955,6 +975,16 @@ const deStrings = AppStrings(
   support: 'Support',
   orTapToManualCapture: 'oder tippen fuer manuelle Aufnahme',
   balance: 'Guthaben',
+  accountNumber: 'Kontonummer',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Bankadresse',
+  interestRate: 'Zinssatz',
+  manage: 'Verwalten',
+  customize: 'Anpassen',
+  editAppearance: 'Aussehen bearbeiten',
+  accountStatement: 'Kontoauszug',
+  moneyProtected: 'SDB Bank — Ihr Geld\nist geschützt und gesichert.',
 );
 
 // ═══════════ FRENCH (fr) ═══════════
@@ -1274,6 +1304,16 @@ const frStrings = AppStrings(
   support: 'Support',
   orTapToManualCapture: 'ou appuyez pour capture manuelle',
   balance: 'Solde',
+  accountNumber: 'Numéro de compte',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Adresse de la banque',
+  interestRate: 'Taux d\'intérêt',
+  manage: 'Gérer',
+  customize: 'Personnaliser',
+  editAppearance: 'Modifier l\'apparence',
+  accountStatement: 'Relevé de compte',
+  moneyProtected: 'SDB Bank — Votre argent\nest protégé et sécurisé.',
 );
 
 // ═══════════ SWEDISH (sv) ═══════════
@@ -1593,6 +1633,16 @@ const svStrings = AppStrings(
   support: 'Support',
   orTapToManualCapture: 'eller tryck for manuell tagning',
   balance: 'Saldo',
+  accountNumber: 'Kontonummer',
+  iban: 'IBAN',
+  swiftBic: 'Swift/BIC',
+  bankAddress: 'Bankadress',
+  interestRate: 'Ränta',
+  manage: 'Hantera',
+  customize: 'Anpassa',
+  editAppearance: 'Ändra utseende',
+  accountStatement: 'Kontoutdrag',
+  moneyProtected: 'SDB Bank — Dina pengar\när skyddade och säkrade.',
 );
 
 // ═══════════ EXTRA KEYS PATCH ═══════════

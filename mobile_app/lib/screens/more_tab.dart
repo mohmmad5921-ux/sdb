@@ -218,7 +218,7 @@ class _MoreTabState extends State<MoreTab> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(t.editProfile, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 20),
-        _editField(t.fullName, nameCtrl, Icons.person_outline),
+        _editField(t.fullName, nameCtrl, Icons.person_outline, readOnly: true),
         const SizedBox(height: 12),
         _editField(t.username, usernameCtrl, Icons.alternate_email),
         const SizedBox(height: 12),
@@ -227,7 +227,6 @@ class _MoreTabState extends State<MoreTab> {
         SizedBox(width: double.infinity, child: ElevatedButton(
           onPressed: () async {
             final data = <String, dynamic>{};
-            if (nameCtrl.text != (_user?['full_name'] ?? '')) data['full_name'] = nameCtrl.text;
             if (usernameCtrl.text != (_user?['username'] ?? '')) data['username'] = usernameCtrl.text;
             if (phoneCtrl.text != (_user?['phone'] ?? '')) data['phone'] = phoneCtrl.text;
             if (data.isEmpty) { Navigator.pop(context); return; }
@@ -248,16 +247,23 @@ class _MoreTabState extends State<MoreTab> {
     ));
   }
 
-  Widget _editField(String hint, TextEditingController ctrl, IconData icon) {
+  Widget _editField(String hint, TextEditingController ctrl, IconData icon, {bool readOnly = false}) {
     return Container(
-      decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.border)),
+      decoration: BoxDecoration(
+        color: readOnly ? AppTheme.bgMuted.withValues(alpha: 0.5) : AppTheme.bgMuted,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.border),
+      ),
       child: TextField(
         controller: ctrl,
-        style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary),
+        readOnly: readOnly,
+        enabled: !readOnly,
+        style: TextStyle(fontSize: 14, color: readOnly ? AppTheme.textMuted : AppTheme.textPrimary),
         decoration: InputDecoration(
           hintText: hint, hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
           prefixIcon: Icon(icon, size: 18, color: AppTheme.textMuted),
-          border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
+          suffixIcon: readOnly ? const Icon(Icons.lock_outline, size: 14, color: AppTheme.textMuted) : null,
+          border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, disabledBorder: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
