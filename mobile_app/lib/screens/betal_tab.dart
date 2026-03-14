@@ -84,7 +84,7 @@ class BetalTab extends StatelessWidget {
               _buildPaymentOption(
                 context,
                 Icons.flight_takeoff_rounded,
-                '🇸🇾 حوالات سوريا',
+                'حوالات سوريا',
                 'إرسال أموال لسوريا — استلام نقدي',
                 () => Navigator.pushNamed(context, '/remittance'),
               ),

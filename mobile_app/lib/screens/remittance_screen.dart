@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
 import '../services/biometric_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/syria_flag.dart';
 import 'remittance_receipt_screen.dart';
 
 class RemittanceScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
 
   String _receiveCurrency = 'SYP';
   Map<String, Map<String, dynamic>> _receiveCurrencies = {
-    'SYP': {'name': 'ليرة سورية', 'flag': '🇸🇾', 'rate': 13500.0},
+    'SYP': {'name': 'ليرة سورية', 'flag': 'SY', 'rate': 13500.0},
     'USD': {'name': 'دولار أمريكي', 'flag': '🇺🇸', 'rate': 1.08},
     'TRY': {'name': 'ليرة تركية', 'flag': '🇹🇷', 'rate': 34.2},
   };
@@ -106,17 +107,21 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
   }
 
   Future<void> _sendRemittance() async {
-    // Face ID / Biometric verification
+    // Face ID / Biometric verification (optional - proceed if not available)
     try {
-      final authenticated = await BiometricService.authenticate(
-        reason: 'تحقق من هويتك لتأكيد الحوالة',
-      );
-      if (!authenticated) {
-        _showError('فشل التحقق من الهوية');
-        return;
+      final canAuth = await BiometricService.isAvailable();
+      if (canAuth) {
+        final authenticated = await BiometricService.authenticate(
+          reason: 'تحقق من هويتك لتأكيد الحوالة',
+        );
+        if (!authenticated) {
+          _showError('تم إلغاء التحقق');
+          return;
+        }
       }
     } catch (e) {
-      debugPrint('Biometric error: $e');
+      debugPrint('Biometric skipped: $e');
+      // Continue without biometric if not available
     }
 
     setState(() => _sending = true);
@@ -242,7 +247,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(children: [
-          const Text('🇸🇾', style: TextStyle(fontSize: 18)),
+          const SyriaFlag(size: 18),
           const SizedBox(width: 8),
           Text('اختر المحافظة التي يتواجد فيها المستلم', style: TextStyle(color: AppTheme.primary, fontSize: 13, fontWeight: FontWeight.w600)),
         ]),
@@ -442,7 +447,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Row(children: [
-              Text(_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🇸🇾', style: const TextStyle(fontSize: 20)),
+              if (_receiveCurrency == 'SYP') const SyriaFlag(size: 20) else Text(_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🏳️', style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 10),
               Expanded(child: Text(
                 '$_receiveCurrency — ${_receiveCurrencies[_receiveCurrency]?['name'] ?? ''}',
@@ -463,7 +468,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text('${_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🇸🇾'} ', style: const TextStyle(fontSize: 14)),
+              if (_receiveCurrency == 'SYP') const SyriaFlag(size: 14) else Text('${_receiveCurrencies[_receiveCurrency]?['flag'] ?? '🏳️'} ', style: const TextStyle(fontSize: 14)),
               Text(
                 'المستلم يحصل على: ${_formatNumber((double.tryParse(_amountCtrl.text) ?? 0) * _currentRate)} $_receiveCurrency',
                 style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w700, fontSize: 13),
@@ -609,7 +614,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> {
             border: Border.all(color: AppTheme.border),
           ),
           child: Column(children: [
-            const Text('🇸🇾', style: TextStyle(fontSize: 32)),
+            const SyriaFlag(size: 32),
             const SizedBox(height: 6),
             const Text('تأكيد الحوالة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const Divider(height: 24, color: AppTheme.border),
