@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -132,7 +133,7 @@ class _DepositScreenState extends State<DepositScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('إيداع', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
+        title: const Text(L10n.of(context).deposit, style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111827), fontSize: 20)),
         backgroundColor: Colors.white, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFF111827), size: 20), onPressed: () => Navigator.pop(context)),
       ),
@@ -262,7 +263,7 @@ class _DepositScreenState extends State<DepositScreen> {
                   : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Icon(Icons.credit_card_rounded, size: 20, color: Colors.white),
                       SizedBox(width: 10),
-                      Text('إيداع عبر Stripe', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text(L10n.of(context).depositViaStripe, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
                     ])),
               ),
             ),
@@ -276,7 +277,7 @@ class _DepositScreenState extends State<DepositScreen> {
                 Row(children: [
                   Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF7C3AED)),
                   SizedBox(width: 8),
-                  Text('وضع الاختبار', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
+                  Text(L10n.of(context).testMode, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
                 ]),
                 SizedBox(height: 6),
                 Text('بطاقة تجريبية: 4242 4242 4242 4242\nتاريخ: 12/27  |  CVC: 123', style: TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w500, height: 1.5)),

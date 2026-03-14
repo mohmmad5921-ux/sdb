@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
@@ -114,7 +115,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
           ),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('الدعم', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text(L10n.of(context).support, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             Text(
               _adminActive ? '👤 موظف متصل' : '🤖 SDB AI',
               style: const TextStyle(fontSize: 11, color: Colors.white70),
@@ -132,7 +133,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             child: const Row(children: [
               Icon(Icons.person_rounded, color: Color(0xFF3B82F6), size: 18),
               SizedBox(width: 8),
-              Text('تم تحويلك لموظف دعم', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.w600)),
+              Text(L10n.of(context).transferredToAgent, style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.w600)),
             ]),
           ),
 
@@ -170,7 +171,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         child: const Center(child: Text('💬', style: TextStyle(fontSize: 40))),
       ),
       const SizedBox(height: 16),
-      const Text('مرحباً بك في الدعم', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+      const Text(L10n.of(context).welcomeToSupport, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
       const SizedBox(height: 8),
       const Text('اسأل أي سؤال — سيجيبك مساعدنا الذكي\nأو سيتولى موظف الرد عليك', style: TextStyle(fontSize: 13, color: AppTheme.textMuted), textAlign: TextAlign.center),
       const SizedBox(height: 28),

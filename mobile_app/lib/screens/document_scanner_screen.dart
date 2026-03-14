@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';

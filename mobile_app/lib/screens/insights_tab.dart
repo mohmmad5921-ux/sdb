@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -139,7 +140,7 @@ class _InsightsTabState extends State<InsightsTab> {
   }
 
   String _accountLabel() {
-    if (_selectedAccountId == null) return 'جميع الحسابات';
+    if (_selectedAccountId == null) return L10n.of(context).allAccounts;
     final acc = _accounts.firstWhere((a) => a['id'] == _selectedAccountId, orElse: () => {});
     return acc['name'] ?? acc['currency']?['code'] ?? 'حساب';
   }
@@ -202,7 +203,7 @@ class _InsightsTabState extends State<InsightsTab> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text('الإحصائيات', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                  Text(L10n.of(context).insights, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
                 ]),
                 GestureDetector(
                   onTap: () => _showSettings(context),
@@ -325,7 +326,7 @@ class _InsightsTabState extends State<InsightsTab> {
           // Account picker
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('الحسابات', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(L10n.of(context).accounts, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -344,7 +345,7 @@ class _InsightsTabState extends State<InsightsTab> {
                       // All accounts
                       ListTile(
                         leading: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.primary),
-                        title: const Text('جميع الحسابات', style: TextStyle(fontWeight: FontWeight.w600)),
+                        title: const Text(L10n.of(context).allAccounts, style: TextStyle(fontWeight: FontWeight.w600)),
                         trailing: tempAccount == -1 ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
                         onTap: () { setSheetState(() => tempAccount = -1); Navigator.pop(pickCtx); },
                       ),
@@ -367,7 +368,7 @@ class _InsightsTabState extends State<InsightsTab> {
                     const Text('اختر حساب', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                     const SizedBox(height: 2),
                     Text(
-                      tempAccount == -1 ? 'جميع الحسابات' : (_accounts.firstWhere((a) => a['id'] == tempAccount, orElse: () => {'name': 'حساب'})['name'] ?? 'حساب'),
+                      tempAccount == -1 ? L10n.of(context).allAccounts : (_accounts.firstWhere((a) => a['id'] == tempAccount, orElse: () => {'name': 'حساب'})['name'] ?? 'حساب'),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
                     ),
                   ]),
@@ -381,7 +382,7 @@ class _InsightsTabState extends State<InsightsTab> {
           // Period
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('الفترة الزمنية', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(L10n.of(context).timePeriod, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -391,7 +392,7 @@ class _InsightsTabState extends State<InsightsTab> {
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('اختر الفترة', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                  const Text(L10n.of(context).selectPeriod, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                   const SizedBox(height: 2),
                   Text(
                     _timeFilter == 0 ? 'آخر يوم عمل في الشهر' : _timeFilter == 1 ? 'السنة الحالية' : 'كل الفترات',
@@ -518,7 +519,7 @@ class _InsightsTabState extends State<InsightsTab> {
       return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(Icons.donut_large_rounded, size: 60, color: AppTheme.textMuted.withValues(alpha: 0.2)),
         const SizedBox(height: 12),
-        const Text('لا توجد بيانات', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+        const Text(L10n.of(context).noData, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
       ]));
     }
 
@@ -633,7 +634,7 @@ class _InsightsTabState extends State<InsightsTab> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: const [
-            Text('الفئات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            Text(L10n.of(context).categories, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
             SizedBox(width: 4),
             Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
           ]),
@@ -657,7 +658,7 @@ class _InsightsTabState extends State<InsightsTab> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text('المعاملات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+        child: Text(L10n.of(context).transactions, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
       ),
       const SizedBox(height: 12),
       if (data.isEmpty)
@@ -816,7 +817,7 @@ class _InsightsTabState extends State<InsightsTab> {
           // Transactions in this category
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('المعاملات', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(L10n.of(context).transactions, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
 
@@ -899,7 +900,7 @@ class _InsightsTabState extends State<InsightsTab> {
     child: Center(child: Column(children: [
       Icon(Icons.insights_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
       const SizedBox(height: 12),
-      const Text('لا توجد بيانات لهذه الفترة', style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
+      const Text(L10n.of(context).noDataPeriod, style: TextStyle(fontSize: 14, color: AppTheme.textMuted)),
     ])),
   );
 

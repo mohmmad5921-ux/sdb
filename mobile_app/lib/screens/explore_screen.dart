@@ -17,7 +17,7 @@ class ExploreScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('استكشف', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+              const Text(L10n.of(context).explore, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(

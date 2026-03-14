@@ -200,7 +200,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                 _divider(),
                 _settingsRow(Icons.face_rounded, t.biometricLogin, trailing: _toggle(_biometrics, _toggleBiometric)),
                 _divider(),
-                _settingsRow(Icons.notifications_active_outlined, 'الإشعارات', trailing: _toggle(_notifications, _toggleNotifications)),
+                _settingsRow(Icons.notifications_active_outlined, t.notifications, trailing: _toggle(_notifications, _toggleNotifications)),
               ]),
             ),
             const SizedBox(height: 32),
@@ -313,7 +313,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذّر تغيير الأيقونة'), backgroundColor: AppTheme.danger),
+          SnackBar(content: Text(L10n.of(context).iconChangeFailed), backgroundColor: AppTheme.danger),
         );
       }
     }
@@ -346,11 +346,11 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
             ),
             const SizedBox(height: 16),
 
-            const Text('المظهر والصوت', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            Text(t.appearanceAndSound, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 24),
 
             // Theme selector (Light / Dark) - like Lunar
-            const Text('سمة التطبيق', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+            Text(t.appTheme, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
@@ -375,7 +375,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                       _miniRow(const Color(0xFF3F51B5)),
                       _miniRow(const Color(0xFF009688)),
                       const Spacer(),
-                      Text('فاتح', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 0 ? AppTheme.primary : AppTheme.textMuted)),
+                      Text(t.light, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 0 ? AppTheme.primary : AppTheme.textMuted)),
                       const SizedBox(height: 8),
                     ]),
                   ),
@@ -400,7 +400,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                       _miniRow(const Color(0xFF3F51B5), dark: true),
                       _miniRow(const Color(0xFF009688), dark: true),
                       const Spacer(),
-                      Text('داكن', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 1 ? AppTheme.primary : Colors.white54)),
+                      Text(t.dark, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _themeMode == 1 ? AppTheme.primary : Colors.white54)),
                       const SizedBox(height: 8),
                     ]),
                   ),
@@ -421,7 +421,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                       decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(10)),
                       child: const Icon(Icons.apps_rounded, size: 17, color: AppTheme.textSecondary),
                     ),
-                    title: const Text('تخصيص أيقونة التطبيق', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                    title: Text(t.customizeAppIcon, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -476,7 +476,7 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
                     child: const Icon(Icons.volume_up_rounded, size: 17, color: AppTheme.textSecondary),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(child: Text('الأصوات في التطبيق', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+                  const Expanded(child: Text(t.appSounds, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
                   GestureDetector(
                     onTap: () async {
                       final newVal = !_soundEnabled;

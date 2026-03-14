@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -71,7 +72,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           const SizedBox(width: 10),
           const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('SDB AI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            Text('مساعدك الذكي', style: TextStyle(fontSize: 11, color: Colors.white70)),
+            Text(L10n.of(context).yourSmartAssistant, style: TextStyle(fontSize: 11, color: Colors.white70)),
           ]),
         ]),
         actions: [
@@ -115,7 +116,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           child: const Center(child: Text('🤖', style: TextStyle(fontSize: 40))),
         ),
         const SizedBox(height: 16),
-        const Text('مرحباً بك في SDB AI', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+        const Text(L10n.of(context).welcomeToAI, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
         const SizedBox(height: 8),
         const Text('مساعدك الذكي لكل ما يخص حسابك البنكي', style: TextStyle(fontSize: 13, color: AppTheme.textMuted), textAlign: TextAlign.center),
         const SizedBox(height: 28),

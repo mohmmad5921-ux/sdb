@@ -267,6 +267,110 @@ class AppStrings {
   final String selectTheme;
   final String settings;
 
+  // KYC & Verification
+  final String verifyIdentityTitle;
+  final String scanDocument;
+  final String selfieCapture;
+  final String documentData;
+  final String nameExtracted;
+  final String registeredName;
+  final String nameVerification;
+  final String scanComplete;
+  final String isPhotoAndInfoClear;
+  final String yesClear;
+  final String uploadDocuments;
+  final String uploadingDocs;
+  final String docUploadSuccess;
+  final String docUploadedReview;
+  final String selectDocType;
+  final String selectUploadMethod;
+  final String camera;
+  final String gallery;
+  final String reScan;
+  final String reScanDoc;
+  final String reCapture;
+  final String tapToOpenScanner;
+  final String tapToOpenCamera;
+  final String selectFromGallery;
+  final String scannerAutoCapture;
+  final String captureDocPhoto;
+  final String captureSelfie;
+  final String faceDetected;
+  final String autoScan;
+  final String additionalDocsRequired;
+  final String resubmitDocs;
+
+  // Transaction detail
+  final String transactionReceipt;
+  final String transactionDetails;
+  final String copyReceipt;
+  final String receiptCopied;
+  final String addNote;
+  final String noteSaved;
+  final String report;
+  final String reportProblem;
+  final String reportConfirm;
+  final String reportSent;
+  final String addReceipt;
+  final String uploadingReceipt;
+  final String receiptUploaded;
+
+  // Pending account
+  final String accountUnderReview;
+  final String thankYou;
+  final String accountExistsAlready;
+
+  // Phone verification
+  final String confirmPhoneNumber;
+  final String enterPhoneAndMethod;
+  final String selectVerificationMethod;
+  final String sendVerificationCode;
+  final String enterVerificationCode;
+  final String confirmCode;
+  final String phoneVerifiedSuccess;
+  final String didntReceiveCode;
+
+  // Login & Auth
+  final String sessionExpired;
+  final String registerNewOrLogin;
+  final String loginTitle;
+  final String logOut;
+
+  // Deposit
+  final String depositViaStripe;
+  final String testCard;
+  final String securePaymentsVia;
+
+  // Support & AI
+  final String welcomeToSupport;
+  final String transferredToAgent;
+  final String contactSupportShort;
+  final String welcomeToAI;
+  final String yourSmartAssistant;
+  final String askAIAnything;
+
+  // Misc
+  final String notificationsScreen;
+  final String noNotificationsHere;
+  final String options;
+  final String chooseLanguage;
+  final String goBack;
+  final String learnMore;
+  final String delete;
+  final String note;
+  final String copied;
+  final String linkCopied;
+  final String recentTransfers;
+  final String distribution;
+  final String chooseCardDesign;
+  final String testMode;
+  final String uploading;
+  final String transitioning;
+  final String paymentLinkCopied;
+  final String support;
+  final String orTapToManualCapture;
+  final String balance;
+
   const AppStrings({
     required this.welcomeBack,
     required this.createAccount,
@@ -485,6 +589,94 @@ class AppStrings {
     required this.phoneNumber,
     required this.selectTheme,
     required this.settings,
+    required this.verifyIdentityTitle,
+    required this.scanDocument,
+    required this.selfieCapture,
+    required this.documentData,
+    required this.nameExtracted,
+    required this.registeredName,
+    required this.nameVerification,
+    required this.scanComplete,
+    required this.isPhotoAndInfoClear,
+    required this.yesClear,
+    required this.uploadDocuments,
+    required this.uploadingDocs,
+    required this.docUploadSuccess,
+    required this.docUploadedReview,
+    required this.selectDocType,
+    required this.selectUploadMethod,
+    required this.camera,
+    required this.gallery,
+    required this.reScan,
+    required this.reScanDoc,
+    required this.reCapture,
+    required this.tapToOpenScanner,
+    required this.tapToOpenCamera,
+    required this.selectFromGallery,
+    required this.scannerAutoCapture,
+    required this.captureDocPhoto,
+    required this.captureSelfie,
+    required this.faceDetected,
+    required this.autoScan,
+    required this.additionalDocsRequired,
+    required this.resubmitDocs,
+    required this.transactionReceipt,
+    required this.transactionDetails,
+    required this.copyReceipt,
+    required this.receiptCopied,
+    required this.addNote,
+    required this.noteSaved,
+    required this.report,
+    required this.reportProblem,
+    required this.reportConfirm,
+    required this.reportSent,
+    required this.addReceipt,
+    required this.uploadingReceipt,
+    required this.receiptUploaded,
+    required this.accountUnderReview,
+    required this.thankYou,
+    required this.accountExistsAlready,
+    required this.confirmPhoneNumber,
+    required this.enterPhoneAndMethod,
+    required this.selectVerificationMethod,
+    required this.sendVerificationCode,
+    required this.enterVerificationCode,
+    required this.confirmCode,
+    required this.phoneVerifiedSuccess,
+    required this.didntReceiveCode,
+    required this.sessionExpired,
+    required this.registerNewOrLogin,
+    required this.loginTitle,
+    required this.logOut,
+    required this.depositViaStripe,
+    required this.testCard,
+    required this.securePaymentsVia,
+    required this.welcomeToSupport,
+    required this.transferredToAgent,
+    required this.contactSupportShort,
+    required this.welcomeToAI,
+    required this.yourSmartAssistant,
+    required this.askAIAnything,
+    required this.notificationsScreen,
+    required this.noNotificationsHere,
+    required this.options,
+    required this.chooseLanguage,
+    required this.goBack,
+    required this.learnMore,
+    required this.delete,
+    required this.note,
+    required this.copied,
+    required this.linkCopied,
+    required this.recentTransfers,
+    required this.distribution,
+    required this.chooseCardDesign,
+    required this.testMode,
+    required this.uploading,
+    required this.transitioning,
+    required this.paymentLinkCopied,
+    required this.support,
+    required this.orTapToManualCapture,
+    required this.balance,
   });
 }
 
@@ -706,6 +898,94 @@ const enStrings = AppStrings(
   phoneNumber: 'Phone Number',
   selectTheme: 'Select Theme',
   settings: 'Settings',
+  verifyIdentityTitle: 'Identity Verification',
+  scanDocument: 'Scan Document',
+  selfieCapture: 'Selfie Capture',
+  documentData: 'Document Data',
+  nameExtracted: 'Name extracted from document:',
+  registeredName: 'Registered name:',
+  nameVerification: 'Name Verification',
+  scanComplete: 'Scan Complete',
+  isPhotoAndInfoClear: 'Is the photo and information clear?',
+  yesClear: 'Yes, clear',
+  uploadDocuments: 'Upload Documents',
+  uploadingDocs: 'Uploading documents...',
+  docUploadSuccess: 'Document uploaded successfully!',
+  docUploadedReview: 'Document uploaded. It will be reviewed by our team.',
+  selectDocType: 'Select Document Type',
+  selectUploadMethod: 'Select Upload Method',
+  camera: 'Camera',
+  gallery: 'Photo Gallery',
+  reScan: 'Re-scan',
+  reScanDoc: 'Re-scan Document',
+  reCapture: 'Retake',
+  tapToOpenScanner: 'Tap to open scanner',
+  tapToOpenCamera: 'Tap to open camera',
+  selectFromGallery: 'Choose photo from gallery',
+  scannerAutoCapture: 'Camera will auto-scan your document and verify your data',
+  captureDocPhoto: 'Capture document photo',
+  captureSelfie: 'Take a clear selfie for comparison with document photo',
+  faceDetected: 'Face detected',
+  autoScan: 'Auto-scan',
+  additionalDocsRequired: 'Additional documents required',
+  resubmitDocs: 'Resubmit Documents',
+  transactionReceipt: 'Transaction Receipt',
+  transactionDetails: 'Details',
+  copyReceipt: 'Copy Receipt',
+  receiptCopied: 'Receipt copied',
+  addNote: 'Add Note',
+  noteSaved: 'Note saved',
+  report: 'Report',
+  reportProblem: 'Report Problem',
+  reportConfirm: 'Do you want to report this transaction? It will be reviewed by our support team.',
+  reportSent: 'Report sent',
+  addReceipt: 'Add Receipt',
+  uploadingReceipt: 'Uploading receipt...',
+  receiptUploaded: 'Receipt uploaded successfully',
+  accountUnderReview: 'Your account is under review',
+  thankYou: 'Thank you!',
+  accountExistsAlready: 'Account already exists',
+  confirmPhoneNumber: 'Confirm Phone Number',
+  enterPhoneAndMethod: 'Enter your phone number and choose a code delivery method',
+  selectVerificationMethod: 'Choose code delivery method',
+  sendVerificationCode: 'We will send a 6-digit verification code',
+  enterVerificationCode: 'Enter verification code',
+  confirmCode: 'Confirm Code',
+  phoneVerifiedSuccess: 'Your phone number has been verified successfully',
+  didntReceiveCode: 'Didn't receive the code? ',
+  sessionExpired: 'Session expired — please log in again',
+  registerNewOrLogin: 'Register a new account or use your email to log in',
+  loginTitle: 'Log In',
+  logOut: 'Log Out',
+  depositViaStripe: 'Deposit via Stripe',
+  testCard: 'Test card: 4242 4242 4242 4242\nExpiry: 12/27  |  CVC: 123',
+  securePaymentsVia: 'Secure payments via ',
+  welcomeToSupport: 'Welcome to Support',
+  transferredToAgent: 'You have been transferred to a support agent',
+  contactSupportShort: 'Contact Support',
+  welcomeToAI: 'Welcome to SDB AI',
+  yourSmartAssistant: 'Your Smart Assistant',
+  askAIAnything: 'Ask any question — our AI will answer or a team member will respond',
+  notificationsScreen: 'Notifications',
+  noNotificationsHere: 'Your notifications will appear here',
+  options: 'Options',
+  chooseLanguage: 'Choose your language',
+  goBack: 'Go Back',
+  learnMore: 'Learn More',
+  delete: 'Delete',
+  note: 'Note',
+  copied: 'Copied',
+  linkCopied: 'Link copied',
+  recentTransfers: 'Recent Transfers',
+  distribution: 'Distribution',
+  chooseCardDesign: 'Choose Card Design',
+  testMode: 'Test Mode',
+  uploading: 'Uploading...',
+  transitioning: 'Transitioning...',
+  paymentLinkCopied: 'Payment link copied',
+  support: 'Support',
+  orTapToManualCapture: 'or tap to capture manually',
+  balance: 'Balance',
 );
 
 const arStrings = AppStrings(
@@ -926,6 +1206,94 @@ const arStrings = AppStrings(
   phoneNumber: 'رقم هاتف',
   selectTheme: 'اختر المظهر',
   settings: 'الإعدادات',
+  verifyIdentityTitle: 'التحقق من الهوية',
+  scanDocument: 'مسح المستندات',
+  selfieCapture: 'صورة سيلفي',
+  documentData: 'بيانات المستند',
+  nameExtracted: 'الاسم المستخرج من المستند:',
+  registeredName: 'الاسم المسجل:',
+  nameVerification: 'التحقق من الاسم',
+  scanComplete: 'تم المسح',
+  isPhotoAndInfoClear: 'هل الصورة والمعلومات واضحة؟',
+  yesClear: 'نعم، واضحة',
+  uploadDocuments: 'رفع المستندات',
+  uploadingDocs: 'جاري رفع المستندات...',
+  docUploadSuccess: 'تم رفع المستند بنجاح!',
+  docUploadedReview: 'تم رفع المستند بنجاح. سيتم مراجعته من قبل فريقنا.',
+  selectDocType: 'اختر نوع المستند',
+  selectUploadMethod: 'اختر طريقة الرفع',
+  camera: 'الكاميرا',
+  gallery: 'معرض الصور',
+  reScan: 'إعادة المسح',
+  reScanDoc: 'إعادة مسح المستند',
+  reCapture: 'إعادة التصوير',
+  tapToOpenScanner: 'اضغط لفتح السكانر',
+  tapToOpenCamera: 'اضغط لفتح الكاميرا',
+  selectFromGallery: 'اختر صورة من المعرض',
+  scannerAutoCapture: 'الكاميرا ستمسح مستندك تلقائياً وتتحقق من بياناتك',
+  captureDocPhoto: 'التقط صورة للمستند',
+  captureSelfie: 'التقط سيلفي واضح للمقارنة مع صورة المستند',
+  faceDetected: 'وجه مكتشف',
+  autoScan: 'أو اضغط للتصوير يدوياً',
+  additionalDocsRequired: 'مطلوب مستندات إضافية',
+  resubmitDocs: 'إعادة إرسال المستندات',
+  transactionReceipt: 'إيصال المعاملة',
+  transactionDetails: 'التفاصيل',
+  copyReceipt: 'نسخ الإيصال',
+  receiptCopied: 'تم نسخ الإيصال',
+  addNote: 'إضافة ملاحظة',
+  noteSaved: 'تم حفظ الملاحظة',
+  report: 'إبلاغ',
+  reportProblem: 'الإبلاغ عن مشكلة',
+  reportConfirm: 'هل تريد الإبلاغ عن هذه المعاملة؟ سيتم مراجعتها من قبل فريق الدعم.',
+  reportSent: 'تم إرسال البلاغ',
+  addReceipt: 'إضافة إيصال',
+  uploadingReceipt: 'جاري رفع الإيصال...',
+  receiptUploaded: 'تم رفع الإيصال بنجاح',
+  accountUnderReview: 'حسابك قيد المراجعة',
+  thankYou: 'شكراً لك!',
+  accountExistsAlready: 'حساب موجود مسبقاً',
+  confirmPhoneNumber: 'تأكيد رقم الهاتف',
+  enterPhoneAndMethod: 'أدخل رقم هاتفك واختر طريقة استلام الرمز',
+  selectVerificationMethod: 'اختر طريقة استلام الرمز',
+  sendVerificationCode: 'سنرسل رمز تحقق مكون من 6 أرقام',
+  enterVerificationCode: 'أدخل رمز التحقق',
+  confirmCode: 'تأكيد الرمز',
+  phoneVerifiedSuccess: 'تم تأكيد رقم هاتفك بنجاح',
+  didntReceiveCode: 'لم تستلم الرمز؟ ',
+  sessionExpired: 'انتهت الجلسة — يرجى تسجيل الدخول مجدداً',
+  registerNewOrLogin: 'سجّل حساب جديد أو استخدم بريدك الإلكتروني للدخول',
+  loginTitle: 'تسجيل الدخول',
+  logOut: 'تسجيل الخروج',
+  depositViaStripe: 'إيداع عبر Stripe',
+  testCard: 'بطاقة تجريبية: 4242 4242 4242 4242\nتاريخ: 12/27  |  CVC: 123',
+  securePaymentsVia: 'مدفوعات آمنة عبر ',
+  welcomeToSupport: 'مرحباً بك في الدعم',
+  transferredToAgent: 'تم تحويلك لموظف دعم',
+  contactSupportShort: 'التواصل مع الدعم',
+  welcomeToAI: 'مرحباً بك في SDB AI',
+  yourSmartAssistant: 'مساعدك الذكي',
+  askAIAnything: 'اسأل أي سؤال — سيجيبك مساعدنا الذكي أو سيتولى موظف الرد عليك',
+  notificationsScreen: 'الإشعارات',
+  noNotificationsHere: 'ستظهر إشعاراتك هنا',
+  options: 'خيارات',
+  chooseLanguage: 'اختر لغتك',
+  goBack: 'العودة',
+  learnMore: 'تعرّف',
+  delete: 'حذف',
+  note: 'ملاحظة',
+  copied: 'تم النسخ',
+  linkCopied: 'تم نسخ الرابط',
+  recentTransfers: 'آخر التحويلات',
+  distribution: 'التوزيع',
+  chooseCardDesign: 'اختر تصميم البطاقة',
+  testMode: 'وضع الاختبار',
+  uploading: 'جاري الرفع...',
+  transitioning: 'جاري الانتقال...',
+  paymentLinkCopied: 'تم نسخ رابط الدفع',
+  support: 'الدعم',
+  orTapToManualCapture: 'أو اضغط للتصوير يدوياً',
+  balance: 'الرصيد',
 );
 
 /// Provider to manage locale across the app

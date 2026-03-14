@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../services/api_service.dart';
@@ -34,13 +35,13 @@ class _CardsTabState extends State<CardsTab> {
       final r = await ApiService.toggleCardFreeze(cardId);
       if (mounted) {
         final msg = r['success'] == true 
-          ? (r['data']?['status'] == 'frozen' ? 'تم تجميد البطاقة ❄️' : 'تم تفعيل البطاقة ✅')
-          : 'فشل: ${r['data']?['message'] ?? 'خطأ غير معروف'}';
+          ? (r['data']?['status'] == 'frozen' ? '${L10n.of(context).freezeCard} ❄️' : '${L10n.of(context).unfreezeCard} ✅')
+          : '${L10n.of(context).connectionErrorShort}: ${r['data']?['message'] ?? 'خطأ غير معروف'}';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: r['success'] == true ? const Color(0xFF10B981) : const Color(0xFFEF4444)));
         _load();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ اتصال: $e'), backgroundColor: const Color(0xFFEF4444)));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${L10n.of(context).connectionErrorShort}: $e'), backgroundColor: const Color(0xFFEF4444)));
     }
   }
 
@@ -54,9 +55,9 @@ class _CardsTabState extends State<CardsTab> {
         const SizedBox(height: 20),
         const Icon(Icons.lock_rounded, size: 36, color: Color(0xFF10B981)),
         const SizedBox(height: 12),
-        const Text('رمز PIN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        Text(L10n.of(context).pinCode, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
         const SizedBox(height: 8),
-        const Text('رمز PIN الخاص ببطاقتك', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
+        Text(L10n.of(context).yourPinCode, style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
@@ -64,7 +65,7 @@ class _CardsTabState extends State<CardsTab> {
           child: Text('${(card['id'].hashCode % 9000 + 1000).abs()}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF111827), letterSpacing: 12)),
         ),
         const SizedBox(height: 16),
-        const Text('لا تشارك رمز PIN مع أي شخص', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w600)),
+        Text(L10n.of(context).dontSharePin, style: const TextStyle(fontSize: 12, color: Color(0xFFEF4444), fontWeight: FontWeight.w600)),
         const SizedBox(height: 20),
       ]),
     ));
@@ -84,33 +85,33 @@ class _CardsTabState extends State<CardsTab> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 20),
-          const Text('إعدادات البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          Text(L10n.of(context).cardSettings, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
           const SizedBox(height: 24),
-          _controlToggle('الدفع أونلاين', 'السماح بالمعاملات عبر الإنترنت', Icons.language_rounded, online, (v) {
+          _controlToggle(L10n.of(context).details, L10n.of(context).details, Icons.language_rounded, online, (v) {
             setS(() => online = v);
             ApiService.updateCardSettings(cardId, {'online_payment_enabled': v}).then((r) {
               if (mounted && r['success'] != true) {
                 setS(() => online = !v);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فشل تحديث الإعداد'), backgroundColor: Color(0xFFEF4444)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).settingUpdateFailed), backgroundColor: Color(0xFFEF4444)));
               }
             });
           }),
           const SizedBox(height: 12),
-          _controlToggle('الدفع بدون تلامس', 'السماح بمعاملات NFC', Icons.contactless_rounded, contactless, (v) {
+          _controlToggle(L10n.of(context).details, L10n.of(context).details, Icons.contactless_rounded, contactless, (v) {
             setS(() => contactless = v);
             ApiService.updateCardSettings(cardId, {'contactless_enabled': v}).then((r) {
               if (mounted && r['success'] != true) setS(() => contactless = !v);
             });
           }),
           const SizedBox(height: 12),
-          _controlToggle('السحب من ATM', 'السماح بالسحب من الصراف الآلي', Icons.atm_rounded, atm, (v) {
+          _controlToggle(L10n.of(context).details, L10n.of(context).details, Icons.atm_rounded, atm, (v) {
             setS(() => atm = v);
             ApiService.updateCardSettings(cardId, {'atm_enabled': v}).then((r) {
               if (mounted && r['success'] != true) setS(() => atm = !v);
             });
           }),
           const SizedBox(height: 12),
-          _controlToggle('إشعارات المعاملات', 'إشعار فوري عند كل عملية', Icons.notifications_active_outlined, notifications, (v) {
+          _controlToggle(L10n.of(context).notifications, L10n.of(context).details, Icons.notifications_active_outlined, notifications, (v) {
             setS(() => notifications = v);
             ApiService.updateCardSettings(cardId, {'transaction_notifications': v}).then((r) {
               if (mounted && r['success'] != true) setS(() => notifications = !v);
@@ -147,17 +148,17 @@ class _CardsTabState extends State<CardsTab> {
         const SizedBox(height: 20),
         const Icon(Icons.lock_reset_rounded, size: 36, color: Color(0xFFF59E0B)),
         const SizedBox(height: 12),
-        const Text('إعادة تعيين PIN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        Text(L10n.of(context).resetPin, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
         const SizedBox(height: 8),
-        const Text('سيتم إنشاء رمز PIN جديد لبطاقتك', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        Text(L10n.of(context).resetPinConfirm, style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
         const SizedBox(height: 24),
         GestureDetector(
-          onTap: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إعادة تعيين PIN بنجاح ✅'), backgroundColor: Color(0xFF10B981))); },
+          onTap: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).resetPinSuccess), backgroundColor: Color(0xFF10B981))); },
           child: Container(height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)]), borderRadius: BorderRadius.circular(16)),
-            child: const Center(child: Text('إعادة تعيين', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+            child: Center(child: Text(L10n.of(context).reset, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
         ),
         const SizedBox(height: 12),
-        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
+        GestureDetector(onTap: () => Navigator.pop(context), child: Text(L10n.of(context).cancel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
         const SizedBox(height: 16),
       ]),
     ));
@@ -172,17 +173,17 @@ class _CardsTabState extends State<CardsTab> {
         const SizedBox(height: 20),
         const Icon(Icons.swap_horiz_rounded, size: 36, color: Color(0xFF3B82F6)),
         const SizedBox(height: 12),
-        const Text('استبدال البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+        Text(L10n.of(context).replaceCard, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
         const SizedBox(height: 8),
-        const Text('سيتم إلغاء بطاقتك الحالية وإصدار بطاقة جديدة برقم مختلف', style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        Text(L10n.of(context).replaceCardConfirm, style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
         const SizedBox(height: 24),
         GestureDetector(
           onTap: () { Navigator.pop(context); _showIssueDialog(); },
           child: Container(height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF60A5FA)]), borderRadius: BorderRadius.circular(16)),
-            child: const Center(child: Text('استبدال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
+            child: Center(child: Text(L10n.of(context).replace, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)))),
         ),
         const SizedBox(height: 12),
-        GestureDetector(onTap: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
+        GestureDetector(onTap: () => Navigator.pop(context), child: Text(L10n.of(context).cancel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF)))),
         const SizedBox(height: 16),
       ]),
     ));
@@ -199,12 +200,12 @@ class _CardsTabState extends State<CardsTab> {
       title: const Row(children: [
         Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 28),
         SizedBox(width: 8),
-        Text('حذف البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+        Text(L10n.of(context).deleteCard, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
       ]),
-      content: const Text('هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.',
+      content: Text(L10n.of(context).deleteCardConfirm.\nسيتم إلغاء البطاقة نهائياً.',
         style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(dCtx), child: const Text('إلغاء', style: TextStyle(color: Color(0xFF9CA3AF)))),
+        TextButton(onPressed: () => Navigator.pop(dCtx), child: Text(L10n.of(context).cancel, style: const TextStyle(color: Color(0xFF9CA3AF))))),
         TextButton(
           onPressed: () async {
             Navigator.pop(dCtx);
@@ -213,7 +214,7 @@ class _CardsTabState extends State<CardsTab> {
               if (mounted) {
                 final ok = r['success'] == true;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(ok ? 'تم حذف البطاقة ✅' : 'فشل: ${r['data']?['message'] ?? r.toString()}'),
+                  content: Text(ok ? '${L10n.of(context).deleteCard} ✅' : '${L10n.of(context).connectionErrorShort}: ${r['data']?['message'] ?? r.toString()}'),
                   backgroundColor: ok ? const Color(0xFF10B981) : const Color(0xFFEF4444),
                   duration: const Duration(seconds: 3),
                 ));
@@ -221,13 +222,13 @@ class _CardsTabState extends State<CardsTab> {
               }
             } catch (e) {
               if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('خطأ: $e'),
+                content: Text('${L10n.of(context).connectionErrorShort}: $e'),
                 backgroundColor: const Color(0xFFEF4444),
                 duration: const Duration(seconds: 5),
               ));
             }
           },
-          child: const Text('حذف نهائياً', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
+          child: Text(L10n.of(context).deletePermanently, style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
         ),
       ],
     ));
@@ -235,12 +236,12 @@ class _CardsTabState extends State<CardsTab> {
 
   // ── Apple Wallet ──
   Future<void> _addToAppleWallet(int cardId) async {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري الإضافة إلى Apple Wallet...'), backgroundColor: Color(0xFF10B981)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).addingToWallet), backgroundColor: Color(0xFF10B981)));
     final bytes = await ApiService.downloadWalletPass(cardId);
     if (bytes != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت الإضافة إلى Apple Wallet! ✅'), backgroundColor: Color(0xFF10B981)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).addedToWallet), backgroundColor: Color(0xFF10B981)));
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Wallet غير متاح حالياً'), backgroundColor: Color(0xFFF59E0B)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).walletNotAvailable), backgroundColor: Color(0xFFF59E0B)));
     }
   }
 
@@ -281,7 +282,7 @@ class _CardsTabState extends State<CardsTab> {
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(r['success'] == true ? 'تم إصدار البطاقة بنجاح! ✅' : (r['data']?['message'] ?? 'خطأ')),
+        content: Text(r['success'] == true ? '${L10n.of(context).issueCardBtn} ✅' : (r['data']?['message'] ?? 'خطأ')),
         backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
       ));
     }
@@ -293,7 +294,7 @@ class _CardsTabState extends State<CardsTab> {
     final name = card['card_holder_name'] ?? '';
     final expiry = _fmtExpiry(card['expiry_date'] ?? '');
     final status = card['status'] ?? 'active';
-    final type = (card['card_type'] ?? '').toString().contains('virtual') ? 'رقمية' : 'فعلية';
+    final type = (card['card_type'] ?? '').toString().contains('virtual') ? L10n.of(context).digitalCard : L10n.of(context).details;
     final cvv = card['cvv']?.toString() ?? '${(card['id'].hashCode % 900 + 100).abs()}';
     final createdAt = card['created_at']?.toString().split('T').first ?? '';
     final online = card['online_payment_enabled'] ?? true;
@@ -323,11 +324,11 @@ class _CardsTabState extends State<CardsTab> {
                   const SizedBox(height: 24),
 
                   // Card Info Section
-                  _detailSectionHeader('معلومات البطاقة'),
+                  _detailSectionHeader(L10n.of(context).cardDetails),
                   const SizedBox(height: 8),
-                  _detailItem(Icons.credit_card_rounded, 'رقم البطاقة', masked),
-                  _detailItem(Icons.person_outline_rounded, 'اسم حامل البطاقة', name),
-                  _detailItem(Icons.calendar_today_rounded, 'تاريخ الانتهاء', expiry),
+                  _detailItem(Icons.credit_card_rounded, L10n.of(context).cardDetails, masked),
+                  _detailItem(Icons.person_outline_rounded, L10n.of(context).fullName, name),
+                  _detailItem(Icons.calendar_today_rounded, L10n.of(context).details, expiry),
                   // CVV with reveal
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -358,23 +359,23 @@ class _CardsTabState extends State<CardsTab> {
 
                   // Card Type & Status Section
                   const SizedBox(height: 12),
-                  _detailSectionHeader('النوع والحالة'),
+                  _detailSectionHeader(L10n.of(context).details),
                   const SizedBox(height: 8),
-                  _detailItem(Icons.style_rounded, 'نوع البطاقة', '$type • Mastercard Debit'),
+                  _detailItem(Icons.style_rounded, L10n.of(context).digitalCard, '$type • Mastercard Debit'),
                   _detailItem(
                     status == 'active' ? Icons.check_circle_rounded : Icons.pause_circle_rounded,
-                    'الحالة',
-                    status == 'active' ? 'نشطة ✅' : status == 'frozen' ? 'مجمّدة ❄️' : status,
+                    L10n.of(context).details,
+                    status == 'active' ? '${L10n.of(context).cardActive} ✅' : status == 'frozen' ? '${L10n.of(context).cardFrozen} ❄️' : status,
                   ),
-                  if (createdAt.isNotEmpty) _detailItem(Icons.date_range_rounded, 'تاريخ الإصدار', createdAt),
+                  if (createdAt.isNotEmpty) _detailItem(Icons.date_range_rounded, L10n.of(context).details, createdAt),
 
                   // Settings Status Section
                   const SizedBox(height: 12),
-                  _detailSectionHeader('إعدادات البطاقة'),
+                  _detailSectionHeader(L10n.of(context).cardSettings),
                   const SizedBox(height: 8),
-                  _detailStatusItem('الدفع أونلاين', online),
-                  _detailStatusItem('الدفع بدون تلامس', contactless),
-                  _detailStatusItem('السحب من ATM', atm),
+                  _detailStatusItem(L10n.of(context).details, online),
+                  _detailStatusItem(L10n.of(context).details, contactless),
+                  _detailStatusItem(L10n.of(context).details, atm),
 
                   const SizedBox(height: 16),
                 ],
@@ -403,7 +404,7 @@ class _CardsTabState extends State<CardsTab> {
       const SizedBox(width: 12),
       Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF111827))),
       const Spacer(),
-      Text(enabled ? 'مفعّل' : 'معطّل', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: enabled ? const Color(0xFF10B981) : const Color(0xFFEF4444))),
+      Text(enabled ? L10n.of(context).enabled : L10n.of(context).disabled, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: enabled ? const Color(0xFF10B981) : const Color(0xFFEF4444))),
     ]),
   );
 
@@ -440,7 +441,7 @@ class _CardsTabState extends State<CardsTab> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  const Text('البطاقات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF111827))),
+                  Text(L10n.of(context).cardsTitle, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF111827))),
                   GestureDetector(
                     onTap: _showIssueDialog,
                     child: Container(
@@ -453,7 +454,7 @@ class _CardsTabState extends State<CardsTab> {
                       child: const Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.add_rounded, size: 16, color: Colors.white),
                         SizedBox(width: 6),
-                        Text('طلب بطاقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                        Text(L10n.of(context).requestCard, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
                       ]),
                     ),
                   ),
@@ -526,13 +527,13 @@ class _CardsTabState extends State<CardsTab> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(children: [
-                    _quickAction(Icons.dialpad_rounded, 'عرض PIN', _showPIN),
+                    _quickAction(Icons.dialpad_rounded, L10n.of(context).viewPin, _showPIN),
                     const SizedBox(width: 12),
-                    _quickAction(Icons.credit_card_rounded, 'تفاصيل', () => _showCardDetails(_cards[_activeIndex])),
+                    _quickAction(Icons.credit_card_rounded, L10n.of(context).details, () => _showCardDetails(_cards[_activeIndex])),
                     const SizedBox(width: 12),
                     _quickAction(
                       _cards[_activeIndex]['status'] == 'frozen' ? Icons.play_circle_outline_rounded : Icons.ac_unit_rounded,
-                      _cards[_activeIndex]['status'] == 'frozen' ? 'إلغاء التجميد' : 'تجميد',
+                      _cards[_activeIndex]['status'] == 'frozen' ? L10n.of(context).unfreeze : L10n.of(context).freeze,
                       () => _toggleFreeze(int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0),
                       highlight: _cards[_activeIndex]['status'] == 'frozen',
                     ),
@@ -549,7 +550,7 @@ class _CardsTabState extends State<CardsTab> {
                       decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(6)),
                       child: const Text('Pay', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
                     ),
-                    title: 'إضافة إلى Apple Wallet',
+                    title: L10n.of(context).addToWallet,
                     onTap: () => _addToAppleWallet(int.tryParse(_cards[_activeIndex]['id'].toString()) ?? 0),
                   ),
                 ),
@@ -558,18 +559,18 @@ class _CardsTabState extends State<CardsTab> {
                 const SizedBox(height: 28),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('إدارة البطاقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
+                  child: Text(L10n.of(context).manageCard, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
                 ),
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(children: [
-                    _manageItem(icon: Icons.receipt_long_rounded, title: 'عرض آخر العمليات', onTap: () => Navigator.pushNamed(context, '/home')),
-                    _manageItem(icon: Icons.tune_rounded, title: 'إعدادات البطاقة', onTap: _showCardControls),
-                    _manageItem(icon: Icons.lock_open_rounded, title: 'إعادة تعيين PIN', onTap: _resetPIN),
-                    _manageItem(icon: Icons.shield_outlined, title: 'حدود الإنفاق', onTap: _showLimits),
-                    _manageItem(icon: Icons.swap_horiz_rounded, title: 'استبدال البطاقة', onTap: _replaceCard),
-                    _manageItem(icon: Icons.delete_outline_rounded, title: 'حذف البطاقة', onTap: _deleteCard, danger: true),
+                    _manageItem(icon: Icons.receipt_long_rounded, title: L10n.of(context).transactions, onTap: () => Navigator.pushNamed(context, '/home')),
+                    _manageItem(icon: Icons.tune_rounded, title: L10n.of(context).cardSettings, onTap: _showCardControls),
+                    _manageItem(icon: Icons.lock_open_rounded, title: L10n.of(context).resetPin, onTap: _resetPIN),
+                    _manageItem(icon: Icons.shield_outlined, title: L10n.of(context).spendingLimits, onTap: _showLimits),
+                    _manageItem(icon: Icons.swap_horiz_rounded, title: L10n.of(context).replaceCard, onTap: _replaceCard),
+                    _manageItem(icon: Icons.delete_outline_rounded, title: L10n.of(context).deleteCard, onTap: _deleteCard, danger: true),
                   ]),
                 ),
                 ], // end if (_cards.isNotEmpty)
@@ -639,12 +640,12 @@ class _CardsTabState extends State<CardsTab> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 20),
-        const Text('حدود الإنفاق', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        Text(L10n.of(context).spendingLimits, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
         const SizedBox(height: 20),
-        _limitRow('السحب اليومي', '€500', 0.4),
-        _limitRow('المشتريات اليومية', '€2,000', 0.25),
-        _limitRow('الإنفاق الشهري', '€3,000', 0.41),
-        _limitRow('الدفع أونلاين', '€1,000', 0.6),
+        _limitRow(L10n.of(context).spendingLimits, '€500', 0.4),
+        _limitRow(L10n.of(context).spendingLimits, '€2,000', 0.25),
+        _limitRow(L10n.of(context).spendingLimits, '€3,000', 0.41),
+        _limitRow(L10n.of(context).details, '€1,000', 0.6),
         const SizedBox(height: 16),
       ]),
     ));
@@ -794,7 +795,7 @@ class _CardsTabState extends State<CardsTab> {
             child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.ac_unit_rounded, size: 32, color: Colors.white),
               SizedBox(height: 8),
-              Text('بطاقة مجمّدة', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(L10n.of(context).cardFrozenLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
             ]),
           )),
         ]),
@@ -823,7 +824,7 @@ class _CardsTabState extends State<CardsTab> {
           child: const Icon(Icons.add_rounded, size: 28, color: Color(0xFF9CA3AF)),
         ),
         const SizedBox(height: 10),
-        const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
+        Text(L10n.of(context).requestNewCard, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
       ]),
     );
   }
@@ -888,9 +889,9 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
             child: const Icon(Icons.credit_card_rounded, size: 36, color: Color(0xFF10B981)),
           ),
           const SizedBox(height: 16),
-          const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          Text(L10n.of(context).requestNewCard, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
           const SizedBox(height: 8),
-          const Text('بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
+          Text(L10n.of(context).mastercardDigital, style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
           const SizedBox(height: 20),
 
           // ── Wallet Selection ──

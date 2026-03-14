@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import '../theme/app_theme.dart';
@@ -31,7 +32,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('الإشعارات', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary)), backgroundColor: Colors.transparent, elevation: 0,
+      appBar: AppBar(title: const Text(L10n.of(context).notificationsScreen, style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary)), backgroundColor: Colors.transparent, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () => Navigator.pop(context))),
       body: loading
         ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
@@ -43,9 +44,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Container(width: 80, height: 80, decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(24)),
                       child: Icon(Icons.notifications_off_outlined, size: 36, color: AppTheme.textMuted)),
                     const SizedBox(height: 16),
-                    Text('لا توجد إشعارات', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+                    Text(L10n.of(context).noNotifications, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
                     const SizedBox(height: 6),
-                    Text('ستظهر إشعاراتك هنا', style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+                    Text(L10n.of(context).noNotificationsHere, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
                   ])),
                 ])
               : ListView.builder(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), itemCount: notifications.length, itemBuilder: (_, i) => _item(notifications[i]))),

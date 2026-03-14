@@ -42,7 +42,7 @@ class _QrProfileScreenState extends State<QrProfileScreen> {
     final shareText = 'ادفع لي عبر SDB Bank!\nالاسم: $name\nالمستخدم: @$username\nhttps://sdb-bank.com/pay/$username';
     Clipboard.setData(ClipboardData(text: shareText));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم نسخ رابط الدفع ✅'), backgroundColor: AppTheme.primary),
+      const SnackBar(content: Text('${L10n.of(context).paymentLinkCopied} ✅'), backgroundColor: AppTheme.primary),
     );
   }
 

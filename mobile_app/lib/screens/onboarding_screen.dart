@@ -244,7 +244,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: 20),
         const Center(child: Text('🌍', style: TextStyle(fontSize: 48))),
         const SizedBox(height: 16),
-        const Center(child: Text('اختر لغتك', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
+        const Center(child: Text(L10n.of(context).chooseLanguage, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
         const SizedBox(height: 4),
         Center(child: Text('Choose your language', style: TextStyle(fontSize: 15, color: AppTheme.textMuted))),
         const SizedBox(height: 24),

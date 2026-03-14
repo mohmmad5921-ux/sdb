@@ -96,7 +96,7 @@ class _TransferScreenState extends State<TransferScreen> {
             const SizedBox(height: 16),
             Text(t.scheduled, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 4),
-            Text('جدولة تحويل تلقائي', style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+            Text(L10n.of(context).scheduleAutoTransfer, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
             const SizedBox(height: 20),
             // Recipient
             Container(
@@ -156,7 +156,7 @@ class _TransferScreenState extends State<TransferScreen> {
             ),
             const SizedBox(height: 12),
             // Frequency
-            Text('التكرار', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
+            Text(L10n.of(context).repetition, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textMuted)),
             const SizedBox(height: 8),
             Row(children: ['مرة واحدة', 'أسبوعي', 'شهري'].map((f) {
               final isActive = freq == f;
@@ -179,10 +179,10 @@ class _TransferScreenState extends State<TransferScreen> {
               onPressed: () {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('تم جدولة التحويل ✅'), backgroundColor: AppTheme.primary),
+                  SnackBar(content: Text(L10n.of(context).transferScheduled), backgroundColor: AppTheme.primary),
                 );
               },
-              child: Text('جدولة التحويل'),
+              child: Text(L10n.of(context).scheduleTransfer),
             )),
           ]),
         );

@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -34,7 +35,7 @@ class AccountDistributionPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Title
-            const Text('التوزيع', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            const Text(L10n.of(context).distribution, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 20),
 
             // Distribution Card

@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -157,7 +158,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_rounded, color: AppTheme.textPrimary), onPressed: () => Navigator.pop(context)),
-        title: const Text('تأكيد رقم الهاتف', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
+        title: const Text(L10n.of(context).confirmPhoneNumber, style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 18)),
       ),
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.all(24),
@@ -177,7 +178,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         child: Icon(Icons.phone_android_rounded, size: 40, color: AppTheme.primary),
       )),
       const SizedBox(height: 24),
-      const Center(child: Text('تأكيد رقم الهاتف', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
+      const Center(child: Text(L10n.of(context).confirmPhoneNumber, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary))),
       const SizedBox(height: 8),
       Center(child: Text('أدخل رقم هاتفك واختر طريقة استلام الرمز', textAlign: TextAlign.center,
         style: TextStyle(fontSize: 14, color: AppTheme.textMuted, height: 1.5))),
@@ -308,7 +309,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         ),
       ),
       const SizedBox(height: 24),
-      const Text('أدخل رمز التحقق', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+      const Text(L10n.of(context).enterVerificationCode, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
       const SizedBox(height: 8),
       Text(
         'تم إرسال رمز مكون من 6 أرقام ${_channel == 'whatsapp' ? 'عبر واتساب' : 'عبر SMS'}\nإلى ${_phoneCtrl.text}',
@@ -376,13 +377,13 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
           child: _loading
             ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-            : const Text('تأكيد الرمز', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            : const Text(L10n.of(context).confirmCode, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
         ),
       )),
 
       const SizedBox(height: 20),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text('لم تستلم الرمز؟ ', style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+        Text(L10n.of(context).didntReceiveCode, style: TextStyle(fontSize: 13, color: AppTheme.textMuted)),
         GestureDetector(
           onTap: _countdown == 0 ? _sendCode : null,
           child: Text(

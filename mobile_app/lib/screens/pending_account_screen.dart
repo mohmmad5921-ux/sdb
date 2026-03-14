@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
@@ -225,7 +226,7 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                   const SizedBox(height: 12),
                 ],
 
-                const Text('حسابك قيد المراجعة', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppTheme.textPrimary)),
+                const Text(L10n.of(context).accountUnderReview, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppTheme.textPrimary)),
                 const SizedBox(height: 12),
                 Text(
                   'يتم مراجعة حسابك من قبل فريقنا.\nسيتم إشعارك فور تفعيل حسابك.',
@@ -253,7 +254,7 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                     child: const Column(children: [
                       Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 40),
                       SizedBox(height: 10),
-                      Text('شكراً لك! 🎉', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166534))),
+                      Text('${L10n.of(context).thankYou} 🎉', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166534))),
                       SizedBox(height: 6),
                       Text('تم رفع المستند بنجاح. سيتم مراجعته من قبل فريقنا.', textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 13, color: Color(0xFF166534), height: 1.5)),
@@ -330,7 +331,7 @@ class _PendingAccountScreenState extends State<PendingAccountScreen> with Ticker
                 // Logout
                 TextButton(
                   onPressed: _logout,
-                  child: const Text('تسجيل الخروج', style: TextStyle(color: AppTheme.textMuted, fontSize: 14, fontWeight: FontWeight.w500)),
+                  child: const Text(L10n.of(context).logOut, style: TextStyle(color: AppTheme.textMuted, fontSize: 14, fontWeight: FontWeight.w500)),
                 ),
                 const SizedBox(height: 30),
               ],

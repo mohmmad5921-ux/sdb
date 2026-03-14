@@ -137,7 +137,7 @@ class _WalletTabState extends State<WalletTab> {
                             child: const Icon(Icons.add_rounded, size: 22, color: Color(0xFF9CA3AF)),
                           ),
                           const SizedBox(height: 6),
-                          const Text('طلب بطاقة', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
+                          Text(L10n.of(context).requestCard, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF9CA3AF))),
                         ]),
                       ),
                     );
@@ -368,13 +368,13 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
           Container(padding: const EdgeInsets.all(16), decoration: const BoxDecoration(color: Color(0xFFECFDF5), shape: BoxShape.circle),
             child: const Icon(Icons.credit_card_rounded, size: 36, color: Color(0xFF10B981))),
           const SizedBox(height: 16),
-          const Text('طلب بطاقة جديدة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+          Text(L10n.of(context).requestNewCard, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
           const SizedBox(height: 8),
-          const Text('بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر', style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
+          Text(L10n.of(context).mastercardDigital, style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)), textAlign: TextAlign.center),
           const SizedBox(height: 20),
 
           // ── Wallet Selection ──
-          const Align(alignment: Alignment.centerRight, child: Text('ربط البطاقة بالمحفظة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
+          const Align(alignment: Alignment.centerRight, child: Text(L10n.of(context).linkCardToWallet, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
           const SizedBox(height: 8),
           ...widget.accounts.map((w) {
             final id = int.tryParse(w['id'].toString()) ?? 0;
@@ -413,7 +413,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
                   if (hasCard) Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(8)),
-                    child: const Text('يوجد بطاقة', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w600)),
+                    child: Text(L10n.of(context).hasCard, style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w600)),
                   ),
                 ]),
               ),
@@ -446,7 +446,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
                   child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(child: Text('أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
+                const Expanded(child: Text(L10n.of(context).agreeTermsCard, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
               ]),
             ),
           ),
@@ -464,7 +464,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: (_agreed && _selectedWalletId != null) ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
               ),
-              child: Center(child: Text('إصدار البطاقة', style: TextStyle(
+              child: Center(child: Text(L10n.of(context).issueCardBtn, style: const TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w800, color: (_agreed && _selectedWalletId != null) ? Colors.white : const Color(0xFF9CA3AF),
               ))),
             ),
