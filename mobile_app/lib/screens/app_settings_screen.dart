@@ -244,7 +244,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             // Version info
             Center(
               child: Text(
-                'SDB Bank v1.0.7\nApp ID: com.sdb.sdbApp',
+                'SDB Bank v1.0.7\n© 2026 SDB Bank',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withValues(alpha: 0.6), height: 1.5),
               ),

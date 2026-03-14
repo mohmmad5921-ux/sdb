@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Services\FcmService;
+use App\Services\SmsService;
 
 class RemittanceController extends Controller
 {
@@ -313,6 +314,12 @@ class RemittanceController extends Controller
         // Push notification to sender
         FcmService::sendToUser($remittance->user_id, '✅ تم تسليم حوالتك', 'تم استلام الحوالة رقم ' . $remittance->notification_code . ' بنجاح من قبل ' . $remittance->recipient_name);
 
+        // WhatsApp notification to sender
+        $sender = DB::table('users')->where('id', $remittance->user_id)->first();
+        if ($sender && $sender->phone) {
+            SmsService::remittanceCollected($sender->phone, $remittance->recipient_name, $remittance->notification_code);
+        }
+
         return back()->with('success', 'تم تسليم الحوالة بنجاح ✅');
     }
 
@@ -332,6 +339,12 @@ class RemittanceController extends Controller
 
         // Push notification to sender
         FcmService::sendToUser($remittance->user_id, '❌ تم إلغاء حوالتك', 'تم إلغاء الحوالة رقم ' . $remittance->notification_code . '. يرجى التواصل مع الدعم لأي استفسار.');
+
+        // WhatsApp notification to sender
+        $sender = DB::table('users')->where('id', $remittance->user_id)->first();
+        if ($sender && $sender->phone) {
+            SmsService::remittanceCancelled($sender->phone, $remittance->notification_code);
+        }
 
         return back()->with('success', 'تم إلغاء الحوالة ✅');
     }

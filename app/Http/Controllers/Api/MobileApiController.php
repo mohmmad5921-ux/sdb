@@ -535,6 +535,13 @@ class MobileApiController extends Controller
                 ]);
 
             if ($response->successful() || $response->status() === 201) {
+                // Also send via WhatsApp as backup
+                try {
+                    \App\Services\SmsService::sendWhatsApp($phone, "🏦 SDB Bank\n\nرمز التحقق الخاص بك: *{$code}*\n\nYour verification code is: *{$code}*\n\nDo not share this code.");
+                } catch (\Exception $e) {
+                    \Log::warning('WhatsApp OTP backup failed: ' . $e->getMessage());
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => 'تم إرسال رمز التحقق عبر SMS',
