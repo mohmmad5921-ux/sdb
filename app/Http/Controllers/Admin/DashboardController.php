@@ -163,22 +163,32 @@ class DashboardController extends Controller
 
     public function subscriptions()
     {
-        // Count preregistrations by plan
-        $preregByPlan = DB::table('preregistrations')
-            ->selectRaw("COALESCE(plan, 'free') as plan, COUNT(*) as count")
-            ->groupBy('plan')->orderBy('count', 'desc')->get();
+        // Count by account type (personal vs business)
+        $accountTypes = DB::table('accounts')
+            ->selectRaw("COALESCE(account_type, 'personal') as plan, COUNT(DISTINCT user_id) as count")
+            ->groupBy('account_type')->orderBy('count', 'desc')->get();
 
         $planCounts = [];
-        foreach ($preregByPlan as $pr) {
-            $planCounts[$pr->plan] = $pr->count;
+        foreach ($accountTypes as $at) {
+            $planCounts[$at->plan] = $at->count;
         }
 
-        // Get all users with their plan info
+        // Count preregistrations by country as secondary metric
+        $preregByPlan = DB::table('preregistrations')
+            ->selectRaw("COALESCE(country, 'Unknown') as plan, COUNT(*) as count")
+            ->groupBy('country')->orderBy('count', 'desc')->get();
+
+        // Get all users
         $users = DB::table('users')->where('role', '!=', 'admin')
             ->select('id', 'full_name', 'email', 'country', 'created_at')
             ->orderBy('created_at', 'desc')->limit(100)->get()
             ->map(function ($u) {
-                $u->plan = 'personal'; // default plan
+                // Check if user has business account
+                $hasBusiness = DB::table('accounts')
+                    ->where('user_id', $u->id)
+                    ->where('account_type', 'business')
+                    ->exists();
+                $u->plan = $hasBusiness ? 'business' : 'personal';
                 return $u;
             });
 
