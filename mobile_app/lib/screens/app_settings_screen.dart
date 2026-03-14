@@ -219,7 +219,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               child: Column(children: [
                 _settingsRow(Icons.language, t.language, trailing: Text(langDisplay, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)), onTap: _showLanguagePicker),
                 _divider(),
-                _settingsRow(Icons.notifications_none_rounded, t.notifications, onTap: () {}),
+                _settingsRow(Icons.notifications_none_rounded, t.notifications, trailing: _toggle(_notifications, _toggleNotifications)),
                 _divider(),
                 _settingsRow(Icons.palette_outlined, t.appearanceAndSound, onTap: _showAppearance),
               ]),

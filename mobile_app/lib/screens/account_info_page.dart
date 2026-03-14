@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'account_background_picker.dart';
@@ -163,9 +164,11 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               border: Border.all(color: AppTheme.border),
             ),
             child: Column(children: [
-              _manageRow(Icons.credit_card_rounded, t.navCards, trailing: '${(acc['cards_count'] ?? 1)}', onTap: () {}),
+              _manageRow(Icons.credit_card_rounded, t.navCards, trailing: '${(acc['cards_count'] ?? 1)}', onTap: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false);
+              }),
               _manageDivider(),
-              _manageRow(Icons.upload_rounded, t.accountStatement, onTap: () {}),
+              _manageRow(Icons.upload_rounded, t.accountStatement, onTap: () => _showAccountStatement()),
               _manageDivider(),
               _manageRow(Icons.info_outline_rounded, t.distribution, onTap: () {
                 Navigator.push(context, MaterialPageRoute(
@@ -291,6 +294,94 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
 
   Widget _divider() => Divider(height: 1, color: AppTheme.border, indent: 16, endIndent: 16);
   Widget _manageDivider() => Divider(height: 1, color: AppTheme.border, indent: 50);
+
+  void _showAccountStatement() async {
+    final t = L10n.of(context);
+    // Show loading
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) {
+        return FutureBuilder<Map<String, dynamic>>(
+          future: ApiService.getTransactions(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return SizedBox(
+                height: 300,
+                child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+              );
+            }
+            final txs = List<Map<String, dynamic>>.from(snapshot.data?['data']?['data'] ?? []);
+            final balance = acc['balance'] is num
+                ? (acc['balance'] as num).toDouble()
+                : double.tryParse(acc['balance'].toString()) ?? 0;
+            final currency = acc['currency']?['code'] ?? 'EUR';
+            final sym = {'EUR': '€', 'USD': '\$', 'SYP': 'ل.س', 'GBP': '£', 'DKK': 'kr'}[currency] ?? currency;
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              padding: const EdgeInsets.all(24),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2)))),
+                const SizedBox(height: 16),
+                Text(t.accountStatement, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+                const SizedBox(height: 16),
+                // Account summary card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [Color(0xFF0A3D5C), Color(0xFF155E75)]),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(_accountNumber(), style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
+                    const SizedBox(height: 4),
+                    Text('$sym${balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 4),
+                    Text('${t.account} $currency', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
+                  ]),
+                ),
+                const SizedBox(height: 16),
+                Text('${txs.length} ${t.recentTransfers}', style: TextStyle(fontSize: 13, color: AppTheme.textMuted, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 8),
+                // Transaction list
+                Expanded(
+                  child: txs.isEmpty
+                      ? Center(child: Text(t.noTransactions, style: TextStyle(color: AppTheme.textMuted)))
+                      : ListView.separated(
+                          itemCount: txs.length > 20 ? 20 : txs.length,
+                          separatorBuilder: (_, __) => Divider(height: 1, color: AppTheme.border),
+                          itemBuilder: (_, i) {
+                            final tx = txs[i];
+                            final amount = (tx['amount'] is num) ? (tx['amount'] as num).toDouble() : double.tryParse(tx['amount'].toString()) ?? 0;
+                            final isOut = ['withdrawal', 'card_payment', 'fee'].contains(tx['type']);
+                            final desc = tx['description'] ?? tx['type'] ?? '';
+                            final date = tx['created_at']?.toString().substring(0, 10) ?? '';
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Row(children: [
+                                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Text(desc, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(date, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                                ])),
+                                Text(
+                                  '${isOut ? '-' : '+'}$sym${amount.toStringAsFixed(2)}',
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isOut ? AppTheme.textPrimary : AppTheme.primary),
+                                ),
+                              ]),
+                            );
+                          },
+                        ),
+                ),
+              ]),
+            );
+          },
+        );
+      },
+    );
+  }
 
   void _showRenameDialog() {
     final ctrl = TextEditingController(text: acc['name'] ?? '');

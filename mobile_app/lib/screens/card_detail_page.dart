@@ -218,7 +218,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => Navigator.pushNamed(context, '/help'),
                   child: Container(width: 40, height: 40,
                     decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(20)),
                     child: const Icon(Icons.help_outline_rounded, size: 18, color: AppTheme.textSecondary)),
