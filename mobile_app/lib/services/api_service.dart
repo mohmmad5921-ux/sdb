@@ -360,5 +360,25 @@ class ApiService {
     return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
   }
 
+
+  // Subscription
+  static Future<Map<String, dynamic>> subscribeToPlan(String planId) async {
+    final r = await http.post(Uri.parse('$baseUrl/subscription/subscribe'), headers: await _headers(),
+      body: jsonEncode({'plan_id': planId}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
+  static Future<Map<String, dynamic>> createSubscriptionIntent(String planId) async {
+    final r = await http.post(Uri.parse('$baseUrl/subscription/create-intent'), headers: await _headers(),
+      body: jsonEncode({'plan_id': planId}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
+  static Future<Map<String, dynamic>> confirmSubscription(String paymentIntentId, String planId) async {
+    final r = await http.post(Uri.parse('$baseUrl/subscription/confirm'), headers: await _headers(),
+      body: jsonEncode({'payment_intent_id': paymentIntentId, 'plan_id': planId}));
+    return {'success': r.statusCode == 200, 'data': jsonDecode(r.body), 'status': r.statusCode};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

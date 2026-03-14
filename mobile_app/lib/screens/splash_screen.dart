@@ -49,6 +49,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         if (mounted) {
           if (status == 'pending') {
             Navigator.pushReplacementNamed(context, '/pending');
+          } else if (status == 'subscription_required') {
+            Navigator.pushReplacementNamed(context, '/subscription');
           } else {
             Navigator.pushReplacementNamed(context, '/home');
           }
