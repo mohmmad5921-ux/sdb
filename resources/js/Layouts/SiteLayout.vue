@@ -609,9 +609,9 @@ function toggleMobileSection(id) { mobileActiveSection.value = mobileActiveSecti
           <a href="/" class="sn-logo sn-logo-ft"><img src="/images/logosdbw.png" alt="SDB Bank" class="sn-logo-img sn-logo-img-ft"/></a>
           <p class="sf-desc">{{ t.ftDesc }}</p>
           <div class="sf-social">
-            <span class="sf-soc-icon">𝕏</span>
-            <span class="sf-soc-icon">in</span>
-            <span class="sf-soc-icon">ig</span>
+            <a href="https://www.facebook.com/profile.php?id=61579485263013" target="_blank" class="sf-soc-icon">fb</a>
+            <a href="https://www.instagram.com/sdbsybank/" target="_blank" class="sf-soc-icon">ig</a>
+            <a href="https://x.com/SDBBankSy" target="_blank" class="sf-soc-icon">𝕏</a>
           </div>
         </div>
         <div class="sf-col">
@@ -766,7 +766,7 @@ html,body{background:#fff}
 .sn-logo-ft{font-size:22px;display:inline-block;margin-bottom:4px}
 .sf-desc{font-size:15px;font-weight:400;color:rgba(255,255,255,.6);line-height:1.8;white-space:pre-line;max-width:300px}
 .sf-social{display:flex;gap:8px;margin-top:4px}
-.sf-soc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:12px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}.sf-soc-icon:hover{border-color:rgba(159,232,112,.5);color:#163300;background:#9FE870}
+.sf-soc-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);border-radius:12px;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s;text-decoration:none}.sf-soc-icon:hover{border-color:rgba(159,232,112,.5);color:#163300;background:#9FE870}
 .sf-col{display:flex;flex-direction:column;gap:10px}
 .sf-col-h{font-size:14px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#fff;margin-bottom:10px}
 .rtl .sf-col-h{letter-spacing:0}
