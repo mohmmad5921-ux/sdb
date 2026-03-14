@@ -33,12 +33,25 @@ class MobileApiController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required',
             'device_name' => 'required|string',
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $identifier = trim($request->email);
+
+        // Detect if it's a phone number (starts with + or is all digits)
+        $isPhone = preg_match('/^\+?\d[\d\s\-]{6,}$/', $identifier);
+
+        if ($isPhone) {
+            // Clean phone: remove spaces/dashes
+            $phone = preg_replace('/[\s\-]/', '', $identifier);
+            $user = \App\Models\User::where('phone', $phone)
+                ->orWhere('phone', 'LIKE', '%' . substr($phone, -8))
+                ->first();
+        } else {
+            $user = \App\Models\User::where('email', $identifier)->first();
+        }
 
         if (!$user || !\Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
