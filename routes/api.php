@@ -127,6 +127,14 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('/support/messages', [MobileApiController::class, 'supportMessages']);
             Route::post('/support/send', [MobileApiController::class, 'sendSupportMessage']);
 
+            // Remittance (Syria Cash Pickup)
+            Route::get('/remittance/governorates', [\App\Http\Controllers\Api\RemittanceController::class, 'governorates']);
+            Route::post('/remittance/send', [\App\Http\Controllers\Api\RemittanceController::class, 'send']);
+            Route::get('/remittance/history', [\App\Http\Controllers\Api\RemittanceController::class, 'history']);
+            Route::get('/remittance/{remittance}/receipt', [\App\Http\Controllers\Api\RemittanceController::class, 'receipt']);
+            Route::post('/remittance/verify', [\App\Http\Controllers\Api\RemittanceController::class, 'verify']);
+            Route::post('/remittance/collect', [\App\Http\Controllers\Api\RemittanceController::class, 'collect']);
+
             // Subscription (renamed from /subscription to /pkg to bypass Simply.com WAF)
             Route::post('/pkg/subscribe', [SubscriptionController::class, 'subscribe']);
             Route::post('/pkg/create-intent', [SubscriptionController::class, 'createIntent']);
