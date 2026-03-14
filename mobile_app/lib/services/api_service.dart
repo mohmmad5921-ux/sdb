@@ -295,7 +295,7 @@ class ApiService {
 
   /// Toggle SMS 2FA on/off
   static Future<Map<String, dynamic>> toggle2fa() async {
-    return _post('/security/toggle-2fa', {});
+    return post('/security/toggle-2fa', {});
   }
 
   // Upload receipt for a transaction
