@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
+
 
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -336,9 +338,13 @@ class _AppearanceScreenState extends State<_AppearanceScreen> {
   Future<void> _changeIcon(String key) async {
     try {
       if (key == 'default') {
-        await FlutterDynamicIcon.setAlternateIconName(null);
+        if (Platform.isIOS) {
+          const MethodChannel('flutter_dynamic_icon').invokeMethod('setAlternateIconName', {'iconName': null});
+        }
       } else {
-        await FlutterDynamicIcon.setAlternateIconName(key);
+        if (Platform.isIOS) {
+          const MethodChannel('flutter_dynamic_icon').invokeMethod('setAlternateIconName', {'iconName': key});
+        }
       }
       await _storage.write(key: 'selected_icon', value: key);
       if (mounted) {

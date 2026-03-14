@@ -328,7 +328,10 @@ class _TransferScreenState extends State<TransferScreen> {
       const SizedBox(height: 8),
       Row(children: [
         Expanded(child: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            // Focus on username search
+            setState(() => _recipient = '@');
+          },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 3),
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -337,7 +340,7 @@ class _TransferScreenState extends State<TransferScreen> {
           ),
         )),
         Expanded(child: GestureDetector(
-          onTap: () {},
+          onTap: () => Navigator.pushNamed(context, '/contacts'),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 3),
             padding: const EdgeInsets.symmetric(vertical: 10),
