@@ -73,11 +73,48 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     if (mounted) setState(() => _notifications = newVal);
   }
 
-  void _showLanguagePicker() async {
-    // Open iOS per-app language settings
-    if (Platform.isIOS) {
-      await launchUrl(Uri.parse('app-settings:'));
-    }
+  void _showLanguagePicker() {
+    final provider = L10n.providerOf(context);
+    final langs = [
+      {'name': 'العربية', 'code': 'ar'},
+      {'name': 'English', 'code': 'en'},
+      {'name': 'Türkçe', 'code': 'tr'},
+      {'name': 'Dansk', 'code': 'da'},
+      {'name': 'Deutsch', 'code': 'de'},
+      {'name': 'Français', 'code': 'fr'},
+      {'name': 'Svenska', 'code': 'sv'},
+    ];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE0E0E0), borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 16),
+          const Text('اختر اللغة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A1A1A))),
+          const SizedBox(height: 16),
+          ...langs.map((l) {
+            final isActive = provider.locale.languageCode == l['code'];
+            return ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              tileColor: isActive ? AppTheme.primary.withValues(alpha: 0.08) : null,
+              leading: Icon(isActive ? Icons.check_circle : Icons.circle_outlined, color: isActive ? AppTheme.primary : AppTheme.textMuted, size: 22),
+              title: Text(l['name']!, style: TextStyle(fontSize: 15, fontWeight: isActive ? FontWeight.w700 : FontWeight.w500, color: isActive ? AppTheme.primary : const Color(0xFF1A1A1A))),
+              onTap: () {
+                provider.setLanguage(l['name']!);
+                Navigator.pop(ctx);
+                setState(() {});
+              },
+            );
+          }),
+        ]),
+      ),
+    );
   }
 
 

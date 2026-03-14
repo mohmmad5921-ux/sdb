@@ -24,6 +24,8 @@ import 'screens/app_settings_screen.dart';
 import 'screens/pending_account_screen.dart';
 import 'screens/support_chat_screen.dart';
 import 'services/push_notification_service.dart';
+import 'services/biometric_service.dart';
+import 'services/api_service.dart';
 
 /// Global navigator key for push notification navigation
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -55,12 +57,13 @@ class SDBApp extends StatefulWidget {
   State<SDBApp> createState() => _SDBAppState();
 }
 
-class _SDBAppState extends State<SDBApp> {
+class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
   final _localeProvider = LocaleProvider();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _localeProvider.addListener(() {
       if (mounted) setState(() {});
     });
@@ -68,8 +71,31 @@ class _SDBAppState extends State<SDBApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _localeProvider.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkBiometricOnResume();
+    }
+  }
+
+  Future<void> _checkBiometricOnResume() async {
+    // Only check if user is logged in and biometric is enabled
+    final t = await ApiService.token;
+    if (t == null) return;
+
+    final isEnabled = await BiometricService.isEnabled();
+    if (!isEnabled) return;
+
+    final didAuth = await BiometricService.authenticate(reason: 'تحقق من هويتك للدخول');
+    if (!didAuth && mounted) {
+      // If failed, navigate to login
+      navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (r) => false);
+    }
   }
 
   @override
