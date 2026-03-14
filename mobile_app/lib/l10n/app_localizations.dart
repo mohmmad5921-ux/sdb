@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'translations_extra.dart';
 
 /// All translatable strings for the SDB app
 class AppStrings {
@@ -184,6 +185,52 @@ class AppStrings {
   final String instantly;
   final String confirmSend;
 
+  // Dashboard extras
+  final String explore;
+  final String howCanIHelp;
+  final String askAssistant;
+
+  // Settings
+  final String appSettings;
+  final String security;
+  final String changePasswordTitle;
+  final String currentPassword;
+  final String newPassword;
+  final String confirmPasswordShort;
+  final String passwordsNotMatch;
+  final String passwordChangedSuccess;
+  final String change;
+  final String appearanceAndSound;
+  final String appTheme;
+  final String light;
+  final String dark;
+  final String customizeAppIcon;
+  final String appSounds;
+  final String chooseIcon;
+  final String iconChangeFailed;
+  final String biometricNotAvailable;
+  final String biometricEnabled;
+  final String biometricDisabled;
+  final String errorTryAgain;
+
+  // Cards extra 2
+  final String pinCode;
+  final String yourPinCode;
+  final String dontSharePin;
+  final String resetPinConfirm;
+  final String resetPinSuccess;
+  final String reset;
+  final String replaceCardConfirm;
+  final String replace;
+  final String deleteCardConfirm;
+  final String deletePermanently;
+  final String addingToWallet;
+  final String addedToWallet;
+  final String walletNotAvailable;
+  final String connectionErrorShort;
+  final String settingUpdateFailed;
+  final String cardsTitle;
+
   const AppStrings({
     required this.welcomeBack,
     required this.createAccount,
@@ -332,6 +379,46 @@ class AppStrings {
     required this.arrives,
     required this.instantly,
     required this.confirmSend,
+    required this.explore,
+    required this.howCanIHelp,
+    required this.askAssistant,
+    required this.appSettings,
+    required this.security,
+    required this.changePasswordTitle,
+    required this.currentPassword,
+    required this.newPassword,
+    required this.confirmPasswordShort,
+    required this.passwordsNotMatch,
+    required this.passwordChangedSuccess,
+    required this.change,
+    required this.appearanceAndSound,
+    required this.appTheme,
+    required this.light,
+    required this.dark,
+    required this.customizeAppIcon,
+    required this.appSounds,
+    required this.chooseIcon,
+    required this.iconChangeFailed,
+    required this.biometricNotAvailable,
+    required this.biometricEnabled,
+    required this.biometricDisabled,
+    required this.errorTryAgain,
+    required this.pinCode,
+    required this.yourPinCode,
+    required this.dontSharePin,
+    required this.resetPinConfirm,
+    required this.resetPinSuccess,
+    required this.reset,
+    required this.replaceCardConfirm,
+    required this.replace,
+    required this.deleteCardConfirm,
+    required this.deletePermanently,
+    required this.addingToWallet,
+    required this.addedToWallet,
+    required this.walletNotAvailable,
+    required this.connectionErrorShort,
+    required this.settingUpdateFailed,
+    required this.cardsTitle,
   });
 }
 
@@ -483,6 +570,46 @@ const enStrings = AppStrings(
   arrives: 'Arrives',
   instantly: 'Instantly',
   confirmSend: 'Confirm & Send',
+  explore: 'Explore',
+  howCanIHelp: 'How can I help you?',
+  askAssistant: 'Ask SDB smart assistant about your account',
+  appSettings: 'App Settings',
+  security: 'Security',
+  changePasswordTitle: 'Change Password',
+  currentPassword: 'Current Password',
+  newPassword: 'New Password',
+  confirmPasswordShort: 'Confirm Password',
+  passwordsNotMatch: 'Passwords do not match',
+  passwordChangedSuccess: 'Password changed ✓',
+  change: 'Change',
+  appearanceAndSound: 'Appearance & Sound',
+  appTheme: 'App Theme',
+  light: 'Light',
+  dark: 'Dark',
+  customizeAppIcon: 'Customize App Icon',
+  appSounds: 'In-app Sounds',
+  chooseIcon: 'Choose Icon',
+  iconChangeFailed: 'Failed to change icon',
+  biometricNotAvailable: 'Biometric authentication not available',
+  biometricEnabled: 'Biometric login enabled ✓',
+  biometricDisabled: 'Biometric login disabled',
+  errorTryAgain: 'An error occurred — try again',
+  pinCode: 'PIN Code',
+  yourPinCode: 'Your card PIN code',
+  dontSharePin: 'Do not share your PIN with anyone',
+  resetPinConfirm: 'A new PIN will be generated for your card',
+  resetPinSuccess: 'PIN reset successfully ✅',
+  reset: 'Reset',
+  replaceCardConfirm: 'Your current card will be cancelled and a new card with a different number will be issued',
+  replace: 'Replace',
+  deleteCardConfirm: 'Are you sure? This action cannot be undone.\nThe card will be permanently cancelled.',
+  deletePermanently: 'Delete Permanently',
+  addingToWallet: 'Adding to Apple Wallet...',
+  addedToWallet: 'Added to Apple Wallet! ✅',
+  walletNotAvailable: 'Apple Wallet not available',
+  connectionErrorShort: 'Connection error',
+  settingUpdateFailed: 'Setting update failed',
+  cardsTitle: 'Cards',
 );
 
 const arStrings = AppStrings(
@@ -633,6 +760,46 @@ const arStrings = AppStrings(
   arrives: 'يصل',
   instantly: 'فوري',
   confirmSend: 'تأكيد وإرسال',
+  explore: 'استكشف',
+  howCanIHelp: 'كيف يمكنني مساعدتك؟',
+  askAssistant: 'اسأل مساعد SDB الذكي عن حسابك',
+  appSettings: 'إعدادات التطبيق',
+  security: 'الأمان',
+  changePasswordTitle: 'تغيير كلمة السر',
+  currentPassword: 'كلمة السر الحالية',
+  newPassword: 'كلمة السر الجديدة',
+  confirmPasswordShort: 'تأكيد كلمة السر',
+  passwordsNotMatch: 'كلمات السر غير متطابقة',
+  passwordChangedSuccess: 'تم تغيير كلمة السر ✓',
+  change: 'تغيير',
+  appearanceAndSound: 'المظهر والصوت',
+  appTheme: 'سمة التطبيق',
+  light: 'فاتح',
+  dark: 'داكن',
+  customizeAppIcon: 'تخصيص أيقونة التطبيق',
+  appSounds: 'الأصوات في التطبيق',
+  chooseIcon: 'اختر أيقونة',
+  iconChangeFailed: 'تعذّر تغيير الأيقونة',
+  biometricNotAvailable: 'المصادقة البيومترية غير متوفرة',
+  biometricEnabled: 'تم تفعيل تسجيل الدخول بالبصمة ✓',
+  biometricDisabled: 'تم تعطيل تسجيل الدخول بالبصمة',
+  errorTryAgain: 'حدث خطأ — حاول مرة أخرى',
+  pinCode: 'رمز PIN',
+  yourPinCode: 'رمز PIN الخاص ببطاقتك',
+  dontSharePin: 'لا تشارك رمز PIN مع أي شخص',
+  resetPinConfirm: 'سيتم إنشاء رمز PIN جديد لبطاقتك',
+  resetPinSuccess: 'تم إعادة تعيين PIN بنجاح ✅',
+  reset: 'إعادة تعيين',
+  replaceCardConfirm: 'سيتم إلغاء بطاقتك الحالية وإصدار بطاقة جديدة برقم مختلف',
+  replace: 'استبدال',
+  deleteCardConfirm: 'هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.\nسيتم إلغاء البطاقة نهائياً.',
+  deletePermanently: 'حذف نهائياً',
+  addingToWallet: 'جاري الإضافة إلى Apple Wallet...',
+  addedToWallet: 'تمت الإضافة إلى Apple Wallet! ✅',
+  walletNotAvailable: 'Apple Wallet غير متاح حالياً',
+  connectionErrorShort: 'خطأ اتصال',
+  settingUpdateFailed: 'فشل تحديث الإعداد',
+  cardsTitle: 'البطاقات',
 );
 
 /// Provider to manage locale across the app
@@ -675,14 +842,29 @@ class LocaleProvider extends ChangeNotifier {
         _locale = const Locale('ar');
         _strings = arStrings;
         break;
-      case 'en':
       case 'tr':
+        _locale = const Locale('tr');
+        _strings = trStrings;
+        break;
       case 'da':
+        _locale = const Locale('da');
+        _strings = daStrings;
+        break;
       case 'de':
+        _locale = const Locale('de');
+        _strings = deStrings;
+        break;
       case 'fr':
+        _locale = const Locale('fr');
+        _strings = frStrings;
+        break;
       case 'sv':
-        _locale = Locale(code);
-        _strings = enStrings; // Fall back to English for now
+        _locale = const Locale('sv');
+        _strings = svStrings;
+        break;
+      case 'en':
+        _locale = const Locale('en');
+        _strings = enStrings;
         break;
       default:
         _locale = const Locale('ar');

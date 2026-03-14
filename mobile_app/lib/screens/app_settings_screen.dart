@@ -47,7 +47,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         if (!can) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('المصادقة البيومترية غير متوفرة'), backgroundColor: AppTheme.danger),
+              SnackBar(content: Text(L10n.of(context).biometricNotAvailable), backgroundColor: AppTheme.danger),
             );
           }
           return;
@@ -93,6 +93,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
 
+    final t = L10n.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -100,13 +101,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       builder: (_) => Padding(
         padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('تغيير كلمة السر', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          Text(t.changePasswordTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
           const SizedBox(height: 20),
-          _passField('كلمة السر الحالية', currentCtrl),
+          _passField(t.currentPassword, currentCtrl),
           const SizedBox(height: 12),
-          _passField('كلمة السر الجديدة', newCtrl),
+          _passField(t.newPassword, newCtrl),
           const SizedBox(height: 12),
-          _passField('تأكيد كلمة السر', confirmCtrl),
+          _passField(t.confirmPasswordShort, confirmCtrl),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -151,6 +152,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = L10n.of(context);
     final provider = L10n.providerOf(context);
     final langDisplay = provider.isArabic ? 'العربية' : 'English';
 
@@ -172,31 +174,31 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             const SizedBox(height: 16),
 
             // Title
-            const Text('إعدادات التطبيق', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            Text(t.appSettings, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             const SizedBox(height: 24),
 
             // General section
             Container(
               decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
               child: Column(children: [
-                _settingsRow(Icons.language, 'اللغة', trailing: Text(langDisplay, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)), onTap: _showLanguagePicker),
+                _settingsRow(Icons.language, t.language, trailing: Text(langDisplay, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)), onTap: _showLanguagePicker),
                 _divider(),
-                _settingsRow(Icons.notifications_none_rounded, 'الإشعارات', onTap: () {}),
+                _settingsRow(Icons.notifications_none_rounded, t.notifications, onTap: () {}),
                 _divider(),
-                _settingsRow(Icons.palette_outlined, 'المظهر والصوت', onTap: _showAppearance),
+                _settingsRow(Icons.palette_outlined, t.appearanceAndSound, onTap: _showAppearance),
               ]),
             ),
             const SizedBox(height: 24),
 
             // Security section
-            const Text('الأمان', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textMuted, letterSpacing: 0.5)),
+            Text(t.security, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textMuted, letterSpacing: 0.5)),
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(color: AppTheme.bgCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
               child: Column(children: [
-                _settingsRow(Icons.lock_outline, 'تغيير كلمة السر', subtitle: '••••', onTap: _showChangePassword),
+                _settingsRow(Icons.lock_outline, t.changePassword, subtitle: '••••', onTap: _showChangePassword),
                 _divider(),
-                _settingsRow(Icons.face_rounded, 'تسجيل الدخول بـ Face ID', trailing: _toggle(_biometrics, _toggleBiometric)),
+                _settingsRow(Icons.face_rounded, t.biometricLogin, trailing: _toggle(_biometrics, _toggleBiometric)),
                 _divider(),
                 _settingsRow(Icons.notifications_active_outlined, 'الإشعارات', trailing: _toggle(_notifications, _toggleNotifications)),
               ]),
