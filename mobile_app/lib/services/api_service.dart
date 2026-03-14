@@ -408,5 +408,36 @@ class ApiService {
     }
   }
 
+  // ==================== REMITTANCE ====================
+
+  static Future<Map<String, dynamic>> getGovernorates() async {
+    final r = await http.get(Uri.parse('$baseUrl/remittance/governorates'), headers: await _headers());
+    return _parseResponse(r);
+  }
+
+  static Future<Map<String, dynamic>> sendRemittance(Map<String, dynamic> data) async {
+    final r = await http.post(Uri.parse('$baseUrl/remittance/send'), headers: await _headers(), body: jsonEncode(data));
+    return _parseResponse(r);
+  }
+
+  static Future<Map<String, dynamic>> getRemittanceHistory() async {
+    final r = await http.get(Uri.parse('$baseUrl/remittance/history'), headers: await _headers());
+    return _parseResponse(r);
+  }
+
+  static Future<Map<String, dynamic>> getRemittanceReceipt(int id) async {
+    final r = await http.get(Uri.parse('$baseUrl/remittance/$id/receipt'), headers: await _headers());
+    return _parseResponse(r);
+  }
+
+  static Map<String, dynamic> _parseResponse(http.Response r) {
+    try {
+      if (r.body.startsWith('{') || r.body.startsWith('[')) {
+        return {'success': r.statusCode >= 200 && r.statusCode < 300, 'data': jsonDecode(r.body), 'status': r.statusCode};
+      }
+    } catch (_) {}
+    return {'success': false, 'data': {'message': 'Server error (${r.statusCode})'}, 'status': r.statusCode};
+  }
+
   static Future<bool> isLoggedIn() async => await token != null;
 }

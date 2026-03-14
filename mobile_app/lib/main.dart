@@ -24,6 +24,7 @@ import 'screens/app_settings_screen.dart';
 import 'screens/pending_account_screen.dart';
 import 'screens/support_chat_screen.dart';
 import 'screens/subscription_screen.dart';
+import 'screens/remittance_screen.dart';
 import 'services/push_notification_service.dart';
 import 'services/biometric_service.dart';
 import 'services/api_service.dart';
@@ -127,6 +128,7 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
           '/pending': (_) => const PendingAccountScreen(),
           '/support-chat': (_) => const SupportChatScreen(),
           '/subscription': (_) => const SubscriptionScreen(),
+          '/remittance': (_) => const RemittanceScreen(),
         },
       ),
     );
