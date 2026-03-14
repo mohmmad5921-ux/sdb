@@ -130,18 +130,22 @@ class MobileApiController extends Controller
             $token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
 
             if ($channel === 'whatsapp') {
-                $verifySid = config('services.twilio.verify_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
-                $response = \Illuminate\Support\Facades\Http::withBasicAuth($sid, $token)
-                    ->asForm()
-                    ->post("https://verify.twilio.com/v2/Services/{$verifySid}/Verifications", [
-                        'To' => $phone,
-                        'Channel' => 'whatsapp',
-                    ]);
+                $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                \Illuminate\Support\Facades\Cache::put("login_otp:{$phone}", $code, now()->addMinutes(5));
 
-                if ($response->successful()) {
+                try {
+                    \App\Services\SmsService::sendWhatsApp($phone,
+                        "🏦 *SDB Bank — رمز الدخول*\n\n" .
+                        "رمز الدخول الخاص بك: *{$code}*\n" .
+                        "Your login code: *{$code}*\n\n" .
+                        "⚠️ لا تشارك هذا الرمز مع أحد\n" .
+                        "Do not share this code."
+                    );
                     return response()->json(['success' => true, 'message' => 'تم إرسال رمز التحقق عبر واتساب', 'channel' => 'whatsapp']);
+                } catch (\Exception $e) {
+                    \Log::error('Login WhatsApp OTP error: ' . $e->getMessage());
+                    return response()->json(['success' => false, 'message' => 'فشل إرسال رمز التحقق عبر واتساب'], 422);
                 }
-                return response()->json(['success' => false, 'message' => 'فشل إرسال رمز التحقق عبر واتساب'], 422);
             }
 
             // SMS
