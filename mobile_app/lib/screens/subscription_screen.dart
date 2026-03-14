@@ -122,21 +122,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
     // Paid plan — use Stripe
     setState(() { _loading = true; _error = null; });
     try {
+      debugPrint('🔵 Creating subscription intent for plan: ${plan.id}');
       final intentRes = await ApiService.createSubscriptionIntent(plan.id);
+      debugPrint('🔵 Intent response: ${intentRes['success']} - ${intentRes['data']}');
       if (intentRes['success'] != true) {
         setState(() { _error = intentRes['data']?['message'] ?? 'فشل إنشاء عملية الدفع'; _loading = false; });
         return;
       }
 
       final clientSecret = intentRes['data']['client_secret'];
+      debugPrint('🔵 Got client_secret, initializing PaymentSheet...');
 
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'SDB Bank',
           style: ThemeMode.light,
-          googlePay: const PaymentSheetGooglePay(merchantCountryCode: 'DK', currencyCode: 'DKK', testEnv: true),
-          applePay: const PaymentSheetApplePay(merchantCountryCode: 'DK'),
           appearance: PaymentSheetAppearance(
             colors: PaymentSheetAppearanceColors(
               primary: plan.color,
@@ -151,6 +152,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
           ),
         ),
       );
+
+      debugPrint('🔵 PaymentSheet initialized, presenting...');
 
       await Stripe.instance.presentPaymentSheet();
 
