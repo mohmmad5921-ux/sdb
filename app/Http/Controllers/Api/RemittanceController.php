@@ -98,17 +98,21 @@ class RemittanceController extends Controller
         ]);
 
         // Create transaction record
-        \App\Models\Transaction::create([
-            'reference_number' => \App\Models\Transaction::generateReference(),
-            'from_account_id' => $account->id,
-            'currency_id' => $account->currency_id,
-            'amount' => $request->amount,
-            'fee' => $fee,
-            'type' => 'remittance',
-            'status' => 'completed',
-            'description' => "حوالة إلى {$request->recipient_name} - {$agent->district->governorate->name_ar}",
-            'completed_at' => now(),
-        ]);
+        try {
+            \App\Models\Transaction::create([
+                'reference_number' => \App\Models\Transaction::generateReference(),
+                'from_account_id' => $account->id,
+                'currency_id' => $account->currency_id,
+                'amount' => $request->amount,
+                'fee' => $fee,
+                'type' => 'transfer',
+                'status' => 'completed',
+                'description' => "حوالة سوريا — {$request->recipient_name} — {$agent->district->governorate->name_ar}",
+                'completed_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Remittance transaction record failed: ' . $e->getMessage());
+        }
 
         // Create in-app notification
         \App\Models\Notification::create([
