@@ -36,7 +36,7 @@ class _CardsTabState extends State<CardsTab> {
       if (mounted) {
         final msg = r['success'] == true 
           ? (r['data']?['status'] == 'frozen' ? '${L10n.of(context).freezeCard} ❄️' : '${L10n.of(context).unfreezeCard} ✅')
-          : '${L10n.of(context).connectionErrorShort}: ${r['data']?['message'] ?? 'خطأ غير معروف'}';
+          : '${L10n.of(context).connectionErrorShort}: ${r['data']?['message'] ?? 'Error'}';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: r['success'] == true ? const Color(0xFF10B981) : const Color(0xFFEF4444)));
         _load();
       }
@@ -202,7 +202,7 @@ class _CardsTabState extends State<CardsTab> {
         SizedBox(width: 8),
         Text(L10n.of(context).deleteCard, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
       ]),
-      content: Text(L10n.of(context).deleteCardConfirm.\nسيتم إلغاء البطاقة نهائياً.',
+      content: Text(L10n.of(context).deleteCardConfirm,
         style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
       actions: [
         TextButton(onPressed: () => Navigator.pop(dCtx), child: Text(L10n.of(context).cancel, style: const TextStyle(color: Color(0xFF9CA3AF))))),
@@ -282,7 +282,7 @@ class _CardsTabState extends State<CardsTab> {
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(r['success'] == true ? '${L10n.of(context).issueCardBtn} ✅' : (r['data']?['message'] ?? 'خطأ')),
+        content: Text(r['success'] == true ? '${L10n.of(context).issueCardBtn} ✅' : (r['data']?['message'] ?? 'Error')),
         backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
       ));
     }
@@ -320,7 +320,7 @@ class _CardsTabState extends State<CardsTab> {
                 children: [
                   Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2)))),
                   const SizedBox(height: 20),
-                  const Center(child: Text('تفاصيل البطاقة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827)))),
+                  Center(child: Text(L10n.of(context).cardDetails, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827)))),
                   const SizedBox(height: 24),
 
                   // Card Info Section
@@ -502,7 +502,7 @@ class _CardsTabState extends State<CardsTab> {
                 // ── Card Label ──
                 const SizedBox(height: 12),
                 Center(child: Text(
-                  'بطاقة رقمية  ••••  ${_last4(_cards[_activeIndex])}',
+                  '${L10n.of(context).digitalCard}  ••••  ${_last4(_cards[_activeIndex])}',
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
                 )),
 
@@ -895,7 +895,7 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
           const SizedBox(height: 20),
 
           // ── Wallet Selection ──
-          Align(alignment: Alignment.centerRight, child: Text('ربط البطاقة بالمحفظة', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
+          Align(alignment: Alignment.centerRight, child: Text(L10n.of(context).linkCardToWallet, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF111827)))),
           const SizedBox(height: 8),
           if (_loadingWallets)
             const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(color: Color(0xFF10B981), strokeWidth: 2))
@@ -906,7 +906,7 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
               child: const Row(children: [
                 Icon(Icons.warning_rounded, size: 18, color: Color(0xFFEF4444)),
                 SizedBox(width: 8),
-                Expanded(child: Text('لا توجد محافظ متاحة', style: TextStyle(fontSize: 13, color: Color(0xFFEF4444)))),
+                Expanded(child: Text(L10n.of(context).noWalletsAvailable, style: TextStyle(fontSize: 13, color: Color(0xFFEF4444)))),
               ]),
             )
           else ...[
@@ -916,11 +916,11 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
               final isSelected = _selectedWalletId == id;
               final currency = w['currency'] ?? '';
               final balance = w['balance']?.toString() ?? '0';
-              final name = w['name'] ?? 'محفظة $currency';
+              final name = w['name'] ?? '$currency Wallet';
               return GestureDetector(
                 onTap: hasCard ? () {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('⚠️ كل محفظة يحق لها بطاقة واحدة فقط'),
+                    content: Text(L10n.of(context).oneCardPerWallet),
                     backgroundColor: Color(0xFFEF4444),
                   ));
                 } : () => setState(() => _selectedWalletId = id),
@@ -951,7 +951,7 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
                     if (hasCard) Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(8)),
-                      child: const Text('يوجد بطاقة', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w600)),
+                      child: Text(L10n.of(context).hasCard, style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w600)),
                     ),
                   ]),
                 ),
@@ -968,9 +968,9 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
           const SizedBox(height: 16),
 
           // Features
-          _featureRow(Icons.shield_outlined, 'حماية كاملة', 'تشفير AES-256 وحماية من الاحتيال'),
-          _featureRow(Icons.contactless_rounded, 'دفع بدون تلامس', 'NFC للدفع السريع في المتاجر'),
-          _featureRow(Icons.tune_rounded, 'تحكم كامل', 'تجميد، حدود إنفاق، وإعدادات مخصصة'),
+          _featureRow(Icons.shield_outlined, L10n.of(context).security, 'AES-256'),
+          _featureRow(Icons.contactless_rounded, 'NFC Pay', 'Contactless'),
+          _featureRow(Icons.tune_rounded, L10n.of(context).cardSettings, L10n.of(context).spendingLimits),
 
           const SizedBox(height: 16),
 
@@ -995,7 +995,7 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
                   child: _agreed ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(child: Text('أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
+                Expanded(child: Text(L10n.of(context).agreeTermsCard, style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500))),
               ]),
             ),
           ),
@@ -1014,7 +1014,7 @@ class _CardAgreementSheetState extends State<_CardAgreementSheet> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: (_agreed && _selectedWalletId != null) ? [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))] : null,
               ),
-              child: Center(child: Text('إصدار البطاقة', style: TextStyle(
+              child: Center(child: Text(L10n.of(context).issueCardBtn, style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w800, color: (_agreed && _selectedWalletId != null) ? Colors.white : const Color(0xFF9CA3AF),
               ))),
             ),

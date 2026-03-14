@@ -172,18 +172,18 @@ class _MoreTabState extends State<MoreTab> {
       case 'fr': return 'Français';
       case 'sv': return 'Svenska';
       case 'ar':
-      default: return 'العربية';
+      default: return _langLabel();
     }
   }
 
   void _showCurrencyPicker() {
     final t = L10n.of(context);
     final currencies = [
-      {'code': 'SYP', 'name': 'الليرة السورية', 'flag': '🇸🇾'},
-      {'code': 'EUR', 'name': 'يورو', 'flag': '🇪🇺'},
-      {'code': 'USD', 'name': 'دولار أمريكي', 'flag': '🇺🇸'},
-      {'code': 'GBP', 'name': 'جنيه إسترليني', 'flag': '🇬🇧'},
-      {'code': 'DKK', 'name': 'كرونة دنماركية', 'flag': '🇩🇰'},
+      {'code': 'SYP', 'name': 'Syrian Pound', 'flag': '🇸🇾'},
+      {'code': 'EUR', 'name': 'Euro', 'flag': '🇪🇺'},
+      {'code': 'USD', 'name': 'US Dollar', 'flag': '🇺🇸'},
+      {'code': 'GBP', 'name': 'British Pound', 'flag': '🇬🇧'},
+      {'code': 'DKK', 'name': 'Danish Krone', 'flag': '🇩🇰'},
     ];
     showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (_) => Padding(
       padding: const EdgeInsets.all(20),
@@ -291,7 +291,7 @@ class _MoreTabState extends State<MoreTab> {
             if (mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(r['success'] == true ? t.passwordChanged : (r['data']?['message'] ?? 'خطأ')),
+                content: Text(r['success'] == true ? t.passwordChanged : (r['data']?['message'] ?? 'Error')),
                 backgroundColor: r['success'] == true ? AppTheme.primary : AppTheme.danger,
               ));
             }
@@ -529,21 +529,21 @@ class _MoreTabState extends State<MoreTab> {
 
   String _iconLabel(String key) {
     switch (key) {
-      case 'AppIconBlack': return 'أسود';
-      case 'AppIconWhite': return 'أبيض';
-      case 'AppIconNavy': return 'كحلي';
-      case 'AppIconRed': return 'أحمر';
-      default: return 'أخضر (افتراضي)';
+      case 'AppIconBlack': return 'Black';
+      case 'AppIconWhite': return 'White';
+      case 'AppIconNavy': return 'Navy';
+      case 'AppIconRed': return 'Red';
+      default: return 'Green (Default)';
     }
   }
 
   void _showIconPicker() {
     final icons = [
-      {'key': 'default', 'label': 'أخضر', 'asset': 'assets/icons/icon_green.png', 'color': const Color(0xFF1B5E20)},
-      {'key': 'AppIconBlack', 'label': 'أسود', 'asset': 'assets/icons/icon_black.png', 'color': const Color(0xFF000000)},
-      {'key': 'AppIconWhite', 'label': 'أبيض', 'asset': 'assets/icons/icon_white.png', 'color': const Color(0xFFFFFFFF)},
-      {'key': 'AppIconNavy', 'label': 'كحلي', 'asset': 'assets/icons/icon_navy.png', 'color': const Color(0xFF0A1628)},
-      {'key': 'AppIconRed', 'label': 'أحمر', 'asset': 'assets/icons/icon_red.png', 'color': const Color(0xFFB71C1C)},
+      {'key': 'default', 'label': 'Green', 'asset': 'assets/icons/icon_green.png', 'color': const Color(0xFF1B5E20)},
+      {'key': 'AppIconBlack', 'label': 'Black', 'asset': 'assets/icons/icon_black.png', 'color': const Color(0xFF000000)},
+      {'key': 'AppIconWhite', 'label': 'White', 'asset': 'assets/icons/icon_white.png', 'color': const Color(0xFFFFFFFF)},
+      {'key': 'AppIconNavy', 'label': 'Navy', 'asset': 'assets/icons/icon_navy.png', 'color': const Color(0xFF0A1628)},
+      {'key': 'AppIconRed', 'label': 'Red', 'asset': 'assets/icons/icon_red.png', 'color': const Color(0xFFB71C1C)},
     ];
 
     showModalBottomSheet(
@@ -580,7 +580,7 @@ class _MoreTabState extends State<MoreTab> {
                       setState(() => _selectedIcon = ic['key'] as String);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('تم تغيير الأيقونة إلى ${ic['label']} ✓'), backgroundColor: AppTheme.primary),
+                        SnackBar(content: Text('Icon changed to ${ic["label"]} ✓'), backgroundColor: AppTheme.primary),
                       );
                     }
                   } catch (e) {

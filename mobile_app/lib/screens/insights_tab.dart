@@ -120,29 +120,29 @@ class _InsightsTabState extends State<InsightsTab> {
 
   String _categorize(Map<String, dynamic> tx) {
     final type = (tx['type'] ?? tx['description'] ?? '').toString().toLowerCase();
-    if (type.contains('transfer')) return 'تحويلات';
-    if (type.contains('deposit')) return 'إيداعات';
-    if (type.contains('exchange')) return 'صرف عملات';
-    if (type.contains('card')) return 'مدفوعات بطاقة';
-    if (type.contains('fee')) return 'رسوم';
-    return 'أخرى';
+    if (type.contains('transfer')) return L10n.of(context).send;
+    if (type.contains('deposit')) return L10n.of(context).deposit;
+    if (type.contains('exchange')) return L10n.of(context).exchange;
+    if (type.contains('card')) return L10n.of(context).navCards;
+    if (type.contains('fee')) return L10n.of(context).details;
+    return L10n.of(context).details;
   }
 
-  IconData _catIcon(String c) => {'تحويلات': Icons.send_rounded, 'إيداعات': Icons.account_balance_rounded, 'صرف عملات': Icons.swap_horiz_rounded, 'مدفوعات بطاقة': Icons.credit_card_rounded, 'رسوم': Icons.receipt_long_rounded}[c] ?? Icons.help_outline_rounded;
-  Color _catColor(String c) => {'تحويلات': const Color(0xFF3B82F6), 'إيداعات': AppTheme.primary, 'صرف عملات': const Color(0xFFF59E0B), 'مدفوعات بطاقة': const Color(0xFFA855F7), 'رسوم': const Color(0xFFEF4444)}[c] ?? const Color(0xFF6B7280);
+  IconData _catIcon(String c) => {L10n.of(context).send: Icons.send_rounded, L10n.of(context).deposit: Icons.account_balance_rounded, L10n.of(context).exchange: Icons.swap_horiz_rounded, L10n.of(context).navCards: Icons.credit_card_rounded, L10n.of(context).details: Icons.receipt_long_rounded}[c] ?? Icons.help_outline_rounded;
+  Color _catColor(String c) => {L10n.of(context).send: const Color(0xFF3B82F6), L10n.of(context).deposit: AppTheme.primary, L10n.of(context).exchange: const Color(0xFFF59E0B), L10n.of(context).navCards: const Color(0xFFA855F7), L10n.of(context).details: const Color(0xFFEF4444)}[c] ?? const Color(0xFF6B7280);
 
   String _dateRangeLabel() {
     final now = DateTime.now();
-    final m = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    final m = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     if (_timeFilter == 0) return '1 ${m[now.month]} - ${now.day} ${m[now.month]}';
-    if (_timeFilter == 1) return 'يناير ${now.year} - ${m[now.month]} ${now.year}';
-    return 'كل الفترات';
+    if (_timeFilter == 1) return '${m[1]} ${now.year} - ${m[now.month]} ${now.year}';
+    return L10n.of(context).allAccounts;
   }
 
   String _accountLabel() {
     if (_selectedAccountId == null) return L10n.of(context).allAccounts;
     final acc = _accounts.firstWhere((a) => a['id'] == _selectedAccountId, orElse: () => {});
-    return acc['name'] ?? acc['currency']?['code'] ?? 'حساب';
+    return acc['name'] ?? acc['currency']?['code'] ?? L10n.of(context).account;
   }
 
   // ═══════ Monthly Bars ═══════
@@ -150,7 +150,7 @@ class _InsightsTabState extends State<InsightsTab> {
   List<_MonthBar> _getMonthlyBars() {
     final now = DateTime.now();
     final bars = <_MonthBar>[];
-    final mn = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    final mn = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     for (int i = 3; i >= 0; i--) {
       int month = now.month - i;
       int year = now.year;
@@ -221,11 +221,11 @@ class _InsightsTabState extends State<InsightsTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(children: [
-                _tabChip('الإنفاق', 0),
+                _tabChip(L10n.of(context).outgoing, 0),
                 const SizedBox(width: 12),
-                _tabChip('الدخل', 1),
+                _tabChip(L10n.of(context).incoming, 1),
                 const SizedBox(width: 12),
-                _tabChip('التدفق النقدي', 2),
+                _tabChip(L10n.of(context).insights, 2),
               ]),
             ),
             const SizedBox(height: 24),
@@ -267,9 +267,9 @@ class _InsightsTabState extends State<InsightsTab> {
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
                 child: Row(children: [
-                  _filterChip('الشهر', 0),
-                  _filterChip('السنة', 1),
-                  _filterChip('كل الفترات', 2),
+                  _filterChip(L10n.of(context).thisMonth, 0),
+                  _filterChip(L10n.of(context).timePeriod, 1),
+                  _filterChip(L10n.of(context).allAccounts, 2),
                 ]),
               ),
             ),
@@ -319,7 +319,7 @@ class _InsightsTabState extends State<InsightsTab> {
           // Title
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('الإعدادات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            child: Text(L10n.of(context).settings, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 24),
 
@@ -340,7 +340,7 @@ class _InsightsTabState extends State<InsightsTab> {
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
                       const SizedBox(height: 16),
-                      const Text('اختر حساب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                      Text(L10n.of(context).selectAccount, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
                       const SizedBox(height: 16),
                       // All accounts
                       ListTile(
@@ -351,7 +351,7 @@ class _InsightsTabState extends State<InsightsTab> {
                       ),
                       ..._accounts.map((a) => ListTile(
                         leading: Text(a['currency']?['symbol'] ?? '€', style: const TextStyle(fontSize: 20)),
-                        title: Text(a['name'] ?? 'حساب ${a['currency']?['code'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(a['name'] ?? '${a['currency']?['code'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
                         subtitle: Text(a['currency']?['code'] ?? '', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
                         trailing: tempAccount == a['id'] ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary) : null,
                         onTap: () { setSheetState(() => tempAccount = a['id']); Navigator.pop(pickCtx); },
@@ -365,10 +365,10 @@ class _InsightsTabState extends State<InsightsTab> {
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('اختر حساب', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                    Text(L10n.of(context).selectAccount, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                     const SizedBox(height: 2),
                     Text(
-                      tempAccount == -1 ? L10n.of(context).allAccounts : (_accounts.firstWhere((a) => a['id'] == tempAccount, orElse: () => {'name': 'حساب'})['name'] ?? 'حساب'),
+                      tempAccount == -1 ? L10n.of(context).allAccounts : (_accounts.firstWhere((a) => a['id'] == tempAccount, orElse: () => {'name': L10n.of(context).account})['name'] ?? L10n.of(context).account),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
                     ),
                   ]),
@@ -395,7 +395,7 @@ class _InsightsTabState extends State<InsightsTab> {
                   const Text(L10n.of(context).selectPeriod, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                   const SizedBox(height: 2),
                   Text(
-                    _timeFilter == 0 ? 'آخر يوم عمل في الشهر' : _timeFilter == 1 ? 'السنة الحالية' : 'كل الفترات',
+                    _timeFilter == 0 ? L10n.of(context).thisMonth : _timeFilter == 1 ? L10n.of(context).timePeriod : L10n.of(context).allAccounts,
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
                   ),
                 ]),
@@ -408,15 +408,15 @@ class _InsightsTabState extends State<InsightsTab> {
           // Chart type
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('اختر المظهر', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            child: Text(L10n.of(context).selectTheme, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(children: [
-              _chartOption(sheetCtx, setSheetState, Icons.donut_large_rounded, 'دائرة الإنفاق', 0, tempChart, (v) => setSheetState(() => tempChart = v)),
+              _chartOption(sheetCtx, setSheetState, Icons.donut_large_rounded, L10n.of(context).categories, 0, tempChart, (v) => setSheetState(() => tempChart = v)),
               const SizedBox(height: 8),
-              _chartOption(sheetCtx, setSheetState, Icons.bar_chart_rounded, 'رسم بياني', 1, tempChart, (v) => setSheetState(() => tempChart = v)),
+              _chartOption(sheetCtx, setSheetState, Icons.bar_chart_rounded, L10n.of(context).insights, 1, tempChart, (v) => setSheetState(() => tempChart = v)),
             ]),
           ),
           const Spacer(),
@@ -433,7 +433,7 @@ class _InsightsTabState extends State<InsightsTab> {
                 Navigator.pop(sheetCtx);
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.textPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              child: const Text('حفظ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              child: Text(L10n.of(context).save, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             )),
           ),
         ]),
@@ -584,7 +584,7 @@ class _InsightsTabState extends State<InsightsTab> {
           child: Row(children: [
             Expanded(child: CustomPaint(painter: _DashedLinePainter(color: AppTheme.primary.withValues(alpha: 0.6)))),
             const SizedBox(width: 4),
-            Text('م: ${_fmtShort(avg)}', style: TextStyle(fontSize: 9, color: AppTheme.primary.withValues(alpha: 0.8))),
+            Text('Avg: ${_fmtShort(avg)}', style: TextStyle(fontSize: 9, color: AppTheme.primary.withValues(alpha: 0.8))),
           ]),
         ),
 
@@ -676,12 +676,12 @@ class _InsightsTabState extends State<InsightsTab> {
       child: Column(children: [
         GestureDetector(
           onTap: () => setState(() => _activeTab = 1),
-          child: _cashFlowRow(Icons.add_rounded, AppTheme.primary, 'الدخل', _incomeTxCount, _totalIncome),
+          child: _cashFlowRow(Icons.add_rounded, AppTheme.primary, L10n.of(context).incoming, _incomeTxCount, _totalIncome),
         ),
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () => setState(() => _activeTab = 0),
-          child: _cashFlowRow(Icons.remove_rounded, AppTheme.textMuted, 'المصروفات', _spendingTxCount, _totalSpending),
+          child: _cashFlowRow(Icons.remove_rounded, AppTheme.textMuted, L10n.of(context).outgoing, _spendingTxCount, _totalSpending),
         ),
       ]),
     );
@@ -704,7 +704,7 @@ class _InsightsTabState extends State<InsightsTab> {
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-          Text('$count عملية', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+          Text('$count ${L10n.of(context).nOps}', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
         ])),
         Text('€${_fmtNum(amount)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         const SizedBox(width: 6),
@@ -735,7 +735,7 @@ class _InsightsTabState extends State<InsightsTab> {
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-            Text('$count عملية', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+            Text('$count ${L10n.of(context).nOps}', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
           ])),
           Text('${isIncome ? "" : "-"}€${_fmtNum(amount)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         ]),
@@ -780,9 +780,9 @@ class _InsightsTabState extends State<InsightsTab> {
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(color: AppTheme.bgMuted, borderRadius: BorderRadius.circular(12)),
               child: Row(children: [
-                _filterChip('الشهر', 0),
-                _filterChip('السنة', 1),
-                _filterChip('كل الفترات', 2),
+                _filterChip(L10n.of(context).thisMonth, 0),
+                _filterChip(L10n.of(context).timePeriod, 1),
+                _filterChip(L10n.of(context).allAccounts, 2),
               ]),
             ),
           ),
@@ -856,7 +856,7 @@ class _InsightsTabState extends State<InsightsTab> {
 
   Widget _buildCategoryChart(String catName, bool isSpending, Color color) {
     final now = DateTime.now();
-    final mn = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    final mn = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     final bars = <_MonthBar>[];
     for (int i = 3; i >= 0; i--) {
       int month = now.month - i;
@@ -917,7 +917,7 @@ class _InsightsTabState extends State<InsightsTab> {
     if (d.isEmpty) return '';
     try {
       final dt = DateTime.parse(d);
-      final m = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      final m = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return '${dt.day} ${m[dt.month]}';
     } catch (_) { return d; }
   }

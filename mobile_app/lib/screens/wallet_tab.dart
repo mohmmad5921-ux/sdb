@@ -314,7 +314,7 @@ class _WalletTabState extends State<WalletTab> {
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(r['success'] == true ? 'تم إصدار البطاقة بنجاح! ✅' : (r['data']?['message'] ?? 'خطأ')),
+        content: Text(r['success'] == true ? '${L10n.of(context).issueCardBtn} ✅' : (r['data']?['message'] ?? 'Error')),
         backgroundColor: r['success'] == true ? AppTheme.primary : const Color(0xFFEF4444),
       ));
     }
@@ -325,7 +325,7 @@ class _WalletTabState extends State<WalletTab> {
     return m.length >= 4 ? m.substring(m.length - 4) : '••••';
   }
 
-  String _sym(String c) => {'EUR': '€', 'USD': '\$', 'SYP': 'ل.س', 'GBP': '£', 'DKK': 'kr'}[c] ?? c;
+  String _sym(String c) => {'EUR': '€', 'USD': '\$', 'SYP': 'SYP ', 'GBP': '£', 'DKK': 'kr'}[c] ?? c;
 
   String _formatNum(dynamic n) {
     final d = (n is num) ? n.toDouble() : double.tryParse(n.toString()) ?? 0;
@@ -384,7 +384,7 @@ class _WalletCardIssueSheetState extends State<_WalletCardIssueSheet> {
             final balance = w['balance']?.toString() ?? '0';
             return GestureDetector(
               onTap: hasCard ? () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ كل محفظة يحق لها بطاقة واحدة فقط'), backgroundColor: Color(0xFFEF4444)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).oneCardPerWallet), backgroundColor: const Color(0xFFEF4444)));
               } : () => setState(() => _selectedWalletId = id),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),

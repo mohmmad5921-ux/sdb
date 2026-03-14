@@ -53,7 +53,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           return;
         }
         final didAuth = await _auth.authenticate(
-          localizedReason: 'تفعيل تسجيل الدخول بالبصمة',
+          localizedReason: L10n.of(context).biometricLogin,
           options: const AuthenticationOptions(biometricOnly: true),
         );
         if (didAuth) {
@@ -115,16 +115,16 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               onPressed: () {
                 if (newCtrl.text != confirmCtrl.text) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('كلمات السر غير متطابقة'), backgroundColor: AppTheme.danger),
+                    SnackBar(content: Text(L10n.of(context).passwordsNotMatch), backgroundColor: AppTheme.danger),
                   );
                   return;
                 }
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تم تغيير كلمة السر ✓'), backgroundColor: AppTheme.primary),
+                  SnackBar(content: Text(L10n.of(context).passwordChangedSuccess), backgroundColor: AppTheme.primary),
                 );
               },
-              child: const Text('تغيير'),
+              child: Text(L10n.of(context).change),
             ),
           ),
         ]),
@@ -154,7 +154,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   Widget build(BuildContext context) {
     final t = L10n.of(context);
     final provider = L10n.providerOf(context);
-    final langDisplay = provider.isArabic ? 'العربية' : 'English';
+    final langDisplay = provider.locale.languageCode == 'ar' ? 'العربية' : provider.locale.languageCode == 'tr' ? 'Türkçe' : provider.locale.languageCode == 'da' ? 'Dansk' : provider.locale.languageCode == 'de' ? 'Deutsch' : provider.locale.languageCode == 'fr' ? 'Français' : provider.locale.languageCode == 'sv' ? 'Svenska' : 'English';
 
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
