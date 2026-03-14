@@ -92,7 +92,7 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
     final isEnabled = await BiometricService.isEnabled();
     if (!isEnabled) return;
 
-    final didAuth = await BiometricService.authenticate(reason: 'تحقق من هويتك للدخول');
+    final didAuth = await BiometricService.authenticate(reason: _localeProvider.strings.biometricLogin);
     if (!didAuth && mounted) {
       // If failed, navigate to login
       navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (r) => false);
@@ -110,7 +110,7 @@ class _SDBAppState extends State<SDBApp> with WidgetsBindingObserver {
         title: 'SDB Banking',
         theme: AppTheme.darkTheme,
         locale: _localeProvider.locale,
-        supportedLocales: const [Locale('ar'), Locale('en')],
+        supportedLocales: const [Locale('en'), Locale('ar'), Locale('tr'), Locale('da'), Locale('de'), Locale('fr'), Locale('sv')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

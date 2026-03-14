@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'translations_extra.dart';
 
@@ -1298,8 +1299,9 @@ const arStrings = AppStrings(
 
 /// Provider to manage locale across the app
 class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('ar');
-  AppStrings _strings = arStrings;
+  Locale _locale = const Locale('en');
+  AppStrings _strings = enStrings;
+  static const _kLangPref = 'app_language_code';
 
   Locale get locale => _locale;
   AppStrings get strings => _strings;
@@ -1310,23 +1312,48 @@ class LocaleProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSavedLocale() async {
-    // Always read iOS per-app language setting (system locale)
-    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    _applyByCode(systemLocale.languageCode);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_kLangPref);
+      if (saved != null && saved.isNotEmpty) {
+        // User has a saved language preference — use it
+        _applyByCode(saved);
+      } else {
+        // No saved preference — read system locale as initial default
+        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        _applyByCode(systemLocale.languageCode);
+      }
+    } catch (_) {
+      // Fallback to English
+      _applyByCode('en');
+    }
     notifyListeners();
   }
 
-  /// Called on app resume to pick up iOS Settings language changes
-  void refreshFromSystem() {
-    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    if (systemLocale.languageCode != _locale.languageCode) {
-      _applyByCode(systemLocale.languageCode);
-      notifyListeners();
-    }
+  /// Called on app resume — only refresh if user has NOT set a preference
+  void refreshFromSystem() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_kLangPref);
+      if (saved == null || saved.isEmpty) {
+        // No user preference saved — follow system locale
+        final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        if (systemLocale.languageCode != _locale.languageCode) {
+          _applyByCode(systemLocale.languageCode);
+          notifyListeners();
+        }
+      }
+      // If user has saved a preference, DON'T override it
+    } catch (_) {}
   }
 
   void setLanguage(String languageName) async {
     _applyLanguage(languageName);
+    // SAVE the user's choice so it persists across app restarts
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kLangPref, _locale.languageCode);
+    } catch (_) {}
     notifyListeners();
   }
 
@@ -1361,8 +1388,8 @@ class LocaleProvider extends ChangeNotifier {
         _strings = enStrings;
         break;
       default:
-        _locale = const Locale('ar');
-        _strings = arStrings;
+        _locale = const Locale('en');
+        _strings = enStrings;
         break;
     }
   }
@@ -1388,8 +1415,10 @@ class LocaleProvider extends ChangeNotifier {
         _applyByCode('sv');
         break;
       case 'العربية':
-      default:
         _applyByCode('ar');
+        break;
+      default:
+        _applyByCode('en');
         break;
     }
   }
