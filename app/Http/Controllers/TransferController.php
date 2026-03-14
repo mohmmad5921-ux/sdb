@@ -170,6 +170,7 @@ class TransferController extends Controller
                     'status' => 'completed',
                     'description' => $request->note ?? 'تحويل داخلي',
                     'reference' => $reference,
+                    'reference_number' => $reference,
                 ]);
             });
 
