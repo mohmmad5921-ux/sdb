@@ -51,7 +51,12 @@ class _MoreTabState extends State<MoreTab> {
     final r = await ApiService.getProfile();
     if (mounted) {
       if (r['success'] == true) {
-        setState(() { _user = r['data']?['user'] ?? r['data']; _loading = false; });
+        final user = r['data']?['user'] ?? r['data'];
+        setState(() {
+          _user = user;
+          _twoFactor = user?['sms_2fa_enabled'] == true || user?['sms_2fa_enabled'] == 1;
+          _loading = false;
+        });
       } else {
         setState(() => _loading = false);
       }
@@ -113,6 +118,25 @@ class _MoreTabState extends State<MoreTab> {
         content: Text(newVal ? '${t.notifications} ${t.enabled} ✓' : '${t.notifications} ${t.disabled}'),
         backgroundColor: newVal ? AppTheme.primary : AppTheme.textSecondary,
       ));
+    }
+  }
+
+  Future<void> _toggle2fa() async {
+    final r = await ApiService.toggle2fa();
+    if (mounted) {
+      if (r['success'] == true) {
+        final enabled = r['data']?['sms_2fa_enabled'] == true;
+        setState(() => _twoFactor = enabled);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(enabled ? 'تم تفعيل التحقق بخطوتين ✓' : 'تم تعطيل التحقق بخطوتين'),
+          backgroundColor: enabled ? AppTheme.primary : AppTheme.textSecondary,
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('حدث خطأ — حاول مرة أخرى'),
+          backgroundColor: AppTheme.danger,
+        ));
+      }
     }
   }
 
@@ -369,7 +393,7 @@ class _MoreTabState extends State<MoreTab> {
             // Security
             _buildSection(t.sectionSecurity, [
               _buildRow(Icons.fingerprint, t.biometricLogin, subtitle: t.biometricSubtitle, right: _toggle(_biometrics, _toggleBiometric)),
-              _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: t.twoFactorSubtitle, right: _toggle(_twoFactor, () => setState(() => _twoFactor = !_twoFactor))),
+              _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: t.twoFactorSubtitle, right: _toggle(_twoFactor, _toggle2fa)),
               _buildRow(Icons.key, t.changePassword, onTap: _showChangePassword),
             ]),
             const SizedBox(height: 16),

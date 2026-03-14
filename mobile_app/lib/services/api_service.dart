@@ -293,6 +293,11 @@ class ApiService {
     return {'success': response.statusCode == 200, 'data': jsonDecode(body), 'status': response.statusCode};
   }
 
+  /// Toggle SMS 2FA on/off
+  static Future<Map<String, dynamic>> toggle2fa() async {
+    return _post('/security/toggle-2fa', {});
+  }
+
   // Upload receipt for a transaction
   static Future<Map<String, dynamic>> uploadTransactionReceipt(int transactionId, String filePath) async {
     try {

@@ -314,6 +314,22 @@ class MobileApiController extends Controller
         ]);
     }
 
+    /**
+     * Toggle SMS 2FA on/off
+     * No re-verification needed — phone already verified at registration
+     */
+    public function toggle2fa(Request $request)
+    {
+        $user = $request->user();
+        $enabled = !$user->sms_2fa_enabled;
+        $user->update(['sms_2fa_enabled' => $enabled]);
+
+        return response()->json([
+            'message' => $enabled ? 'SMS 2FA enabled' : 'SMS 2FA disabled',
+            'sms_2fa_enabled' => $enabled,
+        ]);
+    }
+
     /* ==================== PHONE VERIFICATION (Twilio SMS/WhatsApp) ==================== */
 
     public function sendVerification(Request $request)

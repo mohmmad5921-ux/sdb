@@ -43,6 +43,7 @@ class User extends Authenticatable
         'document_type',
         'document_expiry',
         'sex',
+        'sms_2fa_enabled',
     ];
 
     protected static function booted(): void
