@@ -107,7 +107,7 @@ class UserController extends Controller
 
     public function updateStatus(Request $request, User $user)
     {
-        $request->validate(['status' => 'required|in:pending,active,suspended,blocked']);
+        $request->validate(['status' => 'required|in:pending,active,suspended,blocked,subscription_required']);
         $old = $user->status;
         $user->update(['status' => $request->status]);
 
@@ -176,16 +176,22 @@ class UserController extends Controller
         $old = $user->kyc_status;
         $user->update(['kyc_status' => $request->kyc_status]);
         if ($request->kyc_status === 'verified' && $user->status === 'pending') {
-            $user->update(['status' => 'active']);
+            $user->update(['status' => 'subscription_required']);
+
+            // Create bank accounts for the user
+            if ($user->accounts()->count() === 0) {
+                $this->createUserAccounts($user);
+            }
         }
 
-        // Send notification + push to customer
+        // Send notification + push + email to customer
         try {
             if ($request->kyc_status === 'verified') {
                 $t = 'تم تفعيل حسابك ✅';
                 $b = 'تهانينا! تم التحقق من هويتك وتفعيل حسابك بنجاح. يمكنك الآن استخدام جميع خدمات SDB Bank.';
                 \App\Models\Notification::create(['user_id' => $user->id, 'title' => $t, 'body' => $b, 'type' => 'system']);
                 FcmService::sendToUser($user->id, $t, $b);
+                Mail::to($user->email)->send(new \App\Mail\AccountActivated($user));
             } elseif ($request->kyc_status === 'rejected') {
                 $t = 'يرجى تحديث مستنداتك ⚠️';
                 $b = 'لم نتمكن من التحقق من هويتك. يرجى مراجعة المستندات المرفوعة والتأكد من صحتها ثم إعادة المحاولة.';
