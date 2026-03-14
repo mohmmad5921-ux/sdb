@@ -111,16 +111,16 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
         ? cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.front, orElse: () => cameras.first)
         : cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
 
-      _controller = CameraController(camera, ResolutionPreset.medium, enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
+      _controller = CameraController(camera, ResolutionPreset.high, enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
       await _controller!.initialize();
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
           _error = null;
-          _statusText = widget.isSelfie ? 'ضع وجهك داخل الإطار' : 'وجّه الكاميرا نحو المستند';
+          _autoDetecting = false;
+          _statusText = widget.isSelfie ? 'ضع وجهك داخل الإطار' : 'اضغط الزر لالتقاط صورة المستند';
         });
-        if (!widget.isSelfie) _startAutoDetection();
       }
     } catch (e) {
       debugPrint('Camera init error: $e');
@@ -236,7 +236,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
 
         if (!_isCaptured)
           Positioned.fill(child: CustomPaint(
-            painter: widget.isSelfie ? _SelfiePainter() : _ScannerPainter(_scanLinePos / 100),
+            painter: widget.isSelfie ? _SelfiePainter() : _ScannerPainter(_scanLinePos / 100, widget.docType),
           )),
 
         if (_error != null)
@@ -355,12 +355,15 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> with Widg
 // ─── Document Scanner Frame ───
 class _ScannerPainter extends CustomPainter {
   final double progress;
-  _ScannerPainter(this.progress);
+  final String docType;
+  _ScannerPainter(this.progress, this.docType);
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
-    final fw = w * 0.88, fh = fw * 0.63;
+    // Passport: taller (ISO ratio ~1.42), ID/license: wider
+    final ratio = docType == 'passport' ? 1.42 : 0.63;
+    final fw = w * 0.88, fh = fw * ratio;
     final l = (w - fw) / 2, t = (h - fh) / 2 - 40;
     final r = l + fw, b = t + fh;
     final rect = Rect.fromLTRB(l, t, r, b);
@@ -389,7 +392,7 @@ class _ScannerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ScannerPainter old) => old.progress != progress;
+  bool shouldRepaint(covariant _ScannerPainter old) => old.progress != progress || old.docType != docType;
 }
 
 // ─── Selfie Frame ───
