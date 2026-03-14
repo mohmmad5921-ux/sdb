@@ -411,6 +411,7 @@ class _MoreTabState extends State<MoreTab> {
 
             // Security
             _buildSection(t.sectionSecurity, [
+              _buildRow(Icons.fingerprint, t.biometricSubtitle, subtitle: _biometrics ? t.enabled : t.disabled, right: _toggle(_biometrics, _toggleBiometric)),
               _buildRow(Icons.lock_outline, t.twoFactorAuth, subtitle: t.twoFactorSubtitle, right: _toggle(_twoFactor, _toggle2fa)),
             ]),
             const SizedBox(height: 16),

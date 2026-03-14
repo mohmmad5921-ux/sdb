@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>SDB Bank needs camera access to scan your identity documents for account verification</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>SDB Bank uses Face ID to securely authenticate your identity</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
