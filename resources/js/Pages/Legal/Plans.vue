@@ -15,15 +15,15 @@ const t = computed(() => isAr.value ? {
   persTag:'حسابات شخصية',persTitle:'للأفراد',persSub:'حساب رقمي شامل مع بطاقات Mastercard وتحويلات عالمية.',
   bizTag:'حسابات تجارية',bizTitle:'للشركات',bizSub:'حلول مصرفية متكاملة لإدارة أعمالك.',
   personal:[
-    {n:'Personal',p:'€9.99',p2:'/شهر',c:'#9FE870',cDark:'#2D6A00',pop:false,ic:'⭐',target:'للأفراد',link:'/preregister?plan=personal',feats:[
+    {n:'Personal',p:'€9.99',p2:'/شهر',c:'#9FE870',cDark:'#2D6A00',pop:false,ic:'⭐',target:'للأفراد',link:'/preregister?type=personal&plan=personal',feats:[
       {t:'5 بطاقات Mastercard',h:true},{t:'5 حسابات',h:true},{t:'عمولة تحويل 2.5%',h:false},{t:'عمولة إيداع 2%',h:false},{t:'صرف عملات +3%',h:false},{t:'تداول كريبتو 2%',h:false},{t:'AI مساعد ذكي',h:true},{t:'تأمين ضد الاحتيال',h:true}
     ]},
-    {n:'Plus',p:'€19.99',p2:'/شهر',c:'#7C3AED',cDark:'#4C1D95',pop:true,ic:'💎',target:'للعملاء المتقدمين',link:'/preregister?plan=plus',feats:[
+    {n:'Plus',p:'€19.99',p2:'/شهر',c:'#7C3AED',cDark:'#4C1D95',pop:true,ic:'💎',target:'للعملاء المتقدمين',link:'/preregister?type=personal&plan=plus',feats:[
       {t:'5 بطاقات Mastercard',h:true},{t:'5 حسابات',h:true},{t:'عمولة تحويل 1.5%',h:true},{t:'عمولة إيداع 1%',h:true},{t:'صرف عملات +1.5%',h:true},{t:'تداول كريبتو 1%',h:true},{t:'كاشباك 1%',h:true},{t:'AI مساعد ذكي',h:true},{t:'تأمين ضد الاحتيال',h:true},{t:'دعم أولوية',h:true}
     ]},
   ],
   business:[
-    {n:'Business',p:'€49',p2:'/شهر',c:'#3B82F6',cDark:'#1E3A5F',pop:false,ic:'🏢',target:'للشركات والمشاريع',link:'/preregister?plan=business',feats:[
+    {n:'Business',p:'€49',p2:'/شهر',c:'#3B82F6',cDark:'#1E3A5F',pop:false,ic:'🏢',target:'للشركات والمشاريع',link:'/preregister?type=business&plan=business',feats:[
       {t:'5 بطاقات Mastercard',h:true},{t:'5 حسابات',h:true},{t:'عمولة تحويل 1%',h:true},{t:'عمولة إيداع 0.8%',h:true},{t:'صرف عملات +1%',h:true},{t:'Payment Gateway',h:true},{t:'Net Bank Business',h:true},{t:'نظام محاسبة',h:true},{t:'فواتير',h:true},{t:'API Access',h:true},{t:'AI مساعد ذكي',h:true},{t:'تأمين ضد الاحتيال',h:true},{t:'دعم أولوية',h:true}
     ]},
     {n:'Enterprise',p:'مخصص',p2:'',c:'#F59E0B',cDark:'#78350F',pop:false,ic:'🚀',target:'للمؤسسات الكبيرة',link:'/contact',feats:[
@@ -76,15 +76,15 @@ const t = computed(() => isAr.value ? {
   persTag:'PERSONAL ACCOUNTS',persTitle:'For individuals',persSub:'Complete digital account with Mastercard cards and global transfers.',
   bizTag:'BUSINESS ACCOUNTS',bizTitle:'For companies',bizSub:'Complete banking solutions for your business.',
   personal:[
-    {n:'Personal',p:'€9.99',p2:'/month',c:'#9FE870',cDark:'#2D6A00',pop:false,ic:'⭐',target:'For individuals',link:'/preregister?plan=personal',feats:[
+    {n:'Personal',p:'€9.99',p2:'/month',c:'#9FE870',cDark:'#2D6A00',pop:false,ic:'⭐',target:'For individuals',link:'/preregister?type=personal&plan=personal',feats:[
       {t:'5 Mastercard cards',h:true},{t:'5 accounts',h:true},{t:'2.5% transfer fee',h:false},{t:'2% deposit fee',h:false},{t:'+3% currency exchange',h:false},{t:'2% crypto trading',h:false},{t:'AI assistant',h:true},{t:'Fraud protection',h:true}
     ]},
-    {n:'Plus',p:'€19.99',p2:'/month',c:'#7C3AED',cDark:'#4C1D95',pop:true,ic:'💎',target:'For advanced users',link:'/preregister?plan=plus',feats:[
+    {n:'Plus',p:'€19.99',p2:'/month',c:'#7C3AED',cDark:'#4C1D95',pop:true,ic:'💎',target:'For advanced users',link:'/preregister?type=personal&plan=plus',feats:[
       {t:'5 Mastercard cards',h:true},{t:'5 accounts',h:true},{t:'1.5% transfer fee',h:true},{t:'1% deposit fee',h:true},{t:'+1.5% currency exchange',h:true},{t:'1% crypto trading',h:true},{t:'1% Cashback',h:true},{t:'AI assistant',h:true},{t:'Fraud protection',h:true},{t:'Priority support',h:true}
     ]},
   ],
   business:[
-    {n:'Business',p:'€49',p2:'/month',c:'#3B82F6',cDark:'#1E3A5F',pop:false,ic:'🏢',target:'Companies & startups',link:'/preregister?plan=business',feats:[
+    {n:'Business',p:'€49',p2:'/month',c:'#3B82F6',cDark:'#1E3A5F',pop:false,ic:'🏢',target:'Companies & startups',link:'/preregister?type=business&plan=business',feats:[
       {t:'5 Mastercard cards',h:true},{t:'5 accounts',h:true},{t:'1% transfer fee',h:true},{t:'0.8% deposit fee',h:true},{t:'+1% currency exchange',h:true},{t:'Payment Gateway',h:true},{t:'Net Bank Business',h:true},{t:'Accounting system',h:true},{t:'Invoicing',h:true},{t:'API Access',h:true},{t:'AI assistant',h:true},{t:'Fraud protection',h:true},{t:'Priority support',h:true}
     ]},
     {n:'Enterprise',p:'Custom',p2:'',c:'#F59E0B',cDark:'#78350F',pop:false,ic:'🚀',target:'Large enterprises',link:'/contact',feats:[
