@@ -228,12 +228,12 @@ const megaNav = computed(() => isAr.value ? [
     { title:'أنواع الحسابات', links:[
       {l:'حساب شخصي',h:'/personal',d:'حساب مجاني لكل فرد'},
       {l:'حساب تجاري',h:'/business',d:'للشركات ورجال الأعمال'},
-      {l:'حساب عائلي',h:'/family',d:'بطاقات للأطفال مع تحكم الأهل'},
-      {l:'حساب توفير',h:'/savings',d:'أدوات ادخار ذكية'},
+      {l:'حساب عائلي',h:'/family',d:'بطاقات للأطفال مع تحكم الأهل (قريباً)'},
+      {l:'حساب توفير',h:'/savings',d:'أدوات ادخار ذكية (قريباً)'},
     ]},
     { title:'الباقات', links:[
       {l:'مقارنة الباقات',h:'/plans',d:'Personal · Plus · Business · Enterprise'},
-      {l:'المعاشات',h:'/salary',d:'استلام راتبك مباشرة'},
+      {l:'المعاشات',h:'/salary',d:'استلام راتبك مباشرة (قريباً)'},
     ]},
   ]},
   { id:'cards', label:'البطاقات', cols:[
@@ -292,12 +292,12 @@ const megaNav = computed(() => isAr.value ? [
     { title:'Account Types', links:[
       {l:'Personal',h:'/personal',d:'Free account for everyone'},
       {l:'Business',h:'/business',d:'For companies & entrepreneurs'},
-      {l:'Family',h:'/family',d:'Kids cards with parental controls'},
-      {l:'Savings',h:'/savings',d:'Smart saving tools'},
+      {l:'Family',h:'/family',d:'Kids cards with parental controls (Coming Soon)'},
+      {l:'Savings',h:'/savings',d:'Smart saving tools (Coming Soon)'},
     ]},
     { title:'Plans', links:[
       {l:'Compare Plans',h:'/plans',d:'Personal · Plus · Business · Enterprise'},
-      {l:'Salary',h:'/salary',d:'Receive your salary directly'},
+      {l:'Salary',h:'/salary',d:'Receive your salary directly (Coming Soon)'},
     ]},
   ]},
   { id:'cards', label:'Cards', cols:[
