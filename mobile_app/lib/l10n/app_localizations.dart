@@ -953,7 +953,7 @@ const enStrings = AppStrings(
   enterVerificationCode: 'Enter verification code',
   confirmCode: 'Confirm Code',
   phoneVerifiedSuccess: 'Your phone number has been verified successfully',
-  didntReceiveCode: 'Didn't receive the code? ',
+  didntReceiveCode: "Didn't receive the code? ",
   sessionExpired: 'Session expired — please log in again',
   registerNewOrLogin: 'Register a new account or use your email to log in',
   loginTitle: 'Log In',

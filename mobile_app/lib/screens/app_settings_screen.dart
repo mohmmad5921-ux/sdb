@@ -154,6 +154,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   Widget build(BuildContext context) {
     final t = L10n.of(context);
     final provider = L10n.providerOf(context);
+    debugPrint('🔍 DEBUG LANG: locale=${provider.locale.languageCode} appSettings="${t.appSettings}" navHome="${t.navHome}" myWallets="${t.myWallets}"');
     final langDisplay = provider.locale.languageCode == 'ar' ? 'العربية' : provider.locale.languageCode == 'tr' ? 'Türkçe' : provider.locale.languageCode == 'da' ? 'Dansk' : provider.locale.languageCode == 'de' ? 'Deutsch' : provider.locale.languageCode == 'fr' ? 'Français' : provider.locale.languageCode == 'sv' ? 'Svenska' : 'English';
 
     return Scaffold(
