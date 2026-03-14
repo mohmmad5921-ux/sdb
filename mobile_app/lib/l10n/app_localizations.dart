@@ -231,6 +231,42 @@ class AppStrings {
   final String settingUpdateFailed;
   final String cardsTitle;
 
+  // Wallet & Card request
+  final String requestNewCard;
+  final String mastercardDigital;
+  final String linkCardToWallet;
+  final String hasCard;
+  final String agreeTermsCard;
+  final String issueCardBtn;
+  final String manageCard;
+  final String cardFrozenLabel;
+  final String noWalletsAvailable;
+  final String oneCardPerWallet;
+
+  // Insights
+  final String insights;
+  final String selectPeriod;
+  final String timePeriod;
+  final String categories;
+  final String accounts;
+  final String allAccounts;
+  final String noDataPeriod;
+  final String noData;
+  final String recurringOps;
+  final String recipients;
+  final String nOps;
+
+  // Transfer extras 2
+  final String scheduleTransfer;
+  final String scheduleAutoTransfer;
+  final String repetition;
+  final String transferScheduled;
+  final String selectAccount;
+  final String sendVia;
+  final String phoneNumber;
+  final String selectTheme;
+  final String settings;
+
   const AppStrings({
     required this.welcomeBack,
     required this.createAccount,
@@ -419,6 +455,36 @@ class AppStrings {
     required this.connectionErrorShort,
     required this.settingUpdateFailed,
     required this.cardsTitle,
+    required this.requestNewCard,
+    required this.mastercardDigital,
+    required this.linkCardToWallet,
+    required this.hasCard,
+    required this.agreeTermsCard,
+    required this.issueCardBtn,
+    required this.manageCard,
+    required this.cardFrozenLabel,
+    required this.noWalletsAvailable,
+    required this.oneCardPerWallet,
+    required this.insights,
+    required this.selectPeriod,
+    required this.timePeriod,
+    required this.categories,
+    required this.accounts,
+    required this.allAccounts,
+    required this.noDataPeriod,
+    required this.noData,
+    required this.recurringOps,
+    required this.recipients,
+    required this.nOps,
+    required this.scheduleTransfer,
+    required this.scheduleAutoTransfer,
+    required this.repetition,
+    required this.transferScheduled,
+    required this.selectAccount,
+    required this.sendVia,
+    required this.phoneNumber,
+    required this.selectTheme,
+    required this.settings,
   });
 }
 
@@ -610,6 +676,36 @@ const enStrings = AppStrings(
   connectionErrorShort: 'Connection error',
   settingUpdateFailed: 'Setting update failed',
   cardsTitle: 'Cards',
+  requestNewCard: 'Request New Card',
+  mastercardDigital: 'Digital Mastercard for online and in-store payments',
+  linkCardToWallet: 'Link Card to Wallet',
+  hasCard: 'Has card',
+  agreeTermsCard: 'I agree to the card issuance terms and conditions and privacy policy',
+  issueCardBtn: 'Issue Card',
+  manageCard: 'Manage Card',
+  cardFrozenLabel: 'Card Frozen',
+  noWalletsAvailable: 'No wallets available',
+  oneCardPerWallet: '⚠️ Each wallet is entitled to only one card',
+  insights: 'Insights',
+  selectPeriod: 'Select Period',
+  timePeriod: 'Time Period',
+  categories: 'Categories',
+  accounts: 'Accounts',
+  allAccounts: 'All Accounts',
+  noDataPeriod: 'No data for this period',
+  noData: 'No data',
+  recurringOps: 'Recurring Operations',
+  recipients: 'Recipients',
+  nOps: 'operations',
+  scheduleTransfer: 'Schedule Transfer',
+  scheduleAutoTransfer: 'Schedule automatic transfer',
+  repetition: 'Repetition',
+  transferScheduled: 'Transfer scheduled ✅',
+  selectAccount: 'Select Account',
+  sendVia: 'Send via',
+  phoneNumber: 'Phone Number',
+  selectTheme: 'Select Theme',
+  settings: 'Settings',
 );
 
 const arStrings = AppStrings(
@@ -800,6 +896,36 @@ const arStrings = AppStrings(
   connectionErrorShort: 'خطأ اتصال',
   settingUpdateFailed: 'فشل تحديث الإعداد',
   cardsTitle: 'البطاقات',
+  requestNewCard: 'طلب بطاقة جديدة',
+  mastercardDigital: 'بطاقة Mastercard رقمية للدفع أونلاين وفي المتاجر',
+  linkCardToWallet: 'ربط البطاقة بالمحفظة',
+  hasCard: 'يوجد بطاقة',
+  agreeTermsCard: 'أوافق على شروط وأحكام إصدار البطاقة وسياسة الخصوصية',
+  issueCardBtn: 'إصدار البطاقة',
+  manageCard: 'إدارة البطاقة',
+  cardFrozenLabel: 'بطاقة مجمّدة',
+  noWalletsAvailable: 'لا توجد محافظ متاحة',
+  oneCardPerWallet: '⚠️ كل محفظة يحق لها بطاقة واحدة فقط',
+  insights: 'الإحصائيات',
+  selectPeriod: 'اختر الفترة',
+  timePeriod: 'الفترة الزمنية',
+  categories: 'الفئات',
+  accounts: 'الحسابات',
+  allAccounts: 'جميع الحسابات',
+  noDataPeriod: 'لا توجد بيانات لهذه الفترة',
+  noData: 'لا توجد بيانات',
+  recurringOps: 'عمليات متكررة',
+  recipients: 'المستلمون',
+  nOps: 'عملية',
+  scheduleTransfer: 'جدولة التحويل',
+  scheduleAutoTransfer: 'جدولة تحويل تلقائي',
+  repetition: 'التكرار',
+  transferScheduled: 'تم جدولة التحويل ✅',
+  selectAccount: 'اختر حساب',
+  sendVia: 'إرسال عبر',
+  phoneNumber: 'رقم هاتف',
+  selectTheme: 'اختر المظهر',
+  settings: 'الإعدادات',
 );
 
 /// Provider to manage locale across the app

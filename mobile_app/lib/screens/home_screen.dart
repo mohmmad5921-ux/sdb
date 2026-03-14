@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _authenticateWithBiometric() async {
     try {
       final authenticated = await BiometricService.authenticate(
-        reason: 'تحقق من هويتك للدخول إلى حسابك',
+        reason: L10n.of(context).biometricLogin,
       );
       if (mounted && authenticated) {
         setState(() => _isLocked = false);
@@ -133,9 +133,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(0, Icons.home_rounded, t.navHome),
-                _buildNavItem(1, Icons.account_balance_wallet_rounded, 'المحفظة'),
+                _buildNavItem(1, Icons.account_balance_wallet_rounded, t.myWallets),
                 _buildNavItem(2, Icons.swap_vert_rounded, t.navPayments),
-                _buildNavItem(3, Icons.insights_rounded, 'الإحصائيات'),
+                _buildNavItem(3, Icons.insights_rounded, t.navActivity),
                 _buildNavItem(4, Icons.person_rounded, t.navProfile),
               ],
             ),
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             const SizedBox(height: 16),
 
             Text(
-              'مرحباً بعودتك، $_userName',
+              '${t.welcomeBack}, $_userName',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
             ),
 

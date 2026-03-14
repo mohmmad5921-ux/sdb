@@ -99,7 +99,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(20)),
-                    child: const Text('استكشف', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                    child: Text(L10n.of(context).explore, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -289,8 +289,8 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                     const SizedBox(width: 14),
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('كيف يمكنني مساعدتك؟', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                      Text('اسأل مساعد SDB الذكي عن حسابك', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                      Text(L10n.of(context).howCanIHelp, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                      Text(L10n.of(context).askAssistant, style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
                     ])),
                     Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppTheme.textMuted),
                   ]),

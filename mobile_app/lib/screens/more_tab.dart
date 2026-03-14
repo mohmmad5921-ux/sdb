@@ -86,16 +86,16 @@ class _MoreTabState extends State<MoreTab> {
         final can = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
         if (!can) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('المصادقة البيومترية غير متوفرة'), backgroundColor: AppTheme.danger));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).biometricNotAvailable), backgroundColor: AppTheme.danger));
           }
           return;
         }
-        final didAuth = await _auth.authenticate(localizedReason: 'تفعيل تسجيل الدخول بالبصمة', options: const AuthenticationOptions(biometricOnly: true));
+        final didAuth = await _auth.authenticate(localizedReason: L10n.of(context).biometricLogin, options: const AuthenticationOptions(biometricOnly: true));
         if (didAuth) {
           await _storage.write(key: 'biometric_enabled', value: 'true');
           if (mounted) {
             setState(() => _biometrics = true);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل تسجيل الدخول بالبصمة ✓'), backgroundColor: AppTheme.primary));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).biometricEnabled), backgroundColor: AppTheme.primary));
           }
         }
       } catch (_) {}
@@ -103,7 +103,7 @@ class _MoreTabState extends State<MoreTab> {
       await _storage.write(key: 'biometric_enabled', value: 'false');
       if (mounted) {
         setState(() => _biometrics = false);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تعطيل تسجيل الدخول بالبصمة'), backgroundColor: AppTheme.textSecondary));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).biometricDisabled), backgroundColor: AppTheme.textSecondary));
       }
     }
   }
@@ -128,12 +128,12 @@ class _MoreTabState extends State<MoreTab> {
         final enabled = r['data']?['sms_2fa_enabled'] == true;
         setState(() => _twoFactor = enabled);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(enabled ? 'تم تفعيل التحقق بخطوتين ✓' : 'تم تعطيل التحقق بخطوتين'),
+          content: Text(enabled ? '${L10n.of(context).twoFactorAuth} ${L10n.of(context).enabled} ✓' : '${L10n.of(context).twoFactorAuth} ${L10n.of(context).disabled}'),
           backgroundColor: enabled ? AppTheme.primary : AppTheme.textSecondary,
         ));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('حدث خطأ — حاول مرة أخرى'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(L10n.of(context).errorTryAgain),
           backgroundColor: AppTheme.danger,
         ));
       }
@@ -411,7 +411,7 @@ class _MoreTabState extends State<MoreTab> {
 
             // Preferences
             _buildSection(t.sectionPreferences, [
-              _buildRow(Icons.settings_rounded, 'إعدادات التطبيق', subtitle: 'اللغة، المظهر، الأمان', onTap: () => Navigator.pushNamed(context, '/app-settings')),
+              _buildRow(Icons.settings_rounded, t.appSettings, subtitle: '${t.language}, ${t.appTheme}, ${t.security}', onTap: () => Navigator.pushNamed(context, '/app-settings')),
               _buildRow(Icons.notifications_none, t.notifications, subtitle: _notifications ? t.enabled : t.disabled, right: _toggle(_notifications, _toggleNotifications)),
               _buildRow(Icons.attach_money, t.defaultCurrency, subtitle: _defaultCurrency, onTap: _showCurrencyPicker),
             ]),
@@ -438,7 +438,7 @@ class _MoreTabState extends State<MoreTab> {
             )),
             const SizedBox(height: 16),
 
-            Center(child: Text('SDB Bank v1.0.4 · Syrian Digital Bank', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withValues(alpha: 0.6)))),
+            Center(child: Text('SDB Bank v1.0.4 · ${t.appSubtitle}', style: TextStyle(fontSize: 11, color: AppTheme.textMuted.withValues(alpha: 0.6)))),
           ]),
         ),
       ),
@@ -555,7 +555,7 @@ class _MoreTabState extends State<MoreTab> {
           Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 16),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('اختر أيقونة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const Text('', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             GestureDetector(
               onTap: () => Navigator.pop(context),
               child: const Icon(Icons.close, size: 22, color: AppTheme.textMuted),
@@ -586,7 +586,7 @@ class _MoreTabState extends State<MoreTab> {
                   } catch (e) {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('تعذّر تغيير الأيقونة'), backgroundColor: AppTheme.danger),
+                        SnackBar(content: Text(L10n.of(context).iconChangeFailed), backgroundColor: AppTheme.danger),
                       );
                     }
                   }
