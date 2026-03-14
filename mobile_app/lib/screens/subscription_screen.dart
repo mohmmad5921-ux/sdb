@@ -12,104 +12,76 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProviderStateMixin {
-  int _selectedPlan = 1; // Default to Premium
+  int _selectedPlan = 0; // Default to Personal
   bool _loading = false;
   String? _error;
   late AnimationController _shimmerCtrl;
 
   final List<_Plan> _plans = [
     _Plan(
-      id: 'basic',
-      nameAr: 'أساسي',
-      nameEn: 'Basic',
-      priceMonthly: 0,
-      currency: 'kr',
-      icon: Icons.account_balance_wallet_rounded,
-      color: const Color(0xFF6B7280),
+      id: 'personal',
+      nameAr: 'Personal',
+      nameEn: 'Personal',
+      priceMonthly: 999,
+      displayPrice: '9.99',
+      currency: '€',
+      icon: Icons.star_rounded,
+      color: const Color(0xFF1B5E20),
       features: [
-        'محفظة واحدة (DKK)',
-        'تحويلات محدودة (5/شهر)',
-        'دعم عبر الإيميل',
+        '5 بطاقات Mastercard',
+        '5 حسابات',
+        'عمولة تحويل 2.5%',
+        'عمولة إيداع 2%',
+        'صرف عملات +3%',
+        'تداول كريبتو 2%',
+        'AI مساعد ذكي',
+        'تأمين ضد الاحتيال',
       ],
       featuresEn: [
-        '1 Wallet (DKK)',
-        'Limited transfers (5/mo)',
-        'Email support',
+        '5 Mastercard cards',
+        '5 Accounts',
+        '2.5% Transfer fee',
+        '2% Deposit fee',
+        '+3% FX spread',
+        '2% Crypto trading',
+        'AI Assistant',
+        'Fraud protection',
       ],
     ),
     _Plan(
-      id: 'premium',
-      nameAr: 'بريميوم',
-      nameEn: 'Premium',
-      priceMonthly: 29,
-      currency: 'kr',
+      id: 'plus',
+      nameAr: 'Plus',
+      nameEn: 'Plus',
+      priceMonthly: 1999,
+      displayPrice: '19.99',
+      currency: '€',
       icon: Icons.diamond_rounded,
-      color: const Color(0xFF10B981),
-      badge: '⭐ الأكثر شعبية',
+      color: const Color(0xFF6A1B9A),
+      badge: '⭐ الأكثر طلباً',
       badgeEn: '⭐ Most Popular',
       features: [
-        'محافظ متعددة (5 عملات)',
-        'تحويلات غير محدودة',
-        'بطاقة افتراضية',
-        'خدمة الحوالات الدولية',
+        '5 بطاقات Mastercard',
+        '5 حسابات',
+        'عمولة تحويل 1.5%',
+        'عمولة إيداع 1%',
+        'صرف عملات +1.5%',
+        'تداول كريبتو 1%',
+        'كاشبك 1%',
+        'AI مساعد ذكي',
+        'تأمين ضد الاحتيال',
         'دعم أولوية',
       ],
       featuresEn: [
-        'Multi-currency wallets (5)',
-        'Unlimited transfers',
-        'Virtual card',
-        'International remittance',
+        '5 Mastercard cards',
+        '5 Accounts',
+        '1.5% Transfer fee',
+        '1% Deposit fee',
+        '+1.5% FX spread',
+        '1% Crypto trading',
+        '1% Cashback',
+        'AI Assistant',
+        'Fraud protection',
         'Priority support',
-      ],
-    ),
-    _Plan(
-      id: 'vip',
-      nameAr: 'VIP',
-      nameEn: 'VIP',
-      priceMonthly: 79,
-      currency: 'kr',
-      icon: Icons.workspace_premium_rounded,
-      color: const Color(0xFFD97706),
-      features: [
-        'كل مميزات بريميوم',
-        'بطاقة VISA فيزيائية',
-        'كاش باك 2%',
-        'حوالات مجانية',
-        'مدير حساب شخصي',
-        'تقارير مالية متقدمة',
-      ],
-      featuresEn: [
-        'All Premium features',
-        'Physical VISA card',
-        '2% Cashback',
-        'Free remittances',
-        'Personal account manager',
-        'Advanced financial reports',
-      ],
-    ),
-    _Plan(
-      id: 'business',
-      nameAr: 'أعمال',
-      nameEn: 'Business',
-      priceMonthly: 149,
-      currency: 'kr',
-      icon: Icons.business_center_rounded,
-      color: const Color(0xFF7C3AED),
-      features: [
-        'كل مميزات VIP',
-        'حسابات شركات',
-        'فواتير وإيصالات',
-        'محاسبة تلقائية',
-        'API للمطورين',
-        'دعم 24/7',
-      ],
-      featuresEn: [
-        'All VIP features',
-        'Business accounts',
-        'Invoicing & receipts',
-        'Auto accounting',
-        'Developer API',
-        '24/7 Support',
       ],
     ),
   ];
@@ -299,7 +271,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
           const SizedBox(height: 2),
           // Price
           Text(
-            p.priceMonthly == 0 ? (_isArabic ? 'مجاني' : 'Free') : '${p.priceMonthly} ${p.currency}/${_isArabic ? "شهر" : "mo"}',
+            '${p.displayPrice}${p.currency}/${_isArabic ? "شهر" : "mo"}',
             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: sel ? p.color : const Color(0xFF9CA3AF)),
           ),
         ]),
@@ -330,24 +302,20 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
               Text(_isArabic ? plan.nameAr : plan.nameEn, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
               const SizedBox(height: 2),
               Text(
-                plan.priceMonthly == 0
-                  ? (_isArabic ? 'مجاناً — بدون رسوم' : 'Free — no charges')
-                  : '${plan.priceMonthly} ${plan.currency} / ${_isArabic ? "شهرياً" : "monthly"}',
+                '${plan.displayPrice}${plan.currency} / ${_isArabic ? "شهرياً" : "monthly"}',
                 style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w500),
               ),
             ])),
           ]),
-          if (plan.priceMonthly > 0) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-              child: Text(
-                _isArabic ? '${(plan.priceMonthly * 12 * 0.8).toInt()} kr/سنوياً — وفّر 20%' : '${(plan.priceMonthly * 12 * 0.8).toInt()} kr/year — Save 20%',
-                style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w600),
-              ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              _isArabic ? 'للأفراد' : 'For individuals',
+              style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w600),
             ),
-          ],
+          ),
         ]),
       ),
       const SizedBox(height: 20),
@@ -406,12 +374,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
             child: Center(child: _loading
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
               : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(plan.priceMonthly == 0 ? Icons.rocket_launch_rounded : Icons.lock_rounded, size: 20, color: Colors.white),
+                  const Icon(Icons.lock_rounded, size: 20, color: Colors.white),
                   const SizedBox(width: 10),
                   Text(
-                    plan.priceMonthly == 0
-                      ? (_isArabic ? 'ابدأ مجاناً' : 'Start Free')
-                      : (_isArabic ? 'اشترك الآن — ${plan.priceMonthly} ${plan.currency}/شهر' : 'Subscribe — ${plan.priceMonthly} ${plan.currency}/mo'),
+                    _isArabic ? 'احصل على ${plan.nameEn} ←' : 'Get ${plan.nameEn} →',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
                   ),
                 ])),
@@ -419,13 +385,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
         ),
         const SizedBox(height: 8),
         // Payment methods hint
-        if (plan.priceMonthly > 0)
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.credit_card_rounded, size: 14, color: const Color(0xFF9CA3AF)),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.credit_card_rounded, size: 14, color: Color(0xFF9CA3AF)),
             const SizedBox(width: 6),
-            Icon(Icons.apple_rounded, size: 16, color: const Color(0xFF9CA3AF)),
+            const Icon(Icons.apple_rounded, size: 16, color: Color(0xFF9CA3AF)),
             const SizedBox(width: 6),
-            Icon(Icons.g_mobiledata_rounded, size: 18, color: const Color(0xFF9CA3AF)),
+            const Icon(Icons.g_mobiledata_rounded, size: 18, color: Color(0xFF9CA3AF)),
             const SizedBox(width: 8),
             Text(_isArabic ? 'دفع آمن ومشفر' : 'Secure encrypted payment', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
           ]),
@@ -435,7 +400,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
 }
 
 class _Plan {
-  final String id, nameAr, nameEn, currency;
+  final String id, nameAr, nameEn, currency, displayPrice;
   final int priceMonthly;
   final IconData icon;
   final Color color;
@@ -447,6 +412,7 @@ class _Plan {
     required this.nameAr,
     required this.nameEn,
     required this.priceMonthly,
+    required this.displayPrice,
     required this.currency,
     required this.icon,
     required this.color,
